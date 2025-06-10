@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRoute } from "wouter";
+import { useRoute, Link } from "wouter";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { Button } from "@/components/ui/button";
@@ -282,7 +282,11 @@ export default function BusinessListing() {
                 <span className="ml-1">({business.reviewscount || 0} reviews)</span>
               </div>
               <span>•</span>
-              <span>{business.category?.name || business.categoryname}</span>
+              <Link href={`/categories/${business.category?.slug || business.categoryname?.toLowerCase().replace(/\s+/g, '-')}`}>
+                <span className="text-blue-300 hover:text-blue-100 cursor-pointer hover:underline transition-colors">
+                  {business.category?.name || business.categoryname}
+                </span>
+              </Link>
             </div>
           </div>
         </div>
