@@ -57,12 +57,22 @@ function updateUserSession(
 async function upsertUser(
   claims: any,
 ) {
+  // Check if this is the first user or if user should be admin
+  const existingUser = await storage.getUser(claims["sub"]);
+  const allUsers = await storage.getAllUsers();
+  
+  // Make first user admin, or grant admin to users with admin emails
+  const shouldBeAdmin = allUsers.length === 0 || 
+    claims["email"]?.includes('admin') || 
+    claims["email"]?.endsWith('@replit.com');
+  
   await storage.upsertUser({
     id: claims["sub"],
     email: claims["email"],
     firstName: claims["first_name"],
     lastName: claims["last_name"],
     profileImageUrl: claims["profile_image_url"],
+    role: existingUser?.role || (shouldBeAdmin ? 'admin' : 'user'),
   });
 }
 
