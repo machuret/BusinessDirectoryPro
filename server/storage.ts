@@ -369,15 +369,19 @@ export class DatabaseStorage implements IStorage {
   }
 
   async searchBusinesses(query: string, location?: string): Promise<BusinessWithCategory[]> {
-    const conditions = [
-      or(
-        like(businesses.title, `%${query}%`),
-        like(businesses.description, `%${query}%`),
-        like(businesses.categoryname, `%${query}%`)
-      )
-    ];
+    const conditions = [];
 
-    if (location) {
+    if (query && query.trim()) {
+      conditions.push(
+        or(
+          like(businesses.title, `%${query}%`),
+          like(businesses.description, `%${query}%`),
+          like(businesses.categoryname, `%${query}%`)
+        )
+      );
+    }
+
+    if (location && location.trim()) {
       conditions.push(
         or(
           like(businesses.city, `%${location}%`),
@@ -387,11 +391,15 @@ export class DatabaseStorage implements IStorage {
       );
     }
 
-    const result = await db
+    let queryBuilder = db
       .select()
-      .from(businesses)
-      .where(and(...conditions))
-      .limit(20);
+      .from(businesses);
+
+    if (conditions.length > 0) {
+      queryBuilder = queryBuilder.where(and(...conditions));
+    }
+
+    const result = await queryBuilder.limit(20);
 
     return result as BusinessWithCategory[];
   }
