@@ -31,7 +31,7 @@ export default function Admin() {
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [showBusinessForm, setShowBusinessForm] = useState(false);
   const [showUserForm, setShowUserForm] = useState(false);
-  const [selectedMenuPosition, setSelectedMenuPosition] = useState<string>("header");
+
 
   // Data queries
   const { data: businesses, isLoading: businessesLoading } = useQuery<BusinessWithCategory[]>({
@@ -944,17 +944,18 @@ export default function Admin() {
                               <Button 
                                 size="sm" 
                                 variant="outline"
-                                onClick={() => {
-                                  setEditingMenuItem(item);
-                                  setShowMenuForm(true);
-                                }}
+                                onClick={() => setLocation(`/admin/menu/${item.id}`)}
                               >
                                 Edit
                               </Button>
                               <Button 
                                 size="sm" 
                                 variant="destructive"
-                                onClick={() => deleteMenuItemMutation.mutate(item.id)}
+                                onClick={() => {
+                                  if (confirm('Are you sure you want to delete this menu item?')) {
+                                    deleteMenuItemMutation.mutate(item.id);
+                                  }
+                                }}
                               >
                                 Delete
                               </Button>
@@ -966,11 +967,7 @@ export default function Admin() {
                       ))}
                       <Button 
                         className="w-full"
-                        onClick={() => {
-                          setSelectedMenuPosition('header');
-                          setEditingMenuItem(null);
-                          setShowMenuForm(true);
-                        }}
+                        onClick={() => setLocation('/admin/menu/new')}
                       >
                         Add New Menu Item
                       </Button>
@@ -1000,17 +997,18 @@ export default function Admin() {
                               <Button 
                                 size="sm" 
                                 variant="outline"
-                                onClick={() => {
-                                  setEditingMenuItem(item);
-                                  setShowMenuForm(true);
-                                }}
+                                onClick={() => setLocation(`/admin/menu/${item.id}`)}
                               >
                                 Edit
                               </Button>
                               <Button 
                                 size="sm" 
                                 variant="destructive"
-                                onClick={() => deleteMenuItemMutation.mutate(item.id)}
+                                onClick={() => {
+                                  if (confirm('Are you sure you want to delete this menu item?')) {
+                                    deleteMenuItemMutation.mutate(item.id);
+                                  }
+                                }}
                               >
                                 Delete
                               </Button>
@@ -1022,11 +1020,7 @@ export default function Admin() {
                       ))}
                       <Button 
                         className="w-full"
-                        onClick={() => {
-                          setSelectedMenuPosition('footer');
-                          setEditingMenuItem(null);
-                          setShowMenuForm(true);
-                        }}
+                        onClick={() => setLocation('/admin/menu/new')}
                       >
                         Add New Footer Link
                       </Button>
@@ -1208,115 +1202,7 @@ export default function Admin() {
         </Dialog>
       )}
 
-      {/* Menu Item Form Modal */}
-      {showMenuForm && (
-        <Dialog open={showMenuForm} onOpenChange={() => {
-          setShowMenuForm(false);
-          setEditingMenuItem(null);
-        }}>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>
-                {editingMenuItem ? "Edit Menu Item" : "Add New Menu Item"}
-              </DialogTitle>
-            </DialogHeader>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                const formData = new FormData(e.currentTarget);
-                const menuItemData = {
-                  name: formData.get('name') as string,
-                  url: formData.get('url') as string,
-                  position: formData.get('position') as string,
-                  order: parseInt(formData.get('order') as string) || 0,
-                };
 
-                if (editingMenuItem) {
-                  updateMenuItemMutation.mutate({
-                    id: editingMenuItem.id,
-                    data: menuItemData
-                  });
-                } else {
-                  createMenuItemMutation.mutate(menuItemData);
-                }
-              }}
-              className="space-y-4"
-            >
-              <div>
-                <Label htmlFor="name">Menu Item Name</Label>
-                <Input
-                  id="name"
-                  name="name"
-                  defaultValue={editingMenuItem?.name || ""}
-                  placeholder="e.g., Home, About Us"
-                  required
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="url">URL</Label>
-                <Input
-                  id="url"
-                  name="url"
-                  defaultValue={editingMenuItem?.url || ""}
-                  placeholder="e.g., /, /about, /contact"
-                  required
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="position">Position</Label>
-                <Select name="position" defaultValue={editingMenuItem?.position || selectedMenuPosition}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select position" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="header">Header</SelectItem>
-                    <SelectItem value="footer">Footer</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div>
-                <Label htmlFor="order">Display Order</Label>
-                <Input
-                  id="order"
-                  name="order"
-                  type="number"
-                  defaultValue={editingMenuItem?.order || 0}
-                  placeholder="0"
-                  min="0"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Lower numbers appear first
-                </p>
-              </div>
-              
-              <div className="flex justify-end space-x-2 pt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    setShowMenuForm(false);
-                    setEditingMenuItem(null);
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={createMenuItemMutation.isPending || updateMenuItemMutation.isPending}
-                >
-                  {createMenuItemMutation.isPending || updateMenuItemMutation.isPending 
-                    ? "Saving..." 
-                    : editingMenuItem ? "Update" : "Create"
-                  }
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
-      )}
     </div>
   );
 }
