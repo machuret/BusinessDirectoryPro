@@ -67,7 +67,11 @@ export default function BusinessCard({ business }: BusinessCardProps) {
             <h3 className="text-xl font-semibold text-gray-900 mb-1 line-clamp-1">
               {business.title}
             </h3>
-            <p className="text-gray-600 text-sm">{business.category?.name || business.categoryname}</p>
+            <Link href={`/categories/${business.category?.slug || business.categoryname?.toLowerCase().replace(/\s+/g, '-')}`}>
+              <p className="text-blue-600 hover:text-blue-800 text-sm cursor-pointer hover:underline transition-colors">
+                {business.category?.name || business.categoryname}
+              </p>
+            </Link>
           </div>
           <div className="flex items-center bg-green-100 px-2 py-1 rounded-full ml-3">
             <Star className="w-4 h-4 text-success mr-1" />
