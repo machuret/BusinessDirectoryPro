@@ -24,10 +24,11 @@ export const sessions = pgTable(
   (table) => [index("IDX_session_expire").on(table.expire)],
 );
 
-// User storage table for Replit Auth
+// User storage table for email/password auth
 export const users = pgTable("users", {
-  id: varchar("id").primaryKey().notNull(),
-  email: varchar("email").unique(),
+  id: serial("id").primaryKey(),
+  email: varchar("email").unique().notNull(),
+  password: varchar("password").notNull(),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
@@ -191,8 +192,18 @@ export const siteSettings = pgTable("site_settings", {
 
 // Schema validations
 export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
   createdAt: true,
   updatedAt: true,
+});
+
+export const loginUserSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+});
+
+export const registerUserSchema = insertUserSchema.extend({
+  password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 export const insertCategorySchema = createInsertSchema(categories).omit({
@@ -224,6 +235,7 @@ export const insertSiteSettingSchema = createInsertSchema(siteSettings).omit({
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
+export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertCategory = z.infer<typeof insertCategorySchema>;
 export type Category = typeof categories.$inferSelect;
 export type InsertBusiness = z.infer<typeof insertBusinessSchema>;
