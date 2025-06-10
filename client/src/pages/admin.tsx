@@ -50,6 +50,24 @@ export default function Admin() {
     queryKey: ["/api/categories"]
   });
 
+  // Category management mutations
+  const updateCategoryMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: any }) => {
+      await apiRequest("PATCH", `/api/admin/categories/${id}`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
+      toast({ title: "Category updated successfully" });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Update failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const { data: siteSettings } = useQuery<SiteSetting[]>({
     queryKey: ["/api/admin/site-settings"],
     enabled: !!user?.role && user.role === 'admin'
@@ -227,7 +245,7 @@ export default function Admin() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="businesses" className="flex items-center space-x-2">
             <Building2 className="h-4 w-4" />
             <span>Businesses</span>
@@ -235,6 +253,10 @@ export default function Admin() {
           <TabsTrigger value="users" className="flex items-center space-x-2">
             <Users className="h-4 w-4" />
             <span>Users</span>
+          </TabsTrigger>
+          <TabsTrigger value="categories" className="flex items-center space-x-2">
+            <FileText className="h-4 w-4" />
+            <span>Categories</span>
           </TabsTrigger>
           <TabsTrigger value="claims" className="flex items-center space-x-2">
             <FileText className="h-4 w-4" />
@@ -420,6 +442,116 @@ export default function Admin() {
                       ))}
                     </TableBody>
                   </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Categories Tab */}
+        <TabsContent value="categories" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Category Management</CardTitle>
+              <CardDescription>Edit category titles and descriptions</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {!categories ? (
+                <div className="flex justify-center items-center h-32">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                </div>
+              ) : categories.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  No categories found.
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {categories.map((category) => (
+                    <Card key={category.id} className="border">
+                      <CardContent className="p-6">
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                              <div 
+                                className="w-4 h-4 rounded"
+                                style={{ backgroundColor: category.color || '#6366f1' }}
+                              />
+                              <h3 className="font-semibold text-lg">{category.name}</h3>
+                              <Badge variant="outline" className="text-xs">
+                                ID: {category.id}
+                              </Badge>
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <label className="text-sm font-medium">Category Title</label>
+                              <input
+                                type="text"
+                                defaultValue={category.name}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                onBlur={(e) => {
+                                  if (e.target.value !== category.name) {
+                                    updateCategoryMutation.mutate({
+                                      id: category.id,
+                                      data: { name: e.target.value }
+                                    });
+                                  }
+                                }}
+                              />
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <label className="text-sm font-medium">Color</label>
+                              <input
+                                type="color"
+                                defaultValue={category.color || '#6366f1'}
+                                className="w-full h-10 border border-gray-300 rounded-md"
+                                onChange={(e) => {
+                                  updateCategoryMutation.mutate({
+                                    id: category.id,
+                                    data: { color: e.target.value }
+                                  });
+                                }}
+                              />
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium">Description</label>
+                            <textarea
+                              defaultValue={category.description || ''}
+                              placeholder="Enter category description..."
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[80px]"
+                              onBlur={(e) => {
+                                if (e.target.value !== (category.description || '')) {
+                                  updateCategoryMutation.mutate({
+                                    id: category.id,
+                                    data: { description: e.target.value }
+                                  });
+                                }
+                              }}
+                            />
+                          </div>
+                          
+                          <div className="flex items-center justify-between pt-2 border-t">
+                            <div className="text-sm text-gray-500">
+                              Created: {category.createdAt ? new Date(category.createdAt).toLocaleDateString() : 'N/A'}
+                            </div>
+                            <div className="flex space-x-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                disabled={updateCategoryMutation.isPending}
+                              >
+                                {updateCategoryMutation.isPending ? 'Saving...' : 'Save Changes'}
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
               )}
             </CardContent>
