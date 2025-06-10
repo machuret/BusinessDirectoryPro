@@ -80,8 +80,35 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.email, email));
-    return user;
+    try {
+      // Use raw SQL to avoid schema mismatch issues
+      const result = await db.execute(sql`
+        SELECT id, email, password, first_name as "firstName", last_name as "lastName", 
+               profile_image_url as "profileImageUrl", role, created_at as "createdAt", 
+               updated_at as "updatedAt"
+        FROM users 
+        WHERE email = ${email}
+        LIMIT 1
+      `);
+      
+      if (result.rows.length === 0) return undefined;
+      
+      const row = result.rows[0] as any;
+      return {
+        id: row.id,
+        email: row.email,
+        password: row.password,
+        firstName: row.firstName,
+        lastName: row.lastName,
+        profileImageUrl: row.profileImageUrl,
+        role: row.role,
+        createdAt: row.createdAt,
+        updatedAt: row.updatedAt
+      };
+    } catch (error) {
+      console.error('Error fetching user by email:', error);
+      return undefined;
+    }
   }
 
   async createUser(user: InsertUser): Promise<User> {
