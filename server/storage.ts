@@ -1,4 +1,4 @@
-import { eq, like, and, or, desc, sql, ne } from "drizzle-orm";
+import { eq, like, ilike, and, or, desc, sql, ne } from "drizzle-orm";
 import { db } from "./db";
 import {
   users,
@@ -212,13 +212,36 @@ export class DatabaseStorage implements IStorage {
   } = {}): Promise<BusinessWithCategory[]> {
     const { categoryId, search, city, featured, limit = 50, offset = 0 } = params;
 
-    const result = await db.execute(sql`
-      SELECT * FROM businesses 
-      ORDER BY createdat DESC 
-      LIMIT ${limit} OFFSET ${offset}
-    `);
+    let query = db.select().from(businesses);
+    
+    if (city) {
+      query = query.where(ilike(businesses.city, `%${city}%`));
+    }
+    
+    if (categoryId) {
+      query = query.where(eq(businesses.categoryid, categoryId));
+    }
+    
+    if (search) {
+      query = query.where(
+        or(
+          ilike(businesses.title, `%${search}%`),
+          ilike(businesses.description, `%${search}%`),
+          ilike(businesses.categoryname, `%${search}%`)
+        )
+      );
+    }
+    
+    if (featured) {
+      query = query.where(eq(businesses.featured, true));
+    }
 
-    return result.rows as BusinessWithCategory[];
+    const result = await query
+      .orderBy(desc(businesses.createdat))
+      .limit(limit)
+      .offset(offset);
+
+    return result as BusinessWithCategory[];
   }
 
   async getBusinessById(id: string): Promise<BusinessWithCategory | undefined> {
