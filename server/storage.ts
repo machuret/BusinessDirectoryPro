@@ -42,6 +42,9 @@ export interface IStorage {
   updateCategory(id: number, category: Partial<InsertCategory>): Promise<Category | undefined>;
   deleteCategory(id: number): Promise<void>;
   
+  // City operations
+  getUniqueCities(): Promise<{ city: string; count: number }[]>;
+  
   // Business operations
   getBusinesses(params?: { 
     categoryId?: number; 

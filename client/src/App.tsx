@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import Home from "@/pages/home";
 import Categories from "@/pages/categories";
+import Cities from "@/pages/cities";
 import Featured from "@/pages/featured";
 import BusinessDetail from "@/pages/business-detail";
 import BusinessListing from "@/pages/business-listing";
@@ -32,6 +33,8 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/categories" component={Categories} />
       <Route path="/categories/:slug" component={Categories} />
+      <Route path="/cities" component={Cities} />
+      <Route path="/cities/:city" component={Cities} />
       <Route path="/featured" component={Featured} />
       <Route path="/business/:identifier" component={BusinessListing} />
       <Route path="/businesses/search" component={SearchResults} />

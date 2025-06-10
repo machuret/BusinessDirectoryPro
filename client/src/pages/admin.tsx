@@ -222,6 +222,24 @@ export default function Admin() {
     },
   });
 
+  // Category deletion mutation
+  const deleteCategoryMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest("DELETE", `/api/categories/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
+      toast({ title: "Category deleted successfully" });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Delete failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   // Handle CSV file upload
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -617,6 +635,18 @@ export default function Admin() {
                                 disabled={updateCategoryMutation.isPending}
                               >
                                 {updateCategoryMutation.isPending ? 'Saving...' : 'Save Changes'}
+                              </Button>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                disabled={deleteCategoryMutation.isPending}
+                                onClick={() => {
+                                  if (confirm(`Are you sure you want to delete the category "${category.name}"? This action cannot be undone.`)) {
+                                    deleteCategoryMutation.mutate(category.id);
+                                  }
+                                }}
+                              >
+                                {deleteCategoryMutation.isPending ? 'Deleting...' : 'Delete'}
                               </Button>
                             </div>
                           </div>
