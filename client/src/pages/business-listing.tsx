@@ -22,7 +22,7 @@ import {
   ChevronUp,
   User
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import type { BusinessWithCategory, Review, InsertReview } from "@shared/schema";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -42,10 +42,19 @@ export default function BusinessListing() {
     enabled: !!placeid,
   });
 
-  const { data: reviews } = useQuery<(Review & { user: { firstName: string; lastName: string } })[]>({
-    queryKey: ["/api/businesses", placeid, "reviews"],
-    enabled: !!placeid,
-  });
+  // Parse reviews from business JSON data
+  const importedReviews = useMemo(() => {
+    if (!business?.reviews) return [];
+    try {
+      const parsedReviews = typeof business.reviews === 'string' 
+        ? JSON.parse(business.reviews) 
+        : business.reviews;
+      return Array.isArray(parsedReviews) ? parsedReviews : [];
+    } catch (error) {
+      console.error('Error parsing reviews:', error);
+      return [];
+    }
+  }, [business?.reviews]);
 
   const reviewMutation = useMutation({
     mutationFn: async (reviewData: InsertReview) => {
