@@ -33,7 +33,7 @@ export default function MenuEdit() {
   // Fetch menu item if editing existing item
   const { data: menuItem, isLoading } = useQuery<MenuItem>({
     queryKey: ["/api/admin/menus", id],
-    enabled: !isNewItem && !!id && !!user?.role && user.role === 'admin',
+    enabled: !isNewItem && !!id && !!user && (user as any).role === 'admin',
   });
 
   // Update form data when menu item loads
@@ -123,7 +123,7 @@ export default function MenuEdit() {
   };
 
   // Check if user is admin
-  if (!user?.role || user.role !== 'admin') {
+  if (!user || (user as any).role !== 'admin') {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header />

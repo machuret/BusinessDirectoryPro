@@ -36,17 +36,17 @@ export default function Admin() {
   // Data queries
   const { data: businesses, isLoading: businessesLoading } = useQuery<BusinessWithCategory[]>({
     queryKey: ["/api/admin/businesses"],
-    enabled: !!user?.role && user.role === 'admin'
+    enabled: !!user && (user as any).role === 'admin'
   });
 
   const { data: users, isLoading: usersLoading } = useQuery<User[]>({
     queryKey: ["/api/admin/users"],
-    enabled: !!user?.role && user.role === 'admin'
+    enabled: !!user && (user as any).role === 'admin'
   });
 
   const { data: ownershipClaims, isLoading: claimsLoading } = useQuery<any[]>({
     queryKey: ["/api/ownership-claims"],
-    enabled: !!user?.role && user.role === 'admin'
+    enabled: !!user && (user as any).role === 'admin'
   });
 
   const { data: categories } = useQuery<Category[]>({
@@ -73,12 +73,12 @@ export default function Admin() {
 
   const { data: siteSettings } = useQuery<SiteSetting[]>({
     queryKey: ["/api/admin/site-settings"],
-    enabled: !!user?.role && user.role === 'admin'
+    enabled: !!user && (user as any).role === 'admin'
   });
 
   const { data: menuItems, isLoading: menuItemsLoading } = useQuery<MenuItem[]>({
     queryKey: ["/api/admin/menus"],
-    enabled: !!user?.role && user.role === 'admin'
+    enabled: !!user && (user as any).role === 'admin'
   });
 
   // CSV Import mutation
@@ -271,7 +271,7 @@ export default function Admin() {
   };
 
   // Auth check
-  if (!user || user.role !== 'admin') {
+  if (!user || (user as any).role !== 'admin') {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Card className="w-96">
