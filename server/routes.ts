@@ -524,7 +524,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // CSV Import endpoint
   app.post('/api/admin/import/businesses', isAuthenticated, upload.single('csvFile'), async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const user = await storage.getUser(userId);
       
       if (!user || user.role !== 'admin') {
