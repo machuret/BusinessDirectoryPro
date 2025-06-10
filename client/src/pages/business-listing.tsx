@@ -38,16 +38,11 @@ export default function BusinessListing() {
   const [rating, setRating] = useState(5);
 
   const { data: business, isLoading } = useQuery<BusinessWithCategory>({
-    queryKey: ["/api/businesses", placeid],
+    queryKey: [`/api/businesses/${placeid}`],
     enabled: !!placeid,
   });
 
-  // Debug logging
-  console.log('Business data:', business);
-  console.log('Description:', business?.description);
-  console.log('Phone:', business?.phone);
-  console.log('Address:', business?.address);
-  console.log('Reviews:', business?.reviews);
+
 
   // Parse reviews from business JSON data
   const importedReviews = useMemo(() => {

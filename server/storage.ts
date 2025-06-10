@@ -178,12 +178,7 @@ export class DatabaseStorage implements IStorage {
       .where(eq(businesses.placeid, id))
       .limit(1);
 
-    console.log('Database result for business:', id, {
-      description: result[0]?.description,
-      phone: result[0]?.phone,
-      address: result[0]?.address,
-      reviews: result[0]?.reviews
-    });
+
 
     return result[0] as BusinessWithCategory;
   }
