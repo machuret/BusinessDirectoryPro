@@ -326,7 +326,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin-only user management routes
   app.get('/api/admin/users', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const user = await storage.getUser(userId);
       
       if (!user || user.role !== 'admin') {
@@ -486,7 +486,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/admin/site-settings', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const user = await storage.getUser(userId);
       
       if (!user || user.role !== 'admin') {
