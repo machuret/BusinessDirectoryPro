@@ -35,20 +35,21 @@ export default function BusinessListing() {
   const placeid = params?.placeid;
   const { user } = useAuth();
   const { toast } = useToast();
+  
+  // All useState hooks at the top level
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const [reviewText, setReviewText] = useState("");
   const [rating, setRating] = useState(5);
   const [showClaimModal, setShowClaimModal] = useState(false);
   const [claimMessage, setClaimMessage] = useState("");
 
+  // All useQuery hooks
   const { data: business, isLoading } = useQuery<BusinessWithCategory>({
     queryKey: [`/api/businesses/${placeid}`],
     enabled: !!placeid,
   });
 
-
-
-  // Parse reviews from business JSON data
+  // All useMemo hooks
   const importedReviews = useMemo(() => {
     if (!business?.reviews) return [];
     try {
@@ -62,6 +63,59 @@ export default function BusinessListing() {
     }
   }, [business?.reviews]);
 
+  const displayImages = useMemo(() => {
+    if (!business) return [];
+    
+    // Try images field first (JSON array)
+    if (business.images) {
+      try {
+        const images = typeof business.images === 'string' ? JSON.parse(business.images) : business.images;
+        if (Array.isArray(images) && images.length > 0) return images;
+      } catch (e) {}
+    }
+    
+    // Try imageurls field
+    if (business.imageurls) {
+      try {
+        const imageUrls = typeof business.imageurls === 'string' ? JSON.parse(business.imageurls) : business.imageurls;
+        if (Array.isArray(imageUrls) && imageUrls.length > 0) return imageUrls;
+      } catch (e) {}
+    }
+    
+    // Fallback to single imageurl
+    if (business.imageurl) {
+      return [business.imageurl];
+    }
+    
+    return [];
+  }, [business?.images, business?.imageurls, business?.imageurl]);
+
+  const heroImage = useMemo(() => {
+    return displayImages.length > 0 
+      ? displayImages[0] 
+      : `https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&h=600&fit=crop&auto=format`;
+  }, [displayImages]);
+
+  const faqItems = useMemo(() => {
+    if (!business?.faq) return [];
+    try {
+      return typeof business.faq === 'string' ? JSON.parse(business.faq) : business.faq;
+    } catch {
+      return [];
+    }
+  }, [business?.faq]);
+
+  const hoursData = useMemo(() => {
+    if (!business?.openinghours || typeof business.openinghours !== 'object') return null;
+    
+    const dayNames = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+    return dayNames.map(day => ({
+      day: day.charAt(0).toUpperCase() + day.slice(1),
+      hours: business.openinghours[day] || 'Closed'
+    }));
+  }, [business?.openinghours]);
+
+  // All useMutation hooks
   const reviewMutation = useMutation({
     mutationFn: async (reviewData: InsertReview) => {
       const res = await apiRequest("POST", `/api/businesses/${placeid}/reviews`, reviewData);
@@ -108,6 +162,62 @@ export default function BusinessListing() {
     },
   });
 
+  // Helper functions
+  const renderStars = (rating: number) => {
+    return Array.from({ length: 5 }, (_, i) => (
+      <Star
+        key={i}
+        className={`w-5 h-5 ${
+          i < rating ? "text-yellow-400 fill-current" : "text-gray-300"
+        }`}
+      />
+    ));
+  };
+
+  const handleSubmitReview = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) {
+      toast({
+        title: "Login required",
+        description: "Please login to submit a review",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!reviewText.trim()) {
+      toast({
+        title: "Review required",
+        description: "Please write a review",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    reviewMutation.mutate({
+      businessId: business?.placeid || "",
+      userId: user.id,
+      rating,
+      comment: reviewText,
+    });
+  };
+
+  const handleClaimSubmit = () => {
+    if (!claimMessage.trim()) {
+      toast({
+        title: "Message required",
+        description: "Please provide a message explaining your claim.",
+        variant: "destructive",
+      });
+      return;
+    }
+    claimOwnershipMutation.mutate({
+      businessId: business?.placeid || "",
+      message: claimMessage,
+    });
+  };
+
+  // Early returns after all hooks
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -135,110 +245,26 @@ export default function BusinessListing() {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header />
-        <div className="max-w-7xl mx-auto px-4 py-8 text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Business Not Found</h1>
-          <p className="text-gray-600">The business you're looking for doesn't exist.</p>
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">Business Not Found</h1>
+            <p className="text-gray-600 mb-8">The business you're looking for doesn't exist or has been removed.</p>
+            <Button onClick={() => window.history.back()}>Go Back</Button>
+          </div>
         </div>
       </div>
     );
   }
 
-  const renderStars = (rating: number, interactive = false, onRate?: (rating: number) => void) => {
-    return Array.from({ length: 5 }).map((_, i) => (
-      <Star
-        key={i}
-        className={`w-5 h-5 ${
-          i < rating
-            ? "text-yellow-400 fill-current"
-            : "text-gray-300"
-        } ${interactive ? "cursor-pointer hover:text-yellow-400" : ""}`}
-        onClick={() => interactive && onRate && onRate(i + 1)}
-      />
-    ));
-  };
-
-  const formatHours = (hours: any) => {
-    if (!hours || typeof hours !== 'object') return null;
-    
-    const dayNames = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-    return dayNames.map(day => ({
-      day: day.charAt(0).toUpperCase() + day.slice(1),
-      hours: hours[day] || 'Closed'
-    }));
-  };
-
-  const parseFaq = (faqText: string | null) => {
-    if (!faqText) return [];
-    try {
-      return typeof faqText === 'string' ? JSON.parse(faqText) : faqText;
-    } catch {
-      return [];
-    }
-  };
-
-  // Parse images from multiple possible sources
-  const displayImages = useMemo(() => {
-    if (!business) return [];
-    
-    // Try images field first (JSON array)
-    if (business.images) {
-      try {
-        const images = typeof business.images === 'string' ? JSON.parse(business.images) : business.images;
-        if (Array.isArray(images) && images.length > 0) return images;
-      } catch (e) {}
-    }
-    
-    // Try imageurls field
-    if (business.imageurls) {
-      try {
-        const imageUrls = typeof business.imageurls === 'string' ? JSON.parse(business.imageurls) : business.imageurls;
-        if (Array.isArray(imageUrls) && imageUrls.length > 0) return imageUrls;
-      } catch (e) {}
-    }
-    
-    // Fallback to single imageurl
-    if (business.imageurl) {
-      return [business.imageurl];
-    }
-    
-    return [];
-  }, [business?.images, business?.imageurls, business?.imageurl]);
-
-  const heroImage = displayImages.length > 0 
-    ? displayImages[0] 
-    : `https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&h=600&fit=crop&auto=format`;
-
-  const faqItems = business ? parseFaq(business.faq as string) : [];
-  const hoursData = business ? formatHours(business.openinghours as string) : null;
-
-  const handleSubmitReview = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user) {
-      toast({
-        title: "Login required",
-        description: "Please login to submit a review",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    reviewMutation.mutate({
-      businessId: business.placeid,
-      userId: user.id as string,
-      rating,
-      comment: reviewText,
-    });
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
       
-      {/* Hero Image */}
+      {/* Hero Section */}
       <div className="relative h-96 overflow-hidden">
-        <img 
+        <img
           src={heroImage}
-          alt={business.title || 'Business'}
+          alt={business.title}
           className="w-full h-full object-cover"
           onError={(e) => {
             const target = e.target as HTMLImageElement;
@@ -281,50 +307,33 @@ export default function BusinessListing() {
               </CardContent>
             </Card>
 
-            {/* Photo Gallery */}
-            {displayImages.length > 1 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Photos</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {displayImages.slice(1, 7).map((image: string, index: number) => (
-                      <img
-                        key={index}
-                        src={image}
-                        alt={`${business.title} - Photo ${index + 1}`}
-                        className="w-full h-32 object-cover rounded-lg hover:opacity-90 transition-opacity cursor-pointer"
-                      />
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
             {/* FAQ Section */}
-            {faqItems.length > 0 && (
+            {faqItems && faqItems.length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle>Frequently Asked Questions</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  {faqItems.map((faq: any, index: number) => (
-                    <div key={`faq-${index}-${faq.question?.substring(0, 20)}`} className="border rounded-lg">
-                      <button
-                        className="w-full px-4 py-3 text-left flex items-center justify-between hover:bg-gray-50"
-                        onClick={() => setExpandedFaq(expandedFaq === index ? null : index)}
-                      >
-                        <span className="font-medium">{faq.question}</span>
-                        {expandedFaq === index ? <ChevronUp /> : <ChevronDown />}
-                      </button>
-                      {expandedFaq === index && (
-                        <div className="px-4 pb-3 text-gray-600">
-                          {faq.answer}
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                <CardContent>
+                  <div className="space-y-4">
+                    {faqItems.map((faq: any, index: number) => (
+                      <div key={index} className="border-b border-gray-200 pb-4">
+                        <button
+                          className="flex items-center justify-between w-full text-left font-medium"
+                          onClick={() => setExpandedFaq(expandedFaq === index ? null : index)}
+                        >
+                          <span>{faq.question}</span>
+                          {expandedFaq === index ? (
+                            <ChevronUp className="w-5 h-5" />
+                          ) : (
+                            <ChevronDown className="w-5 h-5" />
+                          )}
+                        </button>
+                        {expandedFaq === index && (
+                          <p className="mt-2 text-gray-600">{faq.answer}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </CardContent>
               </Card>
             )}
@@ -332,51 +341,18 @@ export default function BusinessListing() {
             {/* Reviews Section */}
             <Card>
               <CardHeader>
-                <CardTitle>Reviews ({importedReviews?.length || 0})</CardTitle>
+                <CardTitle>Customer Reviews</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
-                
-                {/* Submit Review Form */}
-                {user && (
-                  <form onSubmit={handleSubmitReview} className="bg-gray-50 p-4 rounded-lg">
-                    <h3 className="font-semibold mb-3">Write a Review</h3>
-                    <div className="flex items-center mb-3">
-                      <span className="mr-2">Rating:</span>
-                      <div className="flex items-center">
-                        {renderStars(rating, true, setRating)}
-                      </div>
-                    </div>
-                    <Textarea
-                      placeholder="Share your experience..."
-                      value={reviewText}
-                      onChange={(e) => setReviewText(e.target.value)}
-                      className="mb-3"
-                      rows={4}
-                    />
-                    <Button 
-                      type="submit" 
-                      disabled={reviewMutation.isPending || !reviewText.trim()}
-                    >
-                      {reviewMutation.isPending ? "Submitting..." : "Submit Review"}
-                    </Button>
-                  </form>
-                )}
-
-                {/* Reviews List */}
-                <div className="space-y-4">
-                  {importedReviews?.map((review: any, index: number) => (
-                    <div key={review.reviewId || index} className="border-b pb-4 last:border-b-0">
+              <CardContent>
+                <div className="space-y-6">
+                  {importedReviews.slice(0, 5).map((review: any, index: number) => (
+                    <div key={index} className="border-b border-gray-200 pb-4">
                       <div className="flex items-start justify-between mb-2">
-                        <div className="flex items-center">
-                          <div className="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center mr-3">
-                            <User className="w-4 h-4" />
+                        <div>
+                          <div className="flex items-center mb-1">
+                            {renderStars(review.rating || 5)}
                           </div>
-                          <div>
-                            <p className="font-medium">{review.name || 'Anonymous'}</p>
-                            <div className="flex items-center">
-                              {renderStars(review.stars || review.rating || 5)}
-                            </div>
-                          </div>
+                          <p className="font-medium">{review.name || review.reviewerName || 'Anonymous'}</p>
                         </div>
                         <span className="text-sm text-gray-500">
                           {review.publishAt || review.publishedAtDate ? new Date(review.publishAt || review.publishedAtDate).toLocaleDateString() : 'Recent'}
@@ -392,6 +368,51 @@ export default function BusinessListing() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Write Review Section */}
+            {user && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Write a Review</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleSubmitReview} className="space-y-4">
+                    <div>
+                      <Label htmlFor="rating">Rating</Label>
+                      <div className="flex items-center space-x-1 mt-1">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            type="button"
+                            onClick={() => setRating(star)}
+                            className="focus:outline-none"
+                          >
+                            <Star
+                              className={`w-6 h-6 ${
+                                star <= rating ? "text-yellow-400 fill-current" : "text-gray-300"
+                              }`}
+                            />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="review">Your Review</Label>
+                      <Textarea
+                        id="review"
+                        placeholder="Share your experience..."
+                        value={reviewText}
+                        onChange={(e) => setReviewText(e.target.value)}
+                        className="mt-1"
+                      />
+                    </div>
+                    <Button type="submit" disabled={reviewMutation.isPending}>
+                      {reviewMutation.isPending ? "Submitting..." : "Submit Review"}
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Sidebar */}
@@ -420,7 +441,7 @@ export default function BusinessListing() {
                       <p className="text-sm text-gray-600">Phone</p>
                       <a 
                         href={`tel:${business.phone}`}
-                        className="font-medium text-primary hover:underline"
+                        className="font-medium text-blue-600 hover:underline"
                       >
                         {business.phone}
                       </a>
@@ -437,7 +458,7 @@ export default function BusinessListing() {
                         href={business.website}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="font-medium text-primary hover:underline"
+                        className="font-medium text-blue-600 hover:underline"
                       >
                         Visit Website
                       </a>
@@ -447,18 +468,21 @@ export default function BusinessListing() {
               </CardContent>
             </Card>
 
-            {/* Hours */}
+            {/* Hours of Operation */}
             {hoursData && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Hours</CardTitle>
+                  <CardTitle className="flex items-center">
+                    <Clock className="w-5 h-5 mr-2" />
+                    Hours of Operation
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    {hoursData.map(({ day, hours }) => (
-                      <div key={day} className="flex justify-between text-sm">
-                        <span className="font-medium">{day}</span>
-                        <span>{hours}</span>
+                    {hoursData.map((day, index) => (
+                      <div key={index} className="flex justify-between">
+                        <span className="font-medium">{day.day}</span>
+                        <span className="text-gray-600">{day.hours}</span>
                       </div>
                     ))}
                   </div>
@@ -516,20 +540,7 @@ export default function BusinessListing() {
                       </div>
                       <div className="flex space-x-2">
                         <Button
-                          onClick={() => {
-                            if (!claimMessage.trim()) {
-                              toast({
-                                title: "Message required",
-                                description: "Please provide a message explaining your claim.",
-                                variant: "destructive",
-                              });
-                              return;
-                            }
-                            claimOwnershipMutation.mutate({
-                              businessId: business?.placeid || "",
-                              message: claimMessage,
-                            });
-                          }}
+                          onClick={handleClaimSubmit}
                           disabled={claimOwnershipMutation.isPending}
                           className="flex-1"
                         >
