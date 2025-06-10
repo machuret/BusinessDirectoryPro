@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, isAdmin } from "./auth";
-import { insertBusinessSchema, insertReviewSchema, insertCategorySchema } from "@shared/schema";
+import { insertBusinessSchema, insertReviewSchema, insertCategorySchema, insertMenuItemSchema } from "@shared/schema";
 import { z } from "zod";
 import multer from "multer";
 import csv from "csv-parser";
@@ -760,6 +760,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating ownership claim:", error);
       res.status(500).json({ message: "Failed to update ownership claim" });
+    }
+  });
+
+  // Menu management routes
+  app.get('/api/admin/menus', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { position } = req.query;
+      const menuItems = await storage.getMenuItems(position as string);
+      res.json(menuItems);
+    } catch (error) {
+      console.error("Error fetching menu items:", error);
+      res.status(500).json({ message: "Failed to fetch menu items" });
+    }
+  });
+
+  app.get('/api/admin/menus/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const menuItem = await storage.getMenuItem(parseInt(id));
+      if (!menuItem) {
+        return res.status(404).json({ message: "Menu item not found" });
+      }
+      res.json(menuItem);
+    } catch (error) {
+      console.error("Error fetching menu item:", error);
+      res.status(500).json({ message: "Failed to fetch menu item" });
+    }
+  });
+
+  app.post('/api/admin/menus', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const validatedData = insertMenuItemSchema.parse(req.body);
+      const menuItem = await storage.createMenuItem(validatedData);
+      res.status(201).json(menuItem);
+    } catch (error) {
+      console.error("Error creating menu item:", error);
+      res.status(500).json({ message: "Failed to create menu item" });
+    }
+  });
+
+  app.patch('/api/admin/menus/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      
+      const menuItem = await storage.updateMenuItem(parseInt(id), updates);
+      if (!menuItem) {
+        return res.status(404).json({ message: "Menu item not found" });
+      }
+      
+      res.json(menuItem);
+    } catch (error) {
+      console.error("Error updating menu item:", error);
+      res.status(500).json({ message: "Failed to update menu item" });
+    }
+  });
+
+  app.delete('/api/admin/menus/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteMenuItem(parseInt(id));
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting menu item:", error);
+      res.status(500).json({ message: "Failed to delete menu item" });
     }
   });
 

@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { AlertTriangle, Upload, Users, Building2, Settings, FileText, Star, Menu } from "lucide-react";
-import type { BusinessWithCategory, User, Category, SiteSetting } from "@shared/schema";
+import type { BusinessWithCategory, User, Category, SiteSetting, MenuItem } from "@shared/schema";
 
 export default function Admin() {
   const { user } = useAuth();
@@ -29,6 +29,9 @@ export default function Admin() {
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [showBusinessForm, setShowBusinessForm] = useState(false);
   const [showUserForm, setShowUserForm] = useState(false);
+  const [editingMenuItem, setEditingMenuItem] = useState<MenuItem | null>(null);
+  const [showMenuForm, setShowMenuForm] = useState(false);
+  const [selectedMenuPosition, setSelectedMenuPosition] = useState<string>("header");
 
   // Data queries
   const { data: businesses, isLoading: businessesLoading } = useQuery<BusinessWithCategory[]>({

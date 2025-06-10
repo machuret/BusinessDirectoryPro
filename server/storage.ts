@@ -674,6 +674,70 @@ export class DatabaseStorage implements IStorage {
       throw error;
     }
   }
+
+  // Menu management implementation
+  async getMenuItems(position?: string): Promise<MenuItem[]> {
+    try {
+      if (position) {
+        return await db.select().from(menuItems)
+          .where(eq(menuItems.position, position))
+          .orderBy(menuItems.order, menuItems.name);
+      }
+      
+      return await db.select().from(menuItems)
+        .orderBy(menuItems.order, menuItems.name);
+    } catch (error) {
+      console.error('Error getting menu items:', error);
+      return [];
+    }
+  }
+
+  async getMenuItem(id: number): Promise<MenuItem | undefined> {
+    try {
+      const result = await db.select().from(menuItems).where(eq(menuItems.id, id)).limit(1);
+      return result[0];
+    } catch (error) {
+      console.error('Error getting menu item:', error);
+      return undefined;
+    }
+  }
+
+  async createMenuItem(menuItem: InsertMenuItem): Promise<MenuItem> {
+    try {
+      const result = await db.insert(menuItems).values(menuItem).returning();
+      return result[0];
+    } catch (error) {
+      console.error('Error creating menu item:', error);
+      throw error;
+    }
+  }
+
+  async updateMenuItem(id: number, menuItemData: Partial<InsertMenuItem>): Promise<MenuItem | undefined> {
+    try {
+      const result = await db
+        .update(menuItems)
+        .set({
+          ...menuItemData,
+          updatedAt: new Date(),
+        })
+        .where(eq(menuItems.id, id))
+        .returning();
+      
+      return result[0];
+    } catch (error) {
+      console.error('Error updating menu item:', error);
+      throw error;
+    }
+  }
+
+  async deleteMenuItem(id: number): Promise<void> {
+    try {
+      await db.delete(menuItems).where(eq(menuItems.id, id));
+    } catch (error) {
+      console.error('Error deleting menu item:', error);
+      throw error;
+    }
+  }
 }
 
 export const storage = new DatabaseStorage();
