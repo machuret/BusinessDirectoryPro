@@ -35,9 +35,7 @@ export default function BusinessCard({ business }: BusinessCardProps) {
     return "Hours not available";
   };
 
-  const displayImage = business.images && business.images.length > 0 
-    ? business.images[0]
-    : `https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&h=400&fit=crop&auto=format`;
+  const displayImage = business.imageurl || `https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&h=400&fit=crop&auto=format`;
 
   return (
     <Card className="overflow-hidden group hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1">
@@ -69,18 +67,18 @@ export default function BusinessCard({ business }: BusinessCardProps) {
             <h3 className="text-xl font-semibold text-gray-900 mb-1 line-clamp-1">
               {business.title}
             </h3>
-            <p className="text-gray-600 text-sm">{business.category?.name || business.types}</p>
+            <p className="text-gray-600 text-sm">{business.category?.name || business.categoryname}</p>
           </div>
           <div className="flex items-center bg-green-100 px-2 py-1 rounded-full ml-3">
             <Star className="w-4 h-4 text-success mr-1" />
             <span className="text-sm font-medium text-success">
-              {parseFloat(business.rating || "0").toFixed(1)}
+              {parseFloat(business.totalscore || "0").toFixed(1)}
             </span>
           </div>
         </div>
         
         <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-          {business.description || business.editorialsummary}
+          {business.description}
         </p>
         
         <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
@@ -90,15 +88,15 @@ export default function BusinessCard({ business }: BusinessCardProps) {
           </div>
           <div className="flex items-center">
             <Clock className="w-4 h-4 mr-1" />
-            <span className="truncate">{formatHours(business.hours)}</span>
+            <span className="truncate">{formatHours(business.openinghours)}</span>
           </div>
         </div>
         
         <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
           <div className="flex items-center space-x-1">
-            {renderStars(Math.round(parseFloat(business.rating || "0")))}
+            {renderStars(Math.round(parseFloat(business.totalscore || "0")))}
             <span className="ml-1">
-              ({business.userratingstotal || 0} {(business.userratingstotal || 0) === 1 ? 'review' : 'reviews'})
+              ({business.reviewscount || 0} {(business.reviewscount || 0) === 1 ? 'review' : 'reviews'})
             </span>
           </div>
         </div>
@@ -109,11 +107,11 @@ export default function BusinessCard({ business }: BusinessCardProps) {
               View Details
             </Button>
           </Link>
-          {business.formattedphonenumber && (
+          {business.phone && (
             <Button 
               variant="outline"
               size="icon"
-              onClick={() => window.open(`tel:${business.formattedphonenumber}`, '_self')}
+              onClick={() => window.open(`tel:${business.phone}`, '_self')}
             >
               <Phone className="w-4 h-4" />
             </Button>
