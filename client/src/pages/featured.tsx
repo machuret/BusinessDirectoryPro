@@ -100,7 +100,7 @@ export default function Featured() {
             className="px-4 py-2 border border-gray-300 rounded-md bg-white"
           >
             <option value="">All Categories</option>
-            {categories?.map((category: any) => (
+            {(categories || []).map((category: any) => (
               <option key={category.id} value={category.name}>
                 {category.name}
               </option>
