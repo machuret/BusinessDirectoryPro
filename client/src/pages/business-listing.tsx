@@ -42,6 +42,13 @@ export default function BusinessListing() {
     enabled: !!placeid,
   });
 
+  // Debug logging
+  console.log('Business data:', business);
+  console.log('Description:', business?.description);
+  console.log('Phone:', business?.phone);
+  console.log('Address:', business?.address);
+  console.log('Reviews:', business?.reviews);
+
   // Parse reviews from business JSON data
   const importedReviews = useMemo(() => {
     if (!business?.reviews) return [];
