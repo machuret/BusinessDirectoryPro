@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import Home from "@/pages/home";
 import Categories from "@/pages/categories";
 import BusinessDetail from "@/pages/business-detail";
+import BusinessListing from "@/pages/business-listing";
 import Dashboard from "@/pages/dashboard";
 import Admin from "@/pages/admin";
 import Login from "@/pages/login";
@@ -28,7 +29,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/categories" component={Categories} />
       <Route path="/categories/:slug" component={Categories} />
-      <Route path="/business/:slug" component={BusinessDetail} />
+      <Route path="/business/:placeid" component={BusinessListing} />
       <Route path="/login" component={Login} />
       {isAuthenticated && (
         <>

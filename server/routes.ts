@@ -130,10 +130,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/businesses/:id', async (req, res) => {
+  app.get('/api/businesses/:placeid', async (req, res) => {
     try {
-      const { id } = req.params;
-      const business = await storage.getBusinessById(parseInt(id));
+      const { placeid } = req.params;
+      const business = await storage.getBusinessById(placeid);
       
       if (!business) {
         return res.status(404).json({ message: "Business not found" });
@@ -143,6 +143,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching business:", error);
       res.status(500).json({ message: "Failed to fetch business" });
+    }
+  });
+
+  app.get('/api/businesses/:placeid/reviews', async (req, res) => {
+    try {
+      const { placeid } = req.params;
+      const reviews = await storage.getReviewsByBusiness(placeid);
+      res.json(reviews);
+    } catch (error) {
+      console.error("Error fetching reviews:", error);
+      res.status(500).json({ message: "Failed to fetch reviews" });
+    }
+  });
+
+  app.post('/api/businesses/:placeid/reviews', isAuthenticated, async (req: any, res) => {
+    try {
+      const { placeid } = req.params;
+      const userId = req.session.userId;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      const reviewData = insertReviewSchema.parse({
+        ...req.body,
+        businessId: placeid,
+        userId: userId,
+      });
+      
+      const review = await storage.createReview(reviewData);
+      await storage.updateBusinessRating(placeid);
+      
+      res.status(201).json(review);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid review data", errors: error.errors });
+      }
+      console.error("Error creating review:", error);
+      res.status(500).json({ message: "Failed to create review" });
     }
   });
 

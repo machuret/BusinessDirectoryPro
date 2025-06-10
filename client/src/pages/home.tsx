@@ -14,6 +14,10 @@ export default function Home() {
     queryKey: ["/api/businesses/featured"],
   });
 
+  const { data: latestBusinesses, isLoading: latestLoading } = useQuery<BusinessWithCategory[]>({
+    queryKey: ["/api/businesses", { limit: 8 }],
+  });
+
   const { data: categories, isLoading: categoriesLoading } = useQuery<CategoryWithCount[]>({
     queryKey: ["/api/categories"],
   });
@@ -97,22 +101,22 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Featured Businesses */}
+      {/* Latest Businesses */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Featured Businesses</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Latest Businesses</h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Discover top-rated businesses in your area with excellent reviews and service.
+              Discover newly added businesses in your area with excellent reviews and service.
             </p>
           </div>
           
-          {featuredLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {Array.from({ length: 6 }).map((_, i) => (
+          {latestLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {Array.from({ length: 8 }).map((_, i) => (
                 <Card key={i} className="animate-pulse">
                   <div className="h-48 bg-gray-200" />
-                  <CardContent className="p-6">
+                  <CardContent className="p-4">
                     <div className="h-4 bg-gray-200 rounded mb-2" />
                     <div className="h-3 bg-gray-200 rounded mb-4 w-2/3" />
                     <div className="h-3 bg-gray-200 rounded mb-2" />
@@ -123,9 +127,9 @@ export default function Home() {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {featuredBusinesses?.map((business) => (
-                <BusinessCard key={business.id} business={business} />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {latestBusinesses?.map((business) => (
+                <BusinessCard key={business.placeid} business={business} />
               ))}
             </div>
           )}

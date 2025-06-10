@@ -35,8 +35,8 @@ export default function BusinessCard({ business }: BusinessCardProps) {
     return "Hours not available";
   };
 
-  const displayImage = business.imageUrls && business.imageUrls.length > 0 
-    ? business.imageUrls[0]
+  const displayImage = business.images && business.images.length > 0 
+    ? business.images[0]
     : `https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&h=400&fit=crop&auto=format`;
 
   return (
@@ -44,7 +44,7 @@ export default function BusinessCard({ business }: BusinessCardProps) {
       <div className="relative">
         <img 
           src={displayImage}
-          alt={business.name}
+          alt={business.title || 'Business'}
           className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-200"
           onError={(e) => {
             const target = e.target as HTMLImageElement;
@@ -67,20 +67,20 @@ export default function BusinessCard({ business }: BusinessCardProps) {
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1">
             <h3 className="text-xl font-semibold text-gray-900 mb-1 line-clamp-1">
-              {business.name}
+              {business.title}
             </h3>
-            <p className="text-gray-600 text-sm">{business.category.name}</p>
+            <p className="text-gray-600 text-sm">{business.category?.name || business.types}</p>
           </div>
           <div className="flex items-center bg-green-100 px-2 py-1 rounded-full ml-3">
             <Star className="w-4 h-4 text-success mr-1" />
             <span className="text-sm font-medium text-success">
-              {parseFloat(business.averageRating || "0").toFixed(1)}
+              {parseFloat(business.rating || "0").toFixed(1)}
             </span>
           </div>
         </div>
         
         <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-          {business.description}
+          {business.description || business.editorialsummary}
         </p>
         
         <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
@@ -96,24 +96,24 @@ export default function BusinessCard({ business }: BusinessCardProps) {
         
         <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
           <div className="flex items-center space-x-1">
-            {renderStars(Math.round(parseFloat(business.averageRating || "0")))}
+            {renderStars(Math.round(parseFloat(business.rating || "0")))}
             <span className="ml-1">
-              ({business.totalReviews} {business.totalReviews === 1 ? 'review' : 'reviews'})
+              ({business.userratingstotal || 0} {(business.userratingstotal || 0) === 1 ? 'review' : 'reviews'})
             </span>
           </div>
         </div>
         
         <div className="flex space-x-3">
-          <Link href={`/business/${business.slug}`} className="flex-1">
+          <Link href={`/business/${business.placeid}`} className="flex-1">
             <Button className="w-full bg-primary text-white hover:bg-blue-700">
               View Details
             </Button>
           </Link>
-          {business.phone && (
+          {business.formattedphonenumber && (
             <Button 
               variant="outline"
               size="icon"
-              onClick={() => window.open(`tel:${business.phone}`, '_self')}
+              onClick={() => window.open(`tel:${business.formattedphonenumber}`, '_self')}
             >
               <Phone className="w-4 h-4" />
             </Button>
