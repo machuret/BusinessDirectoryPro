@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { AlertTriangle, Upload, Users, Building2, Settings, FileText } from "lucide-react";
+import { AlertTriangle, Upload, Users, Building2, Settings, FileText, Star, Menu } from "lucide-react";
 import type { BusinessWithCategory, User, Category, SiteSetting } from "@shared/schema";
 
 export default function Admin() {
@@ -308,6 +308,14 @@ export default function Admin() {
           <TabsTrigger value="import" className="flex items-center space-x-2">
             <Upload className="h-4 w-4" />
             <span>Import</span>
+          </TabsTrigger>
+          <TabsTrigger value="featured" className="flex items-center space-x-2">
+            <Star className="h-4 w-4" />
+            <span>Featured</span>
+          </TabsTrigger>
+          <TabsTrigger value="menus" className="flex items-center space-x-2">
+            <Menu className="h-4 w-4" />
+            <span>Menus</span>
           </TabsTrigger>
           <TabsTrigger value="settings" className="flex items-center space-x-2">
             <Settings className="h-4 w-4" />
@@ -789,6 +797,204 @@ export default function Admin() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Featured Businesses Tab */}
+        <TabsContent value="featured" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Featured Business Management</CardTitle>
+              <CardDescription>Control which businesses are featured on the homepage and how many to display</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {/* Featured Settings */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="maxFeatured">Maximum Featured Businesses</Label>
+                    <Input
+                      id="maxFeatured"
+                      type="number" 
+                      min="1"
+                      max="20"
+                      defaultValue="6"
+                      className="max-w-xs"
+                    />
+                  </div>
+                  <div className="flex items-end">
+                    <Button>Update Settings</Button>
+                  </div>
+                </div>
+
+                {/* Featured Business List */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">Featured Businesses</h3>
+                  {businessesLoading ? (
+                    <p>Loading businesses...</p>
+                  ) : (
+                    <div className="rounded-md border">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Business</TableHead>
+                            <TableHead>Category</TableHead>
+                            <TableHead>Location</TableHead>
+                            <TableHead>Featured</TableHead>
+                            <TableHead>Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {businesses?.filter(business => 
+                            business.title?.toLowerCase().includes(businessSearchTerm.toLowerCase()) ||
+                            business.categoryname?.toLowerCase().includes(businessSearchTerm.toLowerCase()) ||
+                            business.city?.toLowerCase().includes(businessSearchTerm.toLowerCase())
+                          ).map((business) => (
+                            <TableRow key={business.placeid}>
+                              <TableCell>
+                                <div>
+                                  <div className="font-medium">{business.title}</div>
+                                  {business.phone && (
+                                    <div className="text-sm text-muted-foreground">{business.phone}</div>
+                                  )}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant="secondary">{business.categoryname}</Badge>
+                              </TableCell>
+                              <TableCell>
+                                <div className="text-sm">
+                                  {business.city}, {business.state}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant={business.featured ? "default" : "outline"}>
+                                  {business.featured ? "Featured" : "Not Featured"}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex space-x-2">
+                                  <Button
+                                    size="sm"
+                                    variant={business.featured ? "outline" : "default"}
+                                    onClick={() => {
+                                      // Toggle featured status
+                                      updateBusinessMutation.mutate({
+                                        id: business.placeid,
+                                        featured: !business.featured
+                                      });
+                                    }}
+                                  >
+                                    {business.featured ? "Remove Featured" : "Make Featured"}
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Menu Management Tab */}
+        <TabsContent value="menus" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Header Menu */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Header Menu</CardTitle>
+                <CardDescription>Manage navigation menu items in the header</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="border rounded-lg p-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-medium">Home</span>
+                      <div className="flex space-x-2">
+                        <Button size="sm" variant="outline">Edit</Button>
+                        <Button size="sm" variant="outline">Delete</Button>
+                      </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground">Link: /</p>
+                  </div>
+                  
+                  <div className="border rounded-lg p-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-medium">Categories</span>
+                      <div className="flex space-x-2">
+                        <Button size="sm" variant="outline">Edit</Button>
+                        <Button size="sm" variant="outline">Delete</Button>
+                      </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground">Link: /categories</p>
+                  </div>
+
+                  <div className="border rounded-lg p-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-medium">Featured</span>
+                      <div className="flex space-x-2">
+                        <Button size="sm" variant="outline">Edit</Button>
+                        <Button size="sm" variant="outline">Delete</Button>
+                      </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground">Link: /featured</p>
+                  </div>
+                  
+                  <Button className="w-full">Add New Menu Item</Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Footer Menu */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Footer Menu</CardTitle>
+                <CardDescription>Manage footer links and information</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="border rounded-lg p-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-medium">About Us</span>
+                      <div className="flex space-x-2">
+                        <Button size="sm" variant="outline">Edit</Button>
+                        <Button size="sm" variant="outline">Delete</Button>
+                      </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground">Link: /about</p>
+                  </div>
+                  
+                  <div className="border rounded-lg p-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-medium">Contact</span>
+                      <div className="flex space-x-2">
+                        <Button size="sm" variant="outline">Edit</Button>
+                        <Button size="sm" variant="outline">Delete</Button>
+                      </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground">Link: /contact</p>
+                  </div>
+
+                  <div className="border rounded-lg p-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-medium">Privacy Policy</span>
+                      <div className="flex space-x-2">
+                        <Button size="sm" variant="outline">Edit</Button>
+                        <Button size="sm" variant="outline">Delete</Button>
+                      </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground">Link: /privacy</p>
+                  </div>
+                  
+                  <Button className="w-full">Add New Footer Link</Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
 
