@@ -33,7 +33,7 @@ import {
   Eye,
   Search
 } from "lucide-react";
-import type { BusinessWithCategory, CategoryWithCount, User } from "@shared/schema";
+import type { BusinessWithCategory, CategoryWithCount, User, SiteSetting } from "@shared/schema";
 
 export default function Admin() {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -84,6 +84,10 @@ export default function Admin() {
 
   const { data: users, isLoading: usersLoading } = useQuery<User[]>({
     queryKey: ["/api/admin/users"],
+  });
+
+  const { data: siteSettings, isLoading: settingsLoading } = useQuery<SiteSetting[]>({
+    queryKey: ["/api/admin/site-settings"],
   });
 
   const createCategoryMutation = useMutation({
@@ -280,6 +284,26 @@ export default function Admin() {
     },
   });
 
+  const updateSiteSettingMutation = useMutation({
+    mutationFn: async ({ key, value, description, category }: { key: string; value: any; description?: string; category?: string }) => {
+      await apiRequest("PATCH", `/api/admin/site-settings/${key}`, { value, description, category });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Setting updated",
+        description: "Site setting has been successfully updated!",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/site-settings"] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleCreateCategory = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -434,10 +458,11 @@ export default function Admin() {
 
         {/* Main Admin Tabs */}
         <Tabs defaultValue="users" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="users">User Management</TabsTrigger>
             <TabsTrigger value="businesses">Business Management</TabsTrigger>
             <TabsTrigger value="categories">Categories</TabsTrigger>
+            <TabsTrigger value="templates">Template Manager</TabsTrigger>
           </TabsList>
 
           {/* User Management Tab */}
@@ -929,6 +954,221 @@ export default function Admin() {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Template Management Tab */}
+          <TabsContent value="templates">
+            <div className="space-y-6">
+              {/* Theme Colors Section */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Palette className="w-5 h-5 mr-2" />
+                    Theme Colors
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {settingsLoading ? (
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      {Array.from({ length: 6 }).map((_, i) => (
+                        <div key={i} className="h-20 bg-gray-200 rounded animate-pulse" />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      {siteSettings?.filter(setting => setting.category === 'theme').map((setting) => (
+                        <div key={setting.key} className="space-y-2">
+                          <Label htmlFor={setting.key}>
+                            {setting.description || setting.key.replace('theme_', '').replace('_', ' ')}
+                          </Label>
+                          <div className="flex items-center space-x-2">
+                            <Input
+                              id={setting.key}
+                              type="color"
+                              value={JSON.parse(setting.value as string)}
+                              onChange={(e) => {
+                                updateSiteSettingMutation.mutate({
+                                  key: setting.key,
+                                  value: e.target.value,
+                                  description: setting.description,
+                                  category: setting.category,
+                                });
+                              }}
+                              className="w-16 h-10 p-1 border rounded"
+                            />
+                            <Input
+                              value={JSON.parse(setting.value as string)}
+                              onChange={(e) => {
+                                updateSiteSettingMutation.mutate({
+                                  key: setting.key,
+                                  value: e.target.value,
+                                  description: setting.description,
+                                  category: setting.category,
+                                });
+                              }}
+                              className="flex-1"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Homepage Content Section */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Edit className="w-5 h-5 mr-2" />
+                    Homepage Content
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {settingsLoading ? (
+                    <div className="space-y-6">
+                      {Array.from({ length: 4 }).map((_, i) => (
+                        <div key={i} className="space-y-2">
+                          <div className="h-4 bg-gray-200 rounded w-1/4" />
+                          <div className="h-10 bg-gray-200 rounded" />
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      {/* Hero Section */}
+                      <div className="space-y-4 p-4 border rounded-lg">
+                        <h3 className="font-semibold text-lg">Hero Section</h3>
+                        <div className="grid grid-cols-1 gap-4">
+                          <div>
+                            <Label htmlFor="hero_title">Main Title</Label>
+                            <Input
+                              id="hero_title"
+                              value={JSON.parse(siteSettings?.find(s => s.key === 'homepage_hero_title')?.value as string || '""')}
+                              onChange={(e) => {
+                                updateSiteSettingMutation.mutate({
+                                  key: 'homepage_hero_title',
+                                  value: e.target.value,
+                                  description: 'Main hero section title',
+                                  category: 'homepage',
+                                });
+                              }}
+                              placeholder="Find Local Businesses"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="hero_subtitle">Subtitle</Label>
+                            <Input
+                              id="hero_subtitle"
+                              value={JSON.parse(siteSettings?.find(s => s.key === 'homepage_hero_subtitle')?.value as string || '""')}
+                              onChange={(e) => {
+                                updateSiteSettingMutation.mutate({
+                                  key: 'homepage_hero_subtitle',
+                                  value: e.target.value,
+                                  description: 'Hero section subtitle',
+                                  category: 'homepage',
+                                });
+                              }}
+                              placeholder="Discover and connect with trusted local businesses..."
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Features Section */}
+                      <div className="space-y-4 p-4 border rounded-lg">
+                        <h3 className="font-semibold text-lg">Features Section</h3>
+                        <div>
+                          <Label htmlFor="features_title">Features Section Title</Label>
+                          <Input
+                            id="features_title"
+                            value={JSON.parse(siteSettings?.find(s => s.key === 'homepage_features_title')?.value as string || '""')}
+                            onChange={(e) => {
+                              updateSiteSettingMutation.mutate({
+                                key: 'homepage_features_title',
+                                value: e.target.value,
+                                description: 'Features section title',
+                                category: 'homepage',
+                              });
+                            }}
+                            placeholder="Why Choose BusinessHub?"
+                          />
+                        </div>
+                        
+                        {/* Feature Blocks */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          {[1, 2, 3].map((num) => (
+                            <div key={num} className="space-y-2 p-3 border rounded">
+                              <Label htmlFor={`feature_${num}_title`}>Feature {num} Title</Label>
+                              <Input
+                                id={`feature_${num}_title`}
+                                value={JSON.parse(siteSettings?.find(s => s.key === `homepage_feature_${num}_title`)?.value as string || '""')}
+                                onChange={(e) => {
+                                  updateSiteSettingMutation.mutate({
+                                    key: `homepage_feature_${num}_title`,
+                                    value: e.target.value,
+                                    description: `Feature ${num} block title`,
+                                    category: 'homepage',
+                                  });
+                                }}
+                                placeholder={`Feature ${num} Title`}
+                              />
+                              <Label htmlFor={`feature_${num}_description`}>Feature {num} Description</Label>
+                              <Input
+                                id={`feature_${num}_description`}
+                                value={JSON.parse(siteSettings?.find(s => s.key === `homepage_feature_${num}_description`)?.value as string || '""')}
+                                onChange={(e) => {
+                                  updateSiteSettingMutation.mutate({
+                                    key: `homepage_feature_${num}_description`,
+                                    value: e.target.value,
+                                    description: `Feature ${num} block description`,
+                                    category: 'homepage',
+                                  });
+                                }}
+                                placeholder={`Feature ${num} description...`}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Preview Section */}
+                      <div className="space-y-4 p-4 border rounded-lg bg-gray-50">
+                        <h3 className="font-semibold text-lg">Live Preview</h3>
+                        <div className="p-6 bg-white rounded-lg border shadow-sm">
+                          <div className="text-center space-y-4">
+                            <h1 className="text-4xl font-bold text-gray-900">
+                              {JSON.parse(siteSettings?.find(s => s.key === 'homepage_hero_title')?.value as string || '"Find Local Businesses"')}
+                            </h1>
+                            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                              {JSON.parse(siteSettings?.find(s => s.key === 'homepage_hero_subtitle')?.value as string || '"Discover and connect with trusted local businesses in your area."')}
+                            </p>
+                          </div>
+                          
+                          <div className="mt-12">
+                            <h2 className="text-3xl font-bold text-center text-gray-900 mb-8">
+                              {JSON.parse(siteSettings?.find(s => s.key === 'homepage_features_title')?.value as string || '"Why Choose BusinessHub?"')}
+                            </h2>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                              {[1, 2, 3].map((num) => (
+                                <div key={num} className="text-center">
+                                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                                    {JSON.parse(siteSettings?.find(s => s.key === `homepage_feature_${num}_title`)?.value as string || `"Feature ${num}"`)}
+                                  </h3>
+                                  <p className="text-gray-600">
+                                    {JSON.parse(siteSettings?.find(s => s.key === `homepage_feature_${num}_description`)?.value as string || `"Feature ${num} description"`)}
+                                  </p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
 

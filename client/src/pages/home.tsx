@@ -18,6 +18,10 @@ export default function Home() {
     queryKey: ["/api/categories"],
   });
 
+  const { data: siteSettings } = useQuery<Record<string, any>>({
+    queryKey: ["/api/site-settings"],
+  });
+
   const stats = {
     businesses: categories?.reduce((sum, cat) => sum + cat.businessCount, 0) || 0,
     reviews: "89,234",
@@ -32,9 +36,11 @@ export default function Home() {
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-primary to-blue-700 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6">Find Local Businesses</h1>
+          <h1 className="text-4xl md:text-6xl font-bold mb-6">
+            {siteSettings?.homepage_hero_title || "Find Local Businesses"}
+          </h1>
           <p className="text-xl md:text-2xl mb-12 text-blue-100 max-w-3xl mx-auto">
-            Discover and connect with trusted local businesses in your area. From restaurants to services, we've got you covered.
+            {siteSettings?.homepage_hero_subtitle || "Discover and connect with trusted local businesses in your area. From restaurants to services, we've got you covered."}
           </p>
           <SearchBar />
         </div>
