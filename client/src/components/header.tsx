@@ -216,25 +216,23 @@ export default function Header() {
                       </div>
                     ) : (
                       <div className="space-y-3">
-                        <Button 
-                          variant="outline" 
-                          className="w-full"
-                          onClick={() => {
-                            setIsMobileMenuOpen(false);
-                            window.location.href = "/api/login";
-                          }}
-                        >
-                          Sign In
-                        </Button>
-                        <Button 
-                          className="w-full bg-primary text-white hover:bg-blue-700"
-                          onClick={() => {
-                            setIsMobileMenuOpen(false);
-                            window.location.href = "/api/login";
-                          }}
-                        >
-                          List Your Business
-                        </Button>
+                        <Link href="/login">
+                          <Button 
+                            variant="outline" 
+                            className="w-full"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            Sign In
+                          </Button>
+                        </Link>
+                        <Link href="/login">
+                          <Button 
+                            className="w-full bg-primary text-white hover:bg-blue-700"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            List Your Business
+                          </Button>
+                        </Link>
                       </div>
                     )}
                   </div>
