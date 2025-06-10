@@ -12,6 +12,7 @@ import BusinessListing from "@/pages/business-listing";
 import SearchResults from "@/pages/search-results";
 import Dashboard from "@/pages/dashboard";
 import Admin from "@/pages/admin";
+import MenuEdit from "@/pages/menu-edit";
 import Login from "@/pages/login";
 import NotFound from "@/pages/not-found";
 
@@ -39,6 +40,7 @@ function Router() {
         <>
           <Route path="/dashboard" component={Dashboard} />
           <Route path="/admin" component={Admin} />
+          <Route path="/admin/menu/:id" component={MenuEdit} />
         </>
       )}
       <Route component={NotFound} />

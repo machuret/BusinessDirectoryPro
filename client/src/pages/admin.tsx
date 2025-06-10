@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +20,7 @@ import type { BusinessWithCategory, User, Category, SiteSetting, MenuItem } from
 export default function Admin() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState("businesses");
   const [businessSearchTerm, setBusinessSearchTerm] = useState("");
   const [userSearchTerm, setUserSearchTerm] = useState("");
@@ -29,8 +31,6 @@ export default function Admin() {
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [showBusinessForm, setShowBusinessForm] = useState(false);
   const [showUserForm, setShowUserForm] = useState(false);
-  const [editingMenuItem, setEditingMenuItem] = useState<MenuItem | null>(null);
-  const [showMenuForm, setShowMenuForm] = useState(false);
   const [selectedMenuPosition, setSelectedMenuPosition] = useState<string>("header");
 
   // Data queries
@@ -211,31 +211,7 @@ export default function Admin() {
     },
   });
 
-  // Menu management mutations
-  const createMenuItemMutation = useMutation({
-    mutationFn: async (menuItemData: { name: string; url: string; position: string; order: number }) => {
-      await apiRequest("POST", "/api/admin/menus", menuItemData);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/menus"] });
-      toast({ title: "Menu item created successfully" });
-      setShowMenuForm(false);
-      setEditingMenuItem(null);
-    },
-  });
-
-  const updateMenuItemMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: Partial<MenuItem> }) => {
-      await apiRequest("PATCH", `/api/admin/menus/${id}`, data);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/menus"] });
-      toast({ title: "Menu item updated successfully" });
-      setShowMenuForm(false);
-      setEditingMenuItem(null);
-    },
-  });
-
+  // Menu management mutation for delete only (edit happens on separate page)
   const deleteMenuItemMutation = useMutation({
     mutationFn: async (id: number) => {
       await apiRequest("DELETE", `/api/admin/menus/${id}`);
