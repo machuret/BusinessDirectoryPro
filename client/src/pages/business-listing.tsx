@@ -332,6 +332,17 @@ export default function BusinessListing() {
                   {business.category?.name || business.categoryname}
                 </span>
               </Link>
+              {business.city && (
+                <>
+                  <span>•</span>
+                  <Link href={`/cities/${encodeURIComponent(business.city)}`}>
+                    <span className="text-blue-300 hover:text-blue-100 cursor-pointer hover:underline transition-colors flex items-center">
+                      <MapPin className="w-4 h-4 mr-1" />
+                      {business.city}
+                    </span>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -479,6 +490,15 @@ export default function BusinessListing() {
                     <div>
                       <p className="text-sm text-gray-600">Address</p>
                       <p className="font-medium">{business.address}</p>
+                      {business.city && (
+                        <div className="mt-1">
+                          <Link href={`/cities/${encodeURIComponent(business.city)}`}>
+                            <span className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer text-sm font-medium">
+                              View all businesses in {business.city}
+                            </span>
+                          </Link>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
