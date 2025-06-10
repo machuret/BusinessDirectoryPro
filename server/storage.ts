@@ -1,4 +1,4 @@
-import { eq, like, and, or, desc, sql } from "drizzle-orm";
+import { eq, like, and, or, desc, sql, ne } from "drizzle-orm";
 import { db } from "./db";
 import {
   users,
@@ -224,12 +224,123 @@ export class DatabaseStorage implements IStorage {
     return result as BusinessWithCategory[];
   }
 
+  // Helper function to generate SEO-friendly slug
+  private generateSeoSlug(title: string, city?: string, category?: string): string {
+    let slugParts = [title];
+    if (city) slugParts.push(city);
+    if (category) slugParts.push(category);
+    
+    return slugParts
+      .join('-')
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+      .replace(/\s+/g, '-')         // Replace spaces with hyphens
+      .replace(/-+/g, '-')          // Replace multiple hyphens with single
+      .replace(/^-|-$/g, '');       // Remove leading/trailing hyphens
+  }
+
+  // Helper function to ensure unique slug
+  private async ensureUniqueSlug(baseSlug: string, excludeId?: string): Promise<string> {
+    let slug = baseSlug;
+    let counter = 1;
+    
+    while (true) {
+      const existing = await db
+        .select({ placeid: businesses.placeid })
+        .from(businesses)
+        .where(
+          excludeId 
+            ? and(eq(businesses.slug, slug), ne(businesses.placeid, excludeId))
+            : eq(businesses.slug, slug)
+        )
+        .limit(1);
+      
+      if (existing.length === 0) {
+        return slug;
+      }
+      
+      counter++;
+      slug = `${baseSlug}-${counter}`;
+    }
+  }
+
+  // Helper function to generate SEO title and description
+  private generateSeoMetadata(business: any): { seotitle: string; seodescription: string } {
+    const title = business.title || 'Business';
+    const city = business.city || '';
+    const category = business.categoryname || '';
+    
+    // Generate SEO title (60 characters max recommended)
+    let seoTitle = title;
+    if (city) seoTitle += ` - ${city}`;
+    if (category) seoTitle += ` | ${category}`;
+    if (seoTitle.length > 60) {
+      seoTitle = `${title} - ${city}`.substring(0, 57) + '...';
+    }
+    
+    // Generate SEO description (160 characters max recommended)
+    let seoDescription = `Visit ${title}`;
+    if (city) seoDescription += ` in ${city}`;
+    if (category) seoDescription += ` - ${category}`;
+    if (business.address) seoDescription += `. Located at ${business.address}`;
+    if (business.phone) seoDescription += `. Call ${business.phone}`;
+    seoDescription += '. Get directions, hours, and reviews.';
+    
+    if (seoDescription.length > 160) {
+      seoDescription = seoDescription.substring(0, 157) + '...';
+    }
+    
+    return { seotitle: seoTitle, seodescription: seoDescription };
+  }
+
   async createBusiness(business: InsertBusiness): Promise<Business> {
+    // Generate SEO slug if not provided
+    if (!business.slug) {
+      const baseSlug = this.generateSeoSlug(
+        business.name || 'business',
+        business.city,
+        business.categoryname
+      );
+      business.slug = await this.ensureUniqueSlug(baseSlug);
+    }
+    
+    // Generate SEO metadata if not provided
+    if (!business.seotitle || !business.seodescription) {
+      const seoMetadata = this.generateSeoMetadata(business);
+      if (!business.seotitle) business.seotitle = seoMetadata.seotitle;
+      if (!business.seodescription) business.seodescription = seoMetadata.seodescription;
+    }
+    
     const result = await db.insert(businesses).values(business).returning();
     return result[0];
   }
 
   async updateBusiness(id: string, business: Partial<InsertBusiness>): Promise<Business | undefined> {
+    // If name, city, or category changed, regenerate slug
+    if (business.name || business.city || business.categoryname) {
+      const currentBusiness = await this.getBusinessById(id);
+      if (currentBusiness) {
+        const baseSlug = this.generateSeoSlug(
+          business.name || currentBusiness.name || 'business',
+          business.city || currentBusiness.city,
+          business.categoryname || currentBusiness.categoryname
+        );
+        business.slug = await this.ensureUniqueSlug(baseSlug, id);
+      }
+    }
+    
+    // Regenerate SEO metadata if business details changed and no custom SEO provided
+    if ((business.name || business.city || business.categoryname || business.address || business.phone) && 
+        (!business.seotitle || !business.seodescription)) {
+      const currentBusiness = await this.getBusinessById(id);
+      if (currentBusiness) {
+        const updatedBusiness = { ...currentBusiness, ...business };
+        const seoMetadata = this.generateSeoMetadata(updatedBusiness);
+        if (!business.seotitle) business.seotitle = seoMetadata.seotitle;
+        if (!business.seodescription) business.seodescription = seoMetadata.seodescription;
+      }
+    }
+    
     const result = await db
       .update(businesses)
       .set({ ...business, updatedat: new Date() })

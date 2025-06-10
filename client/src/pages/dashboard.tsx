@@ -323,6 +323,54 @@ export default function Dashboard() {
                     defaultValue={editingBusiness.address || ""}
                   />
                 </div>
+
+                {/* SEO Section */}
+                <div className="border-t pt-4 mt-6">
+                  <h3 className="text-lg font-semibold mb-3">SEO Settings</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="seotitle">SEO Title</Label>
+                      <Input
+                        id="seotitle"
+                        name="seotitle"
+                        defaultValue={editingBusiness.seotitle || ""}
+                        placeholder="Enter custom SEO title (auto-generated if empty)"
+                        maxLength={60}
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Recommended: 50-60 characters. Leave empty for auto-generation.
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="seodescription">SEO Description</Label>
+                      <Textarea
+                        id="seodescription"
+                        name="seodescription"
+                        defaultValue={editingBusiness.seodescription || ""}
+                        placeholder="Enter custom SEO description (auto-generated if empty)"
+                        rows={3}
+                        maxLength={160}
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Recommended: 150-160 characters. Leave empty for auto-generation.
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="slug">SEO URL Slug</Label>
+                      <Input
+                        id="slug"
+                        name="slug"
+                        defaultValue={editingBusiness.slug || ""}
+                        placeholder="custom-url-slug (auto-generated if empty)"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        URL-friendly version: /business/{editingBusiness.slug || 'auto-generated-slug'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
                 
                 <div className="flex space-x-2">
                   <Button
