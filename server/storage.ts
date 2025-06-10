@@ -6,6 +6,7 @@ import {
   businesses,
   reviews,
   siteSettings,
+  menuItems,
   type User,
   type UpsertUser,
   type Category,
@@ -16,6 +17,8 @@ import {
   type InsertReview,
   type SiteSetting,
   type InsertSiteSetting,
+  type MenuItem,
+  type InsertMenuItem,
   type BusinessWithCategory,
   type CategoryWithCount,
 } from "@shared/schema";
@@ -80,6 +83,13 @@ export interface IStorage {
   createOwnershipClaim(claim: any): Promise<any>;
   updateOwnershipClaim(id: number, status: string, adminMessage?: string, reviewedBy?: string): Promise<any>;
   deleteOwnershipClaim(id: number): Promise<void>;
+  
+  // Menu management operations
+  getMenuItems(position?: string): Promise<MenuItem[]>;
+  getMenuItem(id: number): Promise<MenuItem | undefined>;
+  createMenuItem(menuItem: InsertMenuItem): Promise<MenuItem>;
+  updateMenuItem(id: number, menuItem: Partial<InsertMenuItem>): Promise<MenuItem | undefined>;
+  deleteMenuItem(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {

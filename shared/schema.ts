@@ -155,6 +155,19 @@ export const ownershipClaims = pgTable("ownership_claims", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Menu items table
+export const menuItems = pgTable("menu_items", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  url: text("url").notNull(),
+  position: text("position").notNull(), // header, footer
+  order: integer("order").notNull().default(0),
+  isActive: boolean("is_active").notNull().default(true),
+  target: text("target").default("_self"), // _self, _blank
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // Schema definitions for validation
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -207,6 +220,12 @@ export const insertOwnershipClaimSchema = createInsertSchema(ownershipClaims).om
   reviewedAt: true,
 });
 
+export const insertMenuItemSchema = createInsertSchema(menuItems).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Type exports
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -221,6 +240,8 @@ export type InsertSiteSetting = z.infer<typeof insertSiteSettingSchema>;
 export type SiteSetting = typeof siteSettings.$inferSelect;
 export type InsertOwnershipClaim = z.infer<typeof insertOwnershipClaimSchema>;
 export type OwnershipClaim = typeof ownershipClaims.$inferSelect;
+export type InsertMenuItem = z.infer<typeof insertMenuItemSchema>;
+export type MenuItem = typeof menuItems.$inferSelect;
 
 // Business with category info
 export type BusinessWithCategory = Business & {
