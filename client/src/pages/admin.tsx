@@ -76,6 +76,11 @@ export default function Admin() {
     enabled: !!user?.role && user.role === 'admin'
   });
 
+  const { data: menuItems, isLoading: menuItemsLoading } = useQuery<MenuItem[]>({
+    queryKey: ["/api/admin/menus"],
+    enabled: !!user?.role && user.role === 'admin'
+  });
+
   // CSV Import mutation
   const csvImportMutation = useMutation({
     mutationFn: async (file: File) => {
@@ -203,6 +208,41 @@ export default function Admin() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/site-settings"] });
       toast({ title: "Setting updated successfully" });
+    },
+  });
+
+  // Menu management mutations
+  const createMenuItemMutation = useMutation({
+    mutationFn: async (menuItemData: { name: string; url: string; position: string; order: number }) => {
+      await apiRequest("POST", "/api/admin/menus", menuItemData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/menus"] });
+      toast({ title: "Menu item created successfully" });
+      setShowMenuForm(false);
+      setEditingMenuItem(null);
+    },
+  });
+
+  const updateMenuItemMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: Partial<MenuItem> }) => {
+      await apiRequest("PATCH", `/api/admin/menus/${id}`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/menus"] });
+      toast({ title: "Menu item updated successfully" });
+      setShowMenuForm(false);
+      setEditingMenuItem(null);
+    },
+  });
+
+  const deleteMenuItemMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest("DELETE", `/api/admin/menus/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/menus"] });
+      toast({ title: "Menu item deleted successfully" });
     },
   });
 
@@ -916,40 +956,50 @@ export default function Admin() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="border rounded-lg p-4">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="font-medium">Home</span>
-                      <div className="flex space-x-2">
-                        <Button size="sm" variant="outline">Edit</Button>
-                        <Button size="sm" variant="outline">Delete</Button>
-                      </div>
-                    </div>
-                    <p className="text-sm text-muted-foreground">Link: /</p>
-                  </div>
-                  
-                  <div className="border rounded-lg p-4">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="font-medium">Categories</span>
-                      <div className="flex space-x-2">
-                        <Button size="sm" variant="outline">Edit</Button>
-                        <Button size="sm" variant="outline">Delete</Button>
-                      </div>
-                    </div>
-                    <p className="text-sm text-muted-foreground">Link: /categories</p>
-                  </div>
-
-                  <div className="border rounded-lg p-4">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="font-medium">Featured</span>
-                      <div className="flex space-x-2">
-                        <Button size="sm" variant="outline">Edit</Button>
-                        <Button size="sm" variant="outline">Delete</Button>
-                      </div>
-                    </div>
-                    <p className="text-sm text-muted-foreground">Link: /featured</p>
-                  </div>
-                  
-                  <Button className="w-full">Add New Menu Item</Button>
+                  {menuItemsLoading ? (
+                    <p>Loading menu items...</p>
+                  ) : (
+                    <>
+                      {menuItems?.filter(item => item.position === 'header').map((item) => (
+                        <div key={item.id} className="border rounded-lg p-4">
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="font-medium">{item.name}</span>
+                            <div className="flex space-x-2">
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => {
+                                  setEditingMenuItem(item);
+                                  setShowMenuForm(true);
+                                }}
+                              >
+                                Edit
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="destructive"
+                                onClick={() => deleteMenuItemMutation.mutate(item.id)}
+                              >
+                                Delete
+                              </Button>
+                            </div>
+                          </div>
+                          <p className="text-sm text-muted-foreground">Link: {item.url}</p>
+                          <p className="text-xs text-gray-400">Order: {item.order}</p>
+                        </div>
+                      ))}
+                      <Button 
+                        className="w-full"
+                        onClick={() => {
+                          setSelectedMenuPosition('header');
+                          setEditingMenuItem(null);
+                          setShowMenuForm(true);
+                        }}
+                      >
+                        Add New Menu Item
+                      </Button>
+                    </>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -962,40 +1012,50 @@ export default function Admin() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="border rounded-lg p-4">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="font-medium">About Us</span>
-                      <div className="flex space-x-2">
-                        <Button size="sm" variant="outline">Edit</Button>
-                        <Button size="sm" variant="outline">Delete</Button>
-                      </div>
-                    </div>
-                    <p className="text-sm text-muted-foreground">Link: /about</p>
-                  </div>
-                  
-                  <div className="border rounded-lg p-4">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="font-medium">Contact</span>
-                      <div className="flex space-x-2">
-                        <Button size="sm" variant="outline">Edit</Button>
-                        <Button size="sm" variant="outline">Delete</Button>
-                      </div>
-                    </div>
-                    <p className="text-sm text-muted-foreground">Link: /contact</p>
-                  </div>
-
-                  <div className="border rounded-lg p-4">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="font-medium">Privacy Policy</span>
-                      <div className="flex space-x-2">
-                        <Button size="sm" variant="outline">Edit</Button>
-                        <Button size="sm" variant="outline">Delete</Button>
-                      </div>
-                    </div>
-                    <p className="text-sm text-muted-foreground">Link: /privacy</p>
-                  </div>
-                  
-                  <Button className="w-full">Add New Footer Link</Button>
+                  {menuItemsLoading ? (
+                    <p>Loading menu items...</p>
+                  ) : (
+                    <>
+                      {menuItems?.filter(item => item.position === 'footer').map((item) => (
+                        <div key={item.id} className="border rounded-lg p-4">
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="font-medium">{item.name}</span>
+                            <div className="flex space-x-2">
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => {
+                                  setEditingMenuItem(item);
+                                  setShowMenuForm(true);
+                                }}
+                              >
+                                Edit
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="destructive"
+                                onClick={() => deleteMenuItemMutation.mutate(item.id)}
+                              >
+                                Delete
+                              </Button>
+                            </div>
+                          </div>
+                          <p className="text-sm text-muted-foreground">Link: {item.url}</p>
+                          <p className="text-xs text-gray-400">Order: {item.order}</p>
+                        </div>
+                      ))}
+                      <Button 
+                        className="w-full"
+                        onClick={() => {
+                          setSelectedMenuPosition('footer');
+                          setEditingMenuItem(null);
+                          setShowMenuForm(true);
+                        }}
+                      >
+                        Add New Footer Link
+                      </Button>
+                    </>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -1165,6 +1225,116 @@ export default function Admin() {
                   disabled={updateBusinessMutation.isPending}
                 >
                   {updateBusinessMutation.isPending ? "Updating..." : "Update Business"}
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Menu Item Form Modal */}
+      {showMenuForm && (
+        <Dialog open={showMenuForm} onOpenChange={() => {
+          setShowMenuForm(false);
+          setEditingMenuItem(null);
+        }}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>
+                {editingMenuItem ? "Edit Menu Item" : "Add New Menu Item"}
+              </DialogTitle>
+            </DialogHeader>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                const menuItemData = {
+                  name: formData.get('name') as string,
+                  url: formData.get('url') as string,
+                  position: formData.get('position') as string,
+                  order: parseInt(formData.get('order') as string) || 0,
+                };
+
+                if (editingMenuItem) {
+                  updateMenuItemMutation.mutate({
+                    id: editingMenuItem.id,
+                    data: menuItemData
+                  });
+                } else {
+                  createMenuItemMutation.mutate(menuItemData);
+                }
+              }}
+              className="space-y-4"
+            >
+              <div>
+                <Label htmlFor="name">Menu Item Name</Label>
+                <Input
+                  id="name"
+                  name="name"
+                  defaultValue={editingMenuItem?.name || ""}
+                  placeholder="e.g., Home, About Us"
+                  required
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="url">URL</Label>
+                <Input
+                  id="url"
+                  name="url"
+                  defaultValue={editingMenuItem?.url || ""}
+                  placeholder="e.g., /, /about, /contact"
+                  required
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="position">Position</Label>
+                <Select name="position" defaultValue={editingMenuItem?.position || selectedMenuPosition}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select position" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="header">Header</SelectItem>
+                    <SelectItem value="footer">Footer</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label htmlFor="order">Display Order</Label>
+                <Input
+                  id="order"
+                  name="order"
+                  type="number"
+                  defaultValue={editingMenuItem?.order || 0}
+                  placeholder="0"
+                  min="0"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Lower numbers appear first
+                </p>
+              </div>
+              
+              <div className="flex justify-end space-x-2 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setShowMenuForm(false);
+                    setEditingMenuItem(null);
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={createMenuItemMutation.isPending || updateMenuItemMutation.isPending}
+                >
+                  {createMenuItemMutation.isPending || updateMenuItemMutation.isPending 
+                    ? "Saving..." 
+                    : editingMenuItem ? "Update" : "Create"
+                  }
                 </Button>
               </div>
             </form>
