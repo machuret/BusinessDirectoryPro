@@ -14,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { AlertTriangle, Upload, Users, Building2, Settings, FileText, Star, Menu } from "lucide-react";
+import { AlertTriangle, Upload, Users, Building2, Settings, FileText, Star, Menu, Key, Zap } from "lucide-react";
 import type { BusinessWithCategory, User, Category, SiteSetting, MenuItem } from "@shared/schema";
 
 export default function Admin() {
@@ -31,6 +31,8 @@ export default function Admin() {
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [showBusinessForm, setShowBusinessForm] = useState(false);
   const [showUserForm, setShowUserForm] = useState(false);
+  const [selectedBusinesses, setSelectedBusinesses] = useState<string[]>([]);
+  const [optimizerProgress, setOptimizerProgress] = useState<{type: string, current: number, total: number} | null>(null);
 
 
   // Data queries
@@ -240,6 +242,55 @@ export default function Admin() {
     },
   });
 
+  // OpenAI optimization mutations
+  const optimizeDescriptionsMutation = useMutation({
+    mutationFn: async (businessIds: string[]) => {
+      const res = await apiRequest("POST", "/api/admin/optimize/descriptions", { businessIds });
+      return await res.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/businesses"] });
+      setOptimizerProgress(null);
+      setSelectedBusinesses([]);
+      toast({ 
+        title: "Descriptions optimized successfully",
+        description: `${data.success} businesses updated`
+      });
+    },
+    onError: (error: Error) => {
+      setOptimizerProgress(null);
+      toast({
+        title: "Optimization failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const generateFAQsMutation = useMutation({
+    mutationFn: async (businessIds: string[]) => {
+      const res = await apiRequest("POST", "/api/admin/optimize/faqs", { businessIds });
+      return await res.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/businesses"] });
+      setOptimizerProgress(null);
+      setSelectedBusinesses([]);
+      toast({ 
+        title: "FAQs generated successfully",
+        description: `${data.success} businesses updated`
+      });
+    },
+    onError: (error: Error) => {
+      setOptimizerProgress(null);
+      toast({
+        title: "FAQ generation failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   // Handle CSV file upload
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -288,6 +339,50 @@ export default function Admin() {
     setShowUserForm(true);
   };
 
+  // Business selection helpers
+  const toggleBusinessSelection = (businessId: string) => {
+    setSelectedBusinesses(prev => 
+      prev.includes(businessId) 
+        ? prev.filter(id => id !== businessId)
+        : [...prev, businessId]
+    );
+  };
+
+  const selectAllBusinesses = () => {
+    const allIds = filteredBusinesses?.map(b => b.placeid) || [];
+    setSelectedBusinesses(allIds);
+  };
+
+  const clearBusinessSelection = () => {
+    setSelectedBusinesses([]);
+  };
+
+  const handleOptimizeDescriptions = () => {
+    if (selectedBusinesses.length === 0) {
+      toast({
+        title: "No businesses selected",
+        description: "Please select businesses to optimize",
+        variant: "destructive",
+      });
+      return;
+    }
+    setOptimizerProgress({type: 'descriptions', current: 0, total: selectedBusinesses.length});
+    optimizeDescriptionsMutation.mutate(selectedBusinesses);
+  };
+
+  const handleGenerateFAQs = () => {
+    if (selectedBusinesses.length === 0) {
+      toast({
+        title: "No businesses selected",
+        description: "Please select businesses to generate FAQs for",
+        variant: "destructive",
+      });
+      return;
+    }
+    setOptimizerProgress({type: 'faqs', current: 0, total: selectedBusinesses.length});
+    generateFAQsMutation.mutate(selectedBusinesses);
+  };
+
   // Auth check
   if (!user || (user as any).role !== 'admin') {
     return (
@@ -327,7 +422,7 @@ export default function Admin() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-5 lg:grid-cols-8">
           <TabsTrigger value="businesses" className="flex items-center space-x-2">
             <Building2 className="h-4 w-4" />
             <span>Businesses</span>
@@ -342,19 +437,19 @@ export default function Admin() {
           </TabsTrigger>
           <TabsTrigger value="claims" className="flex items-center space-x-2">
             <FileText className="h-4 w-4" />
-            <span>Ownership Claims</span>
+            <span>Claims</span>
           </TabsTrigger>
           <TabsTrigger value="import" className="flex items-center space-x-2">
             <Upload className="h-4 w-4" />
             <span>Import</span>
           </TabsTrigger>
-          <TabsTrigger value="featured" className="flex items-center space-x-2">
-            <Star className="h-4 w-4" />
-            <span>Featured</span>
+          <TabsTrigger value="optimizer" className="flex items-center space-x-2">
+            <Zap className="h-4 w-4" />
+            <span>OPTIMIZER</span>
           </TabsTrigger>
-          <TabsTrigger value="menus" className="flex items-center space-x-2">
-            <Menu className="h-4 w-4" />
-            <span>Menus</span>
+          <TabsTrigger value="api-keys" className="flex items-center space-x-2">
+            <Key className="h-4 w-4" />
+            <span>API Keys</span>
           </TabsTrigger>
           <TabsTrigger value="settings" className="flex items-center space-x-2">
             <Settings className="h-4 w-4" />
@@ -811,6 +906,150 @@ export default function Admin() {
                   <p>Total businesses: {businesses?.length || 0}</p>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* API Keys Tab */}
+        <TabsContent value="api-keys" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>API Keys</CardTitle>
+              <CardDescription>Manage API keys for external services</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="openai-key">OpenAI API Key</Label>
+                <div className="flex space-x-2">
+                  <Input
+                    id="openai-key"
+                    type="password"
+                    placeholder="sk-..."
+                    defaultValue={siteSettings?.find(s => s.key === 'openai_api_key')?.value || ''}
+                    onBlur={(e) => {
+                      if (e.target.value !== (siteSettings?.find(s => s.key === 'openai_api_key')?.value || '')) {
+                        updateSiteSettingMutation.mutate({
+                          key: 'openai_api_key',
+                          value: e.target.value
+                        });
+                      }
+                    }}
+                  />
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  OpenAI API key for content optimization. Get yours at platform.openai.com
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* OPTIMIZER Tab */}
+        <TabsContent value="optimizer" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>AI Content OPTIMIZER</CardTitle>
+              <CardDescription>Mass optimize business content using AI</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Business Selection */}
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-medium">Select Businesses</h3>
+                  <div className="space-x-2">
+                    <Button variant="outline" size="sm" onClick={selectAllBusinesses}>
+                      Select All
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={clearBusinessSelection}>
+                      Clear Selection
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="max-h-64 overflow-y-auto border rounded-lg p-4">
+                  {filteredBusinesses?.map((business) => (
+                    <div key={business.placeid} className="flex items-center space-x-2 py-1">
+                      <input
+                        type="checkbox"
+                        checked={selectedBusinesses.includes(business.placeid)}
+                        onChange={() => toggleBusinessSelection(business.placeid)}
+                        className="rounded"
+                      />
+                      <span className="text-sm">
+                        {business.title} - {business.city}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                
+                <p className="text-sm text-muted-foreground">
+                  Selected: {selectedBusinesses.length} businesses
+                </p>
+              </div>
+
+              {/* Optimization Actions */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Improve Descriptions</CardTitle>
+                    <CardDescription>
+                      Enhance existing business descriptions using AI
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button 
+                      onClick={handleOptimizeDescriptions}
+                      disabled={optimizeDescriptionsMutation.isPending || selectedBusinesses.length === 0}
+                      className="w-full"
+                    >
+                      {optimizeDescriptionsMutation.isPending ? "Optimizing..." : "Improve Descriptions"}
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Generate FAQs</CardTitle>
+                    <CardDescription>
+                      Create 4 FAQ questions and answers for businesses
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button 
+                      onClick={handleGenerateFAQs}
+                      disabled={generateFAQsMutation.isPending || selectedBusinesses.length === 0}
+                      className="w-full"
+                    >
+                      {generateFAQsMutation.isPending ? "Generating..." : "Create FAQs"}
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Progress Display */}
+              {optimizerProgress && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">
+                      {optimizerProgress.type === 'descriptions' ? 'Optimizing Descriptions' : 'Generating FAQs'}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Progress</span>
+                        <span>{optimizerProgress.current} / {optimizerProgress.total}</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-blue-600 h-2 rounded-full transition-all"
+                          style={{ width: `${(optimizerProgress.current / optimizerProgress.total) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
