@@ -81,29 +81,26 @@ export class DatabaseStorage implements IStorage {
 
   async getUserByEmail(email: string): Promise<User | undefined> {
     try {
-      // Use raw SQL to avoid schema mismatch issues
-      const result = await db.execute(sql`
-        SELECT id, email, password, first_name as "firstName", last_name as "lastName", 
-               profile_image_url as "profileImageUrl", role, created_at as "createdAt", 
-               updated_at as "updatedAt"
-        FROM users 
-        WHERE email = ${email}
-        LIMIT 1
-      `);
+      // Use the PostgreSQL client directly to avoid ORM issues
+      const { pool } = await import('./db');
+      const result = await pool.query(
+        'SELECT id, email, password, first_name, last_name, profile_image_url, role, created_at, updated_at FROM users WHERE email = $1 LIMIT 1',
+        [email]
+      );
       
       if (result.rows.length === 0) return undefined;
       
-      const row = result.rows[0] as any;
+      const row = result.rows[0];
       return {
         id: row.id,
         email: row.email,
         password: row.password,
-        firstName: row.firstName,
-        lastName: row.lastName,
-        profileImageUrl: row.profileImageUrl,
+        firstName: row.first_name,
+        lastName: row.last_name,
+        profileImageUrl: row.profile_image_url,
         role: row.role,
-        createdAt: row.createdAt,
-        updatedAt: row.updatedAt
+        createdAt: row.created_at,
+        updatedAt: row.updated_at
       };
     } catch (error) {
       console.error('Error fetching user by email:', error);
