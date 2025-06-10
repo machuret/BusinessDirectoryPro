@@ -678,6 +678,9 @@ export class DatabaseStorage implements IStorage {
   // Menu management implementation
   async getMenuItems(position?: string): Promise<MenuItem[]> {
     try {
+      // Ensure table exists first
+      await this.ensureMenuTableExists();
+      
       if (position) {
         return await db.select().from(menuItems)
           .where(eq(menuItems.position, position))
@@ -689,6 +692,41 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error('Error getting menu items:', error);
       return [];
+    }
+  }
+
+  private async ensureMenuTableExists(): Promise<void> {
+    try {
+      // Drop existing table if it has wrong schema
+      await db.execute(sql`DROP TABLE IF EXISTS menu_items`);
+      
+      // Create the table with correct schema
+      await db.execute(sql`
+        CREATE TABLE menu_items (
+          id SERIAL PRIMARY KEY,
+          name TEXT NOT NULL,
+          url TEXT NOT NULL,
+          position TEXT NOT NULL DEFAULT 'header',
+          "order" INTEGER NOT NULL DEFAULT 0,
+          is_active BOOLEAN NOT NULL DEFAULT true,
+          target TEXT DEFAULT '_self',
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
+          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL
+        )
+      `);
+
+      // Add default menu items
+      await db.execute(sql`
+        INSERT INTO menu_items (name, url, position, "order") VALUES
+        ('Home', '/', 'header', 1),
+        ('Categories', '/categories', 'header', 2),
+        ('Featured', '/featured', 'header', 3),
+        ('About Us', '/about', 'footer', 1),
+        ('Contact', '/contact', 'footer', 2),
+        ('Privacy Policy', '/privacy', 'footer', 3)
+      `);
+    } catch (error) {
+      console.error('Error ensuring menu table exists:', error);
     }
   }
 
