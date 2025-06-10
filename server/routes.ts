@@ -317,6 +317,146 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin-only user management routes
+  app.get('/api/admin/users', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const users = await storage.getAllUsers();
+      res.json(users);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      res.status(500).json({ message: "Failed to fetch users" });
+    }
+  });
+
+  app.patch('/api/admin/users/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { id } = req.params;
+      const updateData = req.body;
+      
+      const updatedUser = await storage.updateUser(id, updateData);
+      
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      res.json(updatedUser);
+    } catch (error) {
+      console.error("Error updating user:", error);
+      res.status(500).json({ message: "Failed to update user" });
+    }
+  });
+
+  app.delete('/api/admin/users/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { id } = req.params;
+      
+      // Prevent admin from deleting themselves
+      if (id === userId) {
+        return res.status(400).json({ message: "Cannot delete your own account" });
+      }
+      
+      await storage.deleteUser(id);
+      res.json({ message: "User deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      res.status(500).json({ message: "Failed to delete user" });
+    }
+  });
+
+  // Admin business management routes
+  app.get('/api/admin/businesses', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { limit = '50', offset = '0' } = req.query;
+      const businesses = await storage.getBusinesses({
+        limit: parseInt(limit as string),
+        offset: parseInt(offset as string),
+      });
+      
+      res.json(businesses);
+    } catch (error) {
+      console.error("Error fetching admin businesses:", error);
+      res.status(500).json({ message: "Failed to fetch businesses" });
+    }
+  });
+
+  app.patch('/api/admin/businesses/:id/verify', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { id } = req.params;
+      const { verified } = req.body;
+      
+      const updatedBusiness = await storage.updateBusiness(parseInt(id), { verified });
+      
+      if (!updatedBusiness) {
+        return res.status(404).json({ message: "Business not found" });
+      }
+      
+      res.json(updatedBusiness);
+    } catch (error) {
+      console.error("Error updating business verification:", error);
+      res.status(500).json({ message: "Failed to update business verification" });
+    }
+  });
+
+  app.patch('/api/admin/businesses/:id/status', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { id } = req.params;
+      const { active } = req.body;
+      
+      const updatedBusiness = await storage.updateBusiness(parseInt(id), { active });
+      
+      if (!updatedBusiness) {
+        return res.status(404).json({ message: "Business not found" });
+      }
+      
+      res.json(updatedBusiness);
+    } catch (error) {
+      console.error("Error updating business status:", error);
+      res.status(500).json({ message: "Failed to update business status" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

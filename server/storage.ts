@@ -22,6 +22,11 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
   
+  // Admin user management
+  getAllUsers(): Promise<User[]>;
+  updateUser(id: string, userData: Partial<UpsertUser>): Promise<User | undefined>;
+  deleteUser(id: string): Promise<void>;
+  
   // Category operations
   getCategories(): Promise<CategoryWithCount[]>;
   getCategoryBySlug(slug: string): Promise<Category | undefined>;
@@ -73,6 +78,27 @@ export class DatabaseStorage implements IStorage {
       })
       .returning();
     return user;
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    const result = await db
+      .select()
+      .from(users)
+      .orderBy(desc(users.createdAt));
+    return result;
+  }
+
+  async updateUser(id: string, userData: Partial<UpsertUser>): Promise<User | undefined> {
+    const [updatedUser] = await db
+      .update(users)
+      .set({ ...userData, updatedAt: new Date() })
+      .where(eq(users.id, id))
+      .returning();
+    return updatedUser;
+  }
+
+  async deleteUser(id: string): Promise<void> {
+    await db.delete(users).where(eq(users.id, id));
   }
 
   // Category operations

@@ -8,7 +8,11 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -20,15 +24,28 @@ import {
   Building,
   Settings,
   BarChart3,
-  Palette
+  Palette,
+  Edit,
+  Trash2,
+  CheckCircle,
+  XCircle,
+  Shield,
+  Eye,
+  Search
 } from "lucide-react";
-import type { BusinessWithCategory, CategoryWithCount } from "@shared/schema";
+import type { BusinessWithCategory, CategoryWithCount, User } from "@shared/schema";
 
 export default function Admin() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const { toast } = useToast();
   
   const [isCreateCategoryModalOpen, setIsCreateCategoryModalOpen] = useState(false);
+  const [isEditUserModalOpen, setIsEditUserModalOpen] = useState(false);
+  const [isCreateBusinessModalOpen, setIsCreateBusinessModalOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [businessSearchTerm, setBusinessSearchTerm] = useState("");
+  const [userSearchTerm, setUserSearchTerm] = useState("");
+  
   const [categoryForm, setCategoryForm] = useState({
     name: "",
     slug: "",
@@ -37,12 +54,36 @@ export default function Admin() {
     color: "#1565C0",
   });
 
+  const [userForm, setUserForm] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    role: "user",
+  });
+
+  const [businessForm, setBusinessForm] = useState({
+    name: "",
+    description: "",
+    categoryId: "",
+    address: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    phone: "",
+    email: "",
+    website: "",
+  });
+
   const { data: businesses, isLoading: businessesLoading } = useQuery<BusinessWithCategory[]>({
-    queryKey: ["/api/businesses"],
+    queryKey: ["/api/admin/businesses"],
   });
 
   const { data: categories, isLoading: categoriesLoading } = useQuery<CategoryWithCount[]>({
     queryKey: ["/api/categories"],
+  });
+
+  const { data: users, isLoading: usersLoading } = useQuery<User[]>({
+    queryKey: ["/api/admin/users"],
   });
 
   const createCategoryMutation = useMutation({
@@ -84,6 +125,81 @@ export default function Admin() {
     },
   });
 
+  const updateUserMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: any }) => {
+      await apiRequest("PATCH", `/api/admin/users/${id}`, data);
+    },
+    onSuccess: () => {
+      toast({
+        title: "User updated",
+        description: "User has been successfully updated!",
+      });
+      setIsEditUserModalOpen(false);
+      setEditingUser(null);
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteUserMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await apiRequest("DELETE", `/api/admin/users/${id}`);
+    },
+    onSuccess: () => {
+      toast({
+        title: "User deleted",
+        description: "User has been successfully deleted!",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const createBusinessMutation = useMutation({
+    mutationFn: async (businessData: any) => {
+      await apiRequest("POST", "/api/businesses", businessData);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Business created",
+        description: "New business has been successfully created!",
+      });
+      setIsCreateBusinessModalOpen(false);
+      setBusinessForm({
+        name: "",
+        description: "",
+        categoryId: "",
+        address: "",
+        city: "",
+        state: "",
+        zipCode: "",
+        phone: "",
+        email: "",
+        website: "",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/businesses"] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const toggleFeatureMutation = useMutation({
     mutationFn: async ({ id, featured }: { id: number; featured: boolean }) => {
       await apiRequest("PATCH", `/api/admin/businesses/${id}/feature`, { featured });
@@ -93,20 +209,69 @@ export default function Admin() {
         title: "Business updated",
         description: "Business feature status has been updated!",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/businesses"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/businesses"] });
     },
     onError: (error) => {
-      if (isUnauthorizedError(error)) {
-        toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
-        return;
-      }
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const toggleVerifyMutation = useMutation({
+    mutationFn: async ({ id, verified }: { id: number; verified: boolean }) => {
+      await apiRequest("PATCH", `/api/admin/businesses/${id}/verify`, { verified });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Business updated",
+        description: "Business verification status has been updated!",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/businesses"] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const toggleActiveMutation = useMutation({
+    mutationFn: async ({ id, active }: { id: number; active: boolean }) => {
+      await apiRequest("PATCH", `/api/admin/businesses/${id}/status`, { active });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Business updated",
+        description: "Business status has been updated!",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/businesses"] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteBusinessMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest("DELETE", `/api/businesses/${id}`);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Business deleted",
+        description: "Business has been successfully deleted!",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/businesses"] });
+    },
+    onError: (error) => {
       toast({
         title: "Error",
         description: error.message,
@@ -125,6 +290,35 @@ export default function Admin() {
       ...categoryForm,
       slug,
     });
+  };
+
+  const handleCreateBusiness = (e: React.FormEvent) => {
+    e.preventDefault();
+    createBusinessMutation.mutate({
+      ...businessForm,
+      categoryId: parseInt(businessForm.categoryId),
+    });
+  };
+
+  const openEditUserModal = (userToEdit: User) => {
+    setEditingUser(userToEdit);
+    setUserForm({
+      firstName: userToEdit.firstName || "",
+      lastName: userToEdit.lastName || "",
+      email: userToEdit.email || "",
+      role: userToEdit.role,
+    });
+    setIsEditUserModalOpen(true);
+  };
+
+  const handleUpdateUser = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingUser) {
+      updateUserMutation.mutate({
+        id: editingUser.id,
+        data: userForm,
+      });
+    }
   };
 
   if (isLoading) {
@@ -155,13 +349,23 @@ export default function Admin() {
     );
   }
 
+  const filteredBusinesses = businesses?.filter(business =>
+    business.name.toLowerCase().includes(businessSearchTerm.toLowerCase()) ||
+    business.city.toLowerCase().includes(businessSearchTerm.toLowerCase()) ||
+    business.category.name.toLowerCase().includes(businessSearchTerm.toLowerCase())
+  );
+
+  const filteredUsers = users?.filter(user =>
+    user.firstName?.toLowerCase().includes(userSearchTerm.toLowerCase()) ||
+    user.lastName?.toLowerCase().includes(userSearchTerm.toLowerCase()) ||
+    user.email?.toLowerCase().includes(userSearchTerm.toLowerCase())
+  );
+
   const stats = {
     totalBusinesses: businesses?.length || 0,
     featuredBusinesses: businesses?.filter(b => b.featured).length || 0,
     totalCategories: categories?.length || 0,
-    averageRating: businesses?.length 
-      ? (businesses.reduce((sum, b) => sum + parseFloat(b.averageRating || "0"), 0) / businesses.length).toFixed(1)
-      : "0.0",
+    totalUsers: users?.length || 0,
   };
 
   return (
@@ -173,12 +377,24 @@ export default function Admin() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
           <p className="text-gray-600">
-            Manage the business directory, categories, and featured listings.
+            Manage users, businesses, categories, and system settings.
           </p>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <Users className="w-8 h-8 text-blue-500 mr-3" />
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Total Users</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.totalUsers}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center">
@@ -214,205 +430,575 @@ export default function Admin() {
               </div>
             </CardContent>
           </Card>
-          
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <BarChart3 className="w-8 h-8 text-blue-500 mr-3" />
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Avg Rating</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.averageRating}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Categories Management */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Categories</CardTitle>
-                <Dialog open={isCreateCategoryModalOpen} onOpenChange={setIsCreateCategoryModalOpen}>
-                  <DialogTrigger asChild>
-                    <Button size="sm">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Category
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Create New Category</DialogTitle>
-                    </DialogHeader>
-                    <form onSubmit={handleCreateCategory} className="space-y-4">
-                      <div>
-                        <Label htmlFor="category-name">Name</Label>
-                        <Input
-                          id="category-name"
-                          required
-                          value={categoryForm.name}
-                          onChange={(e) => setCategoryForm(prev => ({ ...prev, name: e.target.value }))}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="category-slug">Slug (optional)</Label>
-                        <Input
-                          id="category-slug"
-                          value={categoryForm.slug}
-                          onChange={(e) => setCategoryForm(prev => ({ ...prev, slug: e.target.value }))}
-                          placeholder="Will be generated from name if empty"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="category-description">Description</Label>
-                        <Input
-                          id="category-description"
-                          value={categoryForm.description}
-                          onChange={(e) => setCategoryForm(prev => ({ ...prev, description: e.target.value }))}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="category-icon">Icon Class</Label>
-                        <Input
-                          id="category-icon"
-                          value={categoryForm.icon}
-                          onChange={(e) => setCategoryForm(prev => ({ ...prev, icon: e.target.value }))}
-                          placeholder="e.g., fas fa-utensils"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="category-color">Color</Label>
-                        <Input
-                          id="category-color"
-                          type="color"
-                          value={categoryForm.color}
-                          onChange={(e) => setCategoryForm(prev => ({ ...prev, color: e.target.value }))}
-                        />
-                      </div>
-                      <div className="flex justify-end space-x-2">
-                        <Button 
-                          type="button" 
-                          variant="outline" 
-                          onClick={() => setIsCreateCategoryModalOpen(false)}
-                        >
-                          Cancel
-                        </Button>
-                        <Button type="submit" disabled={createCategoryMutation.isPending}>
-                          {createCategoryMutation.isPending ? "Creating..." : "Create Category"}
-                        </Button>
-                      </div>
-                    </form>
-                  </DialogContent>
-                </Dialog>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {categoriesLoading ? (
-                <div className="space-y-3">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <div key={i} className="h-12 bg-gray-200 rounded animate-pulse" />
-                  ))}
-                </div>
-              ) : categories && categories.length > 0 ? (
-                <div className="space-y-3">
-                  {categories.map((category) => (
-                    <div key={category.id} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <div 
-                          className="w-8 h-8 rounded flex items-center justify-center"
-                          style={{ backgroundColor: category.color + '20' }}
-                        >
-                          <i className={`${category.icon} text-sm`} style={{ color: category.color }}></i>
-                        </div>
-                        <div>
-                          <p className="font-semibold text-gray-900">{category.name}</p>
-                          <p className="text-sm text-gray-600">{category.businessCount} businesses</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <Palette className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-                  <p className="text-gray-600">No categories yet</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+        {/* Main Admin Tabs */}
+        <Tabs defaultValue="users" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="users">User Management</TabsTrigger>
+            <TabsTrigger value="businesses">Business Management</TabsTrigger>
+            <TabsTrigger value="categories">Categories</TabsTrigger>
+          </TabsList>
 
-          {/* Business Management */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Business Management</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {businessesLoading ? (
-                <div className="space-y-4">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <div key={i} className="p-4 border rounded-lg animate-pulse">
-                      <div className="h-4 bg-gray-200 rounded mb-2 w-1/3" />
-                      <div className="h-3 bg-gray-200 rounded mb-3 w-full" />
-                      <div className="h-3 bg-gray-200 rounded w-2/3" />
+          {/* User Management Tab */}
+          <TabsContent value="users">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center">
+                    <Users className="w-5 h-5 mr-2" />
+                    User Management
+                  </CardTitle>
+                  <div className="flex items-center space-x-4">
+                    <div className="relative">
+                      <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                      <Input
+                        placeholder="Search users..."
+                        value={userSearchTerm}
+                        onChange={(e) => setUserSearchTerm(e.target.value)}
+                        className="pl-10 w-64"
+                      />
                     </div>
-                  ))}
+                  </div>
                 </div>
-              ) : businesses && businesses.length > 0 ? (
-                <div className="space-y-4 max-h-96 overflow-y-auto">
-                  {businesses.slice(0, 10).map((business) => (
-                    <div key={business.id} className="p-4 border rounded-lg">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-2 mb-1">
-                            <h4 className="font-semibold text-gray-900">{business.name}</h4>
-                            <Badge variant="outline" className="text-xs">{business.category.name}</Badge>
-                            {business.verified && (
-                              <Badge className="bg-green-100 text-green-800 text-xs">Verified</Badge>
-                            )}
+              </CardHeader>
+              <CardContent>
+                {usersLoading ? (
+                  <div className="space-y-4">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <div key={i} className="h-16 bg-gray-200 rounded animate-pulse" />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Name</TableHead>
+                          <TableHead>Email</TableHead>
+                          <TableHead>Role</TableHead>
+                          <TableHead>Created</TableHead>
+                          <TableHead>Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredUsers?.map((user) => (
+                          <TableRow key={user.id}>
+                            <TableCell className="font-medium">
+                              {user.firstName} {user.lastName}
+                            </TableCell>
+                            <TableCell>{user.email}</TableCell>
+                            <TableCell>
+                              <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
+                                {user.role}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              {new Date(user.createdAt!).toLocaleDateString()}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center space-x-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => openEditUserModal(user)}
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </Button>
+                                {user.id !== user?.id && (
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <Button size="sm" variant="destructive">
+                                        <Trash2 className="w-4 h-4" />
+                                      </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>Delete User</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          Are you sure you want to delete this user? This action cannot be undone.
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction
+                                          onClick={() => deleteUserMutation.mutate(user.id)}
+                                          className="bg-red-600 hover:bg-red-700"
+                                        >
+                                          Delete
+                                        </AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
+                                )}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Business Management Tab */}
+          <TabsContent value="businesses">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center">
+                    <Building className="w-5 h-5 mr-2" />
+                    Business Management
+                  </CardTitle>
+                  <div className="flex items-center space-x-4">
+                    <div className="relative">
+                      <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                      <Input
+                        placeholder="Search businesses..."
+                        value={businessSearchTerm}
+                        onChange={(e) => setBusinessSearchTerm(e.target.value)}
+                        className="pl-10 w-64"
+                      />
+                    </div>
+                    <Dialog open={isCreateBusinessModalOpen} onOpenChange={setIsCreateBusinessModalOpen}>
+                      <DialogTrigger asChild>
+                        <Button>
+                          <Plus className="w-4 h-4 mr-2" />
+                          Add Business
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-2xl">
+                        <DialogHeader>
+                          <DialogTitle>Create New Business</DialogTitle>
+                        </DialogHeader>
+                        <form onSubmit={handleCreateBusiness} className="space-y-4">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <Label htmlFor="business-name">Business Name</Label>
+                              <Input
+                                id="business-name"
+                                required
+                                value={businessForm.name}
+                                onChange={(e) => setBusinessForm(prev => ({ ...prev, name: e.target.value }))}
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="business-category">Category</Label>
+                              <Select
+                                value={businessForm.categoryId}
+                                onValueChange={(value) => setBusinessForm(prev => ({ ...prev, categoryId: value }))}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select a category" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {categories?.map((category) => (
+                                    <SelectItem key={category.id} value={category.id.toString()}>
+                                      {category.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
                           </div>
-                          <p className="text-sm text-gray-600 mb-2">{business.city}, {business.state}</p>
-                          <div className="flex items-center space-x-4 text-xs text-gray-500">
-                            <span className="flex items-center space-x-1">
-                              <Star className="w-3 h-3" />
-                              <span>{parseFloat(business.averageRating || "0").toFixed(1)}</span>
-                            </span>
-                            <span>{business.totalReviews} reviews</span>
-                          </div>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <div className="flex items-center space-x-2">
-                            <Label htmlFor={`featured-${business.id}`} className="text-xs">Featured</Label>
-                            <Switch
-                              id={`featured-${business.id}`}
-                              checked={business.featured}
-                              onCheckedChange={(featured) => 
-                                toggleFeatureMutation.mutate({ id: business.id, featured })
-                              }
-                              disabled={toggleFeatureMutation.isPending}
+                          <div>
+                            <Label htmlFor="business-description">Description</Label>
+                            <Input
+                              id="business-description"
+                              required
+                              value={businessForm.description}
+                              onChange={(e) => setBusinessForm(prev => ({ ...prev, description: e.target.value }))}
                             />
                           </div>
+                          <div>
+                            <Label htmlFor="business-address">Address</Label>
+                            <Input
+                              id="business-address"
+                              required
+                              value={businessForm.address}
+                              onChange={(e) => setBusinessForm(prev => ({ ...prev, address: e.target.value }))}
+                            />
+                          </div>
+                          <div className="grid grid-cols-3 gap-4">
+                            <div>
+                              <Label htmlFor="business-city">City</Label>
+                              <Input
+                                id="business-city"
+                                required
+                                value={businessForm.city}
+                                onChange={(e) => setBusinessForm(prev => ({ ...prev, city: e.target.value }))}
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="business-state">State</Label>
+                              <Input
+                                id="business-state"
+                                required
+                                value={businessForm.state}
+                                onChange={(e) => setBusinessForm(prev => ({ ...prev, state: e.target.value }))}
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="business-zipcode">ZIP Code</Label>
+                              <Input
+                                id="business-zipcode"
+                                required
+                                value={businessForm.zipCode}
+                                onChange={(e) => setBusinessForm(prev => ({ ...prev, zipCode: e.target.value }))}
+                              />
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <Label htmlFor="business-phone">Phone</Label>
+                              <Input
+                                id="business-phone"
+                                value={businessForm.phone}
+                                onChange={(e) => setBusinessForm(prev => ({ ...prev, phone: e.target.value }))}
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="business-email">Email</Label>
+                              <Input
+                                id="business-email"
+                                type="email"
+                                value={businessForm.email}
+                                onChange={(e) => setBusinessForm(prev => ({ ...prev, email: e.target.value }))}
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <Label htmlFor="business-website">Website</Label>
+                            <Input
+                              id="business-website"
+                              value={businessForm.website}
+                              onChange={(e) => setBusinessForm(prev => ({ ...prev, website: e.target.value }))}
+                            />
+                          </div>
+                          <div className="flex justify-end space-x-2">
+                            <Button 
+                              type="button" 
+                              variant="outline" 
+                              onClick={() => setIsCreateBusinessModalOpen(false)}
+                            >
+                              Cancel
+                            </Button>
+                            <Button type="submit" disabled={createBusinessMutation.isPending}>
+                              {createBusinessMutation.isPending ? "Creating..." : "Create Business"}
+                            </Button>
+                          </div>
+                        </form>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {businessesLoading ? (
+                  <div className="space-y-4">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <div key={i} className="h-16 bg-gray-200 rounded animate-pulse" />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Business</TableHead>
+                          <TableHead>Category</TableHead>
+                          <TableHead>Location</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredBusinesses?.map((business) => (
+                          <TableRow key={business.id}>
+                            <TableCell>
+                              <div>
+                                <p className="font-medium">{business.name}</p>
+                                <div className="flex items-center space-x-2 mt-1">
+                                  {business.featured && (
+                                    <Badge variant="default" className="text-xs">Featured</Badge>
+                                  )}
+                                  {business.verified && (
+                                    <Badge variant="secondary" className="text-xs">Verified</Badge>
+                                  )}
+                                  {!business.active && (
+                                    <Badge variant="destructive" className="text-xs">Inactive</Badge>
+                                  )}
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="outline">{business.category.name}</Badge>
+                            </TableCell>
+                            <TableCell>{business.city}, {business.state}</TableCell>
+                            <TableCell>
+                              <div className="flex items-center space-x-4">
+                                <div className="flex items-center space-x-1">
+                                  <Label htmlFor={`featured-${business.id}`} className="text-xs">Featured</Label>
+                                  <Switch
+                                    id={`featured-${business.id}`}
+                                    checked={business.featured}
+                                    onCheckedChange={(featured) => 
+                                      toggleFeatureMutation.mutate({ id: business.id, featured })
+                                    }
+                                  />
+                                </div>
+                                <div className="flex items-center space-x-1">
+                                  <Label htmlFor={`verified-${business.id}`} className="text-xs">Verified</Label>
+                                  <Switch
+                                    id={`verified-${business.id}`}
+                                    checked={business.verified}
+                                    onCheckedChange={(verified) => 
+                                      toggleVerifyMutation.mutate({ id: business.id, verified })
+                                    }
+                                  />
+                                </div>
+                                <div className="flex items-center space-x-1">
+                                  <Label htmlFor={`active-${business.id}`} className="text-xs">Active</Label>
+                                  <Switch
+                                    id={`active-${business.id}`}
+                                    checked={business.active}
+                                    onCheckedChange={(active) => 
+                                      toggleActiveMutation.mutate({ id: business.id, active })
+                                    }
+                                  />
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center space-x-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => window.open(`/business/${business.slug}`, '_blank')}
+                                >
+                                  <Eye className="w-4 h-4" />
+                                </Button>
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button size="sm" variant="destructive">
+                                      <Trash2 className="w-4 h-4" />
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Delete Business</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        Are you sure you want to delete "{business.name}"? This action cannot be undone.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                      <AlertDialogAction
+                                        onClick={() => deleteBusinessMutation.mutate(business.id)}
+                                        className="bg-red-600 hover:bg-red-700"
+                                      >
+                                        Delete
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Categories Tab */}
+          <TabsContent value="categories">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Categories</CardTitle>
+                  <Dialog open={isCreateCategoryModalOpen} onOpenChange={setIsCreateCategoryModalOpen}>
+                    <DialogTrigger asChild>
+                      <Button size="sm">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Category
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Create New Category</DialogTitle>
+                      </DialogHeader>
+                      <form onSubmit={handleCreateCategory} className="space-y-4">
+                        <div>
+                          <Label htmlFor="category-name">Name</Label>
+                          <Input
+                            id="category-name"
+                            required
+                            value={categoryForm.name}
+                            onChange={(e) => setCategoryForm(prev => ({ ...prev, name: e.target.value }))}
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="category-slug">Slug (optional)</Label>
+                          <Input
+                            id="category-slug"
+                            value={categoryForm.slug}
+                            onChange={(e) => setCategoryForm(prev => ({ ...prev, slug: e.target.value }))}
+                            placeholder="Will be generated from name if empty"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="category-description">Description</Label>
+                          <Input
+                            id="category-description"
+                            value={categoryForm.description}
+                            onChange={(e) => setCategoryForm(prev => ({ ...prev, description: e.target.value }))}
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="category-icon">Icon Class</Label>
+                          <Input
+                            id="category-icon"
+                            value={categoryForm.icon}
+                            onChange={(e) => setCategoryForm(prev => ({ ...prev, icon: e.target.value }))}
+                            placeholder="e.g., fas fa-utensils"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="category-color">Color</Label>
+                          <Input
+                            id="category-color"
+                            type="color"
+                            value={categoryForm.color}
+                            onChange={(e) => setCategoryForm(prev => ({ ...prev, color: e.target.value }))}
+                          />
+                        </div>
+                        <div className="flex justify-end space-x-2">
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            onClick={() => setIsCreateCategoryModalOpen(false)}
+                          >
+                            Cancel
+                          </Button>
+                          <Button type="submit" disabled={createCategoryMutation.isPending}>
+                            {createCategoryMutation.isPending ? "Creating..." : "Create Category"}
+                          </Button>
+                        </div>
+                      </form>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {categoriesLoading ? (
+                  <div className="space-y-3">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <div key={i} className="h-12 bg-gray-200 rounded animate-pulse" />
+                    ))}
+                  </div>
+                ) : categories && categories.length > 0 ? (
+                  <div className="space-y-3">
+                    {categories.map((category) => (
+                      <div key={category.id} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div className="flex items-center space-x-3">
+                          <div 
+                            className="w-8 h-8 rounded flex items-center justify-center"
+                            style={{ backgroundColor: category.color + '20' }}
+                          >
+                            <i className={`${category.icon} text-sm`} style={{ color: category.color }}></i>
+                          </div>
+                          <div>
+                            <p className="font-semibold text-gray-900">{category.name}</p>
+                            <p className="text-sm text-gray-600">{category.businessCount} businesses</p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                  {businesses.length > 10 && (
-                    <div className="text-center pt-4">
-                      <p className="text-sm text-gray-600">Showing first 10 businesses...</p>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <Building className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-                  <p className="text-gray-600">No businesses yet</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Palette className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                    <p className="text-gray-600">No categories yet</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
 
+        {/* Edit User Modal */}
+        <Dialog open={isEditUserModalOpen} onOpenChange={setIsEditUserModalOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit User</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleUpdateUser} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="user-firstName">First Name</Label>
+                  <Input
+                    id="user-firstName"
+                    value={userForm.firstName}
+                    onChange={(e) => setUserForm(prev => ({ ...prev, firstName: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="user-lastName">Last Name</Label>
+                  <Input
+                    id="user-lastName"
+                    value={userForm.lastName}
+                    onChange={(e) => setUserForm(prev => ({ ...prev, lastName: e.target.value }))}
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="user-email">Email</Label>
+                <Input
+                  id="user-email"
+                  type="email"
+                  value={userForm.email}
+                  onChange={(e) => setUserForm(prev => ({ ...prev, email: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="user-role">Role</Label>
+                <Select
+                  value={userForm.role}
+                  onValueChange={(value) => setUserForm(prev => ({ ...prev, role: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="user">User</SelectItem>
+                    <SelectItem value="business_owner">Business Owner</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setIsEditUserModalOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={updateUserMutation.isPending}>
+                  {updateUserMutation.isPending ? "Updating..." : "Update User"}
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
+      
       <Footer />
     </div>
   );
