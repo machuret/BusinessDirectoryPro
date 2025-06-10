@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, isAdmin } from "./auth";
 import { insertBusinessSchema, insertReviewSchema, insertCategorySchema, insertMenuItemSchema } from "@shared/schema";
+import { optimizeBusinesses } from "./openai";
 import { z } from "zod";
 import multer from "multer";
 import csv from "csv-parser";
@@ -879,6 +880,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting menu item:", error);
       res.status(500).json({ message: "Failed to delete menu item" });
+    }
+  });
+
+  // OpenAI Optimization routes
+  app.post('/api/admin/optimize/descriptions', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { businessIds } = req.body;
+      
+      if (!Array.isArray(businessIds) || businessIds.length === 0) {
+        return res.status(400).json({ message: "Business IDs array is required" });
+      }
+
+      const results = await optimizeBusinesses(businessIds, 'descriptions');
+      res.json(results);
+    } catch (error) {
+      console.error("Error optimizing descriptions:", error);
+      res.status(500).json({ message: "Failed to optimize descriptions" });
+    }
+  });
+
+  app.post('/api/admin/optimize/faqs', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { businessIds } = req.body;
+      
+      if (!Array.isArray(businessIds) || businessIds.length === 0) {
+        return res.status(400).json({ message: "Business IDs array is required" });
+      }
+
+      const results = await optimizeBusinesses(businessIds, 'faqs');
+      res.json(results);
+    } catch (error) {
+      console.error("Error generating FAQs:", error);
+      res.status(500).json({ message: "Failed to generate FAQs" });
     }
   });
 
