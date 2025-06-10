@@ -45,6 +45,9 @@ export default function Admin() {
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [businessSearchTerm, setBusinessSearchTerm] = useState("");
   const [userSearchTerm, setUserSearchTerm] = useState("");
+  const [csvFile, setCsvFile] = useState<File | null>(null);
+  const [importProgress, setImportProgress] = useState<{ total: number; processed: number; errors: any[] } | null>(null);
+  const [isImporting, setIsImporting] = useState(false);
   
   const [categoryForm, setCategoryForm] = useState({
     name: "",
@@ -304,6 +307,42 @@ export default function Admin() {
     },
   });
 
+  const csvImportMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append('csvFile', file);
+      
+      const response = await fetch('/api/admin/import/businesses', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        throw new Error('Import failed');
+      }
+      
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setImportProgress(null);
+      setIsImporting(false);
+      setCsvFile(null);
+      toast({
+        title: "Import completed",
+        description: `Successfully imported ${data.success} businesses. ${data.errors?.length || 0} errors.`,
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/businesses"] });
+    },
+    onError: (error) => {
+      setIsImporting(false);
+      toast({
+        title: "Import failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleCreateCategory = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -458,11 +497,12 @@ export default function Admin() {
 
         {/* Main Admin Tabs */}
         <Tabs defaultValue="users" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="users">User Management</TabsTrigger>
             <TabsTrigger value="businesses">Business Management</TabsTrigger>
             <TabsTrigger value="categories">Categories</TabsTrigger>
             <TabsTrigger value="templates">Template Manager</TabsTrigger>
+            <TabsTrigger value="import">CSV Import</TabsTrigger>
           </TabsList>
 
           {/* User Management Tab */}

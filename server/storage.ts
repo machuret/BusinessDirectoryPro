@@ -52,6 +52,10 @@ export interface IStorage {
   deleteBusiness(id: number): Promise<void>;
   updateBusinessRating(businessId: number): Promise<void>;
   
+  // CSV Import operations
+  importBusinessFromCSV(businessData: any): Promise<Business>;
+  bulkImportBusinesses(businessesData: any[]): Promise<{ success: number; errors: any[] }>;
+  
   // Review operations
   getReviewsByBusiness(businessId: number): Promise<(Review & { user: Pick<User, 'firstName' | 'lastName'> })[]>;
   createReview(review: InsertReview): Promise<Review>;
