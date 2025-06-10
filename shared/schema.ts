@@ -49,26 +49,121 @@ export const categories = pgTable("categories", {
 
 // Businesses table
 export const businesses = pgTable("businesses", {
+  // Core identification
   id: serial("id").primaryKey(),
-  ownerId: varchar("owner_id").notNull().references(() => users.id),
-  categoryId: integer("category_id").notNull().references(() => categories.id),
-  name: varchar("name").notNull(),
+  placeid: text("placeid").unique(), // Google Places ID from CSV
+  ownerId: varchar("owner_id").references(() => users.id),
+  categoryId: integer("category_id").references(() => categories.id),
+  
+  // Basic info
+  title: varchar("title").notNull(), // Changed from 'name' to 'title' to match CSV
+  subtitle: text("subtitle"),
+  description: text("description"),
+  categoryname: varchar("categoryname"), // Category name from CSV
+  categories: jsonb("categories"), // Categories JSON from CSV
+  
+  // SEO fields
   slug: varchar("slug").notNull().unique(),
-  description: text("description").notNull(),
-  address: text("address").notNull(),
-  city: varchar("city").notNull(),
-  state: varchar("state").notNull(),
-  zipCode: varchar("zip_code").notNull(),
+  seotitle: text("seotitle"),
+  seodescription: text("seodescription"),
+  
+  // Contact info
   phone: varchar("phone"),
-  email: varchar("email"),
+  phoneunformatted: varchar("phoneunformatted"),
   website: varchar("website"),
-  hours: jsonb("hours"), // Store opening hours as JSON
-  imageUrls: text("image_urls").array(),
+  email: varchar("email"),
+  
+  // Location data
+  address: text("address"),
+  neighborhood: varchar("neighborhood"),
+  street: varchar("street"),
+  city: varchar("city"),
+  postalcode: varchar("postalcode"),
+  state: varchar("state"),
+  countrycode: varchar("countrycode"),
+  lat: decimal("lat", { precision: 10, scale: 8 }),
+  lng: decimal("lng", { precision: 11, scale: 8 }),
+  pluscode: varchar("pluscode"),
+  locatedin: varchar("locatedin"),
+  
+  // Google-specific IDs
+  fid: varchar("fid"),
+  cid: varchar("cid"),
+  kgmid: varchar("kgmid"),
+  url: text("url"),
+  searchpageurl: text("searchpageurl"),
+  googlefoodurl: text("googlefoodurl"),
+  
+  // Business status
+  claimthisbusiness: boolean("claimthisbusiness"),
+  permanentlyclosed: boolean("permanentlyclosed"),
+  temporarilyclosed: boolean("temporarilyclosed"),
+  isadvertisement: boolean("isadvertisement"),
   featured: boolean("featured").default(false),
   verified: boolean("verified").default(false),
   active: boolean("active").default(true),
-  averageRating: decimal("average_rating", { precision: 3, scale: 2 }).default("0"),
-  totalReviews: integer("total_reviews").default(0),
+  
+  // Pricing and reviews
+  price: varchar("price"),
+  totalscore: decimal("totalscore", { precision: 3, scale: 2 }),
+  reviewscount: integer("reviewscount"),
+  reviewsdistribution: jsonb("reviewsdistribution"),
+  reviewstags: jsonb("reviewstags"),
+  reviews: jsonb("reviews"),
+  
+  // Media
+  imageurl: text("imageurl"),
+  imagescount: integer("imagescount"),
+  imagecategories: jsonb("imagecategories"),
+  imageurls: jsonb("imageurls"),
+  images: jsonb("images"),
+  logo: jsonb("logo"),
+  
+  // Hours and additional info
+  openinghours: jsonb("openinghours"),
+  additionalopeninghours: jsonb("additionalopeninghours"),
+  openinghoursbusinessconfirmationtext: text("openinghoursbusinessconfirmationtext"),
+  additionalinfo: jsonb("additionalinfo"),
+  amenities: jsonb("amenities"),
+  accessibility: jsonb("accessibility"),
+  planning: jsonb("planning"),
+  
+  // Reservations and booking
+  reservetableurl: text("reservetableurl"),
+  tablereservationlinks: jsonb("tablereservationlinks"),
+  bookinglinks: jsonb("bookinglinks"),
+  orderby: jsonb("orderby"),
+  
+  // Restaurant specific
+  restaurantdata: jsonb("restaurantdata"),
+  menu: text("menu"),
+  
+  // Hotel specific
+  hotelads: jsonb("hotelads"),
+  hotelstars: integer("hotelstars"),
+  hoteldescription: text("hoteldescription"),
+  checkindate: text("checkindate"),
+  checkoutdate: text("checkoutdate"),
+  similarhotelsnearby: jsonb("similarhotelsnearby"),
+  hotelreviewsummary: jsonb("hotelreviewsummary"),
+  
+  // Additional data
+  peoplealsosearch: jsonb("peoplealsosearch"),
+  placestags: jsonb("placestags"),
+  gasprices: jsonb("gasprices"),
+  questionsandanswers: jsonb("questionsandanswers"),
+  updatesfromcustomers: jsonb("updatesfromcustomers"),
+  ownerupdates: jsonb("ownerupdates"),
+  webresults: jsonb("webresults"),
+  leadsenrichment: jsonb("leadsenrichment"),
+  userplacenote: text("userplacenote"),
+  faq: jsonb("faq"),
+  
+  // Metadata
+  scrapedat: timestamp("scrapedat"),
+  searchstring: text("searchstring"),
+  language: varchar("language"),
+  rank: integer("rank"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -107,11 +202,13 @@ export const insertCategorySchema = createInsertSchema(categories).omit({
 
 export const insertBusinessSchema = createInsertSchema(businesses).omit({
   id: true,
-  slug: true,
-  averageRating: true,
-  totalReviews: true,
   createdAt: true,
   updatedAt: true,
+});
+
+export const csvBusinessSchema = insertBusinessSchema.partial().extend({
+  title: z.string().min(1, "Title is required"),
+  slug: z.string().min(1, "Slug is required"),
 });
 
 export const insertReviewSchema = createInsertSchema(reviews).omit({
