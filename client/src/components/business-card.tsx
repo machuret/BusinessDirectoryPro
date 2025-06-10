@@ -35,7 +35,22 @@ export default function BusinessCard({ business }: BusinessCardProps) {
     return "Hours not available";
   };
 
-  const displayImage = business.imageurl || `https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&h=400&fit=crop&auto=format`;
+  // Use business images in priority order: imageurl, first image from images array, then fallback
+  const getBusinessImage = () => {
+    if (business.imageurl) return business.imageurl;
+    
+    if (business.images && Array.isArray(business.images) && business.images.length > 0) {
+      return business.images[0];
+    }
+    
+    if (business.imageurls && Array.isArray(business.imageurls) && business.imageurls.length > 0) {
+      return business.imageurls[0];
+    }
+    
+    return `https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&h=400&fit=crop&auto=format`;
+  };
+
+  const displayImage = getBusinessImage();
 
   return (
     <Card className="overflow-hidden group hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1">
@@ -106,7 +121,7 @@ export default function BusinessCard({ business }: BusinessCardProps) {
         </div>
         
         <div className="flex space-x-3">
-          <Link href={`/business/${business.slug || business.placeid}`} className="flex-1">
+          <Link href={`/business/${business.placeid}`} className="flex-1">
             <Button className="w-full bg-primary text-white hover:bg-blue-700">
               View Details
             </Button>
