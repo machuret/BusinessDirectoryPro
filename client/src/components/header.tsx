@@ -32,7 +32,8 @@ export default function Header() {
   };
 
   const handleSignOut = () => {
-    window.location.href = "/api/logout";
+    // For now, just redirect to login page
+    window.location.href = "/login";
   };
 
   return (
@@ -124,18 +125,16 @@ export default function Header() {
               </div>
             ) : (
               <>
-                <Button 
-                  variant="ghost" 
-                  onClick={() => window.location.href = "/api/login"}
-                >
-                  Sign In
-                </Button>
-                <Button 
-                  onClick={() => window.location.href = "/api/login"}
-                  className="bg-primary text-white hover:bg-blue-700"
-                >
-                  List Your Business
-                </Button>
+                <Link href="/login">
+                  <Button variant="ghost">
+                    Sign In
+                  </Button>
+                </Link>
+                <Link href="/login">
+                  <Button className="bg-primary text-white hover:bg-blue-700">
+                    List Your Business
+                  </Button>
+                </Link>
               </>
             )}
           </div>

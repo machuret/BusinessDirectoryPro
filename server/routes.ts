@@ -24,19 +24,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
     },
   });
 
-  // Auth middleware
-  await setupAuth(app);
-
-  // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  // Email/Password Authentication routes
+  app.post("/api/auth/register", async (req, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
+      const { email, password, firstName, lastName } = req.body;
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(email);
+      if (existingUser) {
+        return res.status(400).json({ message: "User already exists with this email" });
+      }
+
+      // Create new user with hashed password
+      const bcrypt = await import('bcrypt');
+      const hashedPassword = await bcrypt.hash(password, 10);
+      
+      const newUser = await storage.createUser({
+        id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        email,
+        password: hashedPassword,
+        firstName,
+        lastName,
+        role: "user"
+      });
+
+      // Remove password from response
+      const { password: _, ...userResponse } = newUser;
+      res.status(201).json(userResponse);
     } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
+      console.error("Registration error:", error);
+      res.status(500).json({ message: "Registration failed" });
     }
+  });
+
+  app.post("/api/auth/login", async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      
+      const user = await storage.getUserByEmail(email);
+      if (!user || !user.password) {
+        return res.status(401).json({ message: "Invalid email or password" });
+      }
+
+      const bcrypt = await import('bcrypt');
+      const isValidPassword = await bcrypt.compare(password, user.password);
+      if (!isValidPassword) {
+        return res.status(401).json({ message: "Invalid email or password" });
+      }
+
+      // Remove password from response
+      const { password: _, ...userResponse } = user;
+      res.json(userResponse);
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ message: "Login failed" });
+    }
+  });
+
+  app.get("/api/auth/user", (req, res) => {
+    // For now, return 401 until we implement proper session management
+    res.status(401).json({ message: "Unauthorized" });
+  });
+
+  app.post("/api/auth/logout", (req, res) => {
+    res.json({ message: "Logged out successfully" });
   });
 
   // Category routes

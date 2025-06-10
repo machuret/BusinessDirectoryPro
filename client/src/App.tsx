@@ -9,6 +9,7 @@ import Categories from "@/pages/categories";
 import BusinessDetail from "@/pages/business-detail";
 import Dashboard from "@/pages/dashboard";
 import Admin from "@/pages/admin";
+import Login from "@/pages/login";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -28,6 +29,7 @@ function Router() {
       <Route path="/categories" component={Categories} />
       <Route path="/categories/:slug" component={Categories} />
       <Route path="/business/:slug" component={BusinessDetail} />
+      <Route path="/login" component={Login} />
       {isAuthenticated && (
         <>
           <Route path="/dashboard" component={Dashboard} />
