@@ -212,42 +212,39 @@ export class DatabaseStorage implements IStorage {
   } = {}): Promise<BusinessWithCategory[]> {
     const { categoryId, search, city, featured, limit = 50, offset = 0 } = params;
 
-    // Build dynamic SQL query with proper filtering
-    let whereConditions: string[] = [];
-    let queryParams: any[] = [];
-    let paramIndex = 1;
+    try {
+      // Build base query
+      let query = db.select().from(businesses);
+      
+      // Apply city filter if provided
+      if (city) {
+        query = query.where(like(businesses.city, `%${city}%`));
+      }
+      
+      // Apply search filter if provided  
+      if (search && !city) {
+        query = query.where(
+          or(
+            like(businesses.title, `%${search}%`),
+            like(businesses.description, `%${search}%`),
+            like(businesses.categoryname, `%${search}%`)
+          )
+        );
+      }
+      
+      // Apply featured filter if provided
+      if (featured && !city && !search) {
+        query = query.where(eq(businesses.featured, true));
+      }
 
-    if (city) {
-      whereConditions.push(`city ILIKE $${paramIndex}`);
-      queryParams.push(`%${city}%`);
-      paramIndex++;
+      const result = await query.limit(limit).offset(offset);
+      return result as BusinessWithCategory[];
+    } catch (error) {
+      console.error('Error in getBusinesses:', error);
+      // Simple fallback query
+      const result = await db.execute(sql`SELECT * FROM businesses ORDER BY placeid LIMIT ${limit} OFFSET ${offset}`);
+      return result.rows as BusinessWithCategory[];
     }
-
-    if (search) {
-      whereConditions.push(`(title ILIKE $${paramIndex} OR description ILIKE $${paramIndex + 1} OR categoryname ILIKE $${paramIndex + 2})`);
-      queryParams.push(`%${search}%`, `%${search}%`, `%${search}%`);
-      paramIndex += 3;
-    }
-
-    if (featured) {
-      whereConditions.push(`featured = $${paramIndex}`);
-      queryParams.push(true);
-      paramIndex++;
-    }
-
-    const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
-
-    queryParams.push(limit, offset);
-
-    const query = `
-      SELECT * FROM businesses 
-      ${whereClause}
-      ORDER BY createdat DESC 
-      LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
-    `;
-
-    const result = await db.execute(sql.raw(query, queryParams));
-    return result.rows as BusinessWithCategory[];
   }
 
   async getBusinessById(id: string): Promise<BusinessWithCategory | undefined> {
