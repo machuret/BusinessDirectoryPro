@@ -212,36 +212,42 @@ export class DatabaseStorage implements IStorage {
   } = {}): Promise<BusinessWithCategory[]> {
     const { categoryId, search, city, featured, limit = 50, offset = 0 } = params;
 
-    let query = db.select().from(businesses);
-    
+    // Build dynamic SQL query with proper filtering
+    let whereConditions: string[] = [];
+    let queryParams: any[] = [];
+    let paramIndex = 1;
+
     if (city) {
-      query = query.where(ilike(businesses.city, `%${city}%`));
+      whereConditions.push(`city ILIKE $${paramIndex}`);
+      queryParams.push(`%${city}%`);
+      paramIndex++;
     }
-    
-    if (categoryId) {
-      query = query.where(eq(businesses.categoryid, categoryId));
-    }
-    
+
     if (search) {
-      query = query.where(
-        or(
-          ilike(businesses.title, `%${search}%`),
-          ilike(businesses.description, `%${search}%`),
-          ilike(businesses.categoryname, `%${search}%`)
-        )
-      );
+      whereConditions.push(`(title ILIKE $${paramIndex} OR description ILIKE $${paramIndex + 1} OR categoryname ILIKE $${paramIndex + 2})`);
+      queryParams.push(`%${search}%`, `%${search}%`, `%${search}%`);
+      paramIndex += 3;
     }
-    
+
     if (featured) {
-      query = query.where(eq(businesses.featured, true));
+      whereConditions.push(`featured = $${paramIndex}`);
+      queryParams.push(true);
+      paramIndex++;
     }
 
-    const result = await query
-      .orderBy(desc(businesses.createdat))
-      .limit(limit)
-      .offset(offset);
+    const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
 
-    return result as BusinessWithCategory[];
+    queryParams.push(limit, offset);
+
+    const query = `
+      SELECT * FROM businesses 
+      ${whereClause}
+      ORDER BY createdat DESC 
+      LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
+    `;
+
+    const result = await db.execute(sql.raw(query, queryParams));
+    return result.rows as BusinessWithCategory[];
   }
 
   async getBusinessById(id: string): Promise<BusinessWithCategory | undefined> {
