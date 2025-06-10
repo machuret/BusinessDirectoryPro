@@ -8,6 +8,7 @@ import Home from "@/pages/home";
 import Categories from "@/pages/categories";
 import BusinessDetail from "@/pages/business-detail";
 import BusinessListing from "@/pages/business-listing";
+import SearchResults from "@/pages/search-results";
 import Dashboard from "@/pages/dashboard";
 import Admin from "@/pages/admin";
 import Login from "@/pages/login";
@@ -30,6 +31,7 @@ function Router() {
       <Route path="/categories" component={Categories} />
       <Route path="/categories/:slug" component={Categories} />
       <Route path="/business/:identifier" component={BusinessListing} />
+      <Route path="/businesses/search" component={SearchResults} />
       <Route path="/login" component={Login} />
       {isAuthenticated && (
         <>

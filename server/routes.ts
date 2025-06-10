@@ -118,11 +118,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { q: query, location } = req.query;
       
-      if (!query) {
-        return res.status(400).json({ message: "Search query is required" });
+      // Allow search with either query or location or both
+      if (!query && !location) {
+        return res.status(400).json({ message: "Search query or location is required" });
       }
 
-      const businesses = await storage.searchBusinesses(query as string, location as string);
+      const businesses = await storage.searchBusinesses(query as string || '', location as string);
       res.json(businesses);
     } catch (error) {
       console.error("Error searching businesses:", error);
