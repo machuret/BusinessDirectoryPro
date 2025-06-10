@@ -604,6 +604,188 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return setting;
   }
+
+  // CSV Import operations
+  async importBusinessFromCSV(businessData: any): Promise<Business> {
+    // Transform CSV data to match our schema
+    const transformedData = this.transformCSVToBusiness(businessData);
+    
+    // Handle category creation/lookup
+    let categoryId = null;
+    if (businessData.categoryname) {
+      const slug = businessData.categoryname.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      let category = await this.getCategoryBySlug(slug);
+      
+      if (!category) {
+        category = await this.createCategory({
+          name: businessData.categoryname,
+          slug,
+          description: `Auto-created category for ${businessData.categoryname}`,
+          icon: 'Building',
+          color: '#3B82F6'
+        });
+      }
+      categoryId = category.id;
+    }
+
+    // Set default owner to first admin user if no owner specified
+    let ownerId = transformedData.ownerId;
+    if (!ownerId) {
+      const adminUsers = await db
+        .select()
+        .from(users)
+        .where(eq(users.role, 'admin'))
+        .limit(1);
+      
+      if (adminUsers.length > 0) {
+        ownerId = adminUsers[0].id;
+      }
+    }
+
+    const businessToInsert = {
+      ...transformedData,
+      categoryId,
+      ownerId,
+    };
+
+    const [newBusiness] = await db
+      .insert(businesses)
+      .values(businessToInsert)
+      .returning();
+    
+    return newBusiness;
+  }
+
+  async bulkImportBusinesses(businessesData: any[]): Promise<{ success: number; errors: any[] }> {
+    let successCount = 0;
+    const errors: any[] = [];
+
+    for (let i = 0; i < businessesData.length; i++) {
+      try {
+        await this.importBusinessFromCSV(businessesData[i]);
+        successCount++;
+      } catch (error) {
+        errors.push({
+          row: i + 1,
+          error: error instanceof Error ? error.message : 'Unknown error',
+          data: businessesData[i]
+        });
+      }
+    }
+
+    return { success: successCount, errors };
+  }
+
+  private transformCSVToBusiness(csvData: any): any {
+    // Create a slug from title
+    const slug = csvData.title ? 
+      csvData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') : 
+      csvData.placeid || `business-${Date.now()}`;
+
+    return {
+      placeid: csvData.placeid || null,
+      title: csvData.title || 'Untitled Business',
+      subtitle: csvData.subtitle || null,
+      description: csvData.description || null,
+      categoryname: csvData.categoryname || null,
+      categories: this.safeJSONParse(csvData.categories),
+      slug,
+      seotitle: csvData.seotitle || null,
+      seodescription: csvData.seodescription || null,
+      phone: csvData.phone || null,
+      phoneunformatted: csvData.phoneunformatted || null,
+      website: csvData.website || null,
+      email: csvData.email || null,
+      address: csvData.address || null,
+      neighborhood: csvData.neighborhood || null,
+      street: csvData.street || null,
+      city: csvData.city || null,
+      postalcode: csvData.postalcode || csvData.zipcode || null,
+      state: csvData.state || null,
+      countrycode: csvData.countrycode || 'US',
+      lat: csvData.lat ? parseFloat(csvData.lat) : null,
+      lng: csvData.lng ? parseFloat(csvData.lng) : null,
+      pluscode: csvData.pluscode || null,
+      locatedin: csvData.locatedin || null,
+      fid: csvData.fid || null,
+      cid: csvData.cid || null,
+      kgmid: csvData.kgmid || null,
+      url: csvData.url || null,
+      searchpageurl: csvData.searchpageurl || null,
+      googlefoodurl: csvData.googlefoodurl || null,
+      claimthisbusiness: this.parseBoolean(csvData.claimthisbusiness),
+      permanentlyclosed: this.parseBoolean(csvData.permanentlyclosed),
+      temporarilyclosed: this.parseBoolean(csvData.temporarilyclosed),
+      isadvertisement: this.parseBoolean(csvData.isadvertisement),
+      featured: this.parseBoolean(csvData.featured) || false,
+      verified: this.parseBoolean(csvData.verified) || false,
+      active: csvData.active !== 'false' && csvData.active !== false,
+      price: csvData.price || null,
+      totalscore: csvData.totalscore ? parseFloat(csvData.totalscore) : null,
+      reviewscount: csvData.reviewscount ? parseInt(csvData.reviewscount) : null,
+      reviewsdistribution: this.safeJSONParse(csvData.reviewsdistribution),
+      reviewstags: this.safeJSONParse(csvData.reviewstags),
+      reviews: this.safeJSONParse(csvData.reviews),
+      imageurl: csvData.imageurl || null,
+      imagescount: csvData.imagescount ? parseInt(csvData.imagescount) : null,
+      imagecategories: this.safeJSONParse(csvData.imagecategories),
+      imageurls: this.safeJSONParse(csvData.imageurls),
+      images: this.safeJSONParse(csvData.images),
+      logo: this.safeJSONParse(csvData.logo),
+      openinghours: this.safeJSONParse(csvData.openinghours),
+      additionalopeninghours: this.safeJSONParse(csvData.additionalopeninghours),
+      openinghoursbusinessconfirmationtext: csvData.openinghoursbusinessconfirmationtext || null,
+      additionalinfo: this.safeJSONParse(csvData.additionalinfo),
+      amenities: this.safeJSONParse(csvData.amenities),
+      accessibility: this.safeJSONParse(csvData.accessibility),
+      planning: this.safeJSONParse(csvData.planning),
+      reservetableurl: csvData.reservetableurl || null,
+      tablereservationlinks: this.safeJSONParse(csvData.tablereservationlinks),
+      bookinglinks: this.safeJSONParse(csvData.bookinglinks),
+      orderby: this.safeJSONParse(csvData.orderby),
+      restaurantdata: this.safeJSONParse(csvData.restaurantdata),
+      menu: csvData.menu || null,
+      hotelads: this.safeJSONParse(csvData.hotelads),
+      hotelstars: csvData.hotelstars ? parseInt(csvData.hotelstars) : null,
+      hoteldescription: csvData.hoteldescription || null,
+      checkindate: csvData.checkindate || null,
+      checkoutdate: csvData.checkoutdate || null,
+      similarhotelsnearby: this.safeJSONParse(csvData.similarhotelsnearby),
+      hotelreviewsummary: this.safeJSONParse(csvData.hotelreviewsummary),
+      peoplealsosearch: this.safeJSONParse(csvData.peoplealsosearch),
+      placestags: this.safeJSONParse(csvData.placestags),
+      gasprices: this.safeJSONParse(csvData.gasprices),
+      questionsandanswers: this.safeJSONParse(csvData.questionsandanswers),
+      updatesfromcustomers: this.safeJSONParse(csvData.updatesfromcustomers),
+      ownerupdates: this.safeJSONParse(csvData.ownerupdates),
+      webresults: this.safeJSONParse(csvData.webresults),
+      leadsenrichment: this.safeJSONParse(csvData.leadsenrichment),
+      userplacenote: csvData.userplacenote || null,
+      faq: this.safeJSONParse(csvData.faq),
+      scrapedat: csvData.scrapedat ? new Date(csvData.scrapedat) : null,
+      searchstring: csvData.searchstring || null,
+      language: csvData.language || 'en',
+      rank: csvData.rank ? parseInt(csvData.rank) : null,
+    };
+  }
+
+  private safeJSONParse(value: any): any {
+    if (!value || value === '') return null;
+    if (typeof value === 'object') return value;
+    try {
+      return JSON.parse(value);
+    } catch {
+      return null;
+    }
+  }
+
+  private parseBoolean(value: any): boolean {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') {
+      return value.toLowerCase() === 'true' || value === '1';
+    }
+    return Boolean(value);
+  }
 }
 
 export const storage = new DatabaseStorage();

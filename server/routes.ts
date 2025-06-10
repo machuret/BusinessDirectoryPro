@@ -533,6 +533,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // CSV Import endpoint
+  app.post('/api/admin/import/businesses', isAuthenticated, upload.single('csvFile'), async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({ message: "No CSV file provided" });
+      }
+
+      const csvBuffer = req.file.buffer;
+      const csvData: any[] = [];
+      
+      // Parse CSV data
+      const readable = new Readable();
+      readable.push(csvBuffer);
+      readable.push(null);
+
+      return new Promise<void>((resolve, reject) => {
+        readable
+          .pipe(csv())
+          .on('data', (row) => {
+            csvData.push(row);
+          })
+          .on('end', async () => {
+            try {
+              // Process CSV import
+              const result = await storage.bulkImportBusinesses(csvData);
+              res.json(result);
+              resolve();
+            } catch (error) {
+              console.error("Error importing CSV data:", error);
+              res.status(500).json({ message: "Failed to import CSV data" });
+              reject(error);
+            }
+          })
+          .on('error', (error) => {
+            console.error("Error parsing CSV:", error);
+            res.status(400).json({ message: "Invalid CSV format" });
+            reject(error);
+          });
+      });
+    } catch (error) {
+      console.error("Error processing CSV upload:", error);
+      res.status(500).json({ message: "Failed to process CSV upload" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
