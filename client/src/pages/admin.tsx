@@ -147,6 +147,26 @@ export default function Admin() {
     },
   });
 
+  // Business update mutation
+  const updateBusinessMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: any }) => {
+      await apiRequest("PATCH", `/api/businesses/${id}`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/businesses"] });
+      setEditingBusiness(null);
+      setShowBusinessForm(false);
+      toast({ title: "Business updated successfully" });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Update failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   // User mutations
   const deleteUserMutation = useMutation({
     mutationFn: async (userId: string) => {
@@ -199,6 +219,29 @@ export default function Admin() {
   const editBusiness = (business: BusinessWithCategory) => {
     setEditingBusiness(business);
     setShowBusinessForm(true);
+  };
+
+  const handleUpdateBusiness = (formData: FormData) => {
+    if (!editingBusiness) return;
+
+    const data = {
+      title: formData.get("title"),
+      description: formData.get("description"),
+      phone: formData.get("phone"),
+      website: formData.get("website"),
+      address: formData.get("address"),
+      city: formData.get("city"),
+      state: formData.get("state"),
+      postalcode: formData.get("postalcode"),
+      categoryname: formData.get("categoryname"),
+      seotitle: formData.get("seotitle") || null,
+      seodescription: formData.get("seodescription") || null,
+    };
+
+    updateBusinessMutation.mutate({
+      id: editingBusiness.placeid,
+      data
+    });
   };
 
   const editUser = (user: User) => {
@@ -748,6 +791,175 @@ export default function Admin() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Business Edit Modal */}
+      {editingBusiness && (
+        <Dialog open={showBusinessForm} onOpenChange={(open) => {
+          if (!open) {
+            setShowBusinessForm(false);
+            setEditingBusiness(null);
+          }
+        }}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Edit Business: {editingBusiness.title}</DialogTitle>
+            </DialogHeader>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                handleUpdateBusiness(formData);
+              }}
+              className="space-y-4"
+            >
+              <div>
+                <Label htmlFor="title">Business Name</Label>
+                <Input
+                  id="title"
+                  name="title"
+                  defaultValue={editingBusiness.title || ""}
+                  required
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  name="description"
+                  defaultValue={editingBusiness.description || ""}
+                  rows={4}
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="phone">Phone</Label>
+                  <Input
+                    id="phone"
+                    name="phone"
+                    defaultValue={editingBusiness.phone || ""}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="website">Website</Label>
+                  <Input
+                    id="website"
+                    name="website"
+                    defaultValue={editingBusiness.website || ""}
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <Label htmlFor="address">Address</Label>
+                <Input
+                  id="address"
+                  name="address"
+                  defaultValue={editingBusiness.address || ""}
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="city">City</Label>
+                  <Input
+                    id="city"
+                    name="city"
+                    defaultValue={editingBusiness.city || ""}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="state">State</Label>
+                  <Input
+                    id="state"
+                    name="state"
+                    defaultValue={editingBusiness.state || ""}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="postalcode">Postal Code</Label>
+                  <Input
+                    id="postalcode"
+                    name="postalcode"
+                    defaultValue={editingBusiness.postalcode || ""}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="categoryname">Category</Label>
+                <Select name="categoryname" defaultValue={editingBusiness.categoryname || ""}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories?.map((category) => (
+                      <SelectItem key={category.id} value={category.name}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* SEO Section */}
+              <div className="border-t pt-4 mt-6">
+                <h3 className="text-lg font-semibold mb-3">SEO Settings</h3>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="seotitle">SEO Title</Label>
+                    <Input
+                      id="seotitle"
+                      name="seotitle"
+                      defaultValue={editingBusiness.seotitle || ""}
+                      placeholder="Enter custom SEO title (auto-generated if empty)"
+                      maxLength={60}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Recommended: 50-60 characters. Leave empty for auto-generation.
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="seodescription">SEO Description</Label>
+                    <Textarea
+                      id="seodescription"
+                      name="seodescription"
+                      defaultValue={editingBusiness.seodescription || ""}
+                      placeholder="Enter custom SEO description (auto-generated if empty)"
+                      maxLength={160}
+                      rows={3}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Recommended: 150-160 characters. Leave empty for auto-generation.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex justify-end space-x-2 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setShowBusinessForm(false);
+                    setEditingBusiness(null);
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={updateBusinessMutation.isPending}
+                >
+                  {updateBusinessMutation.isPending ? "Updating..." : "Update Business"}
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
