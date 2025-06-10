@@ -162,122 +162,13 @@ export class DatabaseStorage implements IStorage {
   } = {}): Promise<BusinessWithCategory[]> {
     const { categoryId, search, city, featured, limit = 50, offset = 0 } = params;
 
-    let query = db
-      .select({
-        placeid: businesses.placeid,
-        title: businesses.title,
-        subtitle: businesses.subtitle,
-        description: businesses.description,
-        categoryname: businesses.categoryname,
-        categories: businesses.categories,
-        price: businesses.price,
-        website: businesses.website,
-        phone: businesses.phone,
-        phoneunformatted: businesses.phoneunformatted,
-        menu: businesses.menu,
-        address: businesses.address,
-        neighborhood: businesses.neighborhood,
-        street: businesses.street,
-        city: businesses.city,
-        postalcode: businesses.postalcode,
-        state: businesses.state,
-        countrycode: businesses.countrycode,
-        lat: businesses.lat,
-        lng: businesses.lng,
-        pluscode: businesses.pluscode,
-        locatedin: businesses.locatedin,
-        fid: businesses.fid,
-        cid: businesses.cid,
-        kgmid: businesses.kgmid,
-        url: businesses.url,
-        searchpageurl: businesses.searchpageurl,
-        googlefoodurl: businesses.googlefoodurl,
-        claimthisbusiness: businesses.claimthisbusiness,
-        permanentlyclosed: businesses.permanentlyclosed,
-        temporarilyclosed: businesses.temporarilyclosed,
-        isadvertisement: businesses.isadvertisement,
-        featured: businesses.featured,
-        totalscore: businesses.totalscore,
-        reviewscount: businesses.reviewscount,
-        reviewsdistribution: businesses.reviewsdistribution,
-        reviewstags: businesses.reviewstags,
-        reviews: businesses.reviews,
-        imageurl: businesses.imageurl,
-        imagescount: businesses.imagescount,
-        imagecategories: businesses.imagecategories,
-        imageurls: businesses.imageurls,
-        images: businesses.images,
-        logo: businesses.logo,
-        openinghours: businesses.openinghours,
-        additionalopeninghours: businesses.additionalopeninghours,
-        openinghoursbusinessconfirmationtext: businesses.openinghoursbusinessconfirmationtext,
-        additionalinfo: businesses.additionalinfo,
-        amenities: businesses.amenities,
-        accessibility: businesses.accessibility,
-        planning: businesses.planning,
-        reservetableurl: businesses.reservetableurl,
-        tablereservationlinks: businesses.tablereservationlinks,
-        bookinglinks: businesses.bookinglinks,
-        orderby: businesses.orderby,
-        restaurantdata: businesses.restaurantdata,
-        hotelads: businesses.hotelads,
-        hotelstars: businesses.hotelstars,
-        hoteldescription: businesses.hoteldescription,
-        checkindate: businesses.checkindate,
-        checkoutdate: businesses.checkoutdate,
-        similarhotelsnearby: businesses.similarhotelsnearby,
-        hotelreviewsummary: businesses.hotelreviewsummary,
-        peoplealsosearch: businesses.peoplealsosearch,
-        placestags: businesses.placestags,
-        gasprices: businesses.gasprices,
-        questionsandanswers: businesses.questionsandanswers,
-        updatesfromcustomers: businesses.updatesfromcustomers,
-        ownerupdates: businesses.ownerupdates,
-        webresults: businesses.webresults,
-        leadsenrichment: businesses.leadsenrichment,
-        userplacenote: businesses.userplacenote,
-        scrapedat: businesses.scrapedat,
-        searchstring: businesses.searchstring,
-        language: businesses.language,
-        rank: businesses.rank,
-        ownerid: businesses.ownerid,
-        seotitle: businesses.seotitle,
-        slug: businesses.slug,
-        seodescription: businesses.seodescription,
-        createdat: businesses.created_at,
-        updatedat: businesses.updated_at,
-        faq: businesses.faq,
-      })
-      .from(businesses);
+    const result = await db.execute(sql`
+      SELECT * FROM businesses 
+      ORDER BY createdat DESC 
+      LIMIT ${limit} OFFSET ${offset}
+    `);
 
-    // Apply filters
-    const conditions = [];
-    if (search) {
-      conditions.push(
-        or(
-          like(businesses.title, `%${search}%`),
-          like(businesses.description, `%${search}%`),
-          like(businesses.categoryname, `%${search}%`)
-        )
-      );
-    }
-    if (city) {
-      conditions.push(like(businesses.city, `%${city}%`));
-    }
-    if (featured !== undefined) {
-      conditions.push(eq(businesses.featured, featured));
-    }
-
-    if (conditions.length > 0) {
-      query = query.where(and(...conditions));
-    }
-
-    const result = await query
-      .orderBy(desc(businesses.createdat))
-      .limit(limit)
-      .offset(offset);
-
-    return result as BusinessWithCategory[];
+    return result.rows as BusinessWithCategory[];
   }
 
   async getBusinessById(id: string): Promise<BusinessWithCategory | undefined> {
