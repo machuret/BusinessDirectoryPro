@@ -41,6 +41,11 @@ export default function Admin() {
     enabled: !!user?.role && user.role === 'admin'
   });
 
+  const { data: ownershipClaims, isLoading: claimsLoading } = useQuery<any[]>({
+    queryKey: ["/api/ownership-claims"],
+    enabled: !!user?.role && user.role === 'admin'
+  });
+
   const { data: categories } = useQuery<Category[]>({
     queryKey: ["/api/categories"]
   });
@@ -102,6 +107,25 @@ export default function Admin() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/businesses"] });
+    },
+  });
+
+  // Ownership claim mutations
+  const processClaimMutation = useMutation({
+    mutationFn: async ({ id, status, adminMessage }: { id: number; status: string; adminMessage?: string }) => {
+      await apiRequest("PATCH", `/api/ownership-claims/${id}`, { status, adminMessage });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/ownership-claims"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/businesses"] });
+      toast({ title: "Ownership claim processed successfully" });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error processing claim",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 
@@ -203,7 +227,7 @@ export default function Admin() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="businesses" className="flex items-center space-x-2">
             <Building2 className="h-4 w-4" />
             <span>Businesses</span>
@@ -211,6 +235,10 @@ export default function Admin() {
           <TabsTrigger value="users" className="flex items-center space-x-2">
             <Users className="h-4 w-4" />
             <span>Users</span>
+          </TabsTrigger>
+          <TabsTrigger value="claims" className="flex items-center space-x-2">
+            <FileText className="h-4 w-4" />
+            <span>Ownership Claims</span>
           </TabsTrigger>
           <TabsTrigger value="import" className="flex items-center space-x-2">
             <Upload className="h-4 w-4" />
@@ -392,6 +420,126 @@ export default function Admin() {
                       ))}
                     </TableBody>
                   </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Ownership Claims Tab */}
+        <TabsContent value="claims" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Business Ownership Claims</CardTitle>
+              <CardDescription>Review and manage business ownership requests</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {claimsLoading ? (
+                <div className="flex justify-center items-center h-32">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                </div>
+              ) : !ownershipClaims || ownershipClaims.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  No ownership claims found.
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {ownershipClaims.map((claim: any) => (
+                    <Card key={claim.id} className="border">
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-start">
+                          <div className="space-y-2 flex-1">
+                            <div className="flex items-center space-x-2">
+                              <h3 className="font-semibold">Business ID: {claim.businessId}</h3>
+                              <Badge variant={
+                                claim.status === 'pending' ? 'default' :
+                                claim.status === 'approved' ? 'default' :
+                                'destructive'
+                              }>
+                                {claim.status}
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-gray-600">
+                              <strong>Requester:</strong> {claim.userId}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              <strong>Message:</strong> {claim.message}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              Submitted: {new Date(claim.createdAt).toLocaleDateString()}
+                            </p>
+                            {claim.adminMessage && (
+                              <p className="text-sm text-gray-600">
+                                <strong>Admin Response:</strong> {claim.adminMessage}
+                              </p>
+                            )}
+                          </div>
+                          {claim.status === 'pending' && (
+                            <div className="flex space-x-2">
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button variant="outline" size="sm">
+                                    Review
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                  <DialogHeader>
+                                    <DialogTitle>Review Ownership Claim</DialogTitle>
+                                  </DialogHeader>
+                                  <div className="space-y-4">
+                                    <div>
+                                      <p><strong>Business ID:</strong> {claim.businessId}</p>
+                                      <p><strong>Requester:</strong> {claim.userId}</p>
+                                      <p><strong>Message:</strong> {claim.message}</p>
+                                    </div>
+                                    <div>
+                                      <Label htmlFor="admin-response">Admin Response (Optional)</Label>
+                                      <Textarea
+                                        id="admin-response"
+                                        placeholder="Add a message for the user..."
+                                        onChange={(e) => {
+                                          // Store response in state if needed
+                                        }}
+                                      />
+                                    </div>
+                                    <div className="flex space-x-2">
+                                      <Button
+                                        onClick={() => {
+                                          const textarea = document.getElementById('admin-response') as HTMLTextAreaElement;
+                                          processClaimMutation.mutate({
+                                            id: claim.id,
+                                            status: 'approved',
+                                            adminMessage: textarea?.value || undefined
+                                          });
+                                        }}
+                                        className="flex-1"
+                                      >
+                                        Approve
+                                      </Button>
+                                      <Button
+                                        variant="destructive"
+                                        onClick={() => {
+                                          const textarea = document.getElementById('admin-response') as HTMLTextAreaElement;
+                                          processClaimMutation.mutate({
+                                            id: claim.id,
+                                            status: 'rejected',
+                                            adminMessage: textarea?.value || 'Claim rejected by admin.'
+                                          });
+                                        }}
+                                        className="flex-1"
+                                      >
+                                        Reject
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </DialogContent>
+                              </Dialog>
+                            </div>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
               )}
             </CardContent>
