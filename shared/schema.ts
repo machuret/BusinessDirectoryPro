@@ -141,6 +141,20 @@ export const siteSettings = pgTable("site_settings", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Ownership claims table
+export const ownershipClaims = pgTable("ownership_claims", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  businessId: text("business_id").notNull().references(() => businesses.placeid, { onDelete: "cascade" }),
+  status: text("status").notNull().default("pending"), // pending, approved, rejected
+  message: text("message"), // User's claim message
+  adminMessage: text("admin_message"), // Admin's response message
+  reviewedBy: text("reviewed_by").references(() => users.id),
+  reviewedAt: timestamp("reviewed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Schema definitions for validation
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -186,6 +200,13 @@ export const insertSiteSettingSchema = createInsertSchema(siteSettings).omit({
   updatedAt: true,
 });
 
+export const insertOwnershipClaimSchema = createInsertSchema(ownershipClaims).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  reviewedAt: true,
+});
+
 // Type exports
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -198,6 +219,8 @@ export type InsertReview = z.infer<typeof insertReviewSchema>;
 export type Review = typeof reviews.$inferSelect;
 export type InsertSiteSetting = z.infer<typeof insertSiteSettingSchema>;
 export type SiteSetting = typeof siteSettings.$inferSelect;
+export type InsertOwnershipClaim = z.infer<typeof insertOwnershipClaimSchema>;
+export type OwnershipClaim = typeof ownershipClaims.$inferSelect;
 
 // Business with category info
 export type BusinessWithCategory = Business & {

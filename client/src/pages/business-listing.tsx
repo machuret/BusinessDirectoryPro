@@ -150,8 +150,33 @@ export default function BusinessListing() {
     }
   };
 
-  const displayImages = business.images ? (typeof business.images === 'string' ? JSON.parse(business.images) : business.images) : [];
-  const heroImage = Array.isArray(displayImages) && displayImages.length > 0 
+  // Parse images from multiple possible sources
+  const displayImages = useMemo(() => {
+    // Try images field first (JSON array)
+    if (business?.images) {
+      try {
+        const images = typeof business.images === 'string' ? JSON.parse(business.images) : business.images;
+        if (Array.isArray(images) && images.length > 0) return images;
+      } catch (e) {}
+    }
+    
+    // Try imageurls field
+    if (business?.imageurls) {
+      try {
+        const imageUrls = typeof business.imageurls === 'string' ? JSON.parse(business.imageurls) : business.imageurls;
+        if (Array.isArray(imageUrls) && imageUrls.length > 0) return imageUrls;
+      } catch (e) {}
+    }
+    
+    // Fallback to single imageurl
+    if (business?.imageurl) {
+      return [business.imageurl];
+    }
+    
+    return [];
+  }, [business?.images, business?.imageurls, business?.imageurl]);
+
+  const heroImage = displayImages.length > 0 
     ? displayImages[0] 
     : `https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&h=600&fit=crop&auto=format`;
 
