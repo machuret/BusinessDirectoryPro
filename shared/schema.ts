@@ -26,9 +26,9 @@ export const sessions = pgTable(
 
 // User storage table for email/password auth
 export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  email: varchar("email").unique().notNull(),
-  password: varchar("password").notNull(),
+  id: varchar("id").primaryKey().notNull(),
+  email: varchar("email").unique(),
+  password: varchar("password"), // Made optional to preserve existing data
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
@@ -204,6 +204,7 @@ export const loginUserSchema = z.object({
 
 export const registerUserSchema = insertUserSchema.extend({
   password: z.string().min(6, "Password must be at least 6 characters"),
+  email: z.string().email(),
 });
 
 export const insertCategorySchema = createInsertSchema(categories).omit({
