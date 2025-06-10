@@ -303,12 +303,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.session.userId;
       
       // Check if user owns the business or is admin
-      const business = await storage.getBusinessById(parseInt(id));
+      const business = await storage.getBusinessById(id);
       if (!business) {
         return res.status(404).json({ message: "Business not found" });
       }
 
-      if (business.ownerId !== userId) {
+      if (business.ownerid !== userId) {
         const user = await storage.getUser(userId);
         if (!user || user.role !== 'admin') {
           return res.status(403).json({ message: "Access denied" });
@@ -316,7 +316,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const updateData = insertBusinessSchema.partial().parse(req.body);
-      const updatedBusiness = await storage.updateBusiness(parseInt(id), updateData);
+      const updatedBusiness = await storage.updateBusiness(id, updateData);
       
       if (!updatedBusiness) {
         return res.status(404).json({ message: "Business not found" });
@@ -338,19 +338,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.session.userId;
       
       // Check if user owns the business or is admin
-      const business = await storage.getBusinessById(parseInt(id));
+      const business = await storage.getBusinessById(id);
       if (!business) {
         return res.status(404).json({ message: "Business not found" });
       }
 
-      if (business.ownerId !== userId) {
+      if (business.ownerid !== userId) {
         const user = await storage.getUser(userId);
         if (!user || user.role !== 'admin') {
           return res.status(403).json({ message: "Access denied" });
         }
       }
 
-      await storage.deleteBusiness(parseInt(id));
+      await storage.deleteBusiness(id);
       res.status(204).send();
     } catch (error) {
       console.error("Error deleting business:", error);
@@ -778,7 +778,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/ownership-claims", isAuthenticated, async (req, res) => {
     try {
       const { businessId, message } = req.body;
-      const userId = req.session.userId;
+      const userId = (req.session as any).userId;
 
       if (!userId) {
         return res.status(401).json({ message: "User not authenticated" });
@@ -802,7 +802,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const { status, adminMessage } = req.body;
-      const reviewedBy = req.session.userId;
+      const reviewedBy = (req.session as any).userId;
 
       const updatedClaim = await storage.updateOwnershipClaim(
         parseInt(id),
