@@ -24,7 +24,7 @@ import {
   ChevronUp,
   User
 } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import type { BusinessWithCategory, Review, InsertReview } from "@shared/schema";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -48,6 +48,51 @@ export default function BusinessListing() {
     queryKey: [`/api/businesses/${identifier}`],
     enabled: !!identifier,
   });
+
+  // Update document title and meta tags for SEO
+  useEffect(() => {
+    if (business) {
+      const title = business.seotitle || `${business.title} - ${business.city} | Business Directory`;
+      const description = business.seodescription || `Visit ${business.title} in ${business.city}. Get directions, hours, and reviews.`;
+      
+      document.title = title;
+      
+      // Update meta description
+      let metaDescription = document.querySelector('meta[name="description"]');
+      if (!metaDescription) {
+        metaDescription = document.createElement('meta');
+        metaDescription.setAttribute('name', 'description');
+        document.head.appendChild(metaDescription);
+      }
+      metaDescription.setAttribute('content', description);
+      
+      // Update Open Graph tags
+      let ogTitle = document.querySelector('meta[property="og:title"]');
+      if (!ogTitle) {
+        ogTitle = document.createElement('meta');
+        ogTitle.setAttribute('property', 'og:title');
+        document.head.appendChild(ogTitle);
+      }
+      ogTitle.setAttribute('content', title);
+      
+      let ogDescription = document.querySelector('meta[property="og:description"]');
+      if (!ogDescription) {
+        ogDescription = document.createElement('meta');
+        ogDescription.setAttribute('property', 'og:description');
+        document.head.appendChild(ogDescription);
+      }
+      ogDescription.setAttribute('content', description);
+      
+      // Update canonical URL
+      let canonical = document.querySelector('link[rel="canonical"]');
+      if (!canonical) {
+        canonical = document.createElement('link');
+        canonical.setAttribute('rel', 'canonical');
+        document.head.appendChild(canonical);
+      }
+      canonical.setAttribute('href', `${window.location.origin}/business/${business.slug || business.placeid}`);
+    }
+  }, [business]);
 
   // All useMemo hooks
   const importedReviews = useMemo(() => {
@@ -118,12 +163,12 @@ export default function BusinessListing() {
   // All useMutation hooks
   const reviewMutation = useMutation({
     mutationFn: async (reviewData: InsertReview) => {
-      const res = await apiRequest("POST", `/api/businesses/${placeid}/reviews`, reviewData);
+      const res = await apiRequest("POST", `/api/businesses/${business?.placeid}/reviews`, reviewData);
       return await res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/businesses", placeid, "reviews"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/businesses", placeid] });
+      queryClient.invalidateQueries({ queryKey: ["/api/businesses", business?.placeid, "reviews"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/businesses", business?.placeid] });
       setReviewText("");
       setRating(5);
       toast({

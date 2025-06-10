@@ -106,7 +106,7 @@ export default function BusinessCard({ business }: BusinessCardProps) {
         </div>
         
         <div className="flex space-x-3">
-          <Link href={`/business/${business.placeid}`} className="flex-1">
+          <Link href={`/business/${business.slug || business.placeid}`} className="flex-1">
             <Button className="w-full bg-primary text-white hover:bg-blue-700">
               View Details
             </Button>
