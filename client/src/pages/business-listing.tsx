@@ -255,7 +255,7 @@ export default function BusinessListing() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {faqItems.map((faq: any, index: number) => (
-                    <div key={index} className="border rounded-lg">
+                    <div key={`faq-${index}-${faq.question?.substring(0, 20)}`} className="border rounded-lg">
                       <button
                         className="w-full px-4 py-3 text-left flex items-center justify-between hover:bg-gray-50"
                         onClick={() => setExpandedFaq(expandedFaq === index ? null : index)}
@@ -277,7 +277,7 @@ export default function BusinessListing() {
             {/* Reviews Section */}
             <Card>
               <CardHeader>
-                <CardTitle>Reviews ({reviews?.length || 0})</CardTitle>
+                <CardTitle>Reviews ({importedReviews?.length || 0})</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 
@@ -309,29 +309,29 @@ export default function BusinessListing() {
 
                 {/* Reviews List */}
                 <div className="space-y-4">
-                  {reviews?.map((review) => (
-                    <div key={review.id} className="border-b pb-4 last:border-b-0">
+                  {importedReviews?.map((review: any, index: number) => (
+                    <div key={review.reviewId || index} className="border-b pb-4 last:border-b-0">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex items-center">
                           <div className="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center mr-3">
                             <User className="w-4 h-4" />
                           </div>
                           <div>
-                            <p className="font-medium">{review.user?.firstName || 'Anonymous'} {review.user?.lastName || ''}</p>
+                            <p className="font-medium">{review.name || 'Anonymous'}</p>
                             <div className="flex items-center">
-                              {renderStars(review.rating)}
+                              {renderStars(review.stars || review.rating || 5)}
                             </div>
                           </div>
                         </div>
                         <span className="text-sm text-gray-500">
-                          {review.createdAt ? new Date(review.createdAt).toLocaleDateString() : 'Recent'}
+                          {review.publishAt || review.publishedAtDate ? new Date(review.publishAt || review.publishedAtDate).toLocaleDateString() : 'Recent'}
                         </span>
                       </div>
-                      <p className="text-gray-700">{review.comment}</p>
+                      <p className="text-gray-700">{review.text || review.comment}</p>
                     </div>
                   ))}
                   
-                  {(!reviews || reviews.length === 0) && (
+                  {(!importedReviews || importedReviews.length === 0) && (
                     <p className="text-gray-500 text-center py-8">No reviews yet. Be the first to review!</p>
                   )}
                 </div>
