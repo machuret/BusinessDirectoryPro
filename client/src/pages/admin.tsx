@@ -31,7 +31,9 @@ import {
   XCircle,
   Shield,
   Eye,
-  Search
+  Search,
+  Upload,
+  FileText
 } from "lucide-react";
 import type { BusinessWithCategory, CategoryWithCount, User, SiteSetting } from "@shared/schema";
 
@@ -1209,6 +1211,144 @@ export default function Admin() {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          {/* CSV Import Tab */}
+          <TabsContent value="import">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Upload className="w-5 h-5 mr-2" />
+                  CSV Business Import
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  {/* File Upload Section */}
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
+                    <div className="text-center">
+                      <FileText className="mx-auto h-12 w-12 text-gray-400" />
+                      <div className="mt-4">
+                        <label htmlFor="csv-file" className="cursor-pointer">
+                          <span className="mt-2 block text-sm font-medium text-gray-900">
+                            Upload CSV file
+                          </span>
+                          <span className="text-sm text-gray-500">
+                            Select a CSV file with business data to import
+                          </span>
+                        </label>
+                        <Input
+                          id="csv-file"
+                          type="file"
+                          accept=".csv"
+                          className="mt-2"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              setCsvFile(file);
+                            }
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Selected File Info */}
+                  {csvFile && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <div className="flex items-center">
+                        <FileText className="h-5 w-5 text-blue-500 mr-2" />
+                        <div>
+                          <p className="text-sm font-medium text-blue-900">
+                            {csvFile.name}
+                          </p>
+                          <p className="text-sm text-blue-700">
+                            {(csvFile.size / 1024).toFixed(2)} KB
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Expected CSV Format */}
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <h3 className="text-sm font-medium text-gray-900 mb-2">Expected CSV Format</h3>
+                    <p className="text-sm text-gray-600 mb-3">
+                      Your CSV should include the following columns (at minimum):
+                    </p>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                      <span className="bg-white px-2 py-1 rounded border">placeid</span>
+                      <span className="bg-white px-2 py-1 rounded border">title</span>
+                      <span className="bg-white px-2 py-1 rounded border">description</span>
+                      <span className="bg-white px-2 py-1 rounded border">categoryname</span>
+                      <span className="bg-white px-2 py-1 rounded border">address</span>
+                      <span className="bg-white px-2 py-1 rounded border">city</span>
+                      <span className="bg-white px-2 py-1 rounded border">state</span>
+                      <span className="bg-white px-2 py-1 rounded border">phone</span>
+                      <span className="bg-white px-2 py-1 rounded border">website</span>
+                      <span className="bg-white px-2 py-1 rounded border">lat</span>
+                      <span className="bg-white px-2 py-1 rounded border">lng</span>
+                      <span className="bg-white px-2 py-1 rounded border">totalscore</span>
+                    </div>
+                  </div>
+
+                  {/* Import Progress */}
+                  {importProgress && (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                      <h3 className="text-sm font-medium text-yellow-900 mb-2">Import Progress</h3>
+                      <div className="w-full bg-yellow-200 rounded-full h-2">
+                        <div 
+                          className="bg-yellow-600 h-2 rounded-full transition-all duration-300"
+                          style={{ width: `${(importProgress.processed / importProgress.total) * 100}%` }}
+                        ></div>
+                      </div>
+                      <p className="text-sm text-yellow-700 mt-2">
+                        {importProgress.processed} of {importProgress.total} processed
+                      </p>
+                      {importProgress.errors.length > 0 && (
+                        <div className="mt-3">
+                          <p className="text-sm font-medium text-red-700">Errors:</p>
+                          <ul className="text-sm text-red-600 mt-1 space-y-1">
+                            {importProgress.errors.slice(0, 5).map((error, index) => (
+                              <li key={index}>• {error}</li>
+                            ))}
+                            {importProgress.errors.length > 5 && (
+                              <li>• ... and {importProgress.errors.length - 5} more errors</li>
+                            )}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Import Button */}
+                  <div className="flex justify-end">
+                    <Button
+                      onClick={() => {
+                        if (csvFile) {
+                          setIsImporting(true);
+                          csvImportMutation.mutate(csvFile);
+                        }
+                      }}
+                      disabled={!csvFile || isImporting || csvImportMutation.isPending}
+                      className="min-w-[120px]"
+                    >
+                      {isImporting || csvImportMutation.isPending ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Importing...
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="w-4 h-4 mr-2" />
+                          Import CSV
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
 
