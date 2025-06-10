@@ -184,6 +184,21 @@ export class DatabaseStorage implements IStorage {
     await db.delete(categories).where(eq(categories.id, id));
   }
 
+  async getUniqueCities(): Promise<{ city: string; count: number }[]> {
+    const result = await db.execute(sql`
+      SELECT city, COUNT(*) as count
+      FROM businesses 
+      WHERE city IS NOT NULL AND city != ''
+      GROUP BY city 
+      ORDER BY count DESC, city ASC
+    `);
+    
+    return result.rows.map(row => ({
+      city: row.city as string,
+      count: parseInt(row.count as string)
+    }));
+  }
+
   async getBusinesses(params: { 
     categoryId?: number; 
     search?: string; 

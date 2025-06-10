@@ -75,6 +75,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete('/api/categories/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const categoryId = parseInt(req.params.id);
+      await storage.deleteCategory(categoryId);
+      res.status(200).json({ message: "Category deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting category:", error);
+      res.status(500).json({ message: "Failed to delete category" });
+    }
+  });
+
   // Business routes
   app.get('/api/businesses', async (req, res) => {
     try {
@@ -131,10 +149,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/businesses/:placeid', async (req, res) => {
+  // Get unique cities for filtering
+  app.get('/api/cities', async (req, res) => {
     try {
-      const { placeid } = req.params;
-      const business = await storage.getBusinessById(placeid);
+      const cities = await storage.getUniqueCities();
+      res.json(cities);
+    } catch (error) {
+      console.error("Error fetching cities:", error);
+      res.status(500).json({ message: "Failed to fetch cities" });
+    }
+  });
+
+  // Get businesses by city
+  app.get('/api/cities/:city/businesses', async (req, res) => {
+    try {
+      const { city } = req.params;
+      const { limit = '50', offset = '0' } = req.query;
+      
+      const businesses = await storage.getBusinesses({
+        city: decodeURIComponent(city),
+        limit: parseInt(limit as string),
+        offset: parseInt(offset as string),
+      });
+      
+      res.json(businesses);
+    } catch (error) {
+      console.error("Error fetching businesses by city:", error);
+      res.status(500).json({ message: "Failed to fetch businesses by city" });
+    }
+  });
+
+  app.get('/api/businesses/:identifier', async (req, res) => {
+    try {
+      const { identifier } = req.params;
+      let business;
+      
+      // Try to get business by slug first, then by placeid
+      business = await storage.getBusinessBySlug(identifier);
+      if (!business) {
+        business = await storage.getBusinessById(identifier);
+      }
       
       if (!business) {
         return res.status(404).json({ message: "Business not found" });
