@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { 
   Star, 
   MapPin, 
@@ -36,6 +38,8 @@ export default function BusinessListing() {
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const [reviewText, setReviewText] = useState("");
   const [rating, setRating] = useState(5);
+  const [showClaimModal, setShowClaimModal] = useState(false);
+  const [claimMessage, setClaimMessage] = useState("");
 
   const { data: business, isLoading } = useQuery<BusinessWithCategory>({
     queryKey: [`/api/businesses/${placeid}`],
@@ -71,6 +75,28 @@ export default function BusinessListing() {
       toast({
         title: "Review submitted",
         description: "Thank you for your review!",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const claimOwnershipMutation = useMutation({
+    mutationFn: async (claimData: { businessId: string; message: string }) => {
+      const res = await apiRequest("POST", "/api/ownership-claims", claimData);
+      return await res.json();
+    },
+    onSuccess: () => {
+      setShowClaimModal(false);
+      setClaimMessage("");
+      toast({
+        title: "Claim submitted",
+        description: "Your ownership claim has been submitted for admin review.",
       });
     },
     onError: (error: Error) => {

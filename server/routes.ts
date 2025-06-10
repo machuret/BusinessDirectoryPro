@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./auth";
+import { setupAuth, isAuthenticated, isAdmin } from "./auth";
 import { insertBusinessSchema, insertReviewSchema, insertCategorySchema } from "@shared/schema";
 import { z } from "zod";
 import multer from "multer";
@@ -609,6 +609,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error processing CSV upload:", error);
       res.status(500).json({ message: "Failed to process CSV upload" });
+    }
+  });
+
+  // Ownership claim endpoints
+  app.get("/api/ownership-claims", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const claims = await storage.getOwnershipClaims();
+      res.json(claims);
+    } catch (error) {
+      console.error("Error fetching ownership claims:", error);
+      res.status(500).json({ message: "Failed to fetch ownership claims" });
+    }
+  });
+
+  app.get("/api/ownership-claims/user/:userId", isAuthenticated, async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const claims = await storage.getOwnershipClaimsByUser(userId);
+      res.json(claims);
+    } catch (error) {
+      console.error("Error fetching user ownership claims:", error);
+      res.status(500).json({ message: "Failed to fetch ownership claims" });
+    }
+  });
+
+  app.post("/api/ownership-claims", isAuthenticated, async (req, res) => {
+    try {
+      const { businessId, message } = req.body;
+      const userId = req.session.userId;
+
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      const claim = await storage.createOwnershipClaim({
+        userId,
+        businessId,
+        message,
+        status: 'pending'
+      });
+
+      res.status(201).json(claim);
+    } catch (error) {
+      console.error("Error creating ownership claim:", error);
+      res.status(500).json({ message: "Failed to create ownership claim" });
+    }
+  });
+
+  app.patch("/api/ownership-claims/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status, adminMessage } = req.body;
+      const reviewedBy = req.session.userId;
+
+      const updatedClaim = await storage.updateOwnershipClaim(
+        parseInt(id),
+        status,
+        adminMessage,
+        reviewedBy
+      );
+
+      res.json(updatedClaim);
+    } catch (error) {
+      console.error("Error updating ownership claim:", error);
+      res.status(500).json({ message: "Failed to update ownership claim" });
     }
   });
 
