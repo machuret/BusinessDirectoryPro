@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import SearchBar from "@/components/search-bar";
@@ -25,6 +26,22 @@ export default function Home() {
   const { data: siteSettings } = useQuery<Record<string, any>>({
     queryKey: ["/api/site-settings"],
   });
+
+  // Update page title dynamically
+  useEffect(() => {
+    const title = siteSettings?.website_title || "Business Directory";
+    document.title = title;
+    
+    // Update meta description
+    const description = siteSettings?.website_description || "Find and discover local businesses in your area";
+    let metaDescription = document.querySelector('meta[name="description"]');
+    if (!metaDescription) {
+      metaDescription = document.createElement('meta');
+      metaDescription.setAttribute('name', 'description');
+      document.head.appendChild(metaDescription);
+    }
+    metaDescription.setAttribute('content', description);
+  }, [siteSettings]);
 
   const stats = {
     businesses: categories?.reduce((sum, cat) => sum + cat.businessCount, 0) || 0,
