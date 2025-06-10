@@ -15,7 +15,7 @@ export default function Header() {
   const navItems = [
     { href: "/", label: "Home" },
     { href: "/categories", label: "Categories" },
-    { href: "/categories?featured=true", label: "Featured" },
+    { href: "/featured", label: "Featured" },
   ];
 
   const isActiveLink = (href: string) => {

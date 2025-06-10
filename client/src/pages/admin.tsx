@@ -149,11 +149,13 @@ export default function Admin() {
 
   // Business update mutation
   const updateBusinessMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: any }) => {
-      await apiRequest("PATCH", `/api/businesses/${id}`, data);
+    mutationFn: async (params: { id: string; featured?: boolean; data?: any }) => {
+      const updateData = params.featured !== undefined ? { featured: params.featured } : params.data;
+      await apiRequest("PATCH", `/api/businesses/${params.id}`, updateData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/businesses"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/businesses/featured"] });
       setEditingBusiness(null);
       setShowBusinessForm(false);
       toast({ title: "Business updated successfully" });
