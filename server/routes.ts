@@ -56,7 +56,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/categories', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const user = await storage.getUser(userId);
       
       if (!user || user.role !== 'admin') {
@@ -165,7 +165,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/businesses/owner/:ownerId', isAuthenticated, async (req: any, res) => {
     try {
       const { ownerId } = req.params;
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       
       // Users can only view their own businesses unless they're admin
       if (userId !== ownerId) {
@@ -185,7 +185,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/businesses', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const businessData = insertBusinessSchema.parse({
         ...req.body,
         ownerId: userId,
@@ -205,7 +205,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch('/api/businesses/:id', isAuthenticated, async (req: any, res) => {
     try {
       const { id } = req.params;
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       
       // Check if user owns the business or is admin
       const business = await storage.getBusinessById(parseInt(id));
@@ -240,7 +240,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete('/api/businesses/:id', isAuthenticated, async (req: any, res) => {
     try {
       const { id } = req.params;
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       
       // Check if user owns the business or is admin
       const business = await storage.getBusinessById(parseInt(id));
@@ -278,7 +278,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/businesses/:id/reviews', isAuthenticated, async (req: any, res) => {
     try {
       const { id } = req.params;
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       
       const reviewData = insertReviewSchema.parse({
         ...req.body,
@@ -300,7 +300,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin routes
   app.patch('/api/admin/businesses/:id/feature', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const user = await storage.getUser(userId);
       
       if (!user || user.role !== 'admin') {
@@ -343,7 +343,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch('/api/admin/users/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const user = await storage.getUser(userId);
       
       if (!user || user.role !== 'admin') {
@@ -368,7 +368,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete('/api/admin/users/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const user = await storage.getUser(userId);
       
       if (!user || user.role !== 'admin') {
@@ -415,7 +415,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch('/api/admin/businesses/:id/verify', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const user = await storage.getUser(userId);
       
       if (!user || user.role !== 'admin') {
