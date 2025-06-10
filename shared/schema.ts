@@ -1,38 +1,23 @@
-import {
-  pgTable,
-  text,
-  varchar,
-  timestamp,
-  jsonb,
-  index,
-  serial,
-  integer,
-  decimal,
-  boolean,
-} from "drizzle-orm/pg-core";
+import { pgTable, varchar, text, timestamp, serial, integer, boolean, numeric, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// Session storage table for Replit Auth
-export const sessions = pgTable(
-  "sessions",
-  {
-    sid: varchar("sid").primaryKey(),
-    sess: jsonb("sess").notNull(),
-    expire: timestamp("expire").notNull(),
-  },
-  (table) => [index("IDX_session_expire").on(table.expire)],
-);
+// Session table for connect-pg-simple
+export const sessions = pgTable("session", {
+  sid: varchar("sid").primaryKey(),
+  sess: jsonb("sess").notNull(),
+  expire: timestamp("expire").notNull(),
+});
 
-// User storage table for email/password auth
+// Users table
 export const users = pgTable("users", {
-  id: varchar("id").primaryKey().notNull(),
-  email: varchar("email").unique(),
-  password: text("password"), // Made optional to preserve existing data
+  id: varchar("id").primaryKey(),
+  email: varchar("email").notNull().unique(),
+  password: text("password"),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
-  profileImageUrl: varchar("profile_image_url"),
-  role: varchar("role").notNull().default("user"), // user, business_owner, admin
+  profileImageUrl: text("profile_image_url"),
+  role: varchar("role").notNull().default("user"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -48,79 +33,52 @@ export const categories = pgTable("categories", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Businesses table
+// Businesses table - matching the database structure you provided
 export const businesses = pgTable("businesses", {
-  // Core identification
-  id: serial("id").primaryKey(),
-  placeid: text("placeid").unique(), // Google Places ID from CSV
-  ownerId: varchar("owner_id").references(() => users.id),
-  categoryId: integer("category_id").references(() => categories.id),
-  
-  // Basic info
-  title: varchar("title").notNull(), // Changed from 'name' to 'title' to match CSV
+  placeid: text("placeid").primaryKey(),
+  title: text("title"),
   subtitle: text("subtitle"),
   description: text("description"),
-  categoryname: varchar("categoryname"), // Category name from CSV
-  categories: jsonb("categories"), // Categories JSON from CSV
-  
-  // SEO fields
-  slug: varchar("slug").notNull().unique(),
-  seotitle: text("seotitle"),
-  seodescription: text("seodescription"),
-  
-  // Contact info
-  phone: varchar("phone"),
-  phoneunformatted: varchar("phoneunformatted"),
-  website: varchar("website"),
-  email: varchar("email"),
-  
-  // Location data
+  categoryname: text("categoryname"),
+  categories: jsonb("categories"),
+  price: text("price"),
+  website: text("website"),
+  phone: text("phone"),
+  phoneunformatted: text("phoneunformatted"),
+  menu: text("menu"),
   address: text("address"),
-  neighborhood: varchar("neighborhood"),
-  street: varchar("street"),
-  city: varchar("city"),
-  postalcode: varchar("postalcode"),
-  state: varchar("state"),
-  countrycode: varchar("countrycode"),
-  lat: decimal("lat", { precision: 10, scale: 8 }),
-  lng: decimal("lng", { precision: 11, scale: 8 }),
-  pluscode: varchar("pluscode"),
-  locatedin: varchar("locatedin"),
-  
-  // Google-specific IDs
-  fid: varchar("fid"),
-  cid: varchar("cid"),
-  kgmid: varchar("kgmid"),
+  neighborhood: text("neighborhood"),
+  street: text("street"),
+  city: text("city"),
+  postalcode: text("postalcode"),
+  state: text("state"),
+  countrycode: text("countrycode"),
+  lat: numeric("lat"),
+  lng: numeric("lng"),
+  pluscode: text("pluscode"),
+  locatedin: text("locatedin"),
+  fid: text("fid"),
+  cid: text("cid"),
+  kgmid: text("kgmid"),
   url: text("url"),
   searchpageurl: text("searchpageurl"),
   googlefoodurl: text("googlefoodurl"),
-  
-  // Business status
   claimthisbusiness: boolean("claimthisbusiness"),
   permanentlyclosed: boolean("permanentlyclosed"),
   temporarilyclosed: boolean("temporarilyclosed"),
   isadvertisement: boolean("isadvertisement"),
-  featured: boolean("featured").default(false),
-  verified: boolean("verified").default(false),
-  active: boolean("active").default(true),
-  
-  // Pricing and reviews
-  price: varchar("price"),
-  totalscore: decimal("totalscore", { precision: 3, scale: 2 }),
+  featured: boolean("featured"),
+  totalscore: numeric("totalscore"),
   reviewscount: integer("reviewscount"),
   reviewsdistribution: jsonb("reviewsdistribution"),
   reviewstags: jsonb("reviewstags"),
   reviews: jsonb("reviews"),
-  
-  // Media
   imageurl: text("imageurl"),
   imagescount: integer("imagescount"),
   imagecategories: jsonb("imagecategories"),
   imageurls: jsonb("imageurls"),
   images: jsonb("images"),
   logo: jsonb("logo"),
-  
-  // Hours and additional info
   openinghours: jsonb("openinghours"),
   additionalopeninghours: jsonb("additionalopeninghours"),
   openinghoursbusinessconfirmationtext: text("openinghoursbusinessconfirmationtext"),
@@ -128,18 +86,11 @@ export const businesses = pgTable("businesses", {
   amenities: jsonb("amenities"),
   accessibility: jsonb("accessibility"),
   planning: jsonb("planning"),
-  
-  // Reservations and booking
   reservetableurl: text("reservetableurl"),
   tablereservationlinks: jsonb("tablereservationlinks"),
   bookinglinks: jsonb("bookinglinks"),
   orderby: jsonb("orderby"),
-  
-  // Restaurant specific
   restaurantdata: jsonb("restaurantdata"),
-  menu: text("menu"),
-  
-  // Hotel specific
   hotelads: jsonb("hotelads"),
   hotelstars: integer("hotelstars"),
   hoteldescription: text("hoteldescription"),
@@ -147,8 +98,6 @@ export const businesses = pgTable("businesses", {
   checkoutdate: text("checkoutdate"),
   similarhotelsnearby: jsonb("similarhotelsnearby"),
   hotelreviewsummary: jsonb("hotelreviewsummary"),
-  
-  // Additional data
   peoplealsosearch: jsonb("peoplealsosearch"),
   placestags: jsonb("placestags"),
   gasprices: jsonb("gasprices"),
@@ -158,39 +107,41 @@ export const businesses = pgTable("businesses", {
   webresults: jsonb("webresults"),
   leadsenrichment: jsonb("leadsenrichment"),
   userplacenote: text("userplacenote"),
-  faq: jsonb("faq"),
-  
-  // Metadata
   scrapedat: timestamp("scrapedat"),
   searchstring: text("searchstring"),
-  language: varchar("language"),
+  language: text("language"),
   rank: integer("rank"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  ownerid: text("ownerid").references(() => users.id),
+  seotitle: text("seotitle"),
+  slug: text("slug").notNull().unique(),
+  seodescription: text("seodescription"),
+  createdat: timestamp("createdat").defaultNow(),
+  updatedat: timestamp("updatedat").defaultNow(),
+  faq: jsonb("faq"),
 });
 
 // Reviews table
 export const reviews = pgTable("reviews", {
   id: serial("id").primaryKey(),
-  businessId: integer("business_id").notNull().references(() => businesses.id),
-  userId: varchar("user_id").notNull().references(() => users.id),
+  businessId: text("business_id").references(() => businesses.placeid),
+  userId: varchar("user_id").references(() => users.id),
   rating: integer("rating").notNull(),
-  title: varchar("title"),
-  content: text("content"),
+  comment: text("comment"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Site customization table
+// Site settings table
 export const siteSettings = pgTable("site_settings", {
   id: serial("id").primaryKey(),
   key: varchar("key").notNull().unique(),
-  value: jsonb("value").notNull(),
+  value: text("value"),
   description: text("description"),
-  category: varchar("category").notNull().default("general"),
+  category: varchar("category"),
+  createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Schema validations
+// Schema definitions for validation
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
   createdAt: true,
@@ -203,8 +154,10 @@ export const loginUserSchema = z.object({
 });
 
 export const registerUserSchema = insertUserSchema.extend({
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  email: z.string().email(),
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
 });
 
 export const insertCategorySchema = createInsertSchema(categories).omit({
@@ -213,14 +166,13 @@ export const insertCategorySchema = createInsertSchema(categories).omit({
 });
 
 export const insertBusinessSchema = createInsertSchema(businesses).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
+  createdat: true,
+  updatedat: true,
 });
 
 export const csvBusinessSchema = insertBusinessSchema.partial().extend({
-  title: z.string().min(1, "Title is required"),
-  slug: z.string().min(1, "Slug is required"),
+  // Make placeid required for CSV import
+  placeid: z.string().min(1),
 });
 
 export const insertReviewSchema = createInsertSchema(reviews).omit({
@@ -230,10 +182,11 @@ export const insertReviewSchema = createInsertSchema(reviews).omit({
 
 export const insertSiteSettingSchema = createInsertSchema(siteSettings).omit({
   id: true,
+  createdAt: true,
   updatedAt: true,
 });
 
-// Types
+// Type exports
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -246,12 +199,13 @@ export type Review = typeof reviews.$inferSelect;
 export type InsertSiteSetting = z.infer<typeof insertSiteSettingSchema>;
 export type SiteSetting = typeof siteSettings.$inferSelect;
 
-// Extended types for API responses
+// Business with category info
 export type BusinessWithCategory = Business & {
-  category: Category;
-  owner: Pick<User, 'firstName' | 'lastName' | 'email'>;
+  category?: Category;
+  owner?: Pick<User, 'firstName' | 'lastName' | 'email'>;
 };
 
+// Category with business count
 export type CategoryWithCount = Category & {
   businessCount: number;
 };

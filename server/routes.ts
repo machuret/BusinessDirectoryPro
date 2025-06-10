@@ -393,7 +393,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin business management routes
   app.get('/api/admin/businesses', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const user = await storage.getUser(userId);
       
       if (!user || user.role !== 'admin') {
@@ -503,7 +503,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch('/api/admin/site-settings/:key', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const user = await storage.getUser(userId);
       
       if (!user || user.role !== 'admin') {
