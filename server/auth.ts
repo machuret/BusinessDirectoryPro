@@ -10,7 +10,7 @@ import { pool } from "./db";
 declare global {
   namespace Express {
     interface Request {
-      session: session.Session & {
+      session: session.Session & session.SessionData & {
         userId?: string;
         user?: User;
       };
@@ -67,6 +67,7 @@ export function setupAuth(app: Express) {
       // Hash password and create user
       const hashedPassword = await hashPassword(validatedData.password);
       const newUser = await storage.createUser({
+        id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         ...validatedData,
         password: hashedPassword,
       });
