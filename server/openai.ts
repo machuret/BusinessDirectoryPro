@@ -118,9 +118,10 @@ export async function optimizeBusinesses(businessIds: string[], type: 'descripti
   
   for (let i = 0; i < businessIds.length; i++) {
     const businessId = businessIds[i];
+    let business = null;
     
     try {
-      const business = await storage.getBusinessById(businessId);
+      business = await storage.getBusinessById(businessId);
       if (!business) {
         results.errors.push({ businessId, error: 'Business not found' });
         continue;

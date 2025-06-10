@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { AlertTriangle, Upload, Users, Building2, Settings, FileText, Star, Menu, Key, Zap, MapPin, Globe } from "lucide-react";
@@ -254,9 +255,11 @@ export default function Admin() {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/businesses"] });
       setOptimizerProgress(null);
       setSelectedBusinesses([]);
+      setOptimizerResults(data);
+      setShowResultsModal(true);
       toast({ 
         title: "Descriptions optimized successfully",
-        description: `${data.success} businesses updated`
+        description: `${data.success} businesses updated, ${data.errors.length} errors`
       });
     },
     onError: (error: Error) => {
@@ -278,9 +281,11 @@ export default function Admin() {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/businesses"] });
       setOptimizerProgress(null);
       setSelectedBusinesses([]);
+      setOptimizerResults(data);
+      setShowResultsModal(true);
       toast({ 
         title: "FAQs generated successfully",
-        description: `${data.success} businesses updated`
+        description: `${data.success} businesses updated, ${data.errors.length} errors`
       });
     },
     onError: (error: Error) => {
@@ -1734,6 +1739,119 @@ export default function Admin() {
                 </Button>
               </div>
             </form>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Optimization Results Dialog */}
+      {showResultsModal && optimizerResults && (
+        <Dialog open={showResultsModal} onOpenChange={setShowResultsModal}>
+          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>AI Optimization Results</DialogTitle>
+            </DialogHeader>
+            
+            <div className="space-y-6">
+              {/* Summary */}
+              <div className="grid grid-cols-3 gap-4">
+                <Card>
+                  <CardContent className="p-4 text-center">
+                    <div className="text-2xl font-bold text-green-600">{optimizerResults.success}</div>
+                    <div className="text-sm text-gray-600">Successful</div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-4 text-center">
+                    <div className="text-2xl font-bold text-red-600">{optimizerResults.errors.length}</div>
+                    <div className="text-sm text-gray-600">Errors</div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-4 text-center">
+                    <div className="text-2xl font-bold text-blue-600">{optimizerResults.details.length}</div>
+                    <div className="text-sm text-gray-600">Total Processed</div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Detailed Results */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Detailed Results</h3>
+                
+                {optimizerResults.details.map((detail: any, index: number) => (
+                  <Card key={index} className={`${
+                    detail.status === 'optimized' || detail.status === 'created' ? 'border-green-200' :
+                    detail.status === 'error' ? 'border-red-200' : 'border-yellow-200'
+                  }`}>
+                    <CardHeader className="pb-2">
+                      <div className="flex justify-between items-start">
+                        <CardTitle className="text-base">{detail.businessName}</CardTitle>
+                        <Badge variant={
+                          detail.status === 'optimized' || detail.status === 'created' ? 'default' :
+                          detail.status === 'error' ? 'destructive' : 'secondary'
+                        }>
+                          {detail.status}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      {detail.status === 'error' ? (
+                        <div className="text-red-600 text-sm">{detail.error}</div>
+                      ) : (
+                        <div className="space-y-3">
+                          <div>
+                            <div className="text-sm font-medium text-gray-600 mb-1">Before:</div>
+                            <div className="text-sm bg-gray-50 p-2 rounded border">
+                              {detail.before}
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <div className="text-sm font-medium text-gray-600 mb-1">After:</div>
+                            <div className="text-sm bg-green-50 p-2 rounded border border-green-200">
+                              {detail.after}
+                            </div>
+                          </div>
+
+                          {detail.faqItems && (
+                            <div>
+                              <div className="text-sm font-medium text-gray-600 mb-2">Generated FAQ Items:</div>
+                              <div className="space-y-2">
+                                {detail.faqItems.map((faq: any, faqIndex: number) => (
+                                  <div key={faqIndex} className="bg-blue-50 p-2 rounded border border-blue-200">
+                                    <div className="font-medium text-sm">{faq.question}</div>
+                                    <div className="text-sm text-gray-600 mt-1">{faq.answer}</div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {/* Errors Section */}
+              {optimizerResults.errors.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold text-red-600 mb-3">Errors Encountered</h3>
+                  <div className="space-y-2">
+                    {optimizerResults.errors.map((error: any, index: number) => (
+                      <div key={index} className="bg-red-50 border border-red-200 rounded p-3">
+                        <div className="font-medium text-sm">{error.businessName}</div>
+                        <div className="text-sm text-red-600">{error.error}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex justify-end pt-4">
+                <Button onClick={() => setShowResultsModal(false)}>Close</Button>
+              </div>
+            </div>
           </DialogContent>
         </Dialog>
       )}
