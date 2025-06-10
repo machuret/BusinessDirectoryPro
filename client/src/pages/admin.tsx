@@ -14,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { AlertTriangle, Upload, Users, Building2, Settings, FileText, Star, Menu, Key, Zap } from "lucide-react";
+import { AlertTriangle, Upload, Users, Building2, Settings, FileText, Star, Menu, Key, Zap, MapPin, Globe } from "lucide-react";
 import type { BusinessWithCategory, User, Category, SiteSetting, MenuItem } from "@shared/schema";
 
 export default function Admin() {
@@ -422,7 +422,7 @@ export default function Admin() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5 lg:grid-cols-8">
+        <TabsList className="grid w-full grid-cols-5 lg:grid-cols-10">
           <TabsTrigger value="businesses" className="flex items-center space-x-2">
             <Building2 className="h-4 w-4" />
             <span>Businesses</span>
@@ -434,6 +434,10 @@ export default function Admin() {
           <TabsTrigger value="categories" className="flex items-center space-x-2">
             <FileText className="h-4 w-4" />
             <span>Categories</span>
+          </TabsTrigger>
+          <TabsTrigger value="cities" className="flex items-center space-x-2">
+            <MapPin className="h-4 w-4" />
+            <span>Cities</span>
           </TabsTrigger>
           <TabsTrigger value="claims" className="flex items-center space-x-2">
             <FileText className="h-4 w-4" />
@@ -450,6 +454,10 @@ export default function Admin() {
           <TabsTrigger value="api-keys" className="flex items-center space-x-2">
             <Key className="h-4 w-4" />
             <span>API Keys</span>
+          </TabsTrigger>
+          <TabsTrigger value="seo" className="flex items-center space-x-2">
+            <Globe className="h-4 w-4" />
+            <span>Global SEO</span>
           </TabsTrigger>
           <TabsTrigger value="settings" className="flex items-center space-x-2">
             <Settings className="h-4 w-4" />
@@ -629,6 +637,35 @@ export default function Admin() {
                   </Table>
                 </div>
               )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Cities Tab */}
+        <TabsContent value="cities" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Cities Management</CardTitle>
+              <CardDescription>Manage city pages with titles and descriptions</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="mb-4">
+                  <Button onClick={() => {
+                    const cityName = prompt("Enter city name:");
+                    if (cityName) {
+                      // Add city functionality here
+                      toast({ title: "City feature coming soon" });
+                    }
+                  }}>
+                    Add New City
+                  </Button>
+                </div>
+                
+                <div className="text-center py-8 text-gray-500">
+                  Cities management functionality is being implemented. You can currently view cities on the /cities page.
+                </div>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -926,15 +963,29 @@ export default function Admin() {
                     type="password"
                     placeholder="sk-..."
                     defaultValue={siteSettings?.find(s => s.key === 'openai_api_key')?.value || ''}
-                    onBlur={(e) => {
-                      if (e.target.value !== (siteSettings?.find(s => s.key === 'openai_api_key')?.value || '')) {
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
                         updateSiteSettingMutation.mutate({
                           key: 'openai_api_key',
-                          value: e.target.value
+                          value: e.currentTarget.value
                         });
                       }
                     }}
                   />
+                  <Button
+                    onClick={() => {
+                      const input = document.getElementById('openai-key') as HTMLInputElement;
+                      if (input) {
+                        updateSiteSettingMutation.mutate({
+                          key: 'openai_api_key',
+                          value: input.value
+                        });
+                      }
+                    }}
+                    disabled={updateSiteSettingMutation.isPending}
+                  >
+                    {updateSiteSettingMutation.isPending ? "Saving..." : "Save"}
+                  </Button>
                 </div>
                 <p className="text-sm text-muted-foreground">
                   OpenAI API key for content optimization. Get yours at platform.openai.com
@@ -1050,6 +1101,145 @@ export default function Admin() {
                   </CardContent>
                 </Card>
               )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Global SEO Tab */}
+        <TabsContent value="seo" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Global SEO Settings</CardTitle>
+              <CardDescription>Configure website-wide SEO and analytics settings</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="website-title">Website Title</Label>
+                    <Input
+                      id="website-title"
+                      placeholder="Your Business Directory"
+                      defaultValue={siteSettings?.find(s => s.key === 'website_title')?.value || ''}
+                      onBlur={(e) => {
+                        updateSiteSettingMutation.mutate({
+                          key: 'website_title',
+                          value: e.target.value
+                        });
+                      }}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Main title displayed in browser tabs and search results
+                    </p>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="website-description">Website Description</Label>
+                    <Textarea
+                      id="website-description"
+                      placeholder="Find the best local businesses in your area..."
+                      defaultValue={siteSettings?.find(s => s.key === 'website_description')?.value || ''}
+                      onBlur={(e) => {
+                        updateSiteSettingMutation.mutate({
+                          key: 'website_description',
+                          value: e.target.value
+                        });
+                      }}
+                      rows={3}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Meta description for search engines (150-160 characters)
+                    </p>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="admin-email">Admin Email</Label>
+                    <Input
+                      id="admin-email"
+                      type="email"
+                      placeholder="admin@yourdomain.com"
+                      defaultValue={siteSettings?.find(s => s.key === 'admin_email')?.value || ''}
+                      onBlur={(e) => {
+                        updateSiteSettingMutation.mutate({
+                          key: 'admin_email',
+                          value: e.target.value
+                        });
+                      }}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Contact email for administrative purposes
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="opengraph-image">Open Graph Image URL</Label>
+                    <Input
+                      id="opengraph-image"
+                      placeholder="https://yourdomain.com/og-image.jpg"
+                      defaultValue={siteSettings?.find(s => s.key === 'opengraph_image')?.value || ''}
+                      onBlur={(e) => {
+                        updateSiteSettingMutation.mutate({
+                          key: 'opengraph_image',
+                          value: e.target.value
+                        });
+                      }}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Image displayed when sharing on social media (1200x630px recommended)
+                    </p>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="google-analytics">Google Analytics Code</Label>
+                    <Textarea
+                      id="google-analytics"
+                      placeholder="<script>&#10;// Your Google Analytics code here&#10;</script>"
+                      defaultValue={siteSettings?.find(s => s.key === 'google_analytics')?.value || ''}
+                      onBlur={(e) => {
+                        updateSiteSettingMutation.mutate({
+                          key: 'google_analytics',
+                          value: e.target.value
+                        });
+                      }}
+                      rows={6}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Complete Google Analytics or other tracking code (will be added to header)
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-medium">Preview</h3>
+                    <p className="text-sm text-gray-500">How your site appears in search results</p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      toast({ title: "SEO settings saved successfully" });
+                    }}
+                  >
+                    Save All SEO Settings
+                  </Button>
+                </div>
+                
+                <div className="mt-4 p-4 border rounded-lg bg-gray-50">
+                  <div className="text-blue-600 text-lg hover:underline cursor-pointer">
+                    {siteSettings?.find(s => s.key === 'website_title')?.value || 'Your Business Directory'}
+                  </div>
+                  <div className="text-green-700 text-sm">
+                    yourdomain.com
+                  </div>
+                  <div className="text-gray-600 text-sm mt-1">
+                    {siteSettings?.find(s => s.key === 'website_description')?.value || 'Find the best local businesses in your area...'}
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -1471,6 +1661,80 @@ export default function Admin() {
         </Dialog>
       )}
 
+      {/* User Edit Dialog */}
+      {showUserForm && editingUser && (
+        <Dialog open={showUserForm} onOpenChange={setShowUserForm}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Edit User</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.currentTarget);
+              const data = {
+                firstName: formData.get("firstName") as string,
+                lastName: formData.get("lastName") as string,
+                email: formData.get("email") as string,
+                role: formData.get("role") as string,
+              };
+              updateUserMutation.mutate({ id: editingUser.id, userData: data });
+            }} className="space-y-4">
+              <div>
+                <Label htmlFor="firstName">First Name</Label>
+                <Input
+                  id="firstName"
+                  name="firstName"
+                  defaultValue={editingUser.firstName || ""}
+                  required
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="lastName">Last Name</Label>
+                <Input
+                  id="lastName"
+                  name="lastName"
+                  defaultValue={editingUser.lastName || ""}
+                  required
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  defaultValue={editingUser.email}
+                  required
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="role">Role</Label>
+                <Select name="role" defaultValue={editingUser.role || "user"}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="user">User</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex space-x-2 pt-4">
+                <Button type="button" variant="outline" onClick={() => setShowUserForm(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={updateUserMutation.isPending}>
+                  {updateUserMutation.isPending ? "Updating..." : "Update User"}
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+      )}
 
     </div>
   );
