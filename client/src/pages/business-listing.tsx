@@ -144,8 +144,8 @@ export default function BusinessListing() {
     ? displayImages[0] 
     : `https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&h=600&fit=crop&auto=format`;
 
-  const faqItems = parseFaq(business.faq);
-  const hoursData = formatHours(business.openinghours);
+  const faqItems = parseFaq(business.faq as string);
+  const hoursData = formatHours(business.openinghours as string);
 
   const handleSubmitReview = (e: React.FormEvent) => {
     e.preventDefault();
@@ -160,7 +160,7 @@ export default function BusinessListing() {
 
     reviewMutation.mutate({
       businessId: business.placeid,
-      userId: user.id,
+      userId: user.id as string,
       rating,
       comment: reviewText,
     });
@@ -225,7 +225,7 @@ export default function BusinessListing() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {displayImages.slice(1, 7).map((image, index) => (
+                    {displayImages.slice(1, 7).map((image: string, index: number) => (
                       <img
                         key={index}
                         src={image}
@@ -315,7 +315,7 @@ export default function BusinessListing() {
                           </div>
                         </div>
                         <span className="text-sm text-gray-500">
-                          {new Date(review.createdAt).toLocaleDateString()}
+                          {review.createdAt ? new Date(review.createdAt).toLocaleDateString() : 'Recent'}
                         </span>
                       </div>
                       <p className="text-gray-700">{review.comment}</p>
@@ -404,10 +404,10 @@ export default function BusinessListing() {
 
             {/* Action Buttons */}
             <div className="space-y-3">
-              {business.formattedaddress && (
+              {business.address && (
                 <Button 
                   className="w-full" 
-                  onClick={() => window.open(`https://maps.google.com/maps?q=${encodeURIComponent(business.formattedaddress || business.address || '')}`, '_blank')}
+                  onClick={() => window.open(`https://maps.google.com/maps?q=${encodeURIComponent(business.address || '')}`, '_blank')}
                 >
                   <Navigation className="w-4 h-4 mr-2" />
                   Get Directions
@@ -430,11 +430,11 @@ export default function BusinessListing() {
               <CardContent className="pt-6">
                 <div className="grid grid-cols-2 gap-4 text-center">
                   <div>
-                    <p className="text-2xl font-bold text-primary">{business.userratingstotal || 0}</p>
+                    <p className="text-2xl font-bold text-primary">{business.reviewscount || 0}</p>
                     <p className="text-sm text-gray-600">Reviews</p>
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-primary">{parseFloat(business.rating || "0").toFixed(1)}</p>
+                    <p className="text-2xl font-bold text-primary">{parseFloat(business.totalscore || "0").toFixed(1)}</p>
                     <p className="text-sm text-gray-600">Rating</p>
                   </div>
                 </div>
