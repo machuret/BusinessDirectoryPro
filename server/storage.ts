@@ -244,8 +244,8 @@ export class DatabaseStorage implements IStorage {
         seotitle: businesses.seotitle,
         slug: businesses.slug,
         seodescription: businesses.seodescription,
-        createdat: businesses.createdat,
-        updatedat: businesses.updatedat,
+        createdat: businesses.created_at,
+        updatedat: businesses.updated_at,
         faq: businesses.faq,
       })
       .from(businesses);
