@@ -139,13 +139,13 @@ export default function BusinessListing() {
     }
   };
 
-  const displayImages = business.images || [];
-  const heroImage = displayImages.length > 0 
+  const displayImages = business.images ? (typeof business.images === 'string' ? JSON.parse(business.images) : business.images) : [];
+  const heroImage = Array.isArray(displayImages) && displayImages.length > 0 
     ? displayImages[0] 
     : `https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&h=600&fit=crop&auto=format`;
 
   const faqItems = parseFaq(business.faq);
-  const hoursData = formatHours(business.hours);
+  const hoursData = formatHours(business.openinghours);
 
   const handleSubmitReview = (e: React.FormEvent) => {
     e.preventDefault();
@@ -187,12 +187,12 @@ export default function BusinessListing() {
             <h1 className="text-4xl font-bold mb-2">{business.title}</h1>
             <div className="flex items-center space-x-4 text-lg">
               <div className="flex items-center">
-                {renderStars(Math.round(parseFloat(business.rating || "0")))}
-                <span className="ml-2">{parseFloat(business.rating || "0").toFixed(1)}</span>
-                <span className="ml-1">({business.userratingstotal || 0} reviews)</span>
+                {renderStars(Math.round(parseFloat(business.totalscore || "0")))}
+                <span className="ml-2">{parseFloat(business.totalscore || "0").toFixed(1)}</span>
+                <span className="ml-1">({business.reviewscount || 0} reviews)</span>
               </div>
               <span>•</span>
-              <span>{business.category?.name || business.types}</span>
+              <span>{business.category?.name || business.categoryname}</span>
             </div>
           </div>
         </div>
@@ -212,7 +212,7 @@ export default function BusinessListing() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-700 leading-relaxed">
-                  {business.description || business.editorialsummary || "No description available."}
+                  {business.description || "No description available."}
                 </p>
               </CardContent>
             </Card>
@@ -308,7 +308,7 @@ export default function BusinessListing() {
                             <User className="w-4 h-4" />
                           </div>
                           <div>
-                            <p className="font-medium">{review.user.firstName} {review.user.lastName}</p>
+                            <p className="font-medium">{review.user?.firstName || 'Anonymous'} {review.user?.lastName || ''}</p>
                             <div className="flex items-center">
                               {renderStars(review.rating)}
                             </div>
@@ -339,26 +339,26 @@ export default function BusinessListing() {
                 <CardTitle>Contact Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {business.formattedaddress && (
+                {business.address && (
                   <div className="flex items-start">
                     <MapPin className="w-5 h-5 text-gray-400 mr-3 mt-0.5" />
                     <div>
                       <p className="text-sm text-gray-600">Address</p>
-                      <p className="font-medium">{business.formattedaddress}</p>
+                      <p className="font-medium">{business.address}</p>
                     </div>
                   </div>
                 )}
                 
-                {business.formattedphonenumber && (
+                {business.phone && (
                   <div className="flex items-center">
                     <Phone className="w-5 h-5 text-gray-400 mr-3" />
                     <div>
                       <p className="text-sm text-gray-600">Phone</p>
                       <a 
-                        href={`tel:${business.formattedphonenumber}`}
+                        href={`tel:${business.phone}`}
                         className="font-medium text-primary hover:underline"
                       >
-                        {business.formattedphonenumber}
+                        {business.phone}
                       </a>
                     </div>
                   </div>
