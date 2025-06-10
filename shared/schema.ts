@@ -84,6 +84,16 @@ export const reviews = pgTable("reviews", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Site customization table
+export const siteSettings = pgTable("site_settings", {
+  id: serial("id").primaryKey(),
+  key: varchar("key").notNull().unique(),
+  value: jsonb("value").notNull(),
+  description: text("description"),
+  category: varchar("category").notNull().default("general"),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Schema validations
 export const insertUserSchema = createInsertSchema(users).omit({
   createdAt: true,
@@ -109,6 +119,11 @@ export const insertReviewSchema = createInsertSchema(reviews).omit({
   createdAt: true,
 });
 
+export const insertSiteSettingSchema = createInsertSchema(siteSettings).omit({
+  id: true,
+  updatedAt: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -118,6 +133,8 @@ export type InsertBusiness = z.infer<typeof insertBusinessSchema>;
 export type Business = typeof businesses.$inferSelect;
 export type InsertReview = z.infer<typeof insertReviewSchema>;
 export type Review = typeof reviews.$inferSelect;
+export type InsertSiteSetting = z.infer<typeof insertSiteSettingSchema>;
+export type SiteSetting = typeof siteSettings.$inferSelect;
 
 // Extended types for API responses
 export type BusinessWithCategory = Business & {

@@ -3,6 +3,7 @@ import {
   categories,
   businesses,
   reviews,
+  siteSettings,
   type User,
   type UpsertUser,
   type Category,
@@ -13,6 +14,8 @@ import {
   type CategoryWithCount,
   type Review,
   type InsertReview,
+  type SiteSetting,
+  type InsertSiteSetting,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, asc, sql, like, and, or, count } from "drizzle-orm";
@@ -56,6 +59,11 @@ export interface IStorage {
   // Search operations
   searchBusinesses(query: string, location?: string): Promise<BusinessWithCategory[]>;
   getFeaturedBusinesses(limit?: number): Promise<BusinessWithCategory[]>;
+  
+  // Site settings operations
+  getSiteSettings(): Promise<SiteSetting[]>;
+  getSiteSetting(key: string): Promise<SiteSetting | undefined>;
+  updateSiteSetting(key: string, value: any, description?: string, category?: string): Promise<SiteSetting>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -552,6 +560,45 @@ export class DatabaseStorage implements IStorage {
 
   async getFeaturedBusinesses(limit: number = 6): Promise<BusinessWithCategory[]> {
     return this.getBusinesses({ featured: true, limit });
+  }
+
+  // Site settings operations
+  async getSiteSettings(): Promise<SiteSetting[]> {
+    const result = await db
+      .select()
+      .from(siteSettings)
+      .orderBy(siteSettings.category, siteSettings.key);
+    return result;
+  }
+
+  async getSiteSetting(key: string): Promise<SiteSetting | undefined> {
+    const [setting] = await db
+      .select()
+      .from(siteSettings)
+      .where(eq(siteSettings.key, key));
+    return setting;
+  }
+
+  async updateSiteSetting(key: string, value: any, description?: string, category?: string): Promise<SiteSetting> {
+    const [setting] = await db
+      .insert(siteSettings)
+      .values({
+        key,
+        value: JSON.stringify(value),
+        description,
+        category: category || 'general',
+      })
+      .onConflictDoUpdate({
+        target: siteSettings.key,
+        set: {
+          value: JSON.stringify(value),
+          description,
+          category: category || 'general',
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return setting;
   }
 }
 

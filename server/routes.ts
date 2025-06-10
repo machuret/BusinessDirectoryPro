@@ -457,6 +457,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Site settings routes
+  app.get('/api/site-settings', async (req, res) => {
+    try {
+      const settings = await storage.getSiteSettings();
+      const settingsMap = settings.reduce((acc, setting) => {
+        acc[setting.key] = JSON.parse(setting.value as string);
+        return acc;
+      }, {} as Record<string, any>);
+      
+      res.json(settingsMap);
+    } catch (error) {
+      console.error("Error fetching site settings:", error);
+      res.status(500).json({ message: "Failed to fetch site settings" });
+    }
+  });
+
+  app.get('/api/admin/site-settings', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const settings = await storage.getSiteSettings();
+      res.json(settings);
+    } catch (error) {
+      console.error("Error fetching admin site settings:", error);
+      res.status(500).json({ message: "Failed to fetch site settings" });
+    }
+  });
+
+  app.patch('/api/admin/site-settings/:key', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { key } = req.params;
+      const { value, description, category } = req.body;
+      
+      const updatedSetting = await storage.updateSiteSetting(key, value, description, category);
+      res.json(updatedSetting);
+    } catch (error) {
+      console.error("Error updating site setting:", error);
+      res.status(500).json({ message: "Failed to update site setting" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
