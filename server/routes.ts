@@ -462,7 +462,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const settings = await storage.getSiteSettings();
       const settingsMap = settings.reduce((acc, setting) => {
-        acc[setting.key] = JSON.parse(setting.value as string);
+        let value = setting.value;
+        // Handle double-encoded JSON strings
+        if (typeof value === 'string' && value.startsWith('"') && value.endsWith('"')) {
+          value = JSON.parse(value);
+        }
+        acc[setting.key] = value;
         return acc;
       }, {} as Record<string, any>);
       

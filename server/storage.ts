@@ -584,14 +584,14 @@ export class DatabaseStorage implements IStorage {
       .insert(siteSettings)
       .values({
         key,
-        value: JSON.stringify(value),
+        value: value,
         description,
         category: category || 'general',
       })
       .onConflictDoUpdate({
         target: siteSettings.key,
         set: {
-          value: JSON.stringify(value),
+          value: value,
           description,
           category: category || 'general',
           updatedAt: new Date(),
