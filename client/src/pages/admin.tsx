@@ -33,6 +33,8 @@ export default function Admin() {
   const [showUserForm, setShowUserForm] = useState(false);
   const [selectedBusinesses, setSelectedBusinesses] = useState<string[]>([]);
   const [optimizerProgress, setOptimizerProgress] = useState<{type: string, current: number, total: number} | null>(null);
+  const [optimizerResults, setOptimizerResults] = useState<any>(null);
+  const [showResultsModal, setShowResultsModal] = useState(false);
 
 
   // Data queries

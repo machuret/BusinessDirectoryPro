@@ -110,9 +110,15 @@ Respond with JSON in this exact format:
 }
 
 export async function optimizeBusinesses(businessIds: string[], type: 'descriptions' | 'faqs') {
-  const results = { success: 0, errors: [] as any[] };
+  const results = { 
+    success: 0, 
+    errors: [] as any[],
+    details: [] as any[]
+  };
   
-  for (const businessId of businessIds) {
+  for (let i = 0; i < businessIds.length; i++) {
+    const businessId = businessIds[i];
+    
     try {
       const business = await storage.getBusinessById(businessId);
       if (!business) {
@@ -120,23 +126,72 @@ export async function optimizeBusinesses(businessIds: string[], type: 'descripti
         continue;
       }
 
+      console.log(`Processing ${i + 1}/${businessIds.length}: ${business.title}`);
+
       if (type === 'descriptions') {
+        const originalDescription = business.description || 'No description';
         const optimizedDescription = await optimizeBusinessDescription(business);
+        
         await storage.updateBusiness(businessId, { description: optimizedDescription });
+        
+        results.details.push({
+          businessId,
+          businessName: business.title,
+          type: 'description',
+          before: originalDescription,
+          after: optimizedDescription,
+          status: 'optimized'
+        });
+        
       } else if (type === 'faqs') {
-        // Only generate FAQ if none exists
-        if (!business.faq || (Array.isArray(business.faq) && business.faq.length === 0)) {
+        const originalFaq = business.faq;
+        const hasFaq = originalFaq && (
+          (typeof originalFaq === 'string' && originalFaq.trim() !== '' && originalFaq !== '[]') ||
+          (Array.isArray(originalFaq) && originalFaq.length > 0)
+        );
+        
+        if (!hasFaq) {
           const faqData = await generateBusinessFAQ(business);
           await storage.updateBusiness(businessId, { faq: JSON.stringify(faqData) });
+          
+          results.details.push({
+            businessId,
+            businessName: business.title,
+            type: 'faq',
+            before: 'No FAQ',
+            after: `Generated ${faqData.length} FAQ items`,
+            faqItems: faqData,
+            status: 'created'
+          });
+        } else {
+          results.details.push({
+            businessId,
+            businessName: business.title,
+            type: 'faq',
+            before: 'FAQ already exists',
+            after: 'Skipped - FAQ already exists',
+            status: 'skipped'
+          });
         }
       }
 
       results.success++;
     } catch (error) {
       console.error(`Error processing business ${businessId}:`, error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      
       results.errors.push({ 
         businessId, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+        businessName: business?.title || 'Unknown',
+        error: errorMessage
+      });
+      
+      results.details.push({
+        businessId,
+        businessName: business?.title || 'Unknown',
+        type,
+        status: 'error',
+        error: errorMessage
       });
     }
   }
