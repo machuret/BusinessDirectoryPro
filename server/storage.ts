@@ -297,9 +297,9 @@ export class DatabaseStorage implements IStorage {
     // Generate SEO slug if not provided
     if (!business.slug) {
       const baseSlug = this.generateSeoSlug(
-        business.name || 'business',
-        business.city,
-        business.categoryname
+        business.title || 'business',
+        business.city || undefined,
+        business.categoryname || undefined
       );
       business.slug = await this.ensureUniqueSlug(baseSlug);
     }
@@ -316,21 +316,21 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateBusiness(id: string, business: Partial<InsertBusiness>): Promise<Business | undefined> {
-    // If name, city, or category changed, regenerate slug
-    if (business.name || business.city || business.categoryname) {
+    // If title, city, or category changed, regenerate slug
+    if (business.title || business.city || business.categoryname) {
       const currentBusiness = await this.getBusinessById(id);
       if (currentBusiness) {
         const baseSlug = this.generateSeoSlug(
-          business.name || currentBusiness.name || 'business',
-          business.city || currentBusiness.city,
-          business.categoryname || currentBusiness.categoryname
+          business.title || currentBusiness.title || 'business',
+          business.city || currentBusiness.city || undefined,
+          business.categoryname || currentBusiness.categoryname || undefined
         );
         business.slug = await this.ensureUniqueSlug(baseSlug, id);
       }
     }
     
     // Regenerate SEO metadata if business details changed and no custom SEO provided
-    if ((business.name || business.city || business.categoryname || business.address || business.phone) && 
+    if ((business.title || business.city || business.categoryname || business.address || business.phone) && 
         (!business.seotitle || !business.seodescription)) {
       const currentBusiness = await this.getBusinessById(id);
       if (currentBusiness) {

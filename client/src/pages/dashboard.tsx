@@ -67,6 +67,9 @@ export default function Dashboard() {
       phone: formData.get("phone"),
       website: formData.get("website"),
       address: formData.get("address"),
+      seotitle: formData.get("seotitle") || null,
+      seodescription: formData.get("seodescription") || null,
+      slug: formData.get("slug") || null,
     };
 
     updateBusinessMutation.mutate({

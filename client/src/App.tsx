@@ -29,7 +29,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/categories" component={Categories} />
       <Route path="/categories/:slug" component={Categories} />
-      <Route path="/business/:placeid" component={BusinessListing} />
+      <Route path="/business/:identifier" component={BusinessListing} />
       <Route path="/login" component={Login} />
       {isAuthenticated && (
         <>

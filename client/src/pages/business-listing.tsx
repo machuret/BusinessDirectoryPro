@@ -31,8 +31,8 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
 export default function BusinessListing() {
-  const [, params] = useRoute("/business/:placeid");
-  const placeid = params?.placeid;
+  const [, params] = useRoute("/business/:identifier");
+  const identifier = params?.identifier;
   const { user } = useAuth();
   const { toast } = useToast();
   
@@ -45,8 +45,8 @@ export default function BusinessListing() {
 
   // All useQuery hooks
   const { data: business, isLoading } = useQuery<BusinessWithCategory>({
-    queryKey: [`/api/businesses/${placeid}`],
-    enabled: !!placeid,
+    queryKey: [`/api/businesses/${identifier}`],
+    enabled: !!identifier,
   });
 
   // All useMemo hooks
