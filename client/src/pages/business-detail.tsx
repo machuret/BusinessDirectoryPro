@@ -325,7 +325,7 @@ export default function BusinessDetail() {
                     <div>
                       <p className="font-medium">Hours</p>
                       <div className="text-sm text-muted-foreground space-y-1">
-                        {business.openinghours.map((hour: any, index: number) => (
+                        {(business.openinghours as any[]).map((hour: any, index: number) => (
                           <div key={index} className="flex justify-between">
                             <span>{String(hour?.day || '')}</span>
                             <span>{String(hour?.hours || '')}</span>

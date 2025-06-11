@@ -1,51 +1,142 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>SEO Test Page</title>
+    <title>SEO Comprehensive Audit</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; border: 1px solid #ccc; padding: 15px; }
+        .result { margin: 10px 0; }
+        .pass { color: green; }
+        .fail { color: red; }
+        .warn { color: orange; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+    </style>
 </head>
 <body>
+    <h1>SEO Comprehensive Audit Results</h1>
+    
+    <div id="audit-results"></div>
+    
     <script>
-        // Test the SEO Head component output
-        fetch('/business/north-brisbane-dental-clinic')
-            .then(response => response.text())
-            .then(html => {
-                console.log('=== SEO AUDIT RESULTS ===');
+        const auditResults = document.getElementById('audit-results');
+        
+        function logResult(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = message;
+            auditResults.appendChild(div);
+        }
+        
+        function createSection(title) {
+            const section = document.createElement('div');
+            section.className = 'test-section';
+            section.innerHTML = `<h3>${title}</h3>`;
+            auditResults.appendChild(section);
+            return section;
+        }
+        
+        // Test multiple pages
+        const testPages = [
+            { url: '/', name: 'Home Page' },
+            { url: '/business/north-brisbane-dental-clinic', name: 'Business Detail' },
+            { url: '/categories', name: 'Categories' }
+        ];
+        
+        async function auditPage(pageUrl, pageName) {
+            const section = createSection(`${pageName} (${pageUrl})`);
+            
+            try {
+                const response = await fetch(pageUrl);
+                const html = await response.text();
                 
-                // Check for title
-                const titleMatch = html.match(/<title[^>]*>([^<]*)<\/title>/i);
-                console.log('Title:', titleMatch ? titleMatch[1] : 'NOT FOUND');
+                // Parse HTML for testing
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
                 
-                // Check for meta description
-                const descMatch = html.match(/<meta[^>]*name=["']description["'][^>]*content=["']([^"']*)["']/i);
-                console.log('Meta Description:', descMatch ? descMatch[1] : 'NOT FOUND');
-                
-                // Check for Open Graph tags
-                const ogTitleMatch = html.match(/<meta[^>]*property=["']og:title["'][^>]*content=["']([^"']*)["']/i);
-                console.log('OG Title:', ogTitleMatch ? ogTitleMatch[1] : 'NOT FOUND');
-                
-                // Check for schema markup
-                const schemaMatches = html.match(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([^<]*)<\/script>/gi);
-                console.log('Schema Scripts Found:', schemaMatches ? schemaMatches.length : 0);
-                
-                if (schemaMatches) {
-                    schemaMatches.forEach((script, index) => {
-                        try {
-                            const jsonMatch = script.match(/>([^<]*)</);
-                            if (jsonMatch) {
-                                const data = JSON.parse(jsonMatch[1]);
-                                console.log(`Schema ${index + 1} Type:`, data['@type']);
-                            }
-                        } catch (e) {
-                            console.log(`Schema ${index + 1}: Parse Error`);
-                        }
-                    });
+                // Test 1: Title tag
+                const title = doc.querySelector('title');
+                if (title && title.textContent.length > 10) {
+                    section.innerHTML += `<div class="result pass">✓ Title: "${title.textContent}" (${title.textContent.length} chars)</div>`;
+                } else {
+                    section.innerHTML += `<div class="result fail">✗ Title missing or too short</div>`;
                 }
                 
-                // Check for canonical URL
-                const canonicalMatch = html.match(/<link[^>]*rel=["']canonical["'][^>]*href=["']([^"']*)["']/i);
-                console.log('Canonical URL:', canonicalMatch ? canonicalMatch[1] : 'NOT FOUND');
-            })
-            .catch(err => console.error('Test failed:', err));
+                // Test 2: Meta description
+                const metaDesc = doc.querySelector('meta[name="description"]');
+                if (metaDesc && metaDesc.content.length >= 50 && metaDesc.content.length <= 160) {
+                    section.innerHTML += `<div class="result pass">✓ Meta Description: ${metaDesc.content.length} chars (optimal)</div>`;
+                } else if (metaDesc && metaDesc.content.length > 0) {
+                    section.innerHTML += `<div class="result warn">⚠ Meta Description: ${metaDesc.content.length} chars (${metaDesc.content.length < 50 ? 'too short' : 'too long'})</div>`;
+                } else {
+                    section.innerHTML += `<div class="result fail">✗ Meta Description missing</div>`;
+                }
+                
+                // Test 3: Open Graph tags
+                const ogTitle = doc.querySelector('meta[property="og:title"]');
+                const ogDesc = doc.querySelector('meta[property="og:description"]');
+                const ogImage = doc.querySelector('meta[property="og:image"]');
+                const ogUrl = doc.querySelector('meta[property="og:url"]');
+                
+                if (ogTitle && ogDesc && ogImage && ogUrl) {
+                    section.innerHTML += `<div class="result pass">✓ Open Graph tags complete</div>`;
+                } else {
+                    section.innerHTML += `<div class="result fail">✗ Open Graph tags incomplete (${[ogTitle, ogDesc, ogImage, ogUrl].filter(Boolean).length}/4)</div>`;
+                }
+                
+                // Test 4: Schema markup
+                const schemaScripts = doc.querySelectorAll('script[type="application/ld+json"]');
+                if (schemaScripts.length > 0) {
+                    section.innerHTML += `<div class="result pass">✓ Schema markup found (${schemaScripts.length} scripts)</div>`;
+                    
+                    schemaScripts.forEach((script, index) => {
+                        try {
+                            const data = JSON.parse(script.textContent);
+                            section.innerHTML += `<div class="result pass">  → Schema ${index + 1}: ${data['@type']}</div>`;
+                        } catch (e) {
+                            section.innerHTML += `<div class="result fail">  → Schema ${index + 1}: Parse error</div>`;
+                        }
+                    });
+                } else {
+                    section.innerHTML += `<div class="result fail">✗ No schema markup found</div>`;
+                }
+                
+                // Test 5: Canonical URL
+                const canonical = doc.querySelector('link[rel="canonical"]');
+                if (canonical && canonical.href) {
+                    section.innerHTML += `<div class="result pass">✓ Canonical URL: ${canonical.href}</div>`;
+                } else {
+                    section.innerHTML += `<div class="result fail">✗ Canonical URL missing</div>`;
+                }
+                
+                // Test 6: Page load performance
+                const performanceEntry = performance.getEntriesByName(pageUrl)[0];
+                if (performanceEntry) {
+                    const loadTime = performanceEntry.responseEnd - performanceEntry.requestStart;
+                    if (loadTime < 1000) {
+                        section.innerHTML += `<div class="result pass">✓ Page load time: ${loadTime.toFixed(0)}ms</div>`;
+                    } else {
+                        section.innerHTML += `<div class="result warn">⚠ Page load time: ${loadTime.toFixed(0)}ms (slow)</div>`;
+                    }
+                }
+                
+            } catch (error) {
+                section.innerHTML += `<div class="result fail">✗ Audit failed: ${error.message}</div>`;
+            }
+        }
+        
+        // Run audits
+        async function runFullAudit() {
+            logResult('<h2>Starting Comprehensive SEO Audit...</h2>');
+            
+            for (const page of testPages) {
+                await auditPage(page.url, page.name);
+                await new Promise(resolve => setTimeout(resolve, 100)); // Small delay
+            }
+            
+            logResult('<h2>Audit Complete</h2>');
+        }
+        
+        runFullAudit();
     </script>
 </body>
 </html>
