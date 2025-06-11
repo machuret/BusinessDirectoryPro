@@ -131,6 +131,13 @@ export interface IStorage {
   deleteWebsiteFaq(id: number): Promise<void>;
   reorderWebsiteFaqs(faqIds: number[]): Promise<void>;
   
+  // Contact messages management operations  
+  getContactMessages(): Promise<ContactMessage[]>;
+  getContactMessage(id: number): Promise<ContactMessage | undefined>;
+  createContactMessage(message: InsertContactMessage): Promise<ContactMessage>;
+  updateContactMessageStatus(id: number, status: string, adminNotes?: string): Promise<ContactMessage | undefined>;
+  deleteContactMessage(id: number): Promise<void>;
+  
   // Leads management operations
   getLeads(): Promise<LeadWithBusiness[]>;
   getLead(id: number): Promise<LeadWithBusiness | undefined>;
@@ -1372,6 +1379,76 @@ export class DatabaseStorage implements IStorage {
       return result as LeadWithBusiness[];
     } catch (error) {
       console.error('Error fetching leads by business:', error);
+      throw error;
+    }
+  }
+
+  // Contact Messages Management
+  async getContactMessages(): Promise<ContactMessage[]> {
+    try {
+      const result = await db
+        .select()
+        .from(contactMessages)
+        .orderBy(desc(contactMessages.createdAt));
+      return result;
+    } catch (error) {
+      console.error('Error fetching contact messages:', error);
+      throw error;
+    }
+  }
+
+  async getContactMessage(id: number): Promise<ContactMessage | undefined> {
+    try {
+      const result = await db
+        .select()
+        .from(contactMessages)
+        .where(eq(contactMessages.id, id))
+        .limit(1);
+      return result[0];
+    } catch (error) {
+      console.error('Error fetching contact message:', error);
+      throw error;
+    }
+  }
+
+  async createContactMessage(messageData: InsertContactMessage): Promise<ContactMessage> {
+    try {
+      const result = await db
+        .insert(contactMessages)
+        .values(messageData)
+        .returning();
+      return result[0];
+    } catch (error) {
+      console.error('Error creating contact message:', error);
+      throw error;
+    }
+  }
+
+  async updateContactMessageStatus(id: number, status: string, adminNotes?: string): Promise<ContactMessage | undefined> {
+    try {
+      const result = await db
+        .update(contactMessages)
+        .set({ 
+          status, 
+          adminNotes,
+          updatedAt: new Date()
+        })
+        .where(eq(contactMessages.id, id))
+        .returning();
+      return result[0];
+    } catch (error) {
+      console.error('Error updating contact message status:', error);
+      throw error;
+    }
+  }
+
+  async deleteContactMessage(id: number): Promise<void> {
+    try {
+      await db
+        .delete(contactMessages)
+        .where(eq(contactMessages.id, id));
+    } catch (error) {
+      console.error('Error deleting contact message:', error);
       throw error;
     }
   }

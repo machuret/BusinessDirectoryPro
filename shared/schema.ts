@@ -202,6 +202,20 @@ export const websiteFaq = pgTable("website_faq", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+// Contact messages table
+export const contactMessages = pgTable("contact_messages", {
+  id: serial("id").primaryKey(),
+  name: varchar("name").notNull(),
+  email: varchar("email").notNull(),
+  phone: varchar("phone"),
+  subject: varchar("subject").notNull(),
+  message: text("message").notNull(),
+  status: varchar("status").notNull().default("unread"), // unread, read, replied, archived
+  adminNotes: text("admin_notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // Schema definitions for validation
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -324,6 +338,15 @@ export const insertLeadSchema = createInsertSchema(leads).omit({
   createdAt: true,
   updatedAt: true,
 });
+
+export const insertContactMessageSchema = createInsertSchema(contactMessages).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertContactMessage = z.infer<typeof insertContactMessageSchema>;
+export type ContactMessage = typeof contactMessages.$inferSelect;
 
 export type InsertLead = z.infer<typeof insertLeadSchema>;
 export type Lead = typeof leads.$inferSelect;
