@@ -407,6 +407,16 @@ export default function BusinessDetail() {
         </div>
       </div>
 
+      {/* Related Businesses Carousel */}
+      <div className="container mx-auto px-4 py-8">
+        <BusinessCarousel 
+          currentBusinessId={business.placeid}
+          categoryId={business.category?.id}
+          city={business.city || undefined}
+          title="Related Businesses"
+        />
+      </div>
+
       <Footer />
     </div>
   );

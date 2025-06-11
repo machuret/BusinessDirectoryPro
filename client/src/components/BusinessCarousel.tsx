@@ -77,7 +77,9 @@ export default function BusinessCarousel({
     }
   };
 
-  const formatRating = (rating: any) => {
+  const formatRating = (business: BusinessWithCategory) => {
+    // Check for rating in various possible fields
+    const rating = (business as any).averagerating || (business as any).googlerating || (business as any).rating;
     if (!rating) return null;
     const num = typeof rating === 'string' ? parseFloat(rating) : rating;
     return isNaN(num) ? null : num.toFixed(1);
@@ -112,7 +114,7 @@ export default function BusinessCarousel({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {visibleBusinesses.map((business) => {
           const images = getBusinessImages(business);
-          const rating = formatRating(business.rating);
+          const rating = formatRating(business);
           
           return (
             <Link key={business.placeid} href={`/business/${business.slug}`}>
@@ -178,9 +180,9 @@ export default function BusinessCarousel({
                       <div className="flex items-center gap-1">
                         <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                         <span className="text-sm font-medium">{rating}</span>
-                        {business.totalreviews && (
+                        {(business as any).totalreviews && (
                           <span className="text-xs text-muted-foreground">
-                            ({business.totalreviews} reviews)
+                            ({(business as any).totalreviews} reviews)
                           </span>
                         )}
                       </div>
