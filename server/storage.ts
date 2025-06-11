@@ -83,6 +83,7 @@ export interface IStorage {
   approveReview(reviewId: number, adminId: string, notes?: string): Promise<Review>;
   rejectReview(reviewId: number, adminId: string, notes?: string): Promise<Review>;
   getAllReviewsForAdmin(): Promise<Review[]>;
+  deleteReview(reviewId: number): Promise<void>;
   
   // Search operations
   searchBusinesses(query: string, location?: string): Promise<BusinessWithCategory[]>;
