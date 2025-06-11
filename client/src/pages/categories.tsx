@@ -35,6 +35,10 @@ export default function Categories() {
     enabled: !slug,
   });
 
+  const { data: siteSettings } = useQuery<Record<string, any>>({
+    queryKey: ["/api/site-settings"],
+  });
+
   if (slug && categoryLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -69,6 +73,11 @@ export default function Categories() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <SEOHead 
+        category={category}
+        siteSettings={siteSettings}
+        pageType={slug ? "category" : "home"}
+      />
       <Header />
       
       {/* Breadcrumb and Header */}
