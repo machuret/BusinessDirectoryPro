@@ -145,14 +145,7 @@ export default function Admin() {
     },
   });
 
-  const toggleFeaturedMutation = useMutation({
-    mutationFn: async ({ placeid, featured }: { placeid: string; featured: boolean }) => {
-      await apiRequest("PATCH", `/api/admin/businesses/${placeid}`, { featured: !featured });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/businesses"] });
-    },
-  });
+
 
   // Ownership claim mutations
   const processClaimMutation = useMutation({
@@ -732,10 +725,18 @@ export default function Admin() {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => toggleFeaturedMutation.mutate({ 
-                                  placeid: business.placeid, 
-                                  featured: business.featured || false 
+                                onClick={() => window.open(`/business/${business.slug || business.placeid}`, '_blank')}
+                              >
+                                View
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => updateBusinessMutation.mutate({ 
+                                  id: business.placeid, 
+                                  featured: !(business.featured || false)
                                 })}
+                                disabled={updateBusinessMutation.isPending}
                               >
                                 {business.featured ? 'Unfeature' : 'Feature'}
                               </Button>

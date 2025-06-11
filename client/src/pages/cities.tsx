@@ -24,7 +24,7 @@ export default function Cities() {
 
   // If city specified, show businesses in that city
   const { data: businesses, isLoading: businessesLoading } = useQuery<BusinessWithCategory[]>({
-    queryKey: ["/api/cities", city, "businesses"],
+    queryKey: [`/api/cities/${city}/businesses`],
     enabled: !!city,
   });
 
