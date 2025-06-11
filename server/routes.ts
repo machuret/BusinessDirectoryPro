@@ -9,6 +9,8 @@ import multer from "multer";
 import csv from "csv-parser";
 import { Readable } from "stream";
 import bcrypt from "bcrypt";
+import fs from "fs";
+import path from "path";
 
 // Hash password function
 async function hashPassword(password: string): Promise<string> {
@@ -1061,9 +1063,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "No file path provided" });
       }
 
-      const fs = require('fs');
-      const path = require('path');
-      const csv = require('csv-parser');
+
       
       const fullPath = path.resolve(filePath);
       if (!fs.existsSync(fullPath)) {
@@ -1075,21 +1075,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return new Promise<void>((resolve, reject) => {
         fs.createReadStream(fullPath)
           .pipe(csv())
-          .on('data', (row) => {
+          .on('data', (row: any) => {
             csvData.push(row);
           })
           .on('end', async () => {
             try {
+              console.log(`Processing ${csvData.length} businesses from CSV`);
               const result = await storage.bulkImportBusinesses(csvData);
+              console.log(`Import complete: ${result.success} successful, ${result.errors.length} errors`);
               res.json(result);
               resolve();
-            } catch (error) {
+            } catch (error: any) {
               console.error("Error importing CSV data:", error);
               res.status(500).json({ message: "Failed to import CSV data" });
               reject(error);
             }
           })
-          .on('error', (error) => {
+          .on('error', (error: any) => {
             console.error("Error parsing CSV:", error);
             res.status(400).json({ message: "Invalid CSV format" });
             reject(error);
