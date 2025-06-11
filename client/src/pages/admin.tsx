@@ -47,6 +47,8 @@ export default function Admin() {
   const [editingCity, setEditingCity] = useState<any>(null);
   const [showCityForm, setShowCityForm] = useState(false);
   const [reviewSearchTerm, setReviewSearchTerm] = useState("");
+  const [showFaqForm, setShowFaqForm] = useState(false);
+  const [editingFaq, setEditingFaq] = useState<any | null>(null);
 
 
   // Data queries
@@ -102,7 +104,7 @@ export default function Admin() {
     enabled: !!user && (user as any).role === 'admin'
   });
 
-  const { data: websiteFaqs, isLoading: faqsLoading } = useQuery<any[]>({
+  const { data: websiteFaqs, isLoading: websiteFaqsLoading } = useQuery<any[]>({
     queryKey: ["/api/admin/website-faqs"],
     enabled: !!user && (user as any).role === 'admin'
   });
@@ -316,7 +318,7 @@ export default function Admin() {
     mutationFn: async (reviewId: number) => {
       await apiRequest("DELETE", `/api/admin/reviews/${reviewId}`);
     },
-    onSuccess: () => {
+    onSuccess: (_, reviewId) => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/reviews"] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/reviews/pending"] });
       toast({ title: "Review deleted successfully" });
