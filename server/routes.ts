@@ -17,6 +17,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       fileSize: 10 * 1024 * 1024, // 10MB limit
     },
     fileFilter: (req, file, cb) => {
+      // Accept CSV files for any field name
       if (file.mimetype === 'text/csv' || file.originalname.endsWith('.csv')) {
         cb(null, true);
       } else {
@@ -737,7 +738,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // CSV Import endpoint
-  app.post('/api/admin/import/businesses', isAuthenticated, upload.single('csvFile'), async (req: any, res) => {
+  app.post('/api/admin/import/businesses', isAuthenticated, upload.any(), async (req: any, res) => {
     try {
       const userId = req.session.userId;
       const user = await storage.getUser(userId);
@@ -746,11 +747,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Admin access required" });
       }
 
-      if (!req.file) {
+      const csvFile = req.files?.[0];
+      if (!csvFile) {
         return res.status(400).json({ message: "No CSV file provided" });
       }
 
-      const csvBuffer = req.file.buffer;
+      const csvBuffer = csvFile.buffer;
       const csvData: any[] = [];
       
       // Parse CSV data
