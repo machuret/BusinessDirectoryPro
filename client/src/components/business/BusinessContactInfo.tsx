@@ -92,13 +92,22 @@ export default function BusinessContactInfo({ business }: BusinessContactInfoPro
           </div>
         )}
 
-        {business.openinghours && Array.isArray(business.openinghours) && business.openinghours.length > 0 && (
+        {business.openinghours && (
           <div className="flex items-start space-x-3">
             <Clock className="h-5 w-5 text-muted-foreground mt-0.5" />
             <div>
               <p className="font-medium">Hours</p>
               <div className="text-sm text-muted-foreground space-y-1">
-                {formatOpeningHours(business.openinghours)}
+                {typeof business.openinghours === 'string' 
+                  ? business.openinghours.split('\n').map((hour, index) => (
+                      <div key={index}>{hour}</div>
+                    ))
+                  : Array.isArray(business.openinghours) 
+                    ? business.openinghours.map((hour, index) => (
+                        <div key={index}>{String(hour)}</div>
+                      ))
+                    : String(business.openinghours)
+                }
               </div>
             </div>
           </div>

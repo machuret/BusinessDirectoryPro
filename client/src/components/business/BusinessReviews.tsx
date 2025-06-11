@@ -53,8 +53,7 @@ export default function BusinessReviews({
                 <DialogTitle>Write a Review for {business.title}</DialogTitle>
               </DialogHeader>
               <ReviewForm 
-                businessId={business.placeid} 
-                onSubmit={onReviewSubmit}
+                businessId={business.placeid}
               />
             </DialogContent>
           </Dialog>
@@ -85,7 +84,7 @@ export default function BusinessReviews({
                       </div>
                     </div>
                     <p className="text-muted-foreground text-sm mb-2">
-                      {formatDate(review.createdAt || '')}
+                      {review.createdAt ? formatDate(String(review.createdAt)) : ''}
                     </p>
                     <p className="text-foreground leading-relaxed">
                       {review.comment}
