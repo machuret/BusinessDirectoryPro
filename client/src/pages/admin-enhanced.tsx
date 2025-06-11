@@ -38,6 +38,7 @@ export default function AdminEnhanced() {
   const [editingCity, setEditingCity] = useState<any>(null);
   const [showCityForm, setShowCityForm] = useState(false);
   const [showAssignOwnerDialog, setShowAssignOwnerDialog] = useState(false);
+  const [showBusinessEditDialog, setShowBusinessEditDialog] = useState(false);
   const [reviewSearchTerm, setReviewSearchTerm] = useState("");
 
   // Data queries
@@ -517,8 +518,25 @@ export default function AdminEnhanced() {
                           </TableCell>
                           <TableCell>
                             <div className="flex space-x-2">
-                              <Button size="sm" variant="outline">
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => {
+                                  setEditingBusiness(business);
+                                  setShowBusinessEditDialog(true);
+                                }}
+                              >
                                 <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => {
+                                  setEditingBusiness(business);
+                                  setShowAssignOwnerDialog(true);
+                                }}
+                              >
+                                <UserCheck className="h-4 w-4" />
                               </Button>
                             </div>
                           </TableCell>
@@ -1594,6 +1612,162 @@ export default function AdminEnhanced() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Assign Owner Dialog */}
+      <Dialog open={showAssignOwnerDialog} onOpenChange={setShowAssignOwnerDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Assign Business Owner</DialogTitle>
+            <DialogDescription>
+              Assign ownership of "{editingBusiness?.title}" to a user
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="owner">Select Owner</Label>
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select user" />
+                </SelectTrigger>
+                <SelectContent>
+                  {users?.map((user) => (
+                    <SelectItem key={user.id} value={user.id}>
+                      {user.firstName} {user.lastName} ({user.email})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={() => setShowAssignOwnerDialog(false)}>
+                Cancel
+              </Button>
+              <Button>
+                Assign Owner
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Business Edit Dialog */}
+      <Dialog open={showBusinessEditDialog} onOpenChange={setShowBusinessEditDialog}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Business: {editingBusiness?.title}</DialogTitle>
+            <DialogDescription>
+              Comprehensive business information editing
+            </DialogDescription>
+          </DialogHeader>
+          {editingBusiness && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="title">Business Name</Label>
+                  <Input id="title" defaultValue={editingBusiness.title} />
+                </div>
+                <div>
+                  <Label htmlFor="category">Category</Label>
+                  <Select defaultValue={editingBusiness.categoryId?.toString()}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories?.map((category) => (
+                        <SelectItem key={category.id} value={category.id.toString()}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="phone">Phone</Label>
+                  <Input id="phone" defaultValue={editingBusiness.phone || ''} />
+                </div>
+                <div>
+                  <Label htmlFor="website">Website</Label>
+                  <Input id="website" defaultValue={editingBusiness.website || ''} />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="address">Address</Label>
+                <Input id="address" defaultValue={editingBusiness.address || ''} />
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="city">City</Label>
+                  <Input id="city" defaultValue={editingBusiness.city || ''} />
+                </div>
+                <div>
+                  <Label htmlFor="state">State</Label>
+                  <Input id="state" defaultValue={editingBusiness.state || ''} />
+                </div>
+                <div>
+                  <Label htmlFor="zip">Zip Code</Label>
+                  <Input id="zip" defaultValue={editingBusiness.zip || ''} />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="description">Description</Label>
+                <Textarea 
+                  id="description" 
+                  defaultValue={editingBusiness.description || ''} 
+                  rows={4}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="rating">Rating</Label>
+                  <Input 
+                    id="rating" 
+                    type="number" 
+                    min="0" 
+                    max="5" 
+                    step="0.1"
+                    defaultValue={editingBusiness.rating || 0} 
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="priceLevel">Price Level</Label>
+                  <Select defaultValue={editingBusiness.priceLevel?.toString()}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">$ (Budget)</SelectItem>
+                      <SelectItem value="2">$$ (Moderate)</SelectItem>
+                      <SelectItem value="3">$$$ (Expensive)</SelectItem>
+                      <SelectItem value="4">$$$$ (Very Expensive)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox id="featured" defaultChecked={editingBusiness.featured} />
+                <Label htmlFor="featured">Featured Business</Label>
+              </div>
+
+              <div className="flex justify-end space-x-2">
+                <Button variant="outline" onClick={() => setShowBusinessEditDialog(false)}>
+                  Cancel
+                </Button>
+                <Button>
+                  Save Changes
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Mass Category Change Dialog */}
       <Dialog open={showMassCategoryDialog} onOpenChange={setShowMassCategoryDialog}>
