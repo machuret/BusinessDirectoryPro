@@ -42,7 +42,7 @@ export const getAllBusinessPhotos = (business: BusinessWithCategory): string[] =
   }
   
   // Remove duplicates and return
-  return [...new Set(photos)];
+  return Array.from(new Set(photos));
 };
 
 // Helper function to get the primary business image
