@@ -248,6 +248,30 @@ export default function Admin() {
     },
   });
 
+  // City update mutation
+  const updateCityMutation = useMutation({
+    mutationFn: async (params: { oldName: string; newName: string; description?: string }) => {
+      await apiRequest("PATCH", `/api/admin/cities/${encodeURIComponent(params.oldName)}`, {
+        newName: params.newName,
+        description: params.description
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/cities"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/businesses"] });
+      setEditingCity(null);
+      setShowCityForm(false);
+      toast({ title: "City updated successfully" });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "City update failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   // Bulk delete businesses mutation
   const bulkDeleteBusinessesMutation = useMutation({
     mutationFn: async (businessIds: string[]) => {
@@ -952,6 +976,16 @@ export default function Admin() {
                               </p>
                             </div>
                             <div className="flex space-x-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  setEditingCity(city);
+                                  setShowCityForm(true);
+                                }}
+                              >
+                                Edit
+                              </Button>
                               <Button
                                 variant="outline"
                                 size="sm"
@@ -2514,6 +2548,83 @@ export default function Admin() {
                 <Button onClick={() => setShowResultsModal(false)}>Close</Button>
               </div>
             </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* City Edit Dialog */}
+      {showCityForm && editingCity && (
+        <Dialog open={showCityForm} onOpenChange={setShowCityForm}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Edit City</DialogTitle>
+              <DialogDescription>Update city name and description</DialogDescription>
+            </DialogHeader>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                const newName = formData.get('newName') as string;
+                const description = formData.get('description') as string;
+                
+                updateCityMutation.mutate({
+                  oldName: editingCity.city,
+                  newName: newName.trim(),
+                  description: description.trim()
+                });
+              }}
+              className="space-y-4"
+            >
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="currentName" className="text-right">
+                    Current Name
+                  </Label>
+                  <Input
+                    id="currentName"
+                    value={editingCity.city}
+                    disabled
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="newName" className="text-right">
+                    New Name
+                  </Label>
+                  <Input
+                    id="newName"
+                    name="newName"
+                    defaultValue={editingCity.city}
+                    className="col-span-3"
+                    required
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="description" className="text-right">
+                    Description
+                  </Label>
+                  <Textarea
+                    id="description"
+                    name="description"
+                    placeholder="Optional description for this city"
+                    className="col-span-3"
+                    rows={3}
+                  />
+                </div>
+                <div className="text-sm text-gray-600">
+                  <p>Business count: {editingCity.count}</p>
+                  <p className="mt-1">Note: Changing the city name will update all businesses in this city.</p>
+                </div>
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button type="button" variant="outline" onClick={() => setShowCityForm(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={updateCityMutation.isPending}>
+                  {updateCityMutation.isPending ? "Updating..." : "Update City"}
+                </Button>
+              </div>
+            </form>
           </DialogContent>
         </Dialog>
       )}
