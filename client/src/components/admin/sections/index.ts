@@ -13,3 +13,4 @@ export { default as SettingsManagement } from './SettingsManagement';
 export { default as FAQManagement } from './FAQManagement';
 export { default as OptimizationManagement } from './OptimizationManagement';
 export { default as FeaturedManagement } from './FeaturedManagement';
+export { default as MenuManagement } from './MenuManagement';

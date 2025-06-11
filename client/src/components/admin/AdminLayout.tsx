@@ -22,7 +22,8 @@ import {
   SettingsManagement,
   FAQManagement,
   OptimizationManagement,
-  FeaturedManagement
+  FeaturedManagement,
+  MenuManagement
 } from "@/components/admin/sections";
 
 export default function AdminLayout() {
