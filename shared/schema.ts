@@ -310,12 +310,11 @@ export type WebsiteFaq = typeof websiteFaq.$inferSelect;
 export const leads = pgTable("leads", {
   id: serial("id").primaryKey(),
   businessId: text("business_id").notNull().references(() => businesses.placeid),
-  recipientId: varchar("recipient_id").references(() => users.id), // null if business is unclaimed
   senderName: varchar("sender_name").notNull(),
   senderEmail: varchar("sender_email").notNull(),
   senderPhone: varchar("sender_phone"),
   message: text("message").notNull(),
-  status: varchar("status").notNull().default("UNREAD"), // UNREAD, READ, ARCHIVED, REPLIED
+  status: varchar("status").notNull().default("new"), // new, contacted, converted, closed
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
