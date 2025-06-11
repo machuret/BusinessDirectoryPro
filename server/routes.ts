@@ -1250,7 +1250,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       for (const businessId of businessIds) {
-        await storage.updateBusiness(businessId, { categoryid: categoryId });
+        await storage.updateBusiness(businessId, { categoryid: parseInt(categoryId) });
       }
 
       res.json({ message: `${businessIds.length} businesses updated successfully` });
@@ -1277,9 +1277,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (action === 'delete') {
           await storage.deleteReview(reviewId);
         } else if (action === 'approve') {
-          await storage.approveReview(reviewId, req.user!.id);
+          await storage.approveReview(reviewId, (req.session as any).userId);
         } else if (action === 'reject') {
-          await storage.rejectReview(reviewId, req.user!.id);
+          await storage.rejectReview(reviewId, (req.session as any).userId);
         }
       }
 
@@ -1361,7 +1361,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update city information
-  app.patch("/api/admin/cities/update", requireAdmin, async (req, res) => {
+  app.patch("/api/admin/cities/update", isAuthenticated, isAdmin, async (req, res) => {
     try {
       const { oldName, newName, description } = req.body;
       
