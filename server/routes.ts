@@ -169,6 +169,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Cities management (admin only)
+  app.patch('/api/admin/cities/:cityName', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { cityName } = req.params;
+      const { newName, description } = req.body;
+      
+      await storage.updateCityName(decodeURIComponent(cityName), newName, description);
+      res.json({ message: "City updated successfully" });
+    } catch (error) {
+      console.error("Error updating city:", error);
+      res.status(500).json({ message: "Failed to update city" });
+    }
+  });
+
   // Get businesses by city
   app.get('/api/cities/:city/businesses', async (req, res) => {
     try {
