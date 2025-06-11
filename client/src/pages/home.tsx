@@ -119,6 +119,34 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Featured Businesses */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Featured Businesses</h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Discover top-rated businesses handpicked for their exceptional service and quality.
+            </p>
+          </div>
+          
+          {featuredLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              <BusinessCardSkeleton 
+                count={6} 
+                variant="default"
+                className="transition-all duration-300"
+              />
+            </div>
+          ) : featuredBusinesses && featuredBusinesses.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {featuredBusinesses.map((business) => (
+                <BusinessCard key={business.placeid} business={business} />
+              ))}
+            </div>
+          ) : null}
+        </div>
+      </section>
+
       {/* Latest Businesses */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -130,11 +158,15 @@ export default function Home() {
           </div>
           
           {latestLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <BusinessCardSkeleton count={8} variant="compact" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+              <BusinessCardSkeleton 
+                count={8} 
+                variant="carousel"
+                className="transition-all duration-300"
+              />
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {latestBusinesses?.map((business) => (
                 <BusinessCard key={business.placeid} business={business} />
               ))}

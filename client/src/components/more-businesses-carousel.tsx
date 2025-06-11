@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Star, MapPin } from "lucide-react";
 import { Link } from "wouter";
+import BusinessCardSkeleton from "@/components/business-card-skeleton";
 import type { BusinessWithCategory } from "@shared/schema";
 
 interface MoreBusinessesCarouselProps {
@@ -33,7 +34,24 @@ export default function MoreBusinessesCarousel({
     enabled: !!currentBusinessId
   });
 
-  if (isLoading || !businesses || businesses.length === 0) {
+  if (isLoading) {
+    return (
+      <div className="mt-8">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6">
+          More {categoryId ? 'Similar' : ''} Businesses
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+          <BusinessCardSkeleton 
+            count={4} 
+            variant="carousel"
+            className="transition-all duration-300"
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (!businesses || businesses.length === 0) {
     return null;
   }
 

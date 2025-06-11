@@ -156,8 +156,12 @@ export default function Categories() {
           </div>
 
           {isLoadingBusinesses ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <BusinessCardSkeleton count={9} />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+              <BusinessCardSkeleton 
+                count={9} 
+                variant="default"
+                className="transition-all duration-300"
+              />
             </div>
           ) : currentBusinesses && currentBusinesses.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
