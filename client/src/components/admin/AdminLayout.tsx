@@ -62,6 +62,7 @@ export default function AdminLayout() {
     { id: "faq", label: "FAQ", icon: HelpCircle },
     { id: "optimization", label: "Optimization", icon: Star },
     { id: "featured", label: "Featured", icon: CheckCircle },
+    { id: "menu", label: "Menu", icon: Settings },
   ];
 
   const renderActiveSection = () => {
@@ -96,6 +97,8 @@ export default function AdminLayout() {
         return <OptimizationManagement />;
       case "featured":
         return <FeaturedManagement />;
+      case "menu":
+        return <MenuManagement />;
       default:
         return <BusinessManagement />;
     }

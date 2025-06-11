@@ -46,7 +46,7 @@ export default function MenuManagement() {
                   <TableBody>
                     {menuItems?.map((item) => (
                       <TableRow key={item.id}>
-                        <TableCell className="font-medium">{item.title}</TableCell>
+                        <TableCell className="font-medium">{item.name}</TableCell>
                         <TableCell>{item.url}</TableCell>
                         <TableCell>
                           <Badge variant="outline">{item.position}</Badge>
@@ -56,7 +56,7 @@ export default function MenuManagement() {
                             {item.isActive ? 'Active' : 'Inactive'}
                           </Badge>
                         </TableCell>
-                        <TableCell>{item.sortOrder}</TableCell>
+                        <TableCell>{item.order}</TableCell>
                         <TableCell>
                           <div className="flex space-x-2">
                             <Button size="sm" variant="outline">
