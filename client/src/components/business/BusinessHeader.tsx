@@ -89,12 +89,12 @@ export default function BusinessHeader({ business, onPrint }: BusinessHeaderProp
                 </div>
               )}
               
-              {business.rating && (
+              {business.averagerating && (
                 <div className="flex items-center space-x-2">
                   <div className="flex items-center">
-                    {renderStars(business.rating)}
+                    {renderStars(business.averagerating)}
                   </div>
-                  <span className="font-medium">{business.rating.toFixed(1)}</span>
+                  <span className="font-medium">{business.averagerating.toFixed(1)}</span>
                 </div>
               )}
             </div>
@@ -123,7 +123,10 @@ export default function BusinessHeader({ business, onPrint }: BusinessHeaderProp
                 <DialogHeader>
                   <DialogTitle>Claim Your Business</DialogTitle>
                 </DialogHeader>
-                <ClaimBusinessForm businessId={business.placeid} />
+                <ClaimBusinessForm 
+                businessId={business.placeid} 
+                businessName={business.title || 'Business'} 
+              />
               </DialogContent>
             </Dialog>
           </div>
