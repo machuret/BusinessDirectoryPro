@@ -1,56 +1,318 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { useParams } from "wouter";
-import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useParams, Link } from "wouter";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import ReviewForm from "@/components/review-form";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { useAuth } from "@/hooks/useAuth";
-import { useToast } from "@/hooks/use-toast";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   Star, 
   MapPin, 
   Phone, 
-  Mail, 
   Globe, 
   Clock, 
   ArrowLeft,
-  Share2,
-  Heart,
   User
 } from "lucide-react";
 import type { BusinessWithCategory, Review, User as UserType } from "@shared/schema";
 
+// Helper function to get business image
+const getBusinessImage = (business: BusinessWithCategory) => {
+  // Priority order: imageurl, extract from reviews, then fallback
+  if (business.imageurl) return business.imageurl;
+  
+  // Extract from reviews if available
+  if (business.reviews && Array.isArray(business.reviews)) {
+    for (const review of business.reviews) {
+      if (review.reviewImageUrls && Array.isArray(review.reviewImageUrls) && review.reviewImageUrls.length > 0) {
+        return review.reviewImageUrls[0];
+      }
+    }
+  }
+  
+  // Check imageurls array
+  if (business.imageurls && Array.isArray(business.imageurls) && business.imageurls.length > 0) {
+    return business.imageurls[0];
+  }
+  
+  // Check images array
+  if (business.images && Array.isArray(business.images) && business.images.length > 0) {
+    return business.images[0];
+  }
+  
+  return "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&h=600&fit=crop&auto=format";
+};
+
 export default function BusinessDetail() {
   const { slug } = useParams();
-  const { user, isAuthenticated } = useAuth();
-  const { toast } = useToast();
-  
-  const [reviewRating, setReviewRating] = useState(5);
-  const [reviewTitle, setReviewTitle] = useState("");
-  const [reviewContent, setReviewContent] = useState("");
 
   const { data: business, isLoading: businessLoading } = useQuery<BusinessWithCategory>({
     queryKey: [`/api/businesses/slug/${slug}`],
     enabled: !!slug,
   });
 
-  const { data: reviews, isLoading: reviewsLoading } = useQuery<(Review & { user: Pick<UserType, 'firstName' | 'lastName'> })[]>({
-    queryKey: [`/api/businesses/${business?.id}/reviews`],
-    enabled: !!business?.id,
+  const { data: reviews = [], isLoading: reviewsLoading, refetch: refetchReviews } = useQuery<(Review & { user: Pick<UserType, 'firstName' | 'lastName'> })[]>({
+    queryKey: [`/api/businesses/${business?.placeid}/reviews`],
+    enabled: !!business?.placeid,
   });
 
-  const reviewMutation = useMutation({
-    mutationFn: async (reviewData: { rating: number; title?: string; content?: string }) => {
-      if (!business) throw new Error("Business not found");
-      await apiRequest("POST", `/api/businesses/${business.id}/reviews`, reviewData);
-    },
+  if (businessLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+              <p>Loading business details...</p>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!business) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold mb-4">Business Not Found</h1>
+            <p className="text-muted-foreground mb-4">The business you're looking for doesn't exist.</p>
+            <Link href="/" className="text-primary hover:underline">
+              Return to Home
+            </Link>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  const businessImage = getBusinessImage(business);
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Header />
+      
+      <div className="container mx-auto px-4 py-8">
+        {/* Breadcrumb */}
+        <div className="mb-6">
+          <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
+            <Link href="/" className="hover:text-primary">Home</Link>
+            <span>/</span>
+            {business.category && (
+              <>
+                <Link href={`/categories/${business.category.slug}`} className="hover:text-primary">
+                  {business.category.name}
+                </Link>
+                <span>/</span>
+              </>
+            )}
+            <span className="text-foreground">{business.title}</span>
+          </nav>
+        </div>
+
+        {/* Business Header */}
+        <div className="grid lg:grid-cols-3 gap-8 mb-8">
+          <div className="lg:col-span-2">
+            <div className="relative mb-6">
+              <img
+                src={businessImage}
+                alt={business.title}
+                className="w-full h-64 object-cover rounded-lg"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&h=600&fit=crop&auto=format";
+                }}
+              />
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <h1 className="text-3xl font-bold">{business.title}</h1>
+                {business.subtitle && (
+                  <p className="text-lg text-muted-foreground">{business.subtitle}</p>
+                )}
+              </div>
+
+              {business.category && (
+                <Badge variant="secondary">{business.category.name}</Badge>
+              )}
+
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      className={`h-5 w-5 ${
+                        star <= (business.totalscore || 0)
+                          ? "fill-yellow-400 text-yellow-400"
+                          : "text-gray-300"
+                      }`}
+                    />
+                  ))}
+                  <span className="ml-2 text-sm text-muted-foreground">
+                    {business.totalscore || 0} ({business.reviewscount || 0} reviews)
+                  </span>
+                </div>
+              </div>
+
+              {business.description && (
+                <div className="prose max-w-none">
+                  <p className="text-muted-foreground">{business.description}</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Business Info Sidebar */}
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Contact Information</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {business.address && (
+                  <div className="flex items-start space-x-3">
+                    <MapPin className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-medium">Address</p>
+                      <p className="text-sm text-muted-foreground">{business.address}</p>
+                      {business.city && business.state && (
+                        <p className="text-sm text-muted-foreground">
+                          {business.city}, {business.state} {business.postalcode}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {business.phone && (
+                  <div className="flex items-center space-x-3">
+                    <Phone className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <p className="font-medium">Phone</p>
+                      <a href={`tel:${business.phone}`} className="text-sm text-primary hover:underline">
+                        {business.phone}
+                      </a>
+                    </div>
+                  </div>
+                )}
+
+                {business.website && (
+                  <div className="flex items-center space-x-3">
+                    <Globe className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <p className="font-medium">Website</p>
+                      <a
+                        href={business.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-primary hover:underline"
+                      >
+                        Visit Website
+                      </a>
+                    </div>
+                  </div>
+                )}
+
+                {business.openinghours && Array.isArray(business.openinghours) && business.openinghours.length > 0 && (
+                  <div className="flex items-start space-x-3">
+                    <Clock className="h-5 w-5 text-muted-foreground mt-0.5" />
+                    <div>
+                      <p className="font-medium">Hours</p>
+                      <div className="text-sm text-muted-foreground space-y-1">
+                        {business.openinghours.map((hour: any, index: number) => (
+                          <div key={index} className="flex justify-between">
+                            <span>{hour.day}</span>
+                            <span>{hour.hours}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Reviews Section */}
+        <div className="grid lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Customer Reviews</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {reviewsLoading ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                    <p>Loading reviews...</p>
+                  </div>
+                ) : reviews.length > 0 ? (
+                  <div className="space-y-6">
+                    {reviews.map((review) => (
+                      <div key={review.id} className="border-b border-border pb-4 last:border-b-0">
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex items-center space-x-2">
+                            <User className="h-5 w-5 text-muted-foreground" />
+                            <span className="font-medium">
+                              {review.authorName || `${review.user?.firstName || 'Anonymous'} ${review.user?.lastName || ''}`}
+                            </span>
+                          </div>
+                          <div className="flex items-center">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <Star
+                                key={star}
+                                className={`h-4 w-4 ${
+                                  star <= review.rating
+                                    ? "fill-yellow-400 text-yellow-400"
+                                    : "text-gray-300"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                        {review.comment && (
+                          <p className="text-muted-foreground">{review.comment}</p>
+                        )}
+                        {review.createdAt && (
+                          <p className="text-xs text-muted-foreground mt-2">
+                            {new Date(review.createdAt).toLocaleDateString()}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground text-center py-8">
+                    No reviews yet. Be the first to write a review!
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Review Form */}
+          <div>
+            <ReviewForm
+              businessId={business.placeid}
+              onSuccess={() => {
+                refetchReviews();
+              }}
+            />
+          </div>
+        </div>
+      </div>
+
+      <Footer />
+    </div>
+  );
+}
     onSuccess: () => {
       toast({
         title: "Review submitted",
