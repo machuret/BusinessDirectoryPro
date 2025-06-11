@@ -35,7 +35,7 @@ export default function BusinessCard({ business }: BusinessCardProps) {
     return "Hours not available";
   };
 
-  // Use business images in priority order: imageurl, first image from images array, then fallback
+  // Use business images in priority order: imageurl, first image from images array
   const getBusinessImage = () => {
     if (business.imageurl) return business.imageurl;
     
@@ -47,7 +47,8 @@ export default function BusinessCard({ business }: BusinessCardProps) {
       return business.imageurls[0];
     }
     
-    return `https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&h=400&fit=crop&auto=format`;
+    // All businesses now have authentic images, so this should not be reached
+    return business.imageurl || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=600&h=400&fit=crop&auto=format';
   };
 
   const displayImage = getBusinessImage();
