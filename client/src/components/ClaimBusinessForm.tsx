@@ -34,7 +34,7 @@ export default function ClaimBusinessForm({ businessId, businessName }: ClaimBus
       formDataToSend.append("message", data.message);
       
       if (data.documents) {
-        Array.from(data.documents).forEach((file: File) => {
+        data.documents.forEach((file: File) => {
           formDataToSend.append("documents", file);
         });
       }

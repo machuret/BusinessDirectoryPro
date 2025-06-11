@@ -1750,6 +1750,92 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Ownership Claims API
+  app.post('/api/ownership-claims', async (req, res) => {
+    try {
+      const { businessId, ownerName, ownerEmail, ownerPhone, verificationMethod, message } = req.body;
+
+      if (!businessId || !ownerName || !ownerEmail || !ownerPhone) {
+        return res.status(400).json({ message: "Required fields missing" });
+      }
+
+      // Check if business exists
+      const business = await storage.getBusinessById(businessId);
+      if (!business) {
+        return res.status(404).json({ message: "Business not found" });
+      }
+
+      // Create ownership claim
+      const claimData = {
+        businessId,
+        ownerName,
+        ownerEmail,
+        ownerPhone,
+        verificationMethod,
+        message,
+        status: 'pending',
+        submittedAt: new Date().toISOString(),
+      };
+
+      const claim = await storage.createOwnershipClaim(claimData);
+      res.status(201).json(claim);
+    } catch (error) {
+      console.error("Error creating ownership claim:", error);
+      res.status(500).json({ message: "Failed to submit claim" });
+    }
+  });
+
+  // Get ownership claims for a business
+  app.get('/api/ownership-claims/business/:businessId', async (req, res) => {
+    try {
+      const { businessId } = req.params;
+      const claims = await storage.getOwnershipClaimsByBusiness(businessId);
+      res.json(claims);
+    } catch (error) {
+      console.error("Error fetching ownership claims:", error);
+      res.status(500).json({ message: "Failed to fetch claims" });
+    }
+  });
+
+  // Admin: Get all ownership claims
+  app.get('/api/admin/ownership-claims', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const claims = await storage.getOwnershipClaims();
+      res.json(claims);
+    } catch (error) {
+      console.error("Error fetching ownership claims:", error);
+      res.status(500).json({ message: "Failed to fetch claims" });
+    }
+  });
+
+  // Admin: Update ownership claim status
+  app.patch('/api/admin/ownership-claims/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { id } = req.params;
+      const { status, adminMessage } = req.body;
+
+      const claim = await storage.updateOwnershipClaim(parseInt(id), status, adminMessage, userId);
+      res.json(claim);
+    } catch (error) {
+      console.error("Error updating ownership claim:", error);
+      res.status(500).json({ message: "Failed to update claim" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -205,7 +205,7 @@ export default function BusinessDetail() {
                   <DialogHeader>
                     <DialogTitle>Claim This Business</DialogTitle>
                   </DialogHeader>
-                  <ClaimBusinessForm businessId={business.id} businessName={business.title || 'Business'} />
+                  <ClaimBusinessForm businessId={business.placeid} businessName={business.title || 'Business'} />
                 </DialogContent>
               </Dialog>
             </div>
@@ -213,7 +213,7 @@ export default function BusinessDetail() {
             {/* Photo Gallery */}
             <PhotoGallery 
               photos={getAllBusinessPhotos(business)}
-              businessName={business.title || business.name || 'Business'}
+              businessName={business.title || 'Business'}
               className="mb-6"
             />
 

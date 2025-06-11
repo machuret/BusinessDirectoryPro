@@ -10,6 +10,7 @@ import Cities from "@/pages/cities";
 import Featured from "@/pages/featured";
 import BusinessDetail from "@/pages/business-detail";
 import BusinessListing from "@/pages/business-listing";
+import BusinessOwnerPortal from "@/pages/business-owner-portal";
 import SearchResults from "@/pages/search-results";
 import Dashboard from "@/pages/dashboard";
 import AdminLayout from "@/components/admin/AdminLayout";
@@ -39,6 +40,7 @@ function Router() {
       <Route path="/featured" component={Featured} />
       <Route path="/business/:identifier" component={BusinessListing} />
       <Route path="/businesses/search" component={SearchResults} />
+      <Route path="/business-portal/:businessId" component={BusinessOwnerPortal} />
       <Route path="/pages/:slug" component={PageDisplay} />
       <Route path="/login" component={Login} />
       {isAuthenticated && (
