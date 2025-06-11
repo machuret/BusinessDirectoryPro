@@ -1047,6 +1047,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // CSV Import endpoint
+  app.post('/api/admin/import-csv', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { filePath } = req.body;
+      if (!filePath) {
+        return res.status(400).json({ message: "No file path provided" });
+      }
+
+      const fs = require('fs');
+      const path = require('path');
+      const csv = require('csv-parser');
+      
+      const fullPath = path.resolve(filePath);
+      if (!fs.existsSync(fullPath)) {
+        return res.status(400).json({ message: "File not found" });
+      }
+
+      const csvData: any[] = [];
+      
+      return new Promise<void>((resolve, reject) => {
+        fs.createReadStream(fullPath)
+          .pipe(csv())
+          .on('data', (row) => {
+            csvData.push(row);
+          })
+          .on('end', async () => {
+            try {
+              const result = await storage.bulkImportBusinesses(csvData);
+              res.json(result);
+              resolve();
+            } catch (error) {
+              console.error("Error importing CSV data:", error);
+              res.status(500).json({ message: "Failed to import CSV data" });
+              reject(error);
+            }
+          })
+          .on('error', (error) => {
+            console.error("Error parsing CSV:", error);
+            res.status(400).json({ message: "Invalid CSV format" });
+            reject(error);
+          });
+      });
+    } catch (error) {
+      console.error("Error processing CSV import:", error);
+      res.status(500).json({ message: "Failed to process CSV import" });
+    }
+  });
+
   app.post('/api/admin/import/businesses', isAuthenticated, upload.any(), async (req: any, res) => {
     try {
       const userId = req.session.userId;
