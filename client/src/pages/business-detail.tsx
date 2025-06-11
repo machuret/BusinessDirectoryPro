@@ -4,8 +4,11 @@ import Header from "@/components/header";
 import Footer from "@/components/footer";
 import ReviewForm from "@/components/review-form";
 import PhotoGallery from "@/components/photo-gallery";
+import ClaimBusinessForm from "@/components/ClaimBusinessForm";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { 
   Star, 
   MapPin, 
@@ -13,6 +16,9 @@ import {
   Globe, 
   Clock, 
   ArrowLeft,
+  Share2,
+  Printer,
+  Building2,
   User
 } from "lucide-react";
 import type { BusinessWithCategory, Review, User as UserType } from "@shared/schema";
@@ -127,6 +133,32 @@ export default function BusinessDetail() {
   const businessImage = getBusinessImage(business);
   const allPhotos = getAllBusinessPhotos(business);
 
+  const handleShare = async () => {
+    const shareData = {
+      title: business.title || 'Business',
+      text: business.description || `Check out ${business.title}`,
+      url: window.location.href,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        // Fallback to copying URL
+        navigator.clipboard.writeText(window.location.href);
+        alert('Link copied to clipboard!');
+      }
+    } else {
+      // Fallback for browsers without Web Share API
+      navigator.clipboard.writeText(window.location.href);
+      alert('Link copied to clipboard!');
+    }
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -152,6 +184,32 @@ export default function BusinessDetail() {
         {/* Business Header */}
         <div className="grid lg:grid-cols-3 gap-8 mb-8">
           <div className="lg:col-span-2">
+            {/* Business Actions */}
+            <div className="flex items-center gap-2 mb-4">
+              <Button onClick={handleShare} variant="outline" size="sm">
+                <Share2 className="h-4 w-4 mr-2" />
+                Share
+              </Button>
+              <Button onClick={handlePrint} variant="outline" size="sm">
+                <Printer className="h-4 w-4 mr-2" />
+                Print
+              </Button>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Building2 className="h-4 w-4 mr-2" />
+                    Claim Business
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Claim This Business</DialogTitle>
+                  </DialogHeader>
+                  <ClaimBusinessForm businessId={business.id} businessName={business.title || 'Business'} />
+                </DialogContent>
+              </Dialog>
+            </div>
+
             {/* Photo Gallery */}
             <PhotoGallery 
               photos={getAllBusinessPhotos(business)}
