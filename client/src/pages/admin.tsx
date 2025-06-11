@@ -720,6 +720,92 @@ export default function Admin() {
     }
   };
 
+  // FAQ Management mutations
+  const deleteFaqMutation = useMutation({
+    mutationFn: async (faqId: number) => {
+      await apiRequest("DELETE", `/api/admin/website-faqs/${faqId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/website-faqs"] });
+      toast({ title: "FAQ deleted successfully" });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "FAQ deletion failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const createFaqMutation = useMutation({
+    mutationFn: async (faqData: any) => {
+      await apiRequest("POST", "/api/admin/website-faqs", faqData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/website-faqs"] });
+      toast({ title: "FAQ created successfully" });
+      setShowFaqForm(false);
+      setEditingFaq(null);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "FAQ creation failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateFaqMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: any }) => {
+      await apiRequest("PATCH", `/api/admin/website-faqs/${id}`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/website-faqs"] });
+      toast({ title: "FAQ updated successfully" });
+      setShowFaqForm(false);
+      setEditingFaq(null);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "FAQ update failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // FAQ handlers
+  const editFaq = (faq: any) => {
+    setEditingFaq(faq);
+    setShowFaqForm(true);
+  };
+
+  const handleCreateFaq = (formData: FormData) => {
+    const faqData = {
+      question: formData.get('question') as string,
+      answer: formData.get('answer') as string,
+      category: formData.get('category') as string || null,
+      sortOrder: parseInt(formData.get('sortOrder') as string) || 0,
+      isActive: formData.get('isActive') === 'true'
+    };
+    createFaqMutation.mutate(faqData);
+  };
+
+  const handleUpdateFaq = (formData: FormData) => {
+    if (!editingFaq) return;
+    
+    const faqData = {
+      question: formData.get('question') as string,
+      answer: formData.get('answer') as string,
+      category: formData.get('category') as string || null,
+      sortOrder: parseInt(formData.get('sortOrder') as string) || 0,
+      isActive: formData.get('isActive') === 'true'
+    };
+    updateFaqMutation.mutate({ id: editingFaq.id, data: faqData });
+  };
+
   // Auth check
   if (!user || (user as any).role !== 'admin') {
     return (
@@ -793,6 +879,10 @@ export default function Admin() {
           <TabsTrigger value="claims" className="flex items-center space-x-2">
             <FileText className="h-4 w-4" />
             <span>Claims</span>
+          </TabsTrigger>
+          <TabsTrigger value="faq" className="flex items-center space-x-2">
+            <HelpCircle className="h-4 w-4" />
+            <span>FAQ</span>
           </TabsTrigger>
           <TabsTrigger value="import" className="flex items-center space-x-2">
             <Upload className="h-4 w-4" />
@@ -2903,6 +2993,101 @@ export default function Admin() {
                 </Button>
                 <Button type="submit" disabled={updateCityMutation.isPending}>
                   {updateCityMutation.isPending ? "Updating..." : "Update City"}
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* FAQ Form Dialog */}
+      {showFaqForm && (
+        <Dialog open={showFaqForm} onOpenChange={setShowFaqForm}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>{editingFaq ? 'Edit FAQ' : 'Create New FAQ'}</DialogTitle>
+              <DialogDescription>
+                {editingFaq ? 'Update FAQ content and settings' : 'Create a new frequently asked question'}
+              </DialogDescription>
+            </DialogHeader>
+            
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.currentTarget);
+              if (editingFaq) {
+                handleUpdateFaq(formData);
+              } else {
+                handleCreateFaq(formData);
+              }
+            }} className="space-y-6">
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="question">Question *</Label>
+                  <Input
+                    id="question"
+                    name="question"
+                    required
+                    defaultValue={editingFaq?.question || ""}
+                    placeholder="Enter the frequently asked question"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="answer">Answer *</Label>
+                  <Textarea
+                    id="answer"
+                    name="answer"
+                    required
+                    rows={6}
+                    defaultValue={editingFaq?.answer || ""}
+                    placeholder="Enter the answer to the question"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="category">Category</Label>
+                  <Input
+                    id="category"
+                    name="category"
+                    defaultValue={editingFaq?.category || ""}
+                    placeholder="Optional category (e.g., General, Billing, Technical)"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="sortOrder">Sort Order</Label>
+                  <Input
+                    id="sortOrder"
+                    name="sortOrder"
+                    type="number"
+                    defaultValue={editingFaq?.sortOrder || 0}
+                    placeholder="Display order (lower numbers appear first)"
+                  />
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="isActive"
+                    name="isActive"
+                    value="true"
+                    defaultChecked={editingFaq?.isActive !== false}
+                  />
+                  <Label htmlFor="isActive">Active (visible to users)</Label>
+                </div>
+              </div>
+
+              <div className="flex space-x-2 pt-4">
+                <Button type="button" variant="outline" onClick={() => setShowFaqForm(false)}>
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={createFaqMutation.isPending || updateFaqMutation.isPending}
+                >
+                  {createFaqMutation.isPending || updateFaqMutation.isPending 
+                    ? "Saving..." 
+                    : editingFaq ? "Update FAQ" : "Create FAQ"
+                  }
                 </Button>
               </div>
             </form>

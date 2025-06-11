@@ -417,7 +417,18 @@ export default function BusinessListing() {
                           <p className="font-medium">{review.name || review.reviewerName || 'Anonymous'}</p>
                         </div>
                         <span className="text-sm text-gray-500">
-                          {review.publishAt || review.publishedAtDate ? new Date(review.publishAt || review.publishedAtDate).toLocaleDateString() : 'Recent'}
+                          {(() => {
+                            const dateValue = review.publishAt || review.publishedAtDate || review.createdAt;
+                            if (dateValue) {
+                              try {
+                                const date = new Date(dateValue);
+                                return isNaN(date.getTime()) ? 'Recent' : date.toLocaleDateString();
+                              } catch {
+                                return 'Recent';
+                              }
+                            }
+                            return 'Recent';
+                          })()}
                         </span>
                       </div>
                       <p className="text-gray-700">{review.text || review.comment}</p>
