@@ -1236,6 +1236,148 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Mass operations for businesses
+  app.patch("/api/admin/businesses/mass-category", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { businessIds, categoryId } = req.body;
+      
+      if (!Array.isArray(businessIds) || businessIds.length === 0) {
+        return res.status(400).json({ message: "Business IDs array is required" });
+      }
+
+      if (!categoryId) {
+        return res.status(400).json({ message: "Category ID is required" });
+      }
+
+      for (const businessId of businessIds) {
+        await storage.updateBusiness(businessId, { categoryid: categoryId });
+      }
+
+      res.json({ message: `${businessIds.length} businesses updated successfully` });
+    } catch (error) {
+      console.error("Error updating business categories:", error);
+      res.status(500).json({ message: "Failed to update business categories" });
+    }
+  });
+
+  // Mass review operations
+  app.patch("/api/admin/reviews/mass-action", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { reviewIds, action } = req.body;
+      
+      if (!Array.isArray(reviewIds) || reviewIds.length === 0) {
+        return res.status(400).json({ message: "Review IDs array is required" });
+      }
+
+      if (!['approve', 'reject', 'delete'].includes(action)) {
+        return res.status(400).json({ message: "Invalid action" });
+      }
+
+      for (const reviewId of reviewIds) {
+        if (action === 'delete') {
+          await storage.deleteReview(reviewId);
+        } else if (action === 'approve') {
+          await storage.approveReview(reviewId, req.user!.id);
+        } else if (action === 'reject') {
+          await storage.rejectReview(reviewId, req.user!.id);
+        }
+      }
+
+      res.json({ message: `${reviewIds.length} reviews ${action}d successfully` });
+    } catch (error) {
+      console.error("Error performing mass review action:", error);
+      res.status(500).json({ message: "Failed to perform mass review action" });
+    }
+  });
+
+  // Mass user operations
+  app.patch("/api/admin/users/mass-action", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { userIds, action } = req.body;
+      
+      if (!Array.isArray(userIds) || userIds.length === 0) {
+        return res.status(400).json({ message: "User IDs array is required" });
+      }
+
+      if (!['suspend', 'activate', 'delete'].includes(action)) {
+        return res.status(400).json({ message: "Invalid action" });
+      }
+
+      for (const userId of userIds) {
+        if (action === 'delete') {
+          await storage.deleteUser(userId);
+        } else {
+          const status = action === 'suspend' ? 'suspended' : 'active';
+          await storage.updateUser(userId, { status });
+        }
+      }
+
+      res.json({ message: `${userIds.length} users ${action}d successfully` });
+    } catch (error) {
+      console.error("Error performing mass user action:", error);
+      res.status(500).json({ message: "Failed to perform mass user action" });
+    }
+  });
+
+  // Update user password
+  app.patch("/api/admin/users/:userId/password", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const { password } = req.body;
+      
+      if (!password || password.length < 6) {
+        return res.status(400).json({ message: "Password must be at least 6 characters" });
+      }
+
+      const hashedPassword = await hashPassword(password);
+      await storage.updateUser(userId, { password: hashedPassword });
+
+      res.json({ message: "Password updated successfully" });
+    } catch (error) {
+      console.error("Error updating user password:", error);
+      res.status(500).json({ message: "Failed to update password" });
+    }
+  });
+
+  // Assign businesses to user
+  app.patch("/api/admin/users/:userId/assign-businesses", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const { businessIds } = req.body;
+      
+      if (!Array.isArray(businessIds) || businessIds.length === 0) {
+        return res.status(400).json({ message: "Business IDs array is required" });
+      }
+
+      for (const businessId of businessIds) {
+        await storage.updateBusiness(businessId, { ownerid: userId });
+      }
+
+      res.json({ message: `${businessIds.length} businesses assigned successfully` });
+    } catch (error) {
+      console.error("Error assigning businesses to user:", error);
+      res.status(500).json({ message: "Failed to assign businesses" });
+    }
+  });
+
+  // Update city information
+  app.patch("/api/admin/cities/update", requireAdmin, async (req, res) => {
+    try {
+      const { oldName, newName, description } = req.body;
+      
+      if (!oldName || !newName) {
+        return res.status(400).json({ message: "Old name and new name are required" });
+      }
+
+      await storage.updateCityName(oldName, newName, description);
+
+      res.json({ message: "City updated successfully" });
+    } catch (error) {
+      console.error("Error updating city:", error);
+      res.status(500).json({ message: "Failed to update city" });
+    }
+  });
+
   // Admin review management routes
   app.get('/api/admin/reviews', isAuthenticated, isAdmin, async (req, res) => {
     try {

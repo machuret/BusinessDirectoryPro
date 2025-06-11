@@ -836,7 +836,7 @@ export default function AdminEnhanced() {
                         </TableCell>
                         <TableCell>
                           {business.owner ? (
-                            new Date((business as any).claimedAt || business.createdAt).toLocaleDateString()
+                            new Date((business as any).claimedAt || (business as any).createdat).toLocaleDateString()
                           ) : (
                             '-'
                           )}
