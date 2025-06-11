@@ -26,14 +26,36 @@ const getAllBusinessPhotos = (business: BusinessWithCategory): string[] => {
     photos.push(business.imageurl);
   }
   
-  // Add images from imageurls array
-  if (business.imageurls && Array.isArray(business.imageurls)) {
-    photos.push(...business.imageurls.filter(url => url && typeof url === 'string'));
+  // Add images from imageurls array (handle both parsed arrays and JSON strings)
+  if (business.imageurls) {
+    let imageUrlsArray = business.imageurls;
+    if (typeof business.imageurls === 'string') {
+      try {
+        imageUrlsArray = JSON.parse(business.imageurls);
+      } catch (e) {
+        console.warn('Failed to parse imageurls:', e);
+        imageUrlsArray = [];
+      }
+    }
+    if (Array.isArray(imageUrlsArray)) {
+      photos.push(...imageUrlsArray.filter(url => url && typeof url === 'string'));
+    }
   }
   
-  // Add images from images array
-  if (business.images && Array.isArray(business.images)) {
-    photos.push(...business.images.filter(url => url && typeof url === 'string'));
+  // Add images from images array (handle both parsed arrays and JSON strings)
+  if (business.images) {
+    let imagesArray = business.images;
+    if (typeof business.images === 'string') {
+      try {
+        imagesArray = JSON.parse(business.images);
+      } catch (e) {
+        console.warn('Failed to parse images:', e);
+        imagesArray = [];
+      }
+    }
+    if (Array.isArray(imagesArray)) {
+      photos.push(...imagesArray.filter(url => url && typeof url === 'string'));
+    }
   }
   
   // Extract from reviews if available
@@ -327,62 +349,6 @@ export default function BusinessDetail() {
     </div>
   );
 }
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const handleSubmitReview = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isAuthenticated) {
-      toast({
-        title: "Please sign in",
-        description: "You must be signed in to leave a review.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    reviewMutation.mutate({
-      rating: reviewRating,
-      title: reviewTitle || undefined,
-      content: reviewContent || undefined,
-    });
-  };
-
-  if (businessLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <Header />
-        <div className="flex items-center justify-center py-20">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
-
-  if (!business) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <Header />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Business Not Found</h1>
-          <p className="text-gray-600 mb-8">The business you're looking for doesn't exist.</p>
-          <Button onClick={() => window.location.href = "/categories"}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Directory
-          </Button>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
 
   const renderStars = (rating: number, size = "w-5 h-5") => {
     return Array.from({ length: 5 }).map((_, i) => (
