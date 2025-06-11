@@ -1240,13 +1240,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Leads management operations
-  async getLeads(recipientId?: string): Promise<LeadWithBusiness[]> {
+  async getLeads(): Promise<LeadWithBusiness[]> {
     try {
-      let query = db
+      const result = await db
         .select({
           id: leads.id,
           businessId: leads.businessId,
-          recipientId: leads.recipientId,
           senderName: leads.senderName,
           senderEmail: leads.senderEmail,
           senderPhone: leads.senderPhone,
@@ -1258,21 +1257,11 @@ export class DatabaseStorage implements IStorage {
             title: businesses.title,
             placeid: businesses.placeid,
           },
-          recipient: {
-            firstName: users.firstName,
-            lastName: users.lastName,
-            email: users.email,
-          },
         })
         .from(leads)
         .leftJoin(businesses, eq(leads.businessId, businesses.placeid))
-        .leftJoin(users, eq(leads.recipientId, users.id));
+        .orderBy(desc(leads.createdAt));
 
-      if (recipientId) {
-        query = query.where(eq(leads.recipientId, recipientId));
-      }
-
-      const result = await query.orderBy(desc(leads.createdAt));
       return result as LeadWithBusiness[];
     } catch (error) {
       console.error('Error fetching leads:', error);
@@ -1286,7 +1275,6 @@ export class DatabaseStorage implements IStorage {
         .select({
           id: leads.id,
           businessId: leads.businessId,
-          recipientId: leads.recipientId,
           senderName: leads.senderName,
           senderEmail: leads.senderEmail,
           senderPhone: leads.senderPhone,
@@ -1298,15 +1286,9 @@ export class DatabaseStorage implements IStorage {
             title: businesses.title,
             placeid: businesses.placeid,
           },
-          recipient: {
-            firstName: users.firstName,
-            lastName: users.lastName,
-            email: users.email,
-          },
         })
         .from(leads)
         .leftJoin(businesses, eq(leads.businessId, businesses.placeid))
-        .leftJoin(users, eq(leads.recipientId, users.id))
         .where(eq(leads.id, id))
         .limit(1);
 
@@ -1319,25 +1301,9 @@ export class DatabaseStorage implements IStorage {
 
   async createLead(leadData: InsertLead): Promise<Lead> {
     try {
-      // Get the business to check if it has an owner
-      const business = await this.getBusinessById(leadData.businessId);
-      
-      // If business is unclaimed, assign to default admin
-      let recipientId = leadData.recipientId;
-      if (!recipientId && business) {
-        // Find the first admin user as default recipient
-        const adminUsers = await db.select().from(users).where(eq(users.role, 'admin')).limit(1);
-        if (adminUsers.length > 0) {
-          recipientId = adminUsers[0].id;
-        }
-      }
-
       const [result] = await db
         .insert(leads)
-        .values({
-          ...leadData,
-          recipientId,
-        })
+        .values(leadData)
         .returning();
 
       return result;
