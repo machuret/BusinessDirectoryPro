@@ -9,6 +9,7 @@ import {
   menuItems,
   pages,
   websiteFaq,
+  leads,
   type User,
   type UpsertUser,
   type Category,
@@ -18,6 +19,9 @@ import {
   type Review,
   type InsertReview,
   type SiteSetting,
+  type Lead,
+  type InsertLead,
+  type LeadWithBusiness,
   type InsertSiteSetting,
   type MenuItem,
   type InsertMenuItem,
@@ -126,6 +130,14 @@ export interface IStorage {
   updateWebsiteFaq(id: number, faq: Partial<InsertWebsiteFaq>): Promise<WebsiteFaq | undefined>;
   deleteWebsiteFaq(id: number): Promise<void>;
   reorderWebsiteFaqs(faqIds: number[]): Promise<void>;
+  
+  // Leads management operations
+  getLeads(recipientId?: string): Promise<LeadWithBusiness[]>;
+  getLead(id: number): Promise<LeadWithBusiness | undefined>;
+  createLead(lead: InsertLead): Promise<Lead>;
+  updateLeadStatus(id: number, status: string): Promise<Lead | undefined>;
+  deleteLead(id: number): Promise<void>;
+  getLeadsByBusiness(businessId: string): Promise<LeadWithBusiness[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1223,6 +1235,178 @@ export class DatabaseStorage implements IStorage {
       }
     } catch (error) {
       console.error('Error reordering website FAQs:', error);
+      throw error;
+    }
+  }
+
+  // Leads management operations
+  async getLeads(recipientId?: string): Promise<LeadWithBusiness[]> {
+    try {
+      let query = db
+        .select({
+          id: leads.id,
+          businessId: leads.businessId,
+          recipientId: leads.recipientId,
+          senderName: leads.senderName,
+          senderEmail: leads.senderEmail,
+          senderPhone: leads.senderPhone,
+          message: leads.message,
+          status: leads.status,
+          createdAt: leads.createdAt,
+          updatedAt: leads.updatedAt,
+          business: {
+            title: businesses.title,
+            placeid: businesses.placeid,
+          },
+          recipient: {
+            firstName: users.firstName,
+            lastName: users.lastName,
+            email: users.email,
+          },
+        })
+        .from(leads)
+        .leftJoin(businesses, eq(leads.businessId, businesses.placeid))
+        .leftJoin(users, eq(leads.recipientId, users.id));
+
+      if (recipientId) {
+        query = query.where(eq(leads.recipientId, recipientId));
+      }
+
+      const result = await query.orderBy(desc(leads.createdAt));
+      return result as LeadWithBusiness[];
+    } catch (error) {
+      console.error('Error fetching leads:', error);
+      throw error;
+    }
+  }
+
+  async getLead(id: number): Promise<LeadWithBusiness | undefined> {
+    try {
+      const result = await db
+        .select({
+          id: leads.id,
+          businessId: leads.businessId,
+          recipientId: leads.recipientId,
+          senderName: leads.senderName,
+          senderEmail: leads.senderEmail,
+          senderPhone: leads.senderPhone,
+          message: leads.message,
+          status: leads.status,
+          createdAt: leads.createdAt,
+          updatedAt: leads.updatedAt,
+          business: {
+            title: businesses.title,
+            placeid: businesses.placeid,
+          },
+          recipient: {
+            firstName: users.firstName,
+            lastName: users.lastName,
+            email: users.email,
+          },
+        })
+        .from(leads)
+        .leftJoin(businesses, eq(leads.businessId, businesses.placeid))
+        .leftJoin(users, eq(leads.recipientId, users.id))
+        .where(eq(leads.id, id))
+        .limit(1);
+
+      return result[0] as LeadWithBusiness | undefined;
+    } catch (error) {
+      console.error('Error fetching lead:', error);
+      throw error;
+    }
+  }
+
+  async createLead(leadData: InsertLead): Promise<Lead> {
+    try {
+      // Get the business to check if it has an owner
+      const business = await this.getBusinessById(leadData.businessId);
+      
+      // If business is unclaimed, assign to default admin
+      let recipientId = leadData.recipientId;
+      if (!recipientId && business) {
+        // Find the first admin user as default recipient
+        const adminUsers = await db.select().from(users).where(eq(users.role, 'admin')).limit(1);
+        if (adminUsers.length > 0) {
+          recipientId = adminUsers[0].id;
+        }
+      }
+
+      const [result] = await db
+        .insert(leads)
+        .values({
+          ...leadData,
+          recipientId,
+        })
+        .returning();
+
+      return result;
+    } catch (error) {
+      console.error('Error creating lead:', error);
+      throw error;
+    }
+  }
+
+  async updateLeadStatus(id: number, status: string): Promise<Lead | undefined> {
+    try {
+      const [result] = await db
+        .update(leads)
+        .set({ 
+          status,
+          updatedAt: new Date()
+        })
+        .where(eq(leads.id, id))
+        .returning();
+
+      return result;
+    } catch (error) {
+      console.error('Error updating lead status:', error);
+      throw error;
+    }
+  }
+
+  async deleteLead(id: number): Promise<void> {
+    try {
+      await db.delete(leads).where(eq(leads.id, id));
+    } catch (error) {
+      console.error('Error deleting lead:', error);
+      throw error;
+    }
+  }
+
+  async getLeadsByBusiness(businessId: string): Promise<LeadWithBusiness[]> {
+    try {
+      const result = await db
+        .select({
+          id: leads.id,
+          businessId: leads.businessId,
+          recipientId: leads.recipientId,
+          senderName: leads.senderName,
+          senderEmail: leads.senderEmail,
+          senderPhone: leads.senderPhone,
+          message: leads.message,
+          status: leads.status,
+          createdAt: leads.createdAt,
+          updatedAt: leads.updatedAt,
+          business: {
+            title: businesses.title,
+            placeid: businesses.placeid,
+          },
+          recipient: {
+            firstName: users.firstName,
+            lastName: users.lastName,
+            email: users.email,
+          },
+        })
+        .from(leads)
+        .leftJoin(businesses, eq(leads.businessId, businesses.placeid))
+        .leftJoin(users, eq(leads.recipientId, users.id))
+        .where(eq(leads.businessId, businessId))
+        .orderBy(desc(leads.createdAt));
+
+      return result as LeadWithBusiness[];
+    } catch (error) {
+      console.error('Error fetching leads by business:', error);
       throw error;
     }
   }

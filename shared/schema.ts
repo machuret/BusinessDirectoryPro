@@ -306,6 +306,35 @@ export type Page = typeof pages.$inferSelect;
 export type InsertWebsiteFaq = z.infer<typeof insertWebsiteFaqSchema>;
 export type WebsiteFaq = typeof websiteFaq.$inferSelect;
 
+// Leads table for business inquiries
+export const leads = pgTable("leads", {
+  id: serial("id").primaryKey(),
+  businessId: text("business_id").notNull().references(() => businesses.placeid),
+  recipientId: varchar("recipient_id").references(() => users.id), // null if business is unclaimed
+  senderName: varchar("sender_name").notNull(),
+  senderEmail: varchar("sender_email").notNull(),
+  senderPhone: varchar("sender_phone"),
+  message: text("message").notNull(),
+  status: varchar("status").notNull().default("UNREAD"), // UNREAD, READ, ARCHIVED, REPLIED
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertLeadSchema = createInsertSchema(leads).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertLead = z.infer<typeof insertLeadSchema>;
+export type Lead = typeof leads.$inferSelect;
+
+// Lead with business and sender info
+export type LeadWithBusiness = Lead & {
+  business: Pick<Business, 'title' | 'placeid'>;
+  recipient?: Pick<User, 'firstName' | 'lastName' | 'email'>;
+};
+
 // Business with category info
 export type BusinessWithCategory = Business & {
   category?: Category;

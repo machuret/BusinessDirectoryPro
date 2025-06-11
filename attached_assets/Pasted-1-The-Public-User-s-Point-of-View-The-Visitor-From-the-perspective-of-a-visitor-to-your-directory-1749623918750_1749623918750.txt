@@ -1,0 +1,31 @@
+1. The Public User's Point of View (The Visitor)
+From the perspective of a visitor to your directory, the experience is simple, direct, and seamless:
+
+Discovery: A user browses the site and lands on the individual page of a business they are interested in, for example, "City Plumbing Experts."
+Initiating Contact: On the listing page, they find a clear, accessible contact form with fields for their Name, Email, Phone Number, and a Message.
+Sending the Inquiry: They fill out the form with their question, such as "Do you offer emergency weekend services?" and click the "Send Message" button.
+Instant Feedback: Immediately after clicking send, the form provides instant feedback. They see a loading indicator on the button, followed by a "Success! Your message has been sent" toast notification.
+To the user, the process is finished. They have successfully contacted the business (or so they believe), and the experience was professional and straightforward.
+
+2. The Technical & Data Flow (Behind the Scenes)
+This describes the journey the user's data takes from the moment they click "send."
+
+Form Submission: The ListingContactForm on the frontend captures the user's input along with the unique businessId for "City Plumbing Experts."
+API Request: Instead of sending an email, the form's logic makes a POST request to a dedicated API endpoint at /api/leads/submit. The body of this request contains the user's message and the businessId.
+Intelligent Routing: The API endpoint receives the request and performs the critical business logic:
+It queries the database for the "City Plumbing Experts" business record.
+It checks if this business has a specific ownerId associated with it.
+In this case, since the business has not been claimed, the ownerId is null. The system identifies this and sets the recipientId for the lead to the default Site Administrator's user ID.
+Database Creation: The system creates a new record in the Lead table in the database. This record contains the user's message, their contact info, a default status of UNREAD, and is now permanently linked to both the "City Plumbing Experts" business and the Site Administrator as the recipient.
+Confirmation: The API sends a 200 OK success response back to the ListingContactForm, which triggers the success toast notification for the user.
+3. The Site Admin's Point of View (The Inbox Experience)
+This describes the workflow for you, the administrator, managing the incoming leads.
+
+Notification & Access: You log into the site's admin panel. In the main navigation sidebar, you see a link labeled "Leads," possibly with a badge indicating new messages.
+The Inbox View: Clicking the link takes you to /admin/leads. Here, you see a clean table displaying all leads assigned to you. The new lead regarding "City Plumbing Experts" appears at the top, with its row text in bold and a colorful Badge indicating its status is UNREAD.
+Reading the Lead: You click on the bolded row. This single action does two things simultaneously:
+In the background, it instantly sends a PATCH request to the API to update the lead's status from UNREAD to READ.
+A Dialog (modal) immediately appears on your screen.
+The Detail View: The modal displays all the information you need: the sender's name and contact info, the full message ("Do you offer emergency weekend services?"), and clearly states that this inquiry is "Regarding: City Plumbing Experts."
+Taking Action: After reading the message, you have options within the modal. You decide this lead is handled, so you click the "Archive" button. This sends another PATCH request to the API, updating the lead's status to ARCHIVED.
+A Clean Inbox: The modal closes, and the table automatically refreshes. The lead from "City Plumbing Experts" is no longer bold, and its status badge has changed to "ARCHIVED," giving you a clear, organized view of what's new and what's been dealt with.
