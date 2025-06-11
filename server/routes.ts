@@ -553,9 +553,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         senderName,
         senderEmail,
         senderPhone: senderPhone || null,
-        message,
-        recipientId: null, // Will be auto-assigned to admin or business owner
-        status: "UNREAD"
+        message
       });
 
       res.status(201).json({ message: "Message sent successfully", leadId: lead.id });
@@ -573,9 +571,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      // Admins can see all leads, business owners only see their own
-      const recipientId = user.role === 'admin' ? undefined : user.id;
-      const leads = await storage.getLeads(recipientId);
+      // All authenticated users can see leads (admin feature)
+      const leads = await storage.getLeads();
       res.json(leads);
     } catch (error) {
       console.error("Error fetching leads:", error);

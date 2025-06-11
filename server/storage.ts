@@ -132,7 +132,7 @@ export interface IStorage {
   reorderWebsiteFaqs(faqIds: number[]): Promise<void>;
   
   // Leads management operations
-  getLeads(recipientId?: string): Promise<LeadWithBusiness[]>;
+  getLeads(): Promise<LeadWithBusiness[]>;
   getLead(id: number): Promise<LeadWithBusiness | undefined>;
   createLead(lead: InsertLead): Promise<Lead>;
   updateLeadStatus(id: number, status: string): Promise<Lead | undefined>;
@@ -1346,7 +1346,6 @@ export class DatabaseStorage implements IStorage {
         .select({
           id: leads.id,
           businessId: leads.businessId,
-          recipientId: leads.recipientId,
           senderName: leads.senderName,
           senderEmail: leads.senderEmail,
           senderPhone: leads.senderPhone,
@@ -1358,15 +1357,9 @@ export class DatabaseStorage implements IStorage {
             title: businesses.title,
             placeid: businesses.placeid,
           },
-          recipient: {
-            firstName: users.firstName,
-            lastName: users.lastName,
-            email: users.email,
-          },
         })
         .from(leads)
         .leftJoin(businesses, eq(leads.businessId, businesses.placeid))
-        .leftJoin(users, eq(leads.recipientId, users.id))
         .where(eq(leads.businessId, businessId))
         .orderBy(desc(leads.createdAt));
 
