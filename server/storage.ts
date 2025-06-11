@@ -1,5 +1,5 @@
 import { eq, like, ilike, and, or, desc, asc, sql, ne } from "drizzle-orm";
-import { db } from "./db";
+import { db, pool } from "./db";
 import {
   users,
   categories,
@@ -1242,27 +1242,19 @@ export class DatabaseStorage implements IStorage {
   // Leads management operations
   async getLeads(): Promise<LeadWithBusiness[]> {
     try {
-      const result = await db
-        .select({
-          id: leads.id,
-          businessId: leads.businessId,
-          senderName: leads.senderName,
-          senderEmail: leads.senderEmail,
-          senderPhone: leads.senderPhone,
-          message: leads.message,
-          status: leads.status,
-          createdAt: leads.createdAt,
-          updatedAt: leads.updatedAt,
-          business: {
-            title: businesses.title,
-            placeid: businesses.placeid,
-          },
-        })
-        .from(leads)
-        .leftJoin(businesses, eq(leads.businessId, businesses.placeid))
-        .orderBy(desc(leads.createdAt));
+      // Use raw SQL query to bypass Drizzle ORM schema issues
+      const result = await pool.query(`
+        SELECT 
+          l.id, l.business_id as "businessId", l.sender_name as "senderName", 
+          l.sender_email as "senderEmail", l.sender_phone as "senderPhone",
+          l.message, l.status, l.created_at as "createdAt", l.updated_at as "updatedAt",
+          jsonb_build_object('title', b.title, 'placeid', b.placeid) as business
+        FROM leads l
+        LEFT JOIN businesses b ON l.business_id = b.placeid
+        ORDER BY l.created_at DESC
+      `);
 
-      return result as LeadWithBusiness[];
+      return result.rows;
     } catch (error) {
       console.error('Error fetching leads:', error);
       throw error;
@@ -1301,12 +1293,26 @@ export class DatabaseStorage implements IStorage {
 
   async createLead(leadData: InsertLead): Promise<Lead> {
     try {
-      const [result] = await db
-        .insert(leads)
-        .values(leadData)
-        .returning();
+      // Use raw SQL query to bypass Drizzle ORM schema issues
+      const query = `
+        INSERT INTO leads (business_id, sender_name, sender_email, sender_phone, message, status, created_at, updated_at)
+        VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+        RETURNING id, business_id as "businessId", sender_name as "senderName", 
+                 sender_email as "senderEmail", sender_phone as "senderPhone",
+                 message, status, created_at as "createdAt", updated_at as "updatedAt"
+      `;
+      
+      const values = [
+        leadData.businessId,
+        leadData.senderName,
+        leadData.senderEmail,
+        leadData.senderPhone || null,
+        leadData.message,
+        leadData.status || 'new'
+      ];
 
-      return result;
+      const result = await pool.query(query, values);
+      return result.rows[0];
     } catch (error) {
       console.error('Error creating lead:', error);
       throw error;
