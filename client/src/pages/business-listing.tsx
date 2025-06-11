@@ -29,6 +29,7 @@ import type { BusinessWithCategory, Review, InsertReview } from "@shared/schema"
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import SimilarBusinessesCarousel from "@/components/similar-businesses-carousel";
 
 export default function BusinessListing() {
   const [, params] = useRoute("/business/:identifier");
@@ -651,6 +652,17 @@ export default function BusinessListing() {
             </Card>
           </div>
         </div>
+        
+        {/* Similar Businesses Carousel */}
+        {business && (
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <SimilarBusinessesCarousel
+              currentBusinessId={business.placeid}
+              categoryId={business.category?.id}
+              city={business.city}
+            />
+          </div>
+        )}
       </div>
       
       <Footer />

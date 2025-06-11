@@ -176,6 +176,43 @@ export default function Admin() {
     },
   });
 
+  // Review management mutations
+  const approveReviewMutation = useMutation({
+    mutationFn: async ({ id, notes }: { id: number; notes?: string }) => {
+      await apiRequest("PATCH", `/api/admin/reviews/${id}/approve`, { notes });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/reviews"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/reviews/pending"] });
+      toast({ title: "Review approved successfully" });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error approving review",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const rejectReviewMutation = useMutation({
+    mutationFn: async ({ id, notes }: { id: number; notes?: string }) => {
+      await apiRequest("PATCH", `/api/admin/reviews/${id}/reject`, { notes });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/reviews"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/reviews/pending"] });
+      toast({ title: "Review rejected successfully" });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error rejecting review",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   // Business update mutation
   const updateBusinessMutation = useMutation({
     mutationFn: async (params: { id: string; featured?: boolean; data?: any }) => {
@@ -590,7 +627,7 @@ export default function Admin() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6 lg:grid-cols-11">
+        <TabsList className="grid w-full grid-cols-6 lg:grid-cols-12">
           <TabsTrigger value="businesses" className="flex items-center space-x-2">
             <Building2 className="h-4 w-4" />
             <span>Businesses</span>
@@ -610,6 +647,10 @@ export default function Admin() {
           <TabsTrigger value="pages" className="flex items-center space-x-2">
             <Globe className="h-4 w-4" />
             <span>Pages</span>
+          </TabsTrigger>
+          <TabsTrigger value="reviews" className="flex items-center space-x-2">
+            <Star className="h-4 w-4" />
+            <span>Reviews</span>
           </TabsTrigger>
           <TabsTrigger value="claims" className="flex items-center space-x-2">
             <FileText className="h-4 w-4" />
@@ -1486,6 +1527,134 @@ export default function Admin() {
                   </div>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Reviews Tab */}
+        <TabsContent value="reviews" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Review Management</CardTitle>
+              <CardDescription>
+                Approve or reject user reviews. {pendingReviews?.length || 0} pending review(s)
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {reviewsLoading || pendingReviewsLoading ? (
+                <div className="flex justify-center items-center h-32">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {/* Pending Reviews Section */}
+                  {pendingReviews && pendingReviews.length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4 text-orange-600">
+                        Pending Reviews ({pendingReviews.length})
+                      </h3>
+                      <div className="space-y-4">
+                        {pendingReviews.map((review: any) => (
+                          <Card key={review.id} className="border-orange-200">
+                            <CardContent className="p-4">
+                              <div className="flex justify-between items-start">
+                                <div className="flex-1">
+                                  <div className="flex items-center space-x-2 mb-2">
+                                    <span className="font-medium">{review.authorName}</span>
+                                    <div className="flex items-center">
+                                      {[...Array(5)].map((_, i) => (
+                                        <Star
+                                          key={i}
+                                          className={`h-4 w-4 ${
+                                            i < review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
+                                          }`}
+                                        />
+                                      ))}
+                                    </div>
+                                    <Badge variant="outline" className="text-orange-600">
+                                      Pending
+                                    </Badge>
+                                  </div>
+                                  {review.title && (
+                                    <h4 className="font-semibold mb-1">{review.title}</h4>
+                                  )}
+                                  <p className="text-gray-600 mb-2">{review.comment}</p>
+                                  <p className="text-sm text-gray-500">
+                                    Business ID: {review.businessId} • {new Date(review.createdAt).toLocaleDateString()}
+                                  </p>
+                                </div>
+                                <div className="flex space-x-2 ml-4">
+                                  <Button
+                                    size="sm"
+                                    onClick={() => approveReviewMutation.mutate({ id: review.id })}
+                                    disabled={approveReviewMutation.isPending}
+                                    className="bg-green-600 hover:bg-green-700"
+                                  >
+                                    Approve
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    onClick={() => rejectReviewMutation.mutate({ id: review.id })}
+                                    disabled={rejectReviewMutation.isPending}
+                                  >
+                                    Reject
+                                  </Button>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* All Reviews Section */}
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">All Reviews</h3>
+                    {reviews && reviews.length > 0 ? (
+                      <div className="space-y-4">
+                        {reviews.map((review: any) => (
+                          <Card key={review.id} className="border">
+                            <CardContent className="p-4">
+                              <div className="flex items-center space-x-2 mb-2">
+                                <span className="font-medium">{review.authorName}</span>
+                                <div className="flex items-center">
+                                  {[...Array(5)].map((_, i) => (
+                                    <Star
+                                      key={i}
+                                      className={`h-4 w-4 ${
+                                        i < review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
+                                      }`}
+                                    />
+                                  ))}
+                                </div>
+                                <Badge 
+                                  variant={review.status === 'approved' ? 'default' : review.status === 'rejected' ? 'destructive' : 'secondary'}
+                                >
+                                  {review.status}
+                                </Badge>
+                              </div>
+                              {review.title && (
+                                <h4 className="font-semibold mb-1">{review.title}</h4>
+                              )}
+                              <p className="text-gray-600 mb-2">{review.comment}</p>
+                              <p className="text-sm text-gray-500">
+                                Business ID: {review.businessId} • {new Date(review.createdAt).toLocaleDateString()}
+                                {review.reviewedAt && ` • Reviewed: ${new Date(review.reviewedAt).toLocaleDateString()}`}
+                              </p>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <p className="text-muted-foreground">No reviews found.</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
