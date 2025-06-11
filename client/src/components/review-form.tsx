@@ -27,6 +27,7 @@ import { apiRequest } from "@/lib/queryClient";
 
 const reviewFormSchema = z.object({
   reviewerName: z.string().min(1, "Name is required"),
+  title: z.string().min(5, "Title must be at least 5 characters").max(100, "Title must be less than 100 characters"),
   rating: z.number().min(1, "Rating is required").max(5, "Rating must be 5 or less"),
   comment: z.string().min(10, "Review must be at least 10 characters"),
 });
@@ -47,6 +48,7 @@ export default function ReviewForm({ businessId, onSuccess }: ReviewFormProps) {
     resolver: zodResolver(reviewFormSchema),
     defaultValues: {
       reviewerName: "",
+      title: "",
       rating: 0,
       comment: "",
     },
@@ -101,6 +103,20 @@ export default function ReviewForm({ businessId, onSuccess }: ReviewFormProps) {
                   <FormLabel>Your Name</FormLabel>
                   <FormControl>
                     <Input placeholder="Enter your name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Review Title</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Summary of your experience" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

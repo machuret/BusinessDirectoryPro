@@ -99,6 +99,16 @@ export default function Admin() {
     enabled: !!user && (user as any).role === 'admin'
   });
 
+  const { data: reviews, isLoading: reviewsLoading } = useQuery<any[]>({
+    queryKey: ["/api/admin/reviews"],
+    enabled: !!user && (user as any).role === 'admin'
+  });
+
+  const { data: pendingReviews, isLoading: pendingReviewsLoading } = useQuery<any[]>({
+    queryKey: ["/api/admin/reviews/pending"],
+    enabled: !!user && (user as any).role === 'admin'
+  });
+
   // CSV Import mutation
   const csvImportMutation = useMutation({
     mutationFn: async (file: File) => {

@@ -477,8 +477,7 @@ export class DatabaseStorage implements IStorage {
   async createPublicReview(businessId: string, reviewData: any): Promise<Review> {
     const review = {
       businessId,
-      authorName: reviewData.authorName,
-      authorEmail: reviewData.authorEmail,
+      authorName: reviewData.reviewerName,
       rating: reviewData.rating,
       title: reviewData.title,
       comment: reviewData.comment,

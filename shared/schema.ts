@@ -233,10 +233,9 @@ export const insertReviewSchema = createInsertSchema(reviews).omit({
 
 // Public review submission schema (for anonymous users)
 export const publicReviewSchema = z.object({
-  authorName: z.string().min(1, "Name is required"),
-  authorEmail: z.string().email("Valid email is required"),
+  reviewerName: z.string().min(1, "Name is required"),
+  title: z.string().min(5, "Title must be at least 5 characters").max(100, "Title must be less than 100 characters"),
   rating: z.number().min(1).max(5),
-  title: z.string().optional(),
   comment: z.string().min(10, "Review must be at least 10 characters"),
 });
 
