@@ -1,28 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
-import { useParams, Link } from "wouter";
+import { useParams } from "wouter";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
-import ReviewForm from "@/components/review-form";
 import PhotoGallery from "@/components/photo-gallery";
-import ClaimBusinessForm from "@/components/ClaimBusinessForm";
 import BusinessCarousel from "@/components/BusinessCarousel";
 import SEOHead from "@/components/SEOHead";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { 
-  Star, 
-  MapPin, 
-  Phone, 
-  Globe, 
-  Clock, 
-  ArrowLeft,
-  Share2,
-  Printer,
-  Building2,
-  User
-} from "lucide-react";
+import BusinessHeader from "@/components/business/BusinessHeader";
+import BusinessContactInfo from "@/components/business/BusinessContactInfo";
+import BusinessDescription from "@/components/business/BusinessDescription";
+import BusinessReviews from "@/components/business/BusinessReviews";
+import { getAllBusinessPhotos, getBusinessImage } from "@/components/business/BusinessPhotoUtils";
 import type { BusinessWithCategory, Review, User as UserType } from "@shared/schema";
 
 // Helper function to get all business photos
