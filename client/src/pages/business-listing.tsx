@@ -32,6 +32,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import SimilarBusinessesCarousel from "@/components/similar-businesses-carousel";
 import BusinessMap from "@/components/business-map";
 import MoreBusinessesCarousel from "@/components/more-businesses-carousel";
+import BusinessContactForm from "@/components/business-contact-form";
 
 export default function BusinessListing() {
   const [, params] = useRoute("/business/:identifier");
@@ -697,6 +698,12 @@ export default function BusinessListing() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Contact Form */}
+            <BusinessContactForm 
+              businessId={business.placeid}
+              businessName={business.title || 'Business'}
+            />
           </div>
         </div>
         

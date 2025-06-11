@@ -908,6 +908,10 @@ export default function Admin() {
             <Settings className="h-4 w-4" />
             <span>Settings</span>
           </TabsTrigger>
+          <TabsTrigger value="leads" className="flex items-center space-x-2">
+            <Mail className="h-4 w-4" />
+            <span>Leads</span>
+          </TabsTrigger>
         </TabsList>
 
         {/* Businesses Tab */}

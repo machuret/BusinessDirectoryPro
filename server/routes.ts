@@ -539,6 +539,135 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Leads submission endpoint (public)
+  app.post('/api/leads/submit', async (req, res) => {
+    try {
+      const { businessId, senderName, senderEmail, senderPhone, message } = req.body;
+
+      if (!businessId || !senderName || !senderEmail || !message) {
+        return res.status(400).json({ message: "Required fields missing" });
+      }
+
+      const lead = await storage.createLead({
+        businessId,
+        senderName,
+        senderEmail,
+        senderPhone: senderPhone || null,
+        message,
+        recipientId: null, // Will be auto-assigned to admin or business owner
+        status: "UNREAD"
+      });
+
+      res.status(201).json({ message: "Message sent successfully", leadId: lead.id });
+    } catch (error) {
+      console.error("Error creating lead:", error);
+      res.status(500).json({ message: "Failed to send message" });
+    }
+  });
+
+  // Leads management (admin/business owner)
+  app.get('/api/leads', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId);
+      if (!user) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      // Admins can see all leads, business owners only see their own
+      const recipientId = user.role === 'admin' ? undefined : user.id;
+      const leads = await storage.getLeads(recipientId);
+      res.json(leads);
+    } catch (error) {
+      console.error("Error fetching leads:", error);
+      res.status(500).json({ message: "Failed to fetch leads" });
+    }
+  });
+
+  app.get('/api/leads/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId);
+      if (!user) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      const leadId = parseInt(req.params.id);
+      const lead = await storage.getLead(leadId);
+
+      if (!lead) {
+        return res.status(404).json({ message: "Lead not found" });
+      }
+
+      // Check if user has permission to view this lead
+      if (user.role !== 'admin' && lead.recipientId !== user.id) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      res.json(lead);
+    } catch (error) {
+      console.error("Error fetching lead:", error);
+      res.status(500).json({ message: "Failed to fetch lead" });
+    }
+  });
+
+  app.patch('/api/leads/:id/status', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId);
+      if (!user) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      const leadId = parseInt(req.params.id);
+      const { status } = req.body;
+
+      if (!['UNREAD', 'READ', 'ARCHIVED', 'REPLIED'].includes(status)) {
+        return res.status(400).json({ message: "Invalid status" });
+      }
+
+      // Check if user has permission to update this lead
+      const lead = await storage.getLead(leadId);
+      if (!lead) {
+        return res.status(404).json({ message: "Lead not found" });
+      }
+
+      if (user.role !== 'admin' && lead.recipientId !== user.id) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const updatedLead = await storage.updateLeadStatus(leadId, status);
+      res.json(updatedLead);
+    } catch (error) {
+      console.error("Error updating lead status:", error);
+      res.status(500).json({ message: "Failed to update lead status" });
+    }
+  });
+
+  app.delete('/api/leads/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId);
+      if (!user) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      const leadId = parseInt(req.params.id);
+
+      // Check if user has permission to delete this lead
+      const lead = await storage.getLead(leadId);
+      if (!lead) {
+        return res.status(404).json({ message: "Lead not found" });
+      }
+
+      if (user.role !== 'admin' && lead.recipientId !== user.id) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      await storage.deleteLead(leadId);
+      res.json({ message: "Lead deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting lead:", error);
+      res.status(500).json({ message: "Failed to delete lead" });
+    }
+  });
+
   // Bulk delete reviews (admin only)
   app.post('/api/admin/reviews/bulk-delete', isAuthenticated, async (req: any, res) => {
     try {
