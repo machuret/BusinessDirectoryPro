@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { AlertTriangle, Upload, Users, Building2, Settings, FileText, Star, Menu, Key, Zap, MapPin, Globe } from "lucide-react";
+import { AlertTriangle, Upload, Users, Building2, Settings, FileText, Star, Menu, Key, Zap, MapPin, Globe, UserX, UserCheck, Trash2, Edit } from "lucide-react";
 import type { BusinessWithCategory, User, Category, SiteSetting, MenuItem, Page } from "@shared/schema";
 
 export default function Admin() {
@@ -998,6 +998,12 @@ export default function Admin() {
                   <Table>
                     <TableHeader>
                       <TableRow>
+                        <TableHead className="w-12">
+                          <Checkbox
+                            checked={selectedUsers.length === (filteredUsers?.length || 0) && (filteredUsers?.length || 0) > 0}
+                            onCheckedChange={handleSelectAllUsers}
+                          />
+                        </TableHead>
                         <TableHead>Name</TableHead>
                         <TableHead>Email</TableHead>
                         <TableHead>Role</TableHead>
@@ -1008,6 +1014,12 @@ export default function Admin() {
                     <TableBody>
                       {filteredUsers?.map((user) => (
                         <TableRow key={user.id}>
+                          <TableCell>
+                            <Checkbox
+                              checked={selectedUsers.includes(user.id)}
+                              onCheckedChange={(checked) => handleUserSelect(user.id, checked as boolean)}
+                            />
+                          </TableCell>
                           <TableCell>
                             {user.firstName} {user.lastName}
                           </TableCell>
