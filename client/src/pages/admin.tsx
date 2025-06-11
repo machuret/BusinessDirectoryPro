@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -83,6 +83,11 @@ export default function Admin() {
 
   const { data: menuItems, isLoading: menuItemsLoading } = useQuery<MenuItem[]>({
     queryKey: ["/api/admin/menus"],
+    enabled: !!user && (user as any).role === 'admin'
+  });
+
+  const { data: citiesData, isLoading: citiesLoading } = useQuery<{city: string, count: number}[]>({
+    queryKey: ["/api/cities"],
     enabled: !!user && (user as any).role === 'admin'
   });
 
@@ -653,26 +658,52 @@ export default function Admin() {
           <Card>
             <CardHeader>
               <CardTitle>Cities Management</CardTitle>
-              <CardDescription>Manage city pages with titles and descriptions</CardDescription>
+              <CardDescription>View and manage cities with business listings</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div className="mb-4">
-                  <Button onClick={() => {
-                    const cityName = prompt("Enter city name:");
-                    if (cityName) {
-                      // Add city functionality here
-                      toast({ title: "City feature coming soon" });
-                    }
-                  }}>
-                    Add New City
-                  </Button>
+              {citiesLoading ? (
+                <div className="flex justify-center items-center h-32">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                 </div>
-                
+              ) : !citiesData || citiesData.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
-                  Cities management functionality is being implemented. You can currently view cities on the /cities page.
+                  No cities with businesses found.
                 </div>
-              </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="mb-4">
+                    <p className="text-sm text-gray-600 mb-4">
+                      Cities are automatically created when businesses are added with city information.
+                    </p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {citiesData.map((city) => (
+                      <Card key={city.city} className="border">
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h3 className="font-semibold text-lg">{city.city}</h3>
+                              <p className="text-sm text-gray-600">
+                                {city.count} business{city.count !== 1 ? 'es' : ''}
+                              </p>
+                            </div>
+                            <div className="flex space-x-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => window.open(`/cities/${encodeURIComponent(city.city)}`, '_blank')}
+                              >
+                                View Page
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
