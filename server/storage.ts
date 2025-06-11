@@ -50,6 +50,7 @@ export interface IStorage {
   
   // City operations
   getUniqueCities(): Promise<{ city: string; count: number }[]>;
+  updateCityName(oldName: string, newName: string, description?: string): Promise<void>;
   
   // Business operations
   getBusinesses(params?: { 
@@ -232,6 +233,12 @@ export class DatabaseStorage implements IStorage {
       city: row.city as string,
       count: parseInt(row.count as string)
     }));
+  }
+
+  async updateCityName(oldName: string, newName: string, description?: string): Promise<void> {
+    await db.update(businesses)
+      .set({ city: newName })
+      .where(eq(businesses.city, oldName));
   }
 
   async getBusinesses(params: { 
@@ -555,6 +562,10 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(reviews.createdAt));
     
     return result;
+  }
+
+  async deleteReview(reviewId: number): Promise<void> {
+    await db.delete(reviews).where(eq(reviews.id, reviewId));
   }
 
   async searchBusinesses(query: string, location?: string): Promise<BusinessWithCategory[]> {
