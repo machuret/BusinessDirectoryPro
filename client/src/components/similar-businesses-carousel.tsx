@@ -103,13 +103,23 @@ export default function SimilarBusinessesCarousel({
           )}
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {currentBusinesses.map((business) => (
-            <div key={business.placeid} className="h-full">
-              <BusinessCard business={business} />
-            </div>
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <BusinessCardSkeleton 
+              count={3} 
+              variant="carousel"
+              className="transition-all duration-300"
+            />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {currentBusinesses.map((business) => (
+              <div key={business.placeid} className="h-full">
+                <BusinessCard business={business} />
+              </div>
+            ))}
+          </div>
+        )}
 
         {totalPages > 1 && (
           <div className="flex justify-center mt-4">
