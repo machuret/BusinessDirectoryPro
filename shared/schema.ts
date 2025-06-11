@@ -118,11 +118,6 @@ export const businesses = pgTable("businesses", {
   createdat: timestamp("createdat").defaultNow(),
   updatedat: timestamp("updatedat").defaultNow(),
   faq: jsonb("faq"),
-  facebook: text("facebook"),
-  instagram: text("instagram"),
-  twitter: text("twitter"),
-  linkedin: text("linkedin"),
-  youtube: text("youtube"),
 });
 
 // Reviews table
