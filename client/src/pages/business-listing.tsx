@@ -30,6 +30,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import SimilarBusinessesCarousel from "@/components/similar-businesses-carousel";
+import BusinessMap from "@/components/business-map";
 
 export default function BusinessListing() {
   const [, params] = useRoute("/business/:identifier");
@@ -559,6 +560,9 @@ export default function BusinessListing() {
                 </CardContent>
               </Card>
             )}
+
+            {/* Embedded Map */}
+            <BusinessMap business={business} />
 
             {/* Action Buttons */}
             <div className="space-y-3">
