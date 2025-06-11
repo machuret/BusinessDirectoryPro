@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, isAdmin } from "./auth";
-import { insertBusinessSchema, insertReviewSchema, insertCategorySchema, insertMenuItemSchema } from "@shared/schema";
+import { insertBusinessSchema, insertReviewSchema, insertCategorySchema, insertMenuItemSchema, publicReviewSchema } from "@shared/schema";
 import { optimizeBusinesses } from "./openai";
 import { z } from "zod";
 import multer from "multer";
@@ -227,6 +227,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching reviews:", error);
       res.status(500).json({ message: "Failed to fetch reviews" });
+    }
+  });
+
+  // Public review submission (no authentication required)
+  app.post('/api/businesses/:placeid/reviews/public', async (req, res) => {
+    try {
+      const { placeid } = req.params;
+      const reviewData = publicReviewSchema.parse(req.body);
+      
+      const review = await storage.createPublicReview(placeid, reviewData);
+      
+      res.status(201).json({ 
+        message: "Review submitted successfully. It will be visible after admin approval.",
+        review: review
+      });
+    } catch (error) {
+      console.error("Error creating public review:", error);
+      res.status(500).json({ message: "Failed to submit review" });
     }
   });
 
@@ -832,6 +850,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating ownership claim:", error);
       res.status(500).json({ message: "Failed to update ownership claim" });
+    }
+  });
+
+  // Admin review management routes
+  app.get('/api/admin/reviews', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const reviews = await storage.getAllReviewsForAdmin();
+      res.json(reviews);
+    } catch (error) {
+      console.error("Error fetching admin reviews:", error);
+      res.status(500).json({ message: "Failed to fetch reviews" });
+    }
+  });
+
+  app.get('/api/admin/reviews/pending', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const reviews = await storage.getPendingReviews();
+      res.json(reviews);
+    } catch (error) {
+      console.error("Error fetching pending reviews:", error);
+      res.status(500).json({ message: "Failed to fetch pending reviews" });
+    }
+  });
+
+  app.patch('/api/admin/reviews/:id/approve', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const { notes } = req.body;
+      const adminId = (req.session as any).userId;
+      
+      const review = await storage.approveReview(parseInt(id), adminId, notes);
+      res.json(review);
+    } catch (error) {
+      console.error("Error approving review:", error);
+      res.status(500).json({ message: "Failed to approve review" });
+    }
+  });
+
+  app.patch('/api/admin/reviews/:id/reject', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const { notes } = req.body;
+      const adminId = (req.session as any).userId;
+      
+      const review = await storage.rejectReview(parseInt(id), adminId, notes);
+      res.json(review);
+    } catch (error) {
+      console.error("Error rejecting review:", error);
+      res.status(500).json({ message: "Failed to reject review" });
     }
   });
 

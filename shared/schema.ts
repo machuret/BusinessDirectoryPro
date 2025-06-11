@@ -212,6 +212,17 @@ export const csvBusinessSchema = insertBusinessSchema.partial().extend({
 export const insertReviewSchema = createInsertSchema(reviews).omit({
   id: true,
   createdAt: true,
+  reviewedAt: true,
+  reviewedBy: true,
+});
+
+// Public review submission schema (for anonymous users)
+export const publicReviewSchema = z.object({
+  authorName: z.string().min(1, "Name is required"),
+  authorEmail: z.string().email("Valid email is required"),
+  rating: z.number().min(1).max(5),
+  title: z.string().optional(),
+  comment: z.string().min(10, "Review must be at least 10 characters"),
 });
 
 export const insertSiteSettingSchema = createInsertSchema(siteSettings).omit({

@@ -68,7 +68,15 @@ export interface IStorage {
   
   // Review operations
   getReviewsByBusiness(businessId: string): Promise<(Review & { user: Pick<User, 'firstName' | 'lastName'> })[]>;
+  getApprovedReviewsByBusiness(businessId: string): Promise<(Review & { user: Pick<User, 'firstName' | 'lastName'> })[]>;
   createReview(review: InsertReview): Promise<Review>;
+  createPublicReview(businessId: string, reviewData: any): Promise<Review>;
+  
+  // Admin review management
+  getPendingReviews(): Promise<Review[]>;
+  approveReview(reviewId: number, adminId: string, notes?: string): Promise<Review>;
+  rejectReview(reviewId: number, adminId: string, notes?: string): Promise<Review>;
+  getAllReviewsForAdmin(): Promise<Review[]>;
   
   // Search operations
   searchBusinesses(query: string, location?: string): Promise<BusinessWithCategory[]>;
@@ -413,13 +421,113 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getReviewsByBusiness(businessId: string): Promise<(Review & { user: Pick<User, 'firstName' | 'lastName'> })[]> {
-    // For now, return empty array since we're focusing on businesses
-    return [];
+    return this.getApprovedReviewsByBusiness(businessId);
+  }
+
+  async getApprovedReviewsByBusiness(businessId: string): Promise<(Review & { user: Pick<User, 'firstName' | 'lastName'> })[]> {
+    const result = await db
+      .select({
+        id: reviews.id,
+        businessId: reviews.businessId,
+        userId: reviews.userId,
+        authorName: reviews.authorName,
+        authorEmail: reviews.authorEmail,
+        rating: reviews.rating,
+        title: reviews.title,
+        comment: reviews.comment,
+        status: reviews.status,
+        adminNotes: reviews.adminNotes,
+        createdAt: reviews.createdAt,
+        reviewedAt: reviews.reviewedAt,
+        reviewedBy: reviews.reviewedBy,
+        user: {
+          firstName: users.firstName,
+          lastName: users.lastName,
+        },
+      })
+      .from(reviews)
+      .leftJoin(users, eq(reviews.userId, users.id))
+      .where(and(
+        eq(reviews.businessId, businessId),
+        eq(reviews.status, 'approved')
+      ))
+      .orderBy(desc(reviews.createdAt));
+
+    return result as (Review & { user: Pick<User, 'firstName' | 'lastName'> })[];
   }
 
   async createReview(review: InsertReview): Promise<Review> {
     const result = await db.insert(reviews).values(review).returning();
+    await this.updateBusinessRating(review.businessId!);
     return result[0];
+  }
+
+  async createPublicReview(businessId: string, reviewData: any): Promise<Review> {
+    const review = {
+      businessId,
+      authorName: reviewData.authorName,
+      authorEmail: reviewData.authorEmail,
+      rating: reviewData.rating,
+      title: reviewData.title,
+      comment: reviewData.comment,
+      status: 'pending',
+    };
+    
+    const result = await db.insert(reviews).values(review).returning();
+    return result[0];
+  }
+
+  async getPendingReviews(): Promise<Review[]> {
+    const result = await db
+      .select()
+      .from(reviews)
+      .where(eq(reviews.status, 'pending'))
+      .orderBy(desc(reviews.createdAt));
+    
+    return result;
+  }
+
+  async approveReview(reviewId: number, adminId: string, notes?: string): Promise<Review> {
+    const result = await db
+      .update(reviews)
+      .set({
+        status: 'approved',
+        reviewedBy: adminId,
+        reviewedAt: new Date(),
+        adminNotes: notes,
+      })
+      .where(eq(reviews.id, reviewId))
+      .returning();
+
+    if (result[0]?.businessId) {
+      await this.updateBusinessRating(result[0].businessId);
+    }
+    
+    return result[0];
+  }
+
+  async rejectReview(reviewId: number, adminId: string, notes?: string): Promise<Review> {
+    const result = await db
+      .update(reviews)
+      .set({
+        status: 'rejected',
+        reviewedBy: adminId,
+        reviewedAt: new Date(),
+        adminNotes: notes,
+      })
+      .where(eq(reviews.id, reviewId))
+      .returning();
+    
+    return result[0];
+  }
+
+  async getAllReviewsForAdmin(): Promise<Review[]> {
+    const result = await db
+      .select()
+      .from(reviews)
+      .orderBy(desc(reviews.createdAt));
+    
+    return result;
   }
 
   async searchBusinesses(query: string, location?: string): Promise<BusinessWithCategory[]> {
