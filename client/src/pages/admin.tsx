@@ -39,6 +39,13 @@ export default function Admin() {
   const [editingPage, setEditingPage] = useState<Page | null>(null);
   const [showPageForm, setShowPageForm] = useState(false);
   const [deletingPageId, setDeletingPageId] = useState<number | null>(null);
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [selectedReviews, setSelectedReviews] = useState<number[]>([]);
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+  const [showBusinessAssignDialog, setShowBusinessAssignDialog] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [editingCity, setEditingCity] = useState<any>(null);
+  const [showCityForm, setShowCityForm] = useState(false);
 
 
   // Data queries
@@ -99,7 +106,12 @@ export default function Admin() {
     enabled: !!user && (user as any).role === 'admin'
   });
 
-  const { data: reviews, isLoading: reviewsLoading } = useQuery<any[]>({
+  const { data: pendingReviews, isLoading: reviewsLoading } = useQuery<any[]>({
+    queryKey: ["/api/admin/reviews/pending"],
+    enabled: !!user && (user as any).role === 'admin'
+  });
+
+  const { data: allReviews, isLoading: allReviewsLoading } = useQuery<any[]>({
     queryKey: ["/api/admin/reviews"],
     enabled: !!user && (user as any).role === 'admin'
   });

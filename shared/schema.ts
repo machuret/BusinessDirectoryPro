@@ -18,7 +18,6 @@ export const users = pgTable("users", {
   lastName: varchar("last_name"),
   profileImageUrl: text("profile_image_url"),
   role: varchar("role").notNull().default("user"),
-  status: varchar("status").notNull().default("active"), // active, suspended
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -32,30 +31,6 @@ export const categories = pgTable("categories", {
   icon: varchar("icon").notNull(),
   color: varchar("color").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
-});
-
-// Subcategories table
-export const subcategories = pgTable("subcategories", {
-  id: serial("id").primaryKey(),
-  name: varchar("name").notNull(),
-  slug: varchar("slug").notNull().unique(),
-  description: text("description"),
-  icon: varchar("icon").notNull(),
-  color: varchar("color").notNull(),
-  categoryId: integer("category_id").references(() => categories.id).notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-// Cities management table
-export const cities = pgTable("cities", {
-  id: serial("id").primaryKey(),
-  name: varchar("name").notNull().unique(),
-  slug: varchar("slug").notNull().unique(),
-  title: text("title"),
-  description: text("description"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Businesses table - matching the database structure you provided
@@ -290,17 +265,7 @@ export const insertPageSchema = createInsertSchema(pages).omit({
   publishedAt: true,
 });
 
-export const insertSubcategorySchema = createInsertSchema(subcategories).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
 
-export const insertCitySchema = createInsertSchema(cities).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
 
 // Type exports
 export type UpsertUser = typeof users.$inferInsert;
@@ -320,10 +285,6 @@ export type InsertMenuItem = z.infer<typeof insertMenuItemSchema>;
 export type MenuItem = typeof menuItems.$inferSelect;
 export type InsertPage = z.infer<typeof insertPageSchema>;
 export type Page = typeof pages.$inferSelect;
-export type InsertSubcategory = z.infer<typeof insertSubcategorySchema>;
-export type Subcategory = typeof subcategories.$inferSelect;
-export type InsertCity = z.infer<typeof insertCitySchema>;
-export type City = typeof cities.$inferSelect;
 
 // Business with category info
 export type BusinessWithCategory = Business & {
