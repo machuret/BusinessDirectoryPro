@@ -12,7 +12,7 @@ import BusinessDetail from "@/pages/business-detail";
 import BusinessListing from "@/pages/business-listing";
 import SearchResults from "@/pages/search-results";
 import Dashboard from "@/pages/dashboard";
-import Admin from "@/pages/admin-fixed";
+import AdminLayout from "@/components/admin/AdminLayout";
 import MenuEdit from "@/pages/menu-edit";
 import PageDisplay from "@/pages/page-display";
 import Login from "@/pages/login";
@@ -44,7 +44,7 @@ function Router() {
       {isAuthenticated && (
         <>
           <Route path="/dashboard" component={Dashboard} />
-          <Route path="/admin" component={Admin} />
+          <Route path="/admin" component={AdminLayout} />
 
           <Route path="/admin/menu/:id" component={MenuEdit} />
         </>

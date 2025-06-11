@@ -7,21 +7,23 @@ import {
 } from "lucide-react";
 
 // Import admin sections
-import BusinessManagement from "./sections/BusinessManagement";
-import UserManagement from "./sections/UserManagement";
-import CategoriesManagement from "./sections/CategoriesManagement";
-import CitiesManagement from "./sections/CitiesManagement";
-import ReviewsManagement from "./sections/ReviewsManagement";
-import OwnershipManagement from "./sections/OwnershipManagement";
-import ImportManagement from "./sections/ImportManagement";
-import APIManagement from "./sections/APIManagement";
-import CMSManagement from "./sections/CMSManagement";
-import ExportManagement from "./sections/ExportManagement";
-import LeadsManagement from "./sections/LeadsManagement";
-import SettingsManagement from "./sections/SettingsManagement";
-import FAQManagement from "./sections/FAQManagement";
-import OptimizationManagement from "./sections/OptimizationManagement";
-import FeaturedManagement from "./sections/FeaturedManagement";
+import {
+  BusinessManagement,
+  UserManagement,
+  CategoriesManagement,
+  CitiesManagement,
+  ReviewsManagement,
+  OwnershipManagement,
+  ImportManagement,
+  APIManagement,
+  CMSManagement,
+  ExportManagement,
+  LeadsManagement,
+  SettingsManagement,
+  FAQManagement,
+  OptimizationManagement,
+  FeaturedManagement
+} from "@/components/admin/sections";
 
 export default function AdminLayout() {
   const { user } = useAuth();
