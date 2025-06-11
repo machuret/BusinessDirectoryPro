@@ -235,7 +235,7 @@ export default function BusinessDetail() {
                     <Star
                       key={star}
                       className={`h-5 w-5 ${
-                        star <= (business.totalscore || 0)
+                        star <= Number(business.totalscore || 0)
                           ? "fill-yellow-400 text-yellow-400"
                           : "text-gray-300"
                       }`}
@@ -316,8 +316,8 @@ export default function BusinessDetail() {
                       <div className="text-sm text-muted-foreground space-y-1">
                         {business.openinghours.map((hour: any, index: number) => (
                           <div key={index} className="flex justify-between">
-                            <span>{hour.day}</span>
-                            <span>{hour.hours}</span>
+                            <span>{String(hour?.day || '')}</span>
+                            <span>{String(hour?.hours || '')}</span>
                           </div>
                         ))}
                       </div>

@@ -446,7 +446,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           await storage.deleteBusiness(businessId);
           deletedCount++;
         } catch (error) {
-          errors.push({ businessId, error: error.message });
+          errors.push({ businessId, error: (error as Error).message });
         }
       }
 

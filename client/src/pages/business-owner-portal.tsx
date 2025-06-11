@@ -99,8 +99,8 @@ export default function BusinessOwnerPortal() {
     updateMutation.mutate(formData);
   };
 
-  const approvedClaims = claims?.filter((claim: any) => claim.status === 'approved') || [];
-  const pendingClaims = claims?.filter((claim: any) => claim.status === 'pending') || [];
+  const approvedClaims = (claims as any[])?.filter((claim: any) => claim.status === 'approved') || [];
+  const pendingClaims = (claims as any[])?.filter((claim: any) => claim.status === 'pending') || [];
 
   return (
     <div className="min-h-screen bg-background">
@@ -363,9 +363,9 @@ export default function BusinessOwnerPortal() {
                     <CardTitle>Ownership Claims</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    {claims && claims.length > 0 ? (
+                    {claims && (claims as any[]).length > 0 ? (
                       <div className="space-y-4">
-                        {claims.map((claim: any) => (
+                        {(claims as any[]).map((claim: any) => (
                           <div key={claim.id} className="border rounded-lg p-4">
                             <div className="flex items-center justify-between mb-2">
                               <span className="font-medium">{claim.ownerName}</span>
