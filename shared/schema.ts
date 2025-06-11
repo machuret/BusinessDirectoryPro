@@ -175,6 +175,21 @@ export const menuItems = pgTable("menu_items", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+// Pages table for CMS
+export const pages = pgTable("pages", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  slug: varchar("slug").notNull().unique(),
+  content: text("content"),
+  seoTitle: text("seo_title"),
+  seoDescription: text("seo_description"),
+  status: varchar("status").notNull().default("draft"), // draft, published
+  authorId: varchar("author_id").notNull().references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  publishedAt: timestamp("published_at"),
+});
+
 // Schema definitions for validation
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -244,6 +259,13 @@ export const insertMenuItemSchema = createInsertSchema(menuItems).omit({
   updatedAt: true,
 });
 
+export const insertPageSchema = createInsertSchema(pages).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  publishedAt: true,
+});
+
 // Type exports
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -260,6 +282,8 @@ export type InsertOwnershipClaim = z.infer<typeof insertOwnershipClaimSchema>;
 export type OwnershipClaim = typeof ownershipClaims.$inferSelect;
 export type InsertMenuItem = z.infer<typeof insertMenuItemSchema>;
 export type MenuItem = typeof menuItems.$inferSelect;
+export type InsertPage = z.infer<typeof insertPageSchema>;
+export type Page = typeof pages.$inferSelect;
 
 // Business with category info
 export type BusinessWithCategory = Business & {

@@ -7,6 +7,7 @@ import {
   reviews,
   siteSettings,
   menuItems,
+  pages,
   type User,
   type UpsertUser,
   type Category,
@@ -19,6 +20,8 @@ import {
   type InsertSiteSetting,
   type MenuItem,
   type InsertMenuItem,
+  type Page,
+  type InsertPage,
   type BusinessWithCategory,
   type CategoryWithCount,
 } from "@shared/schema";
@@ -101,6 +104,15 @@ export interface IStorage {
   createMenuItem(menuItem: InsertMenuItem): Promise<MenuItem>;
   updateMenuItem(id: number, menuItem: Partial<InsertMenuItem>): Promise<MenuItem | undefined>;
   deleteMenuItem(id: number): Promise<void>;
+  
+  // Page management operations (CMS)
+  getPages(status?: string): Promise<Page[]>;
+  getPage(id: number): Promise<Page | undefined>;
+  getPageBySlug(slug: string): Promise<Page | undefined>;
+  createPage(page: InsertPage): Promise<Page>;
+  updatePage(id: number, page: Partial<InsertPage>): Promise<Page | undefined>;
+  deletePage(id: number): Promise<void>;
+  publishPage(id: number, authorId: string): Promise<Page | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -956,6 +968,153 @@ export class DatabaseStorage implements IStorage {
       await db.delete(menuItems).where(eq(menuItems.id, id));
     } catch (error) {
       console.error('Error deleting menu item:', error);
+      throw error;
+    }
+  }
+
+  // Page management operations (CMS)
+  async getPages(status?: string): Promise<Page[]> {
+    try {
+      const query = db.select().from(pages).orderBy(desc(pages.updatedAt));
+      
+      if (status) {
+        return await query.where(eq(pages.status, status));
+      }
+      
+      return await query;
+    } catch (error) {
+      console.error('Error fetching pages:', error);
+      throw error;
+    }
+  }
+
+  async getPage(id: number): Promise<Page | undefined> {
+    try {
+      const result = await db.select().from(pages).where(eq(pages.id, id)).limit(1);
+      return result[0];
+    } catch (error) {
+      console.error('Error fetching page:', error);
+      throw error;
+    }
+  }
+
+  async getPageBySlug(slug: string): Promise<Page | undefined> {
+    try {
+      const result = await db.select().from(pages).where(eq(pages.slug, slug)).limit(1);
+      return result[0];
+    } catch (error) {
+      console.error('Error fetching page by slug:', error);
+      throw error;
+    }
+  }
+
+  private generatePageSlug(title: string): string {
+    return title
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim();
+  }
+
+  private async ensureUniquePageSlug(baseSlug: string, excludeId?: number): Promise<string> {
+    let slug = baseSlug;
+    let counter = 1;
+
+    while (true) {
+      const existing = await db
+        .select()
+        .from(pages)
+        .where(
+          excludeId 
+            ? and(eq(pages.slug, slug), ne(pages.id, excludeId))
+            : eq(pages.slug, slug)
+        )
+        .limit(1);
+
+      if (existing.length === 0) {
+        return slug;
+      }
+
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+  }
+
+  async createPage(page: InsertPage): Promise<Page> {
+    try {
+      const slug = await this.ensureUniquePageSlug(
+        page.slug || this.generatePageSlug(page.title)
+      );
+
+      const result = await db.insert(pages).values({
+        ...page,
+        slug,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }).returning();
+
+      return result[0];
+    } catch (error) {
+      console.error('Error creating page:', error);
+      throw error;
+    }
+  }
+
+  async updatePage(id: number, pageData: Partial<InsertPage>): Promise<Page | undefined> {
+    try {
+      const updateData: any = {
+        ...pageData,
+        updatedAt: new Date(),
+      };
+
+      // Handle slug update if title changed
+      if (pageData.title && !pageData.slug) {
+        updateData.slug = await this.ensureUniquePageSlug(
+          this.generatePageSlug(pageData.title),
+          id
+        );
+      } else if (pageData.slug) {
+        updateData.slug = await this.ensureUniquePageSlug(pageData.slug, id);
+      }
+
+      const result = await db
+        .update(pages)
+        .set(updateData)
+        .where(eq(pages.id, id))
+        .returning();
+
+      return result[0];
+    } catch (error) {
+      console.error('Error updating page:', error);
+      throw error;
+    }
+  }
+
+  async deletePage(id: number): Promise<void> {
+    try {
+      await db.delete(pages).where(eq(pages.id, id));
+    } catch (error) {
+      console.error('Error deleting page:', error);
+      throw error;
+    }
+  }
+
+  async publishPage(id: number, authorId: string): Promise<Page | undefined> {
+    try {
+      const result = await db
+        .update(pages)
+        .set({
+          status: 'published',
+          publishedAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .where(eq(pages.id, id))
+        .returning();
+
+      return result[0];
+    } catch (error) {
+      console.error('Error publishing page:', error);
       throw error;
     }
   }
