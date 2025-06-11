@@ -125,9 +125,16 @@ export const reviews = pgTable("reviews", {
   id: serial("id").primaryKey(),
   businessId: text("business_id").references(() => businesses.placeid),
   userId: varchar("user_id").references(() => users.id),
+  authorName: text("author_name"),
+  authorEmail: text("author_email"),
   rating: integer("rating").notNull(),
+  title: text("title"),
   comment: text("comment"),
+  status: text("status").default("pending"), // pending, approved, rejected
+  adminNotes: text("admin_notes"),
   createdAt: timestamp("created_at").defaultNow(),
+  reviewedAt: timestamp("reviewed_at"),
+  reviewedBy: text("reviewed_by").references(() => users.id),
 });
 
 // Site settings table
