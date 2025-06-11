@@ -690,7 +690,7 @@ export class DatabaseStorage implements IStorage {
       reviewsdistribution: this.safeJSONParse(csvData.reviewsdistribution || csvData.ReviewsDistribution),
       reviewstags: this.safeJSONParse(csvData.reviewstags || csvData.ReviewsTags),
       reviews: this.safeJSONParse(csvData.reviews || csvData.Reviews),
-      imageurl: csvData.imageurl || csvData.ImageUrl,
+      imageurl: this.extractBestImageUrl(csvData),
       imagescount: parseInt(csvData.imagescount || csvData.ImagesCount || '0') || 0,
       imagecategories: this.safeJSONParse(csvData.imagecategories || csvData.ImageCategories),
       imageurls: this.safeJSONParse(csvData.imageurls || csvData.ImageUrls),
@@ -754,6 +754,37 @@ export class DatabaseStorage implements IStorage {
       if (lower === 'true' || lower === '1' || lower === 'yes') return true;
       if (lower === 'false' || lower === '0' || lower === 'no') return false;
     }
+    return null;
+  }
+
+  private extractBestImageUrl(csvData: any): string | null {
+    // Priority 1: Direct imageurl field
+    if (csvData.imageurl || csvData.ImageUrl) {
+      return csvData.imageurl || csvData.ImageUrl;
+    }
+
+    // Priority 2: Extract from reviews
+    const reviewsData = this.safeJSONParse(csvData.reviews || csvData.Reviews);
+    if (reviewsData && Array.isArray(reviewsData)) {
+      for (const review of reviewsData) {
+        if (review.reviewImageUrls && Array.isArray(review.reviewImageUrls) && review.reviewImageUrls.length > 0) {
+          return review.reviewImageUrls[0];
+        }
+      }
+    }
+
+    // Priority 3: imageurls array
+    const imageUrls = this.safeJSONParse(csvData.imageurls || csvData.ImageUrls);
+    if (imageUrls && Array.isArray(imageUrls) && imageUrls.length > 0) {
+      return imageUrls[0];
+    }
+
+    // Priority 4: images array
+    const images = this.safeJSONParse(csvData.images || csvData.Images);
+    if (images && Array.isArray(images) && images.length > 0) {
+      return images[0];
+    }
+
     return null;
   }
 
