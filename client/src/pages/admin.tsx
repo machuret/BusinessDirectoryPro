@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { AlertTriangle, Upload, Users, Building2, Settings, FileText, Star, Menu, Key, Zap, MapPin, Globe, UserX, UserCheck, Trash2, Edit } from "lucide-react";
+import { AlertTriangle, Upload, Users, Building2, Settings, FileText, Star, Menu, Key, Zap, MapPin, Globe, UserX, UserCheck, Trash2, Edit, CheckCircle, XCircle, HelpCircle } from "lucide-react";
 import type { BusinessWithCategory, User, Category, SiteSetting, MenuItem, Page } from "@shared/schema";
 
 export default function Admin() {
@@ -305,6 +305,26 @@ export default function Admin() {
     onError: (error: Error) => {
       toast({
         title: "Mass review action failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delete review mutation
+  const deleteReviewMutation = useMutation({
+    mutationFn: async (reviewId: number) => {
+      await apiRequest("DELETE", `/api/admin/reviews/${reviewId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/reviews"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/reviews/pending"] });
+      toast({ title: "Review deleted successfully" });
+      setSelectedReviews(prev => prev.filter(id => id !== reviewId));
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Review deletion failed",
         description: error.message,
         variant: "destructive",
       });
@@ -1710,12 +1730,62 @@ export default function Admin() {
         <TabsContent value="reviews" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Review Management</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Star className="h-5 w-5" />
+                Enhanced Review Management
+              </CardTitle>
               <CardDescription>
-                Approve or reject user reviews. {pendingReviews?.length || 0} pending review(s)
+                Mass review operations and advanced review filtering. {pendingReviews?.length || 0} pending review(s)
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between gap-4">
+                <Input
+                  placeholder="Search reviews..."
+                  value={reviewSearchTerm}
+                  onChange={(e) => setReviewSearchTerm(e.target.value)}
+                  className="max-w-sm"
+                />
+                <div className="flex gap-2">
+                  {selectedReviews.length > 0 && (
+                    <>
+                      <Button
+                        onClick={() => massReviewActionMutation.mutate({ reviewIds: selectedReviews, action: "approve" })}
+                        variant="outline"
+                        size="sm"
+                        disabled={massReviewActionMutation.isPending}
+                      >
+                        <CheckCircle className="h-4 w-4 mr-1" />
+                        Approve ({selectedReviews.length})
+                      </Button>
+                      <Button
+                        onClick={() => massReviewActionMutation.mutate({ reviewIds: selectedReviews, action: "reject" })}
+                        variant="outline"
+                        size="sm"
+                        disabled={massReviewActionMutation.isPending}
+                      >
+                        <XCircle className="h-4 w-4 mr-1" />
+                        Reject ({selectedReviews.length})
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          if (confirm(`Are you sure you want to delete ${selectedReviews.length} selected review(s)? This action cannot be undone.`)) {
+                            selectedReviews.forEach(reviewId => {
+                              deleteReviewMutation.mutate(reviewId);
+                            });
+                          }
+                        }}
+                        variant="destructive"
+                        size="sm"
+                        disabled={deleteReviewMutation.isPending}
+                      >
+                        <Trash2 className="h-4 w-4 mr-1" />
+                        Delete ({selectedReviews.length})
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </div>
               {reviewsLoading || pendingReviewsLoading ? (
                 <div className="flex justify-center items-center h-32">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -1897,6 +1967,13 @@ export default function Admin() {
                               <Button
                                 variant="outline"
                                 size="sm"
+                                onClick={() => window.open(`/pages/${page.slug}`, '_blank')}
+                              >
+                                View
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
                                 onClick={() => editPage(page)}
                               >
                                 Edit
@@ -1935,6 +2012,84 @@ export default function Admin() {
                       <p className="text-muted-foreground">No pages found. Create your first page to get started.</p>
                     </div>
                   )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* FAQ Management Tab */}
+        <TabsContent value="faq" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <HelpCircle className="h-5 w-5" />
+                Website FAQ Management
+              </CardTitle>
+              <CardDescription>
+                Manage frequently asked questions for your website
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex justify-between items-center mb-4">
+                <Button onClick={() => setShowFaqForm(true)}>
+                  <FileText className="h-4 w-4 mr-2" />
+                  Add New FAQ
+                </Button>
+              </div>
+
+              {websiteFaqsLoading ? (
+                <div className="flex justify-center items-center h-32">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                </div>
+              ) : websiteFaqs && websiteFaqs.length > 0 ? (
+                <div className="space-y-4">
+                  {websiteFaqs.map((faq) => (
+                    <Card key={faq.id} className="border">
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <h3 className="font-semibold mb-2">{faq.question}</h3>
+                            <p className="text-gray-600 mb-2">{faq.answer}</p>
+                            <div className="flex items-center space-x-2 text-sm text-gray-500">
+                              <Badge variant={faq.category ? 'secondary' : 'outline'}>
+                                {faq.category || 'General'}
+                              </Badge>
+                              <span>Order: {faq.sortOrder}</span>
+                              <Badge variant={faq.isActive ? 'default' : 'destructive'}>
+                                {faq.isActive ? 'Active' : 'Inactive'}
+                              </Badge>
+                            </div>
+                          </div>
+                          <div className="flex space-x-2 ml-4">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => editFaq(faq)}
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => {
+                                if (confirm('Are you sure you want to delete this FAQ?')) {
+                                  deleteFaqMutation.mutate(faq.id);
+                                }
+                              }}
+                              disabled={deleteFaqMutation.isPending}
+                            >
+                              Delete
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">No FAQs found. Add your first FAQ to get started.</p>
                 </div>
               )}
             </CardContent>
