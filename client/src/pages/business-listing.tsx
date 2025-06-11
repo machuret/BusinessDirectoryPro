@@ -31,6 +31,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import SimilarBusinessesCarousel from "@/components/similar-businesses-carousel";
 import BusinessMap from "@/components/business-map";
+import MoreBusinessesCarousel from "@/components/more-businesses-carousel";
 
 export default function BusinessListing() {
   const [, params] = useRoute("/business/:identifier");
@@ -369,6 +370,37 @@ export default function BusinessListing() {
               </CardContent>
             </Card>
 
+            {/* Additional Images Section */}
+            {business.images && Array.isArray(business.images) && business.images.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Photos</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {business.images.slice(0, 6).map((image: string, index: number) => (
+                      <div key={index} className="aspect-square overflow-hidden rounded-lg bg-gray-100">
+                        <img
+                          src={image}
+                          alt={`${business.title} - Photo ${index + 1}`}
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-200 cursor-pointer"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  {business.images.length > 6 && (
+                    <p className="text-sm text-gray-500 mt-4 text-center">
+                      +{business.images.length - 6} more photos
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
             {/* FAQ Section */}
             {faqItems && faqItems.length > 0 && (
               <Card>
@@ -668,15 +700,13 @@ export default function BusinessListing() {
           </div>
         </div>
         
-        {/* Similar Businesses Carousel */}
+        {/* More Businesses Carousel */}
         {business && (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <SimilarBusinessesCarousel
-              currentBusinessId={business.placeid}
-              categoryId={business.category?.id}
-              city={business.city}
-            />
-          </div>
+          <MoreBusinessesCarousel
+            currentBusinessId={business.placeid}
+            categoryId={business.category?.id}
+            city={business.city}
+          />
         )}
       </div>
       
