@@ -697,7 +697,7 @@ export default function EnhancedAdmin() {
                 <SelectContent>
                   {businesses?.map((business) => (
                     <SelectItem key={business.placeid} value={business.placeid}>
-                      {business.name}
+                      {business.title || business.placeid}
                     </SelectItem>
                   ))}
                 </SelectContent>
