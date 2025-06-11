@@ -15,8 +15,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { AlertTriangle, Upload, Users, Building2, Settings, FileText, Star, Menu, Key, Zap, MapPin, Globe, UserX, UserCheck, Trash2, Edit, CheckCircle, XCircle, HelpCircle } from "lucide-react";
-import type { BusinessWithCategory, User, Category, SiteSetting, MenuItem, Page } from "@shared/schema";
+import { AlertTriangle, Upload, Users, Building2, Settings, FileText, Star, Menu, Key, Zap, MapPin, Globe, UserX, UserCheck, Trash2, Edit, CheckCircle, XCircle, HelpCircle, Mail, Phone, MessageSquare, Clock, Eye } from "lucide-react";
+import type { BusinessWithCategory, User, Category, SiteSetting, MenuItem, Page, LeadWithBusiness } from "@shared/schema";
 
 export default function Admin() {
   const { user } = useAuth();
@@ -2437,6 +2437,22 @@ export default function Admin() {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        {/* Leads Tab */}
+        <TabsContent value="leads" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Mail className="h-5 w-5" />
+                <span>Business Leads & Inquiries</span>
+              </CardTitle>
+              <CardDescription>Manage customer inquiries and leads from business contact forms</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <LeadsManagementInline />
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
 
