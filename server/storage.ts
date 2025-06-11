@@ -8,6 +8,7 @@ import {
   siteSettings,
   menuItems,
   pages,
+  websiteFaq,
   type User,
   type UpsertUser,
   type Category,
@@ -113,6 +114,14 @@ export interface IStorage {
   updatePage(id: number, page: Partial<InsertPage>): Promise<Page | undefined>;
   deletePage(id: number): Promise<void>;
   publishPage(id: number, authorId: string): Promise<Page | undefined>;
+  
+  // Website FAQ management operations
+  getWebsiteFaqs(category?: string): Promise<WebsiteFaq[]>;
+  getWebsiteFaq(id: number): Promise<WebsiteFaq | undefined>;
+  createWebsiteFaq(faq: InsertWebsiteFaq): Promise<WebsiteFaq>;
+  updateWebsiteFaq(id: number, faq: Partial<InsertWebsiteFaq>): Promise<WebsiteFaq | undefined>;
+  deleteWebsiteFaq(id: number): Promise<void>;
+  reorderWebsiteFaqs(faqIds: number[]): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1114,6 +1123,88 @@ export class DatabaseStorage implements IStorage {
       return result[0];
     } catch (error) {
       console.error('Error publishing page:', error);
+      throw error;
+    }
+  }
+
+  // Website FAQ management methods
+  async getWebsiteFaqs(category?: string): Promise<WebsiteFaq[]> {
+    try {
+      let query = db.select().from(websiteFaq);
+      
+      if (category) {
+        query = query.where(eq(websiteFaq.category, category));
+      }
+      
+      return await query.orderBy(websiteFaq.order, websiteFaq.createdAt);
+    } catch (error) {
+      console.error('Error fetching website FAQs:', error);
+      throw error;
+    }
+  }
+
+  async getWebsiteFaq(id: number): Promise<WebsiteFaq | undefined> {
+    try {
+      const [faq] = await db.select()
+        .from(websiteFaq)
+        .where(eq(websiteFaq.id, id));
+      return faq;
+    } catch (error) {
+      console.error('Error fetching website FAQ:', error);
+      throw error;
+    }
+  }
+
+  async createWebsiteFaq(faqData: InsertWebsiteFaq): Promise<WebsiteFaq> {
+    try {
+      const [faq] = await db.insert(websiteFaq)
+        .values({
+          ...faqData,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        })
+        .returning();
+      return faq;
+    } catch (error) {
+      console.error('Error creating website FAQ:', error);
+      throw error;
+    }
+  }
+
+  async updateWebsiteFaq(id: number, faqData: Partial<InsertWebsiteFaq>): Promise<WebsiteFaq | undefined> {
+    try {
+      const [faq] = await db.update(websiteFaq)
+        .set({
+          ...faqData,
+          updatedAt: new Date()
+        })
+        .where(eq(websiteFaq.id, id))
+        .returning();
+      return faq;
+    } catch (error) {
+      console.error('Error updating website FAQ:', error);
+      throw error;
+    }
+  }
+
+  async deleteWebsiteFaq(id: number): Promise<void> {
+    try {
+      await db.delete(websiteFaq).where(eq(websiteFaq.id, id));
+    } catch (error) {
+      console.error('Error deleting website FAQ:', error);
+      throw error;
+    }
+  }
+
+  async reorderWebsiteFaqs(faqIds: number[]): Promise<void> {
+    try {
+      for (let i = 0; i < faqIds.length; i++) {
+        await db.update(websiteFaq)
+          .set({ order: i + 1, updatedAt: new Date() })
+          .where(eq(websiteFaq.id, faqIds[i]));
+      }
+    } catch (error) {
+      console.error('Error reordering website FAQs:', error);
       throw error;
     }
   }

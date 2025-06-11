@@ -190,6 +190,18 @@ export const pages = pgTable("pages", {
   publishedAt: timestamp("published_at"),
 });
 
+// Website FAQ table
+export const websiteFaq = pgTable("website_faq", {
+  id: serial("id").primaryKey(),
+  question: text("question").notNull(),
+  answer: text("answer").notNull(),
+  category: varchar("category").notNull().default("general"),
+  order: integer("order").notNull().default(0),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // Schema definitions for validation
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -265,6 +277,12 @@ export const insertPageSchema = createInsertSchema(pages).omit({
   publishedAt: true,
 });
 
+export const insertWebsiteFaqSchema = createInsertSchema(websiteFaq).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 
 
 // Type exports
@@ -285,6 +303,8 @@ export type InsertMenuItem = z.infer<typeof insertMenuItemSchema>;
 export type MenuItem = typeof menuItems.$inferSelect;
 export type InsertPage = z.infer<typeof insertPageSchema>;
 export type Page = typeof pages.$inferSelect;
+export type InsertWebsiteFaq = z.infer<typeof insertWebsiteFaqSchema>;
+export type WebsiteFaq = typeof websiteFaq.$inferSelect;
 
 // Business with category info
 export type BusinessWithCategory = Business & {
