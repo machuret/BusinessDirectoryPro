@@ -597,7 +597,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check if user has permission to view this lead
-      if (user.role !== 'admin' && lead.recipientId !== user.id) {
+      if (user.role !== 'admin' && lead.recipient !== user.id) {
         return res.status(403).json({ message: "Access denied" });
       }
 
@@ -628,7 +628,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Lead not found" });
       }
 
-      if (user.role !== 'admin' && lead.recipientId !== user.id) {
+      if (user.role !== 'admin' && lead.recipient !== user.id) {
         return res.status(403).json({ message: "Access denied" });
       }
 
@@ -655,7 +655,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Lead not found" });
       }
 
-      if (user.role !== 'admin' && lead.recipientId !== user.id) {
+      if (user.role !== 'admin' && lead.recipient !== user.id) {
         return res.status(403).json({ message: "Access denied" });
       }
 
@@ -709,7 +709,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/businesses/:id/reviews', async (req, res) => {
     try {
       const { id } = req.params;
-      const reviews = await storage.getReviewsByBusiness(parseInt(id));
+      const reviews = await storage.getReviewsByBusiness(id);
       res.json(reviews);
     } catch (error) {
       console.error("Error fetching reviews:", error);
@@ -752,7 +752,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { id } = req.params;
       const { featured } = req.body;
       
-      const updatedBusiness = await storage.updateBusiness(parseInt(id), { featured });
+      const updatedBusiness = await storage.updateBusiness(id, { featured });
       
       if (!updatedBusiness) {
         return res.status(404).json({ message: "Business not found" });
