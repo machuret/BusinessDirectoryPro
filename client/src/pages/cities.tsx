@@ -6,6 +6,7 @@ import { MapPin, Building2 } from "lucide-react";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import BusinessCard from "@/components/business-card";
+import BusinessCardSkeleton from "@/components/business-card-skeleton";
 import type { BusinessWithCategory } from "@shared/schema";
 
 interface City {
@@ -122,7 +123,11 @@ export default function Cities() {
               </p>
             </div>
 
-            {businesses && businesses.length > 0 ? (
+            {businessesLoading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <BusinessCardSkeleton count={6} />
+              </div>
+            ) : businesses && businesses.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {businesses.map((business) => (
                   <BusinessCard

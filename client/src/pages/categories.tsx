@@ -3,6 +3,7 @@ import { useParams } from "wouter";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import BusinessCard from "@/components/business-card";
+import BusinessCardSkeleton from "@/components/business-card-skeleton";
 import CategoryGrid from "@/components/category-grid";
 import SearchBar from "@/components/search-bar";
 import { Button } from "@/components/ui/button";
@@ -156,18 +157,7 @@ export default function Categories() {
 
           {isLoadingBusinesses ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {Array.from({ length: 9 }).map((_, i) => (
-                <Card key={i} className="animate-pulse">
-                  <div className="h-48 bg-gray-200" />
-                  <CardContent className="p-6">
-                    <div className="h-4 bg-gray-200 rounded mb-2" />
-                    <div className="h-3 bg-gray-200 rounded mb-4 w-2/3" />
-                    <div className="h-3 bg-gray-200 rounded mb-2" />
-                    <div className="h-3 bg-gray-200 rounded mb-4" />
-                    <div className="h-8 bg-gray-200 rounded" />
-                  </CardContent>
-                </Card>
-              ))}
+              <BusinessCardSkeleton count={9} />
             </div>
           ) : currentBusinesses && currentBusinesses.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

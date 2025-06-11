@@ -5,6 +5,7 @@ import Footer from "@/components/footer";
 import SearchBar from "@/components/search-bar";
 import CategoryGrid from "@/components/category-grid";
 import BusinessCard from "@/components/business-card";
+import BusinessCardSkeleton from "@/components/business-card-skeleton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Building, Users, Star, MapPin } from "lucide-react";
@@ -130,18 +131,7 @@ export default function Home() {
           
           {latestLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <Card key={i} className="animate-pulse">
-                  <div className="h-48 bg-gray-200" />
-                  <CardContent className="p-4">
-                    <div className="h-4 bg-gray-200 rounded mb-2" />
-                    <div className="h-3 bg-gray-200 rounded mb-4 w-2/3" />
-                    <div className="h-3 bg-gray-200 rounded mb-2" />
-                    <div className="h-3 bg-gray-200 rounded mb-4" />
-                    <div className="h-8 bg-gray-200 rounded" />
-                  </CardContent>
-                </Card>
-              ))}
+              <BusinessCardSkeleton count={8} />
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
