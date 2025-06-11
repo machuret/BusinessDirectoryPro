@@ -126,11 +126,6 @@ export default function BusinessDetail() {
 
   const businessImage = getBusinessImage(business);
   const allPhotos = getAllBusinessPhotos(business);
-  
-  // Debug logging
-  console.log('Business data:', business);
-  console.log('All photos from getAllBusinessPhotos:', allPhotos);
-  console.log('Business imageurls field:', business.imageurls);
 
   return (
     <div className="min-h-screen bg-background">
