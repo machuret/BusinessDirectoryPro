@@ -6,6 +6,7 @@ import SearchBar from "@/components/search-bar";
 import CategoryGrid from "@/components/category-grid";
 import BusinessCard from "@/components/business-card";
 import BusinessCardSkeleton from "@/components/business-card-skeleton";
+import SEOHead from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Building, Users, Star, MapPin } from "lucide-react";
@@ -28,21 +29,7 @@ export default function Home() {
     queryKey: ["/api/site-settings"],
   });
 
-  // Update page title dynamically
-  useEffect(() => {
-    const title = siteSettings?.website_title || "Business Directory";
-    document.title = title;
-    
-    // Update meta description
-    const description = siteSettings?.website_description || "Find and discover local businesses in your area";
-    let metaDescription = document.querySelector('meta[name="description"]');
-    if (!metaDescription) {
-      metaDescription = document.createElement('meta');
-      metaDescription.setAttribute('name', 'description');
-      document.head.appendChild(metaDescription);
-    }
-    metaDescription.setAttribute('content', description);
-  }, [siteSettings]);
+
 
   const stats = {
     businesses: categories?.reduce((sum, cat) => sum + cat.businessCount, 0) || 0,
@@ -53,6 +40,10 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <SEOHead 
+        siteSettings={siteSettings}
+        pageType="home"
+      />
       <Header />
       
       {/* Hero Section */}

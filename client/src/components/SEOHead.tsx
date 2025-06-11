@@ -14,7 +14,7 @@ interface SEOHeadProps {
   category?: Category;
   
   // Site settings
-  siteSettings?: SiteSetting[];
+  siteSettings?: SiteSetting[] | Record<string, any>;
   
   // Page type for schema markup
   pageType?: 'home' | 'business' | 'category' | 'search' | 'contact' | 'about';
@@ -44,8 +44,13 @@ export default function SEOHead({
   
   // Get site settings values
   const getSiteSetting = (key: string, defaultValue: string = '') => {
-    const setting = siteSettings?.find(s => s.key === key);
-    return setting?.value || defaultValue;
+    if (Array.isArray(siteSettings)) {
+      const setting = siteSettings.find(s => s.key === key);
+      return setting?.value || defaultValue;
+    } else if (siteSettings && typeof siteSettings === 'object') {
+      return (siteSettings as any)[key] || defaultValue;
+    }
+    return defaultValue;
   };
 
   const siteName = getSiteSetting('site_name', 'Business Directory');

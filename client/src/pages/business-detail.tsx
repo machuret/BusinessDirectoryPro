@@ -102,6 +102,10 @@ export default function BusinessDetail() {
     enabled: !!business,
   });
 
+  const { data: siteSettings = [] } = useQuery({
+    queryKey: ["/api/site-settings"],
+  });
+
   if (businessLoading) {
     return (
       <div className="min-h-screen bg-background">
@@ -163,6 +167,11 @@ export default function BusinessDetail() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead 
+        business={business}
+        siteSettings={siteSettings}
+        pageType="business"
+      />
       <Header />
       
       <div className="container mx-auto px-4 py-8">

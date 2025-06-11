@@ -6,6 +6,7 @@ import BusinessCard from "@/components/business-card";
 import BusinessCardSkeleton from "@/components/business-card-skeleton";
 import CategoryGrid from "@/components/category-grid";
 import SearchBar from "@/components/search-bar";
+import SEOHead from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
