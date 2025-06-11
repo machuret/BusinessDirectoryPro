@@ -18,7 +18,8 @@ export default function PhotoGallery({ photos, businessName, className = "" }: P
     typeof photo === 'string' && 
     photo.trim() !== '' &&
     !photo.includes('unsplash.com') &&
-    (photo.startsWith('http') || photo.startsWith('//'))
+    !photo.includes('placeholder') &&
+    (photo.startsWith('https://') || photo.startsWith('http://') || photo.startsWith('//'))
   );
 
   if (validPhotos.length === 0) {

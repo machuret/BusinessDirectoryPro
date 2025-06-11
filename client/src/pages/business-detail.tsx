@@ -125,6 +125,12 @@ export default function BusinessDetail() {
   }
 
   const businessImage = getBusinessImage(business);
+  const allPhotos = getAllBusinessPhotos(business);
+  
+  // Debug logging
+  console.log('Business data:', business);
+  console.log('All photos from getAllBusinessPhotos:', allPhotos);
+  console.log('Business imageurls field:', business.imageurls);
 
   return (
     <div className="min-h-screen bg-background">
@@ -267,6 +273,16 @@ export default function BusinessDetail() {
             </Card>
           </div>
         </div>
+
+        {/* Photo Gallery Section */}
+        {allPhotos.length > 0 && (
+          <div className="mb-8">
+            <PhotoGallery 
+              photos={allPhotos} 
+              businessName={business.title || 'Business'} 
+            />
+          </div>
+        )}
 
         {/* Reviews Section */}
         <div className="grid lg:grid-cols-3 gap-8">
