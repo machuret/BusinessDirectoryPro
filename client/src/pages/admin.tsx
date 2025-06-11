@@ -46,6 +46,7 @@ export default function Admin() {
   const [newPassword, setNewPassword] = useState("");
   const [editingCity, setEditingCity] = useState<any>(null);
   const [showCityForm, setShowCityForm] = useState(false);
+  const [reviewSearchTerm, setReviewSearchTerm] = useState("");
 
 
   // Data queries
@@ -266,6 +267,44 @@ export default function Admin() {
     onError: (error: Error) => {
       toast({
         title: "City update failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Mass user action mutation
+  const massUserActionMutation = useMutation({
+    mutationFn: async ({ userIds, action }: { userIds: string[]; action: "suspend" | "activate" | "delete" }) => {
+      await apiRequest("POST", `/api/admin/users/mass-action`, { userIds, action });
+    },
+    onSuccess: (_, { action }) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      toast({ title: `Users ${action}d successfully` });
+      setSelectedUsers([]);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Mass action failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Mass review action mutation
+  const massReviewActionMutation = useMutation({
+    mutationFn: async ({ reviewIds, action }: { reviewIds: number[]; action: "approve" | "reject" }) => {
+      await apiRequest("POST", `/api/admin/reviews/mass-action`, { reviewIds, action });
+    },
+    onSuccess: (_, { action }) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/reviews"] });
+      toast({ title: `Reviews ${action}d successfully` });
+      setSelectedReviews([]);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Mass review action failed",
         description: error.message,
         variant: "destructive",
       });
@@ -625,6 +664,40 @@ export default function Admin() {
     }
   };
 
+  // User selection handlers
+  const handleSelectAllUsers = (checked: boolean) => {
+    if (checked && filteredUsers) {
+      setSelectedUsers(filteredUsers.map((user: any) => user.id));
+    } else {
+      setSelectedUsers([]);
+    }
+  };
+
+  const handleUserSelect = (userId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedUsers(prev => [...prev, userId]);
+    } else {
+      setSelectedUsers(prev => prev.filter(id => id !== userId));
+    }
+  };
+
+  // Review selection handlers
+  const handleSelectAllReviews = (checked: boolean) => {
+    if (checked) {
+      setSelectedReviews(filteredReviews.map((review: any) => review.id));
+    } else {
+      setSelectedReviews([]);
+    }
+  };
+
+  const handleReviewSelect = (reviewId: number, checked: boolean) => {
+    if (checked) {
+      setSelectedReviews(prev => [...prev, reviewId]);
+    } else {
+      setSelectedReviews(prev => prev.filter(id => id !== reviewId));
+    }
+  };
+
   // Auth check
   if (!user || (user as any).role !== 'admin') {
     return (
@@ -655,6 +728,12 @@ export default function Admin() {
     user.lastName?.toLowerCase().includes(userSearchTerm.toLowerCase()) ||
     user.email?.toLowerCase().includes(userSearchTerm.toLowerCase())
   );
+
+  const filteredReviews = allReviews?.filter(review =>
+    (review.authorName || '').toLowerCase().includes(reviewSearchTerm.toLowerCase()) ||
+    (review.comment || '').toLowerCase().includes(reviewSearchTerm.toLowerCase()) ||
+    (review.businessId || '').toLowerCase().includes(reviewSearchTerm.toLowerCase())
+  ) || [];
 
   return (
     <div className="container mx-auto p-6">
@@ -877,6 +956,39 @@ export default function Admin() {
                   onChange={(e) => setUserSearchTerm(e.target.value)}
                   className="max-w-sm"
                 />
+                <div className="flex gap-2">
+                  {selectedUsers.length > 0 && (
+                    <>
+                      <Button
+                        onClick={() => massUserActionMutation.mutate({ userIds: selectedUsers, action: "suspend" })}
+                        variant="outline"
+                        size="sm"
+                        disabled={massUserActionMutation.isPending}
+                      >
+                        <UserX className="h-4 w-4 mr-1" />
+                        Suspend ({selectedUsers.length})
+                      </Button>
+                      <Button
+                        onClick={() => massUserActionMutation.mutate({ userIds: selectedUsers, action: "activate" })}
+                        variant="outline"
+                        size="sm"
+                        disabled={massUserActionMutation.isPending}
+                      >
+                        <UserCheck className="h-4 w-4 mr-1" />
+                        Activate ({selectedUsers.length})
+                      </Button>
+                      <Button
+                        onClick={() => massUserActionMutation.mutate({ userIds: selectedUsers, action: "delete" })}
+                        variant="destructive"
+                        size="sm"
+                        disabled={massUserActionMutation.isPending}
+                      >
+                        <Trash2 className="h-4 w-4 mr-1" />
+                        Delete ({selectedUsers.length})
+                      </Button>
+                    </>
+                  )}
+                </div>
               </div>
 
               {usersLoading ? (
