@@ -51,7 +51,10 @@ export default function Admin() {
   const [selectedLeads, setSelectedLeads] = useState<number[]>([]);
   const [leadSearchTerm, setLeadSearchTerm] = useState("");
   const [editingFaq, setEditingFaq] = useState<any | null>(null);
-
+  const [showMassCategoryDialog, setShowMassCategoryDialog] = useState(false);
+  const [newCategoryForMass, setNewCategoryForMass] = useState("");
+  const [editingSubcategory, setEditingSubcategory] = useState<any | null>(null);
+  const [showSubcategoryForm, setShowSubcategoryForm] = useState(false);
 
   // Data queries
   const { data: businesses, isLoading: businessesLoading } = useQuery<BusinessWithCategory[]>({
@@ -76,6 +79,101 @@ export default function Admin() {
   const { data: leads, isLoading: leadsLoading } = useQuery<LeadWithBusiness[]>({
     queryKey: ["/api/admin/leads"],
     enabled: !!user && (user as any).role === 'admin'
+  });
+
+  // Mass operations mutations
+  const massCategoryChangeMutation = useMutation({
+    mutationFn: async ({ businessIds, categoryId }: { businessIds: string[]; categoryId: number }) => {
+      await apiRequest("PATCH", "/api/admin/businesses/mass-category", { businessIds, categoryId });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/businesses"] });
+      setSelectedBusinesses([]);
+      setShowMassCategoryDialog(false);
+      toast({ title: "Business categories updated successfully" });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Mass category update failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const massReviewApprovalMutation = useMutation({
+    mutationFn: async ({ reviewIds, action }: { reviewIds: number[]; action: 'approve' | 'reject' | 'delete' }) => {
+      await apiRequest("PATCH", "/api/admin/reviews/mass-action", { reviewIds, action });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/reviews"] });
+      setSelectedReviews([]);
+      toast({ title: "Reviews updated successfully" });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Mass review action failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const massUserOperationMutation = useMutation({
+    mutationFn: async ({ userIds, action, data }: { userIds: string[]; action: 'suspend' | 'activate' | 'delete'; data?: any }) => {
+      await apiRequest("PATCH", "/api/admin/users/mass-action", { userIds, action, data });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      setSelectedUsers([]);
+      toast({ title: "Users updated successfully" });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Mass user operation failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateUserPasswordMutation = useMutation({
+    mutationFn: async ({ userId, password }: { userId: string; password: string }) => {
+      await apiRequest("PATCH", `/api/admin/users/${userId}/password`, { password });
+    },
+    onSuccess: () => {
+      setShowPasswordDialog(false);
+      setNewPassword("");
+      setEditingUser(null);
+      toast({ title: "Password updated successfully" });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Password update failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const assignBusinessMutation = useMutation({
+    mutationFn: async ({ userId, businessIds }: { userId: string; businessIds: string[] }) => {
+      await apiRequest("PATCH", `/api/admin/users/${userId}/assign-businesses`, { businessIds });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/businesses"] });
+      setShowBusinessAssignDialog(false);
+      setSelectedBusinesses([]);
+      toast({ title: "Businesses assigned successfully" });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Business assignment failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
   });
 
   // Category management mutations
@@ -1055,6 +1153,89 @@ export default function Admin() {
     (review.businessId || '').toLowerCase().includes(reviewSearchTerm.toLowerCase())
   ) || [];
 
+  // Handler functions for mass operations (removing duplicates)
+
+  const toggleUserSelection = (userId: string) => {
+    setSelectedUsers(prev => 
+      prev.includes(userId) 
+        ? prev.filter(id => id !== userId)
+        : [...prev, userId]
+    );
+  };
+
+  const selectAllUsers = () => {
+    setSelectedUsers(filteredUsers?.map(u => u.id) || []);
+  };
+
+  const clearUserSelection = () => {
+    setSelectedUsers([]);
+  };
+
+  const toggleReviewSelection = (reviewId: number) => {
+    setSelectedReviews(prev => 
+      prev.includes(reviewId) 
+        ? prev.filter(id => id !== reviewId)
+        : [...prev, reviewId]
+    );
+  };
+
+  const selectAllReviews = () => {
+    setSelectedReviews(filteredReviews?.map(r => r.id) || []);
+  };
+
+  const clearReviewSelection = () => {
+    setSelectedReviews([]);
+  };
+
+  const handleMassCategoryChange = () => {
+    if (!newCategoryForMass || selectedBusinesses.length === 0) return;
+    
+    massCategoryChangeMutation.mutate({
+      businessIds: selectedBusinesses,
+      categoryId: parseInt(newCategoryForMass)
+    });
+  };
+
+  const handleMassReviewAction = (action: 'approve' | 'reject' | 'delete') => {
+    if (selectedReviews.length === 0) return;
+    
+    massReviewApprovalMutation.mutate({
+      reviewIds: selectedReviews,
+      action
+    });
+  };
+
+  const handleMassUserAction = (action: 'suspend' | 'activate' | 'delete') => {
+    if (selectedUsers.length === 0) return;
+    
+    if (action === 'delete' && !confirm(`Are you sure you want to delete ${selectedUsers.length} users? This action cannot be undone.`)) {
+      return;
+    }
+    
+    massUserOperationMutation.mutate({
+      userIds: selectedUsers,
+      action
+    });
+  };
+
+  const handleUpdatePassword = () => {
+    if (!editingUser || !newPassword.trim()) return;
+    
+    updateUserPasswordMutation.mutate({
+      userId: editingUser.id,
+      password: newPassword
+    });
+  };
+
+  const handleAssignBusinesses = () => {
+    if (!editingUser || selectedBusinesses.length === 0) return;
+    
+    assignBusinessMutation.mutate({
+      userId: editingUser.id,
+      businessIds: selectedBusinesses
+    });
+  };
+
   return (
     <div className="container mx-auto p-6">
       <div className="mb-8">
@@ -1088,6 +1269,10 @@ export default function Admin() {
             <Star className="h-4 w-4" />
             <span>Reviews</span>
           </TabsTrigger>
+          <TabsTrigger value="ownership" className="flex items-center space-x-2">
+            <UserCheck className="h-4 w-4" />
+            <span>Ownership</span>
+          </TabsTrigger>
           <TabsTrigger value="claims" className="flex items-center space-x-2">
             <FileText className="h-4 w-4" />
             <span>Claims</span>
@@ -1111,10 +1296,6 @@ export default function Admin() {
           <TabsTrigger value="seo" className="flex items-center space-x-2">
             <Globe className="h-4 w-4" />
             <span>Global SEO</span>
-          </TabsTrigger>
-          <TabsTrigger value="faq" className="flex items-center space-x-2">
-            <AlertTriangle className="h-4 w-4" />
-            <span>FAQ</span>
           </TabsTrigger>
           <TabsTrigger value="settings" className="flex items-center space-x-2">
             <Settings className="h-4 w-4" />
@@ -1144,6 +1325,13 @@ export default function Admin() {
                 <div className="flex space-x-2">
                   {selectedBusinesses.length > 0 && (
                     <>
+                      <Button
+                        variant="secondary"
+                        onClick={() => setShowMassCategoryDialog(true)}
+                        disabled={massCategoryChangeMutation.isPending}
+                      >
+                        Change Category ({selectedBusinesses.length})
+                      </Button>
                       <Button
                         variant="destructive"
                         onClick={handleBulkDelete}
