@@ -172,7 +172,7 @@ export default function Categories() {
           ) : currentBusinesses && currentBusinesses.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {currentBusinesses.map((business) => (
-                <BusinessCard key={business.id} business={business} />
+                <BusinessCard key={business.placeid} business={business} />
               ))}
             </div>
           ) : (

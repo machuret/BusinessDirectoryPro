@@ -180,6 +180,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Slug-based business lookup endpoint
+  app.get('/api/businesses/slug/:slug', async (req, res) => {
+    try {
+      const { slug } = req.params;
+      const business = await storage.getBusinessBySlug(slug);
+      
+      if (!business) {
+        return res.status(404).json({ message: "Business not found" });
+      }
+      
+      res.json(business);
+    } catch (error) {
+      console.error("Error fetching business by slug:", error);
+      res.status(500).json({ message: "Failed to fetch business" });
+    }
+  });
+
   app.get('/api/businesses/:identifier', async (req, res) => {
     try {
       const { identifier } = req.params;

@@ -84,7 +84,7 @@ export default function Home() {
               ))}
             </div>
           ) : (
-            <CategoryGrid categories={categories || []} />
+            <CategoryGrid categories={categories?.filter(cat => cat.businessCount > 0) || []} />
           )}
         </div>
       </section>
