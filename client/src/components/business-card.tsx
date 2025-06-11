@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Star, MapPin, Clock, Phone } from "lucide-react";
+import { Star, MapPin, Clock, Phone, Crown, ExternalLink } from "lucide-react";
 import { Link } from "wouter";
 import type { BusinessWithCategory } from "@shared/schema";
 
