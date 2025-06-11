@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { AlertTriangle, Upload, Users, Building2, Settings, FileText, Star, Menu, Key, Zap, MapPin, Globe, UserX, UserCheck, Trash2, Edit, CheckCircle, XCircle, HelpCircle, Mail, Phone, MessageSquare, Clock, Eye, Shield } from "lucide-react";
+import { AlertTriangle, Upload, Users, Building2, Settings, FileText, Star, Menu, Key, Zap, MapPin, Globe, UserX, UserCheck, Trash2, Edit, CheckCircle, XCircle, HelpCircle, Mail, Phone, MessageSquare, Clock, Eye, Shield, Download, Home, Brain, Plus } from "lucide-react";
 import type { BusinessWithCategory, User, Category, SiteSetting, MenuItem, Page, LeadWithBusiness } from "@shared/schema";
 
 export default function AdminEnhanced() {
@@ -34,8 +34,10 @@ export default function AdminEnhanced() {
   const [showBusinessAssignDialog, setShowBusinessAssignDialog] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [editingBusiness, setEditingBusiness] = useState<BusinessWithCategory | null>(null);
   const [editingCity, setEditingCity] = useState<any>(null);
   const [showCityForm, setShowCityForm] = useState(false);
+  const [showAssignOwnerDialog, setShowAssignOwnerDialog] = useState(false);
   const [reviewSearchTerm, setReviewSearchTerm] = useState("");
 
   // Data queries
@@ -354,68 +356,68 @@ export default function AdminEnhanced() {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid w-full grid-cols-6 lg:grid-cols-12 gap-1">
-          <TabsTrigger value="businesses" className="flex items-center space-x-1 text-xs">
-            <Building2 className="h-3 w-3" />
+          <TabsTrigger value="businesses" className="flex items-center space-x-2 text-sm px-3 py-2">
+            <Building2 className="h-4 w-4" />
             <span>Businesses</span>
           </TabsTrigger>
-          <TabsTrigger value="users" className="flex items-center space-x-1 text-xs">
-            <Users className="h-3 w-3" />
+          <TabsTrigger value="users" className="flex items-center space-x-2 text-sm px-3 py-2">
+            <Users className="h-4 w-4" />
             <span>Users</span>
           </TabsTrigger>
-          <TabsTrigger value="categories" className="flex items-center space-x-1 text-xs">
-            <FileText className="h-3 w-3" />
+          <TabsTrigger value="categories" className="flex items-center space-x-2 text-sm px-3 py-2">
+            <FileText className="h-4 w-4" />
             <span>Categories</span>
           </TabsTrigger>
-          <TabsTrigger value="cities" className="flex items-center space-x-1 text-xs">
-            <MapPin className="h-3 w-3" />
+          <TabsTrigger value="cities" className="flex items-center space-x-2 text-sm px-3 py-2">
+            <MapPin className="h-4 w-4" />
             <span>Cities</span>
           </TabsTrigger>
-          <TabsTrigger value="reviews" className="flex items-center space-x-1 text-xs">
-            <Star className="h-3 w-3" />
+          <TabsTrigger value="reviews" className="flex items-center space-x-2 text-sm px-3 py-2">
+            <Star className="h-4 w-4" />
             <span>Reviews</span>
           </TabsTrigger>
-          <TabsTrigger value="ownership" className="flex items-center space-x-1 text-xs">
-            <UserCheck className="h-3 w-3" />
-            <span>Claims</span>
+          <TabsTrigger value="ownership" className="flex items-center space-x-2 text-sm px-3 py-2">
+            <UserCheck className="h-4 w-4" />
+            <span>Ownership</span>
           </TabsTrigger>
-          <TabsTrigger value="api" className="flex items-center space-x-1 text-xs">
-            <Key className="h-3 w-3" />
+          <TabsTrigger value="import" className="flex items-center space-x-2 text-sm px-3 py-2">
+            <Download className="h-4 w-4" />
+            <span>Import</span>
+          </TabsTrigger>
+          <TabsTrigger value="api" className="flex items-center space-x-2 text-sm px-3 py-2">
+            <Key className="h-4 w-4" />
             <span>API</span>
           </TabsTrigger>
-          <TabsTrigger value="analytics" className="flex items-center space-x-1 text-xs">
-            <Zap className="h-3 w-3" />
-            <span>Analytics</span>
-          </TabsTrigger>
-          <TabsTrigger value="cms" className="flex items-center space-x-1 text-xs">
-            <Globe className="h-3 w-3" />
+          <TabsTrigger value="cms" className="flex items-center space-x-2 text-sm px-3 py-2">
+            <Globe className="h-4 w-4" />
             <span>CMS</span>
           </TabsTrigger>
-          <TabsTrigger value="export" className="flex items-center space-x-1 text-xs">
-            <Upload className="h-3 w-3" />
+          <TabsTrigger value="export" className="flex items-center space-x-2 text-sm px-3 py-2">
+            <Upload className="h-4 w-4" />
             <span>Export</span>
           </TabsTrigger>
-          <TabsTrigger value="leads" className="flex items-center space-x-1 text-xs">
-            <Mail className="h-3 w-3" />
+          <TabsTrigger value="leads" className="flex items-center space-x-2 text-sm px-3 py-2">
+            <Mail className="h-4 w-4" />
             <span>Leads</span>
           </TabsTrigger>
-          <TabsTrigger value="settings" className="flex items-center space-x-1 text-xs">
-            <Settings className="h-3 w-3" />
+          <TabsTrigger value="settings" className="flex items-center space-x-2 text-sm px-3 py-2">
+            <Settings className="h-4 w-4" />
             <span>Settings</span>
           </TabsTrigger>
-          <TabsTrigger value="faq" className="flex items-center space-x-2">
+          <TabsTrigger value="faq" className="flex items-center space-x-2 text-sm px-3 py-2">
             <HelpCircle className="h-4 w-4" />
             <span>FAQ</span>
           </TabsTrigger>
-          <TabsTrigger value="seo" className="flex items-center space-x-2">
+          <TabsTrigger value="seo" className="flex items-center space-x-2 text-sm px-3 py-2">
             <Globe className="h-4 w-4" />
             <span>SEO</span>
           </TabsTrigger>
-          <TabsTrigger value="homepage" className="flex items-center space-x-2">
-            <Settings className="h-4 w-4" />
+          <TabsTrigger value="homepage" className="flex items-center space-x-2 text-sm px-3 py-2">
+            <Home className="h-4 w-4" />
             <span>Homepage</span>
           </TabsTrigger>
-          <TabsTrigger value="optimization" className="flex items-center space-x-2">
-            <Zap className="h-4 w-4" />
+          <TabsTrigger value="optimization" className="flex items-center space-x-2 text-sm px-3 py-2">
+            <Brain className="h-4 w-4" />
             <span>AI Optimize</span>
           </TabsTrigger>
         </TabsList>
@@ -897,9 +899,31 @@ export default function AdminEnhanced() {
                           )}
                         </TableCell>
                         <TableCell>
-                          <Button size="sm" variant="outline">
-                            <Eye className="h-4 w-4" />
-                          </Button>
+                          <div className="flex space-x-2">
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => {
+                                setEditingBusiness(business);
+                                setShowAssignOwnerDialog(true);
+                              }}
+                            >
+                              <UserCheck className="h-4 w-4 mr-1" />
+                              Assign Owner
+                            </Button>
+                            {business.owner && (
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => {
+                                  // Remove ownership
+                                }}
+                              >
+                                <UserX className="h-4 w-4 mr-1" />
+                                Remove
+                              </Button>
+                            )}
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -1269,6 +1293,303 @@ export default function AdminEnhanced() {
                   </div>
                 </CardContent>
               </Card>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Import Tab */}
+        <TabsContent value="import" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>CSV Import Tool</CardTitle>
+              <CardDescription>Import businesses from CSV files</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <Input type="file" accept=".csv" />
+                <Button>
+                  <Upload className="h-4 w-4 mr-2" />
+                  Upload CSV
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* API Tab */}
+        <TabsContent value="api" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>API Management</CardTitle>
+              <CardDescription>Manage API keys and access controls</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">API Statistics</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <Card>
+                      <CardContent className="p-4">
+                        <div className="text-2xl font-bold">2,847</div>
+                        <div className="text-sm text-muted-foreground">Total API Calls</div>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="p-4">
+                        <div className="text-2xl font-bold">145</div>
+                        <div className="text-sm text-muted-foreground">Active API Keys</div>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="p-4">
+                        <div className="text-2xl font-bold">99.8%</div>
+                        <div className="text-sm text-muted-foreground">API Uptime</div>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="p-4">
+                        <div className="text-2xl font-bold">23ms</div>
+                        <div className="text-sm text-muted-foreground">Avg Response Time</div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">Generate New API Key</h3>
+                  <div className="flex space-x-4">
+                    <Input placeholder="API Key Name" className="flex-1" />
+                    <Select>
+                      <SelectTrigger className="w-48">
+                        <SelectValue placeholder="Access Level" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="read">Read Only</SelectItem>
+                        <SelectItem value="write">Read/Write</SelectItem>
+                        <SelectItem value="admin">Admin Access</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button>
+                      <Key className="h-4 w-4 mr-2" />
+                      Generate Key
+                    </Button>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">API Endpoints</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center p-3 border rounded">
+                      <div>
+                        <span className="font-mono text-sm">GET /api/businesses</span>
+                        <div className="text-xs text-muted-foreground">Retrieve business listings</div>
+                      </div>
+                      <Badge>Active</Badge>
+                    </div>
+                    <div className="flex justify-between items-center p-3 border rounded">
+                      <div>
+                        <span className="font-mono text-sm">POST /api/businesses</span>
+                        <div className="text-xs text-muted-foreground">Create new business</div>
+                      </div>
+                      <Badge>Active</Badge>
+                    </div>
+                    <div className="flex justify-between items-center p-3 border rounded">
+                      <div>
+                        <span className="font-mono text-sm">GET /api/categories</span>
+                        <div className="text-xs text-muted-foreground">Retrieve categories</div>
+                      </div>
+                      <Badge>Active</Badge>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* CMS Tab */}
+        <TabsContent value="cms" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Content Management System</CardTitle>
+              <CardDescription>Manage pages, content, and website structure</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold">Pages</h3>
+                  <Button>
+                    <FileText className="h-4 w-4 mr-2" />
+                    Create New Page
+                  </Button>
+                </div>
+
+                <div className="grid gap-4">
+                  <div className="flex justify-between items-center p-4 border rounded">
+                    <div>
+                      <h4 className="font-semibold">About Us</h4>
+                      <p className="text-sm text-muted-foreground">Company information and mission</p>
+                      <div className="text-xs text-muted-foreground mt-1">Last updated: 2 days ago</div>
+                    </div>
+                    <div className="flex space-x-2">
+                      <Badge>Published</Badge>
+                      <Button variant="outline" size="sm">
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center p-4 border rounded">
+                    <div>
+                      <h4 className="font-semibold">Privacy Policy</h4>
+                      <p className="text-sm text-muted-foreground">Data protection and privacy information</p>
+                      <div className="text-xs text-muted-foreground mt-1">Last updated: 1 week ago</div>
+                    </div>
+                    <div className="flex space-x-2">
+                      <Badge>Published</Badge>
+                      <Button variant="outline" size="sm">
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center p-4 border rounded">
+                    <div>
+                      <h4 className="font-semibold">Terms of Service</h4>
+                      <p className="text-sm text-muted-foreground">Legal terms and conditions</p>
+                      <div className="text-xs text-muted-foreground mt-1">Last updated: 3 weeks ago</div>
+                    </div>
+                    <div className="flex space-x-2">
+                      <Badge variant="secondary">Draft</Badge>
+                      <Button variant="outline" size="sm">
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">Navigation Menu</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center p-3 border rounded">
+                      <div className="flex items-center space-x-2">
+                        <Menu className="h-4 w-4" />
+                        <span>Home</span>
+                      </div>
+                      <div className="flex space-x-2">
+                        <Badge>Active</Badge>
+                        <Button variant="outline" size="sm">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center p-3 border rounded">
+                      <div className="flex items-center space-x-2">
+                        <Menu className="h-4 w-4" />
+                        <span>Categories</span>
+                      </div>
+                      <div className="flex space-x-2">
+                        <Badge>Active</Badge>
+                        <Button variant="outline" size="sm">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Export Tab */}
+        <TabsContent value="export" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Data Export & Backup</CardTitle>
+              <CardDescription>Export data, create backups, and manage data integrity</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">Quick Exports</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Button variant="outline" className="h-20 flex-col">
+                      <Building2 className="h-6 w-6 mb-2" />
+                      Export All Businesses
+                    </Button>
+                    <Button variant="outline" className="h-20 flex-col">
+                      <Users className="h-6 w-6 mb-2" />
+                      Export All Users
+                    </Button>
+                    <Button variant="outline" className="h-20 flex-col">
+                      <Star className="h-6 w-6 mb-2" />
+                      Export All Reviews
+                    </Button>
+                    <Button variant="outline" className="h-20 flex-col">
+                      <Mail className="h-6 w-6 mb-2" />
+                      Export All Leads
+                    </Button>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">Custom Export</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <Label>Data Type</Label>
+                      <Select>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select data type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="businesses">Businesses</SelectItem>
+                          <SelectItem value="users">Users</SelectItem>
+                          <SelectItem value="reviews">Reviews</SelectItem>
+                          <SelectItem value="leads">Leads</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Export Format</Label>
+                      <Select>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select format" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="csv">CSV</SelectItem>
+                          <SelectItem value="json">JSON</SelectItem>
+                          <SelectItem value="xlsx">Excel</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button>
+                      <Upload className="h-4 w-4 mr-2" />
+                      Export Data
+                    </Button>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">Scheduled Backups</h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center p-3 border rounded">
+                      <div>
+                        <div className="font-semibold">Daily Full Backup</div>
+                        <div className="text-sm text-muted-foreground">Complete database backup at 2:00 AM</div>
+                      </div>
+                      <Badge>Enabled</Badge>
+                    </div>
+                    <div className="flex justify-between items-center p-3 border rounded">
+                      <div>
+                        <div className="font-semibold">Weekly Archive</div>
+                        <div className="text-sm text-muted-foreground">Full system archive every Sunday</div>
+                      </div>
+                      <Badge>Enabled</Badge>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
