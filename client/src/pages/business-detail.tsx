@@ -313,16 +313,6 @@ export default function BusinessDetail() {
     </div>
   );
 }
-    onSuccess: () => {
-      toast({
-        title: "Review submitted",
-        description: "Thank you for your review!",
-      });
-      setReviewRating(5);
-      setReviewTitle("");
-      setReviewContent("");
-      queryClient.invalidateQueries({ queryKey: [`/api/businesses/${business?.id}/reviews`] });
-      queryClient.invalidateQueries({ queryKey: [`/api/businesses/slug/${slug}`] });
     },
     onError: (error) => {
       toast({
