@@ -48,6 +48,8 @@ export default function Admin() {
   const [showCityForm, setShowCityForm] = useState(false);
   const [reviewSearchTerm, setReviewSearchTerm] = useState("");
   const [showFaqForm, setShowFaqForm] = useState(false);
+  const [selectedLeads, setSelectedLeads] = useState<number[]>([]);
+  const [leadSearchTerm, setLeadSearchTerm] = useState("");
   const [editingFaq, setEditingFaq] = useState<any | null>(null);
 
 
@@ -69,6 +71,11 @@ export default function Admin() {
 
   const { data: categories } = useQuery<Category[]>({
     queryKey: ["/api/categories"]
+  });
+
+  const { data: leads, isLoading: leadsLoading } = useQuery<LeadWithBusiness[]>({
+    queryKey: ["/api/admin/leads"],
+    enabled: !!user && (user as any).role === 'admin'
   });
 
   // Category management mutations
@@ -804,6 +811,211 @@ export default function Admin() {
       isActive: formData.get('isActive') === 'true'
     };
     updateFaqMutation.mutate({ id: editingFaq.id, data: faqData });
+  };
+
+  // Leads management mutations
+  const updateLeadStatusMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: number; status: string }) => {
+      await apiRequest("PATCH", `/api/admin/leads/${id}/status`, { status });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/leads"] });
+      toast({ title: "Lead status updated successfully" });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Status update failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteLeadMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest("DELETE", `/api/admin/leads/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/leads"] });
+      toast({ title: "Lead deleted successfully" });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Delete failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Filter leads based on search term
+  const filteredLeads = leads?.filter(lead => 
+    lead.senderName.toLowerCase().includes(leadSearchTerm.toLowerCase()) ||
+    lead.senderEmail.toLowerCase().includes(leadSearchTerm.toLowerCase()) ||
+    lead.message.toLowerCase().includes(leadSearchTerm.toLowerCase()) ||
+    lead.business?.title?.toLowerCase().includes(leadSearchTerm.toLowerCase())
+  ) || [];
+
+  // InboxLeadsSection component
+  const InboxLeadsSection = () => {
+    if (leadsLoading) {
+      return <div className="text-center py-8">Loading leads...</div>;
+    }
+
+    return (
+      <div className="space-y-6">
+        {/* Search and Filters */}
+        <div className="flex items-center space-x-4">
+          <Input
+            placeholder="Search leads by name, email, or message..."
+            value={leadSearchTerm}
+            onChange={(e) => setLeadSearchTerm(e.target.value)}
+            className="flex-1"
+          />
+          <Badge variant="secondary">
+            {filteredLeads.length} lead{filteredLeads.length !== 1 ? 's' : ''}
+          </Badge>
+        </div>
+
+        {/* Leads Table */}
+        {filteredLeads.length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground">
+            {leadSearchTerm ? 'No leads match your search.' : 'No leads found.'}
+          </div>
+        ) : (
+          <div className="border rounded-lg overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Contact</TableHead>
+                  <TableHead>Business</TableHead>
+                  <TableHead>Message</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredLeads.map((lead) => (
+                  <TableRow key={lead.id}>
+                    <TableCell>
+                      <div className="space-y-1">
+                        <div className="font-medium flex items-center space-x-2">
+                          <User className="h-4 w-4" />
+                          <span>{lead.senderName}</span>
+                        </div>
+                        <div className="text-sm text-muted-foreground flex items-center space-x-2">
+                          <Mail className="h-3 w-3" />
+                          <span>{lead.senderEmail}</span>
+                        </div>
+                        {lead.senderPhone && (
+                          <div className="text-sm text-muted-foreground flex items-center space-x-2">
+                            <Phone className="h-3 w-3" />
+                            <span>{lead.senderPhone}</span>
+                          </div>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="font-medium">{lead.business?.title || 'Unknown Business'}</div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="max-w-xs truncate" title={lead.message}>
+                        {lead.message}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm text-muted-foreground flex items-center space-x-2">
+                        <Clock className="h-3 w-3" />
+                        <span>{new Date(lead.createdAt).toLocaleDateString()}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Select
+                        value={lead.status}
+                        onValueChange={(status) => 
+                          updateLeadStatusMutation.mutate({ id: lead.id, status })
+                        }
+                      >
+                        <SelectTrigger className="w-32">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="new">New</SelectItem>
+                          <SelectItem value="contacted">Contacted</SelectItem>
+                          <SelectItem value="converted">Converted</SelectItem>
+                          <SelectItem value="closed">Closed</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center space-x-2">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" size="sm">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Lead Details</DialogTitle>
+                            </DialogHeader>
+                            <div className="space-y-4">
+                              <div>
+                                <Label className="font-medium">Contact Information</Label>
+                                <div className="mt-2 space-y-2">
+                                  <div className="flex items-center space-x-2">
+                                    <User className="h-4 w-4" />
+                                    <span>{lead.senderName}</span>
+                                  </div>
+                                  <div className="flex items-center space-x-2">
+                                    <Mail className="h-4 w-4" />
+                                    <span>{lead.senderEmail}</span>
+                                  </div>
+                                  {lead.senderPhone && (
+                                    <div className="flex items-center space-x-2">
+                                      <Phone className="h-4 w-4" />
+                                      <span>{lead.senderPhone}</span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                              <div>
+                                <Label className="font-medium">Business</Label>
+                                <p className="mt-1">{lead.business?.title || 'Unknown Business'}</p>
+                              </div>
+                              <div>
+                                <Label className="font-medium">Message</Label>
+                                <p className="mt-1 p-3 bg-muted rounded-md">{lead.message}</p>
+                              </div>
+                              <div>
+                                <Label className="font-medium">Received</Label>
+                                <p className="mt-1">{new Date(lead.createdAt).toLocaleString()}</p>
+                              </div>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => {
+                            if (confirm('Are you sure you want to delete this lead?')) {
+                              deleteLeadMutation.mutate(lead.id);
+                            }
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+      </div>
+    );
   };
 
   // Auth check
@@ -2450,7 +2662,9 @@ export default function Admin() {
               <CardDescription>Manage customer inquiries and leads from business contact forms</CardDescription>
             </CardHeader>
             <CardContent>
-              <LeadsManagementInline />
+              <div className="space-y-6">
+                <InboxLeadsSection />
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
