@@ -13,6 +13,7 @@ import BusinessListing from "@/pages/business-listing";
 import SearchResults from "@/pages/search-results";
 import Dashboard from "@/pages/dashboard";
 import Admin from "@/pages/admin";
+import EnhancedAdmin from "@/pages/enhanced-admin";
 import MenuEdit from "@/pages/menu-edit";
 import PageDisplay from "@/pages/page-display";
 import Login from "@/pages/login";

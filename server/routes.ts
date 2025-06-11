@@ -8,6 +8,13 @@ import { z } from "zod";
 import multer from "multer";
 import csv from "csv-parser";
 import { Readable } from "stream";
+import bcrypt from "bcrypt";
+
+// Hash password function
+async function hashPassword(password: string): Promise<string> {
+  const saltRounds = 10;
+  return await bcrypt.hash(password, saltRounds);
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Configure multer for file uploads
@@ -827,6 +834,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error processing CSV upload:", error);
       res.status(500).json({ message: "Failed to process CSV upload" });
+    }
+  });
+
+  // Enhanced user management endpoints
+  app.post("/api/admin/users/:userId/change-password", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const { password } = req.body;
+      
+      const hashedPassword = await hashPassword(password);
+      await storage.updateUser(userId, { password: hashedPassword });
+      
+      res.json({ message: "Password updated successfully" });
+    } catch (error) {
+      console.error("Error changing password:", error);
+      res.status(500).json({ message: "Failed to change password" });
+    }
+  });
+
+  app.post("/api/admin/users/:userId/assign-business", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const { businessId } = req.body;
+      
+      await storage.updateBusiness(businessId, { ownerid: userId });
+      
+      res.json({ message: "Business assigned successfully" });
+    } catch (error) {
+      console.error("Error assigning business:", error);
+      res.status(500).json({ message: "Failed to assign business" });
+    }
+  });
+
+  app.post("/api/admin/users/mass-action", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { userIds, action } = req.body;
+      
+      for (const userId of userIds) {
+        if (action === "delete") {
+          await storage.deleteUser(userId);
+        } else if (action === "suspend" || action === "activate") {
+          // For now, we'll use role changes to simulate status changes
+          const status = action === "suspend" ? "suspended" : "user";
+          await storage.updateUser(userId, { role: status });
+        }
+      }
+      
+      res.json({ message: `Users ${action}d successfully` });
+    } catch (error) {
+      console.error("Error performing mass action:", error);
+      res.status(500).json({ message: "Failed to perform mass action" });
+    }
+  });
+
+  // Enhanced review management endpoints
+  app.post("/api/admin/reviews/mass-action", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { reviewIds, action } = req.body;
+      const adminId = req.user?.id || "";
+      
+      for (const reviewId of reviewIds) {
+        if (action === "approve") {
+          await storage.approveReview(reviewId, adminId);
+        } else if (action === "reject") {
+          await storage.rejectReview(reviewId, adminId);
+        }
+      }
+      
+      res.json({ message: `Reviews ${action}d successfully` });
+    } catch (error) {
+      console.error("Error performing review mass action:", error);
+      res.status(500).json({ message: "Failed to perform review mass action" });
     }
   });
 

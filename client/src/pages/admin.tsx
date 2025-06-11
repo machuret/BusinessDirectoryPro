@@ -106,18 +106,8 @@ export default function Admin() {
     enabled: !!user && (user as any).role === 'admin'
   });
 
-  const { data: pendingReviews, isLoading: reviewsLoading } = useQuery<any[]>({
-    queryKey: ["/api/admin/reviews/pending"],
-    enabled: !!user && (user as any).role === 'admin'
-  });
-
   const { data: allReviews, isLoading: allReviewsLoading } = useQuery<any[]>({
     queryKey: ["/api/admin/reviews"],
-    enabled: !!user && (user as any).role === 'admin'
-  });
-
-  const { data: pendingReviews, isLoading: pendingReviewsLoading } = useQuery<any[]>({
-    queryKey: ["/api/admin/reviews/pending"],
     enabled: !!user && (user as any).role === 'admin'
   });
 
