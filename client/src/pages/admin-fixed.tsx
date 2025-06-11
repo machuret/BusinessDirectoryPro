@@ -297,6 +297,30 @@ export default function AdminFixed() {
             <HelpCircle className="h-5 w-5 mr-3" />
             FAQ
           </button>
+          
+          <button
+            onClick={() => setActiveTab("optimization")}
+            className={`w-full flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
+              activeTab === "optimization" 
+                ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300" 
+                : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+            }`}
+          >
+            <Star className="h-5 w-5 mr-3" />
+            Optimization
+          </button>
+          
+          <button
+            onClick={() => setActiveTab("featured")}
+            className={`w-full flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
+              activeTab === "featured" 
+                ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300" 
+                : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+            }`}
+          >
+            <CheckCircle className="h-5 w-5 mr-3" />
+            Featured
+          </button>
         </nav>
       </div>
 
@@ -769,8 +793,482 @@ export default function AdminFixed() {
             </div>
           )}
 
-          {/* Default placeholder for other tabs */}
-          {!["businesses", "users", "categories", "cities", "api", "ownership", "cms"].includes(activeTab) && (
+          {/* Reviews Tab */}
+          {activeTab === "reviews" && (
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Reviews Management</CardTitle>
+                  <CardDescription>Moderate reviews, approve submissions, and manage feedback</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                      <div className="text-center p-4 border rounded">
+                        <div className="text-2xl font-bold text-green-600">124</div>
+                        <div className="text-sm text-muted-foreground">Approved Reviews</div>
+                      </div>
+                      <div className="text-center p-4 border rounded">
+                        <div className="text-2xl font-bold text-yellow-600">7</div>
+                        <div className="text-sm text-muted-foreground">Pending Approval</div>
+                      </div>
+                      <div className="text-center p-4 border rounded">
+                        <div className="text-2xl font-bold text-red-600">3</div>
+                        <div className="text-sm text-muted-foreground">Rejected</div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-lg font-semibold">Recent Reviews</h3>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline">Approve All</Button>
+                        <Button size="sm" variant="outline">Bulk Actions</Button>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-start p-4 border rounded">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="font-medium">John Smith</div>
+                            <div className="flex">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <Star key={star} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                              ))}
+                            </div>
+                            <Badge variant="secondary">Pending</Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground mb-2">
+                            "Great service and friendly staff. Highly recommend for dental care."
+                          </p>
+                          <div className="text-xs text-muted-foreground">
+                            Kedron Family Dental • 2 hours ago
+                          </div>
+                        </div>
+                        <div className="flex space-x-2">
+                          <Button size="sm" variant="outline">
+                            <CheckCircle className="h-4 w-4" />
+                          </Button>
+                          <Button size="sm" variant="outline">
+                            <XCircle className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Import Tab */}
+          {activeTab === "import" && (
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>CSV Data Import</CardTitle>
+                  <CardDescription>Import businesses, users, and other data from CSV files</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4">Business Import</h3>
+                      <div className="space-y-4">
+                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                          <Upload className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                          <p className="text-lg font-medium mb-2">Upload Business CSV</p>
+                          <p className="text-sm text-muted-foreground mb-4">
+                            Drag and drop your CSV file here, or click to browse
+                          </p>
+                          <Button>
+                            <Upload className="h-4 w-4 mr-2" />
+                            Select CSV File
+                          </Button>
+                        </div>
+                        
+                        <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                          <h4 className="font-medium mb-2">Required CSV Format:</h4>
+                          <p className="text-sm text-muted-foreground">
+                            title, address, city, state, phone, website, category, description
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4">Import History</h3>
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center p-3 border rounded">
+                          <div>
+                            <div className="font-medium">business-data-2025.csv</div>
+                            <div className="text-sm text-muted-foreground">Imported 1,247 businesses • 2 days ago</div>
+                          </div>
+                          <Badge variant="default">Success</Badge>
+                        </div>
+                        
+                        <div className="flex justify-between items-center p-3 border rounded">
+                          <div>
+                            <div className="font-medium">user-export.csv</div>
+                            <div className="text-sm text-muted-foreground">Imported 89 users • 1 week ago</div>
+                          </div>
+                          <Badge variant="default">Success</Badge>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Export Tab */}
+          {activeTab === "export" && (
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Data Export & Backup</CardTitle>
+                  <CardDescription>Export data, create backups, and manage data integrity</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4">Quick Exports</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Button variant="outline" className="h-20 flex-col">
+                          <Building2 className="h-6 w-6 mb-2" />
+                          Export All Businesses
+                        </Button>
+                        <Button variant="outline" className="h-20 flex-col">
+                          <Users className="h-6 w-6 mb-2" />
+                          Export All Users
+                        </Button>
+                        <Button variant="outline" className="h-20 flex-col">
+                          <Star className="h-6 w-6 mb-2" />
+                          Export All Reviews
+                        </Button>
+                        <Button variant="outline" className="h-20 flex-col">
+                          <Mail className="h-6 w-6 mb-2" />
+                          Export All Leads
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* FAQ Tab */}
+          {activeTab === "faq" && (
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>FAQ Management</CardTitle>
+                  <CardDescription>Manage frequently asked questions</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-lg font-semibold">Website FAQs</h3>
+                      <Button>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add FAQ
+                      </Button>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center p-4 border rounded">
+                        <div>
+                          <h4 className="font-semibold">How do I claim my business?</h4>
+                          <p className="text-sm text-muted-foreground">Instructions for business owners to claim their listings</p>
+                          <div className="text-xs text-muted-foreground mt-1">Category: Business Owners</div>
+                        </div>
+                        <div className="flex space-x-2">
+                          <Badge variant="default">Published</Badge>
+                          <Button variant="outline" size="sm">
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      <div className="flex justify-between items-center p-4 border rounded">
+                        <div>
+                          <h4 className="font-semibold">How do I leave a review?</h4>
+                          <p className="text-sm text-muted-foreground">Guide for customers to submit reviews</p>
+                          <div className="text-xs text-muted-foreground mt-1">Category: Customers</div>
+                        </div>
+                        <div className="flex space-x-2">
+                          <Badge variant="default">Published</Badge>
+                          <Button variant="outline" size="sm">
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Leads Tab */}
+          {activeTab === "leads" && (
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Leads Management</CardTitle>
+                  <CardDescription>Manage customer inquiries and business leads</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                      <div className="text-center p-4 border rounded">
+                        <div className="text-2xl font-bold text-blue-600">42</div>
+                        <div className="text-sm text-muted-foreground">New Leads</div>
+                      </div>
+                      <div className="text-center p-4 border rounded">
+                        <div className="text-2xl font-bold text-yellow-600">18</div>
+                        <div className="text-sm text-muted-foreground">In Progress</div>
+                      </div>
+                      <div className="text-center p-4 border rounded">
+                        <div className="text-2xl font-bold text-green-600">134</div>
+                        <div className="text-sm text-muted-foreground">Completed</div>
+                      </div>
+                      <div className="text-center p-4 border rounded">
+                        <div className="text-2xl font-bold text-red-600">12</div>
+                        <div className="text-sm text-muted-foreground">Lost</div>
+                      </div>
+                    </div>
+                    
+                    <div className="text-center py-8 text-muted-foreground">
+                      <Mail className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                      <p>No recent leads</p>
+                      <p className="text-sm">Customer inquiries will appear here</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Settings Tab */}
+          {activeTab === "settings" && (
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Site Settings</CardTitle>
+                  <CardDescription>Configure global application settings and preferences</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4">General Settings</h3>
+                      <div className="space-y-4">
+                        <div>
+                          <Label htmlFor="site-name">Site Name</Label>
+                          <Input id="site-name" defaultValue="Business Directory" />
+                        </div>
+                        <div>
+                          <Label htmlFor="site-description">Site Description</Label>
+                          <Textarea id="site-description" defaultValue="Find the best local businesses in your area" />
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4">Featured Settings</h3>
+                      <div className="space-y-4">
+                        <div className="flex items-center space-x-2">
+                          <Checkbox id="auto-approve-reviews" />
+                          <Label htmlFor="auto-approve-reviews">Auto-approve reviews</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Checkbox id="allow-public-submissions" defaultChecked />
+                          <Label htmlFor="allow-public-submissions">Allow public business submissions</Label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Optimization Tab */}
+          {activeTab === "optimization" && (
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>AI Content Optimization</CardTitle>
+                  <CardDescription>Use AI to enhance business descriptions and generate FAQs</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                      <div className="text-center p-4 border rounded">
+                        <div className="text-2xl font-bold text-blue-600">1,247</div>
+                        <div className="text-sm text-muted-foreground">Total Businesses</div>
+                      </div>
+                      <div className="text-center p-4 border rounded">
+                        <div className="text-2xl font-bold text-green-600">892</div>
+                        <div className="text-sm text-muted-foreground">AI Optimized</div>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4">Optimization Tools</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Button variant="outline" className="h-24 flex-col">
+                          <Edit className="h-6 w-6 mb-2" />
+                          <div className="text-center">
+                            <div className="font-medium">Optimize Descriptions</div>
+                            <div className="text-xs text-muted-foreground">Enhance business descriptions with AI</div>
+                          </div>
+                        </Button>
+                        <Button variant="outline" className="h-24 flex-col">
+                          <HelpCircle className="h-6 w-6 mb-2" />
+                          <div className="text-center">
+                            <div className="font-medium">Generate FAQs</div>
+                            <div className="text-xs text-muted-foreground">Create FAQs for businesses</div>
+                          </div>
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4">Recent Optimizations</h3>
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center p-3 border rounded">
+                          <div>
+                            <div className="font-medium">Kedron Family Dental</div>
+                            <div className="text-sm text-muted-foreground">Description optimized • 2 hours ago</div>
+                          </div>
+                          <Badge variant="default">Completed</Badge>
+                        </div>
+                        
+                        <div className="flex justify-between items-center p-3 border rounded">
+                          <div>
+                            <div className="font-medium">Brisbane Eye Centre</div>
+                            <div className="text-sm text-muted-foreground">FAQ generated • 4 hours ago</div>
+                          </div>
+                          <Badge variant="default">Completed</Badge>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Featured Tab */}
+          {activeTab === "featured" && (
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Featured Listings Management</CardTitle>
+                  <CardDescription>Manage which businesses appear as featured on the homepage</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-lg font-semibold">Currently Featured</h3>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline">Add Featured</Button>
+                        <Button size="sm" variant="outline">Bulk Edit</Button>
+                      </div>
+                    </div>
+                    
+                    <div className="rounded-md border">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="w-12">
+                              <Checkbox />
+                            </TableHead>
+                            <TableHead>Business</TableHead>
+                            <TableHead>Category</TableHead>
+                            <TableHead>Location</TableHead>
+                            <TableHead>Featured Since</TableHead>
+                            <TableHead>Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          <TableRow>
+                            <TableCell>
+                              <Checkbox />
+                            </TableCell>
+                            <TableCell>
+                              <div>
+                                <div className="font-medium">Kedron Family Dental</div>
+                                <div className="text-sm text-muted-foreground">Professional dental care</div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="outline">Dentist</Badge>
+                            </TableCell>
+                            <TableCell>Kedron, QLD</TableCell>
+                            <TableCell>2 weeks ago</TableCell>
+                            <TableCell>
+                              <div className="flex space-x-2">
+                                <Button size="sm" variant="outline">
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button size="sm" variant="outline">
+                                  <XCircle className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                          
+                          <TableRow>
+                            <TableCell>
+                              <Checkbox />
+                            </TableCell>
+                            <TableCell>
+                              <div>
+                                <div className="font-medium">Brisbane Eye Centre</div>
+                                <div className="text-sm text-muted-foreground">Complete eye care solutions</div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="outline">Eye Care</Badge>
+                            </TableCell>
+                            <TableCell>Brisbane, QLD</TableCell>
+                            <TableCell>1 week ago</TableCell>
+                            <TableCell>
+                              <div className="flex space-x-2">
+                                <Button size="sm" variant="outline">
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button size="sm" variant="outline">
+                                  <XCircle className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                    </div>
+                    
+                    <div className="mt-6">
+                      <h3 className="text-lg font-semibold mb-4">Add New Featured Business</h3>
+                      <div className="flex gap-2">
+                        <Input placeholder="Search businesses to feature..." className="flex-1" />
+                        <Button>
+                          <Plus className="h-4 w-4 mr-2" />
+                          Add Featured
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Default placeholder for remaining tabs */}
+          {!["businesses", "users", "categories", "cities", "api", "ownership", "cms", "reviews", "import", "export", "faq", "leads", "settings", "optimization", "featured"].includes(activeTab) && (
             <div className="space-y-6">
               <Card>
                 <CardHeader>
