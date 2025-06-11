@@ -1836,6 +1836,90 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Contact Form API
+  app.post('/api/contact', async (req, res) => {
+    try {
+      const { name, email, phone, subject, message } = req.body;
+
+      if (!name || !email || !subject || !message) {
+        return res.status(400).json({ message: "Required fields missing" });
+      }
+
+      const contactData = {
+        name,
+        email,
+        phone: phone || null,
+        subject,
+        message,
+        status: 'unread',
+      };
+
+      const contactMessage = await storage.createContactMessage(contactData);
+      res.status(201).json(contactMessage);
+    } catch (error) {
+      console.error("Error creating contact message:", error);
+      res.status(500).json({ message: "Failed to send message" });
+    }
+  });
+
+  // Admin: Get all contact messages (Inbox)
+  app.get('/api/admin/contact-messages', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const messages = await storage.getContactMessages();
+      res.json(messages);
+    } catch (error) {
+      console.error("Error fetching contact messages:", error);
+      res.status(500).json({ message: "Failed to fetch messages" });
+    }
+  });
+
+  // Admin: Update contact message status
+  app.patch('/api/admin/contact-messages/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { id } = req.params;
+      const { status, adminNotes } = req.body;
+
+      const message = await storage.updateContactMessageStatus(parseInt(id), status, adminNotes);
+      res.json(message);
+    } catch (error) {
+      console.error("Error updating contact message:", error);
+      res.status(500).json({ message: "Failed to update message" });
+    }
+  });
+
+  // Admin: Delete contact message
+  app.delete('/api/admin/contact-messages/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { id } = req.params;
+      await storage.deleteContactMessage(parseInt(id));
+      res.json({ message: "Message deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting contact message:", error);
+      res.status(500).json({ message: "Failed to delete message" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

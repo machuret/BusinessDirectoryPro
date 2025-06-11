@@ -5,6 +5,7 @@ import Footer from "@/components/footer";
 import ReviewForm from "@/components/review-form";
 import PhotoGallery from "@/components/photo-gallery";
 import ClaimBusinessForm from "@/components/ClaimBusinessForm";
+import BusinessCarousel from "@/components/BusinessCarousel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

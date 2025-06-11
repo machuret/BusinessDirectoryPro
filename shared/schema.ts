@@ -167,7 +167,7 @@ export const menuItems = pgTable("menu_items", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   url: text("url").notNull(),
-  position: text("position").notNull(), // header, footer
+  position: text("position").notNull(), // header, footer1, footer2
   order: integer("order").notNull().default(0),
   isActive: boolean("is_active").notNull().default(true),
   target: text("target").default("_self"), // _self, _blank
