@@ -349,82 +349,180 @@ export default function AdminEnhanced() {
   ) || [];
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Enhanced Admin Dashboard</h1>
-        <p className="text-muted-foreground mt-2">Advanced business directory management with mass operations</p>
+    <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Sidebar */}
+      <div className="w-64 bg-white dark:bg-gray-800 shadow-lg border-r border-gray-200 dark:border-gray-700">
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h1>
+          <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">Business Directory Management</p>
+        </div>
+        
+        <nav className="mt-6 px-3 pb-6 space-y-1">
+          <button
+            onClick={() => setActiveTab("businesses")}
+            className={`w-full flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
+              activeTab === "businesses" 
+                ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300" 
+                : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+            }`}
+          >
+            <Building2 className="h-5 w-5 mr-3" />
+            Businesses
+          </button>
+          
+          <button
+            onClick={() => setActiveTab("users")}
+            className={`w-full flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
+              activeTab === "users" 
+                ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300" 
+                : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+            }`}
+          >
+            <Users className="h-5 w-5 mr-3" />
+            Users
+          </button>
+          
+          <button
+            onClick={() => setActiveTab("categories")}
+            className={`w-full flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
+              activeTab === "categories" 
+                ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300" 
+                : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+            }`}
+          >
+            <FileText className="h-5 w-5 mr-3" />
+            Categories
+          </button>
+          
+          <button
+            onClick={() => setActiveTab("cities")}
+            className={`w-full flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
+              activeTab === "cities" 
+                ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300" 
+                : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+            }`}
+          >
+            <MapPin className="h-5 w-5 mr-3" />
+            Cities
+          </button>
+          
+          <button
+            onClick={() => setActiveTab("reviews")}
+            className={`w-full flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
+              activeTab === "reviews" 
+                ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300" 
+                : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+            }`}
+          >
+            <Star className="h-5 w-5 mr-3" />
+            Reviews
+          </button>
+          
+          <button
+            onClick={() => setActiveTab("ownership")}
+            className={`w-full flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
+              activeTab === "ownership" 
+                ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300" 
+                : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+            }`}
+          >
+            <UserCheck className="h-5 w-5 mr-3" />
+            Ownership
+          </button>
+          
+          <button
+            onClick={() => setActiveTab("import")}
+            className={`w-full flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
+              activeTab === "import" 
+                ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300" 
+                : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+            }`}
+          >
+            <Download className="h-5 w-5 mr-3" />
+            Import
+          </button>
+          
+          <button
+            onClick={() => setActiveTab("api")}
+            className={`w-full flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
+              activeTab === "api" 
+                ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300" 
+                : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+            }`}
+          >
+            <Key className="h-5 w-5 mr-3" />
+            API
+          </button>
+          
+          <button
+            onClick={() => setActiveTab("cms")}
+            className={`w-full flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
+              activeTab === "cms" 
+                ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300" 
+                : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+            }`}
+          >
+            <Globe className="h-5 w-5 mr-3" />
+            CMS
+          </button>
+          
+          <button
+            onClick={() => setActiveTab("export")}
+            className={`w-full flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
+              activeTab === "export" 
+                ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300" 
+                : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+            }`}
+          >
+            <Upload className="h-5 w-5 mr-3" />
+            Export
+          </button>
+          
+          <button
+            onClick={() => setActiveTab("leads")}
+            className={`w-full flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
+              activeTab === "leads" 
+                ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300" 
+                : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+            }`}
+          >
+            <Mail className="h-5 w-5 mr-3" />
+            Leads
+          </button>
+          
+          <button
+            onClick={() => setActiveTab("settings")}
+            className={`w-full flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
+              activeTab === "settings" 
+                ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300" 
+                : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+            }`}
+          >
+            <Settings className="h-5 w-5 mr-3" />
+            Settings
+          </button>
+          
+          <button
+            onClick={() => setActiveTab("faq")}
+            className={`w-full flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
+              activeTab === "faq" 
+                ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300" 
+                : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+            }`}
+          >
+            <HelpCircle className="h-5 w-5 mr-3" />
+            FAQ
+          </button>
+        </nav>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6 lg:grid-cols-12 gap-1">
-          <TabsTrigger value="businesses" className="flex items-center space-x-2 text-sm px-3 py-2">
-            <Building2 className="h-4 w-4" />
-            <span>Businesses</span>
-          </TabsTrigger>
-          <TabsTrigger value="users" className="flex items-center space-x-2 text-sm px-3 py-2">
-            <Users className="h-4 w-4" />
-            <span>Users</span>
-          </TabsTrigger>
-          <TabsTrigger value="categories" className="flex items-center space-x-2 text-sm px-3 py-2">
-            <FileText className="h-4 w-4" />
-            <span>Categories</span>
-          </TabsTrigger>
-          <TabsTrigger value="cities" className="flex items-center space-x-2 text-sm px-3 py-2">
-            <MapPin className="h-4 w-4" />
-            <span>Cities</span>
-          </TabsTrigger>
-          <TabsTrigger value="reviews" className="flex items-center space-x-2 text-sm px-3 py-2">
-            <Star className="h-4 w-4" />
-            <span>Reviews</span>
-          </TabsTrigger>
-          <TabsTrigger value="ownership" className="flex items-center space-x-2 text-sm px-3 py-2">
-            <UserCheck className="h-4 w-4" />
-            <span>Ownership</span>
-          </TabsTrigger>
-          <TabsTrigger value="import" className="flex items-center space-x-2 text-sm px-3 py-2">
-            <Download className="h-4 w-4" />
-            <span>Import</span>
-          </TabsTrigger>
-          <TabsTrigger value="api" className="flex items-center space-x-2 text-sm px-3 py-2">
-            <Key className="h-4 w-4" />
-            <span>API</span>
-          </TabsTrigger>
-          <TabsTrigger value="cms" className="flex items-center space-x-2 text-sm px-3 py-2">
-            <Globe className="h-4 w-4" />
-            <span>CMS</span>
-          </TabsTrigger>
-          <TabsTrigger value="export" className="flex items-center space-x-2 text-sm px-3 py-2">
-            <Upload className="h-4 w-4" />
-            <span>Export</span>
-          </TabsTrigger>
-          <TabsTrigger value="leads" className="flex items-center space-x-2 text-sm px-3 py-2">
-            <Mail className="h-4 w-4" />
-            <span>Leads</span>
-          </TabsTrigger>
-          <TabsTrigger value="settings" className="flex items-center space-x-2 text-sm px-3 py-2">
-            <Settings className="h-4 w-4" />
-            <span>Settings</span>
-          </TabsTrigger>
-          <TabsTrigger value="faq" className="flex items-center space-x-2 text-sm px-3 py-2">
-            <HelpCircle className="h-4 w-4" />
-            <span>FAQ</span>
-          </TabsTrigger>
-          <TabsTrigger value="seo" className="flex items-center space-x-2 text-sm px-3 py-2">
-            <Globe className="h-4 w-4" />
-            <span>SEO</span>
-          </TabsTrigger>
-          <TabsTrigger value="homepage" className="flex items-center space-x-2 text-sm px-3 py-2">
-            <Home className="h-4 w-4" />
-            <span>Homepage</span>
-          </TabsTrigger>
-          <TabsTrigger value="optimization" className="flex items-center space-x-2 text-sm px-3 py-2">
-            <Brain className="h-4 w-4" />
-            <span>AI Optimize</span>
-          </TabsTrigger>
-        </TabsList>
-
-        {/* Businesses Tab */}
-        <TabsContent value="businesses" className="space-y-6">
+      {/* Main Content Area */}
+      <div className="flex-1 overflow-hidden">
+        <div className="h-full overflow-y-auto p-6">
+          
+          {/* Businesses Tab */}
+          {activeTab === "businesses" && (
+            <div className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Business Management</CardTitle>
@@ -548,10 +646,12 @@ export default function AdminEnhanced() {
               )}
             </CardContent>
           </Card>
-        </TabsContent>
+        </div>
+      )}
 
-        {/* Users Tab */}
-        <TabsContent value="users" className="space-y-6">
+      {/* Users Tab */}
+      {activeTab === "users" && (
+        <div className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>User Management</CardTitle>

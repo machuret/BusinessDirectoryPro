@@ -12,7 +12,7 @@ import BusinessDetail from "@/pages/business-detail";
 import BusinessListing from "@/pages/business-listing";
 import SearchResults from "@/pages/search-results";
 import Dashboard from "@/pages/dashboard";
-import Admin from "@/pages/admin-clean";
+import Admin from "@/pages/admin-enhanced";
 import MenuEdit from "@/pages/menu-edit";
 import PageDisplay from "@/pages/page-display";
 import Login from "@/pages/login";
