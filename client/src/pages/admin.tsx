@@ -311,6 +311,84 @@ export default function Admin() {
     },
   });
 
+  // Page management mutations
+  const createPageMutation = useMutation({
+    mutationFn: async (pageData: any) => {
+      const res = await apiRequest("POST", "/api/admin/pages", pageData);
+      return await res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/pages"] });
+      setShowPageForm(false);
+      setEditingPage(null);
+      toast({ title: "Page created successfully" });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Create failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updatePageMutation = useMutation({
+    mutationFn: async ({ id, ...pageData }: any) => {
+      const res = await apiRequest("PATCH", `/api/admin/pages/${id}`, pageData);
+      return await res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/pages"] });
+      setShowPageForm(false);
+      setEditingPage(null);
+      toast({ title: "Page updated successfully" });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Update failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const publishPageMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await apiRequest("PATCH", `/api/admin/pages/${id}/publish`, {});
+      return await res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/pages"] });
+      toast({ title: "Page published successfully" });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Publish failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deletePageMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await apiRequest("DELETE", `/api/admin/pages/${id}`);
+      return res;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/pages"] });
+      setDeletingPageId(null);
+      toast({ title: "Page deleted successfully" });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Delete failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   // Handle CSV file upload
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -357,6 +435,37 @@ export default function Admin() {
   const editUser = (user: User) => {
     setEditingUser(user);
     setShowUserForm(true);
+  };
+
+  // Page management functions
+  const handleCreatePage = (formData: FormData) => {
+    const data = {
+      title: formData.get("title"),
+      content: formData.get("content"),
+      seoTitle: formData.get("seoTitle") || null,
+      seoDescription: formData.get("seoDescription") || null,
+      status: formData.get("status") || "draft",
+    };
+    createPageMutation.mutate(data);
+  };
+
+  const handleUpdatePage = (formData: FormData) => {
+    if (!editingPage) return;
+    
+    const data = {
+      id: editingPage.id,
+      title: formData.get("title"),
+      content: formData.get("content"),
+      seoTitle: formData.get("seoTitle") || null,
+      seoDescription: formData.get("seoDescription") || null,
+      status: formData.get("status") || "draft",
+    };
+    updatePageMutation.mutate(data);
+  };
+
+  const editPage = (page: Page) => {
+    setEditingPage(page);
+    setShowPageForm(true);
   };
 
   // Business selection helpers
@@ -442,7 +551,7 @@ export default function Admin() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5 lg:grid-cols-10">
+        <TabsList className="grid w-full grid-cols-6 lg:grid-cols-11">
           <TabsTrigger value="businesses" className="flex items-center space-x-2">
             <Building2 className="h-4 w-4" />
             <span>Businesses</span>
@@ -458,6 +567,10 @@ export default function Admin() {
           <TabsTrigger value="cities" className="flex items-center space-x-2">
             <MapPin className="h-4 w-4" />
             <span>Cities</span>
+          </TabsTrigger>
+          <TabsTrigger value="pages" className="flex items-center space-x-2">
+            <Globe className="h-4 w-4" />
+            <span>Pages</span>
           </TabsTrigger>
           <TabsTrigger value="claims" className="flex items-center space-x-2">
             <FileText className="h-4 w-4" />
@@ -1293,6 +1406,113 @@ export default function Admin() {
           </Card>
         </TabsContent>
 
+        {/* Pages Tab */}
+        <TabsContent value="pages" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Page Management</CardTitle>
+              <CardDescription>Create and manage website pages with SEO optimization</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex justify-between items-center mb-4">
+                <Button 
+                  onClick={() => {
+                    setEditingPage(null);
+                    setShowPageForm(true);
+                  }}
+                  className="flex items-center space-x-2"
+                >
+                  <Globe className="h-4 w-4" />
+                  <span>Create New Page</span>
+                </Button>
+              </div>
+
+              {pagesLoading ? (
+                <p>Loading pages...</p>
+              ) : (
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Title</TableHead>
+                        <TableHead>Slug</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>SEO Title</TableHead>
+                        <TableHead>Created</TableHead>
+                        <TableHead>Updated</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {pages?.map((page) => (
+                        <TableRow key={page.id}>
+                          <TableCell className="font-medium">{page.title}</TableCell>
+                          <TableCell>
+                            <code className="text-sm bg-muted px-1 rounded">/{page.slug}</code>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={page.status === 'published' ? 'default' : 'secondary'}>
+                              {page.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="max-w-xs truncate">
+                            {page.seoTitle || 'No SEO title'}
+                          </TableCell>
+                          <TableCell>
+                            {page.createdAt ? new Date(page.createdAt).toLocaleDateString() : 'N/A'}
+                          </TableCell>
+                          <TableCell>
+                            {page.updatedAt ? new Date(page.updatedAt).toLocaleDateString() : 'N/A'}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex space-x-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => editPage(page)}
+                              >
+                                Edit
+                              </Button>
+                              {page.status === 'draft' && (
+                                <Button
+                                  variant="default"
+                                  size="sm"
+                                  onClick={() => publishPageMutation.mutate(page.id)}
+                                  disabled={publishPageMutation.isPending}
+                                >
+                                  Publish
+                                </Button>
+                              )}
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => {
+                                  if (confirm('Are you sure you want to delete this page?')) {
+                                    deletePageMutation.mutate(page.id);
+                                  }
+                                }}
+                                disabled={deletePageMutation.isPending}
+                              >
+                                Delete
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                  
+                  {(!pages || pages.length === 0) && (
+                    <div className="text-center py-8">
+                      <p className="text-muted-foreground">No pages found. Create your first page to get started.</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         {/* Settings Tab */}
         <TabsContent value="settings" className="space-y-6">
           <Card>
@@ -1784,6 +2004,127 @@ export default function Admin() {
                 </Button>
                 <Button type="submit" disabled={updateUserMutation.isPending}>
                   {updateUserMutation.isPending ? "Updating..." : "Update User"}
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Page Form Dialog */}
+      {showPageForm && (
+        <Dialog open={showPageForm} onOpenChange={setShowPageForm}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>{editingPage ? 'Edit Page' : 'Create New Page'}</DialogTitle>
+              <DialogDescription>
+                {editingPage ? 'Update page content and SEO settings' : 'Create a new page with content and SEO optimization'}
+              </DialogDescription>
+            </DialogHeader>
+            
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.currentTarget);
+              if (editingPage) {
+                handleUpdatePage(formData);
+              } else {
+                handleCreatePage(formData);
+              }
+            }} className="space-y-6">
+              {/* Basic Information */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Basic Information</h3>
+                
+                <div>
+                  <Label htmlFor="title">Page Title *</Label>
+                  <Input
+                    id="title"
+                    name="title"
+                    required
+                    defaultValue={editingPage?.title || ""}
+                    placeholder="Enter page title"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="content">Page Content</Label>
+                  <Textarea
+                    id="content"
+                    name="content"
+                    rows={12}
+                    defaultValue={editingPage?.content || ""}
+                    placeholder="Enter page content using HTML or plain text..."
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="status">Status</Label>
+                  <Select name="status" defaultValue={editingPage?.status || "draft"}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="draft">Draft</SelectItem>
+                      <SelectItem value="published">Published</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* SEO Settings */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">SEO Settings</h3>
+                
+                <div>
+                  <Label htmlFor="seoTitle">SEO Title</Label>
+                  <Input
+                    id="seoTitle"
+                    name="seoTitle"
+                    defaultValue={editingPage?.seoTitle || ""}
+                    placeholder="Custom title for search engines (optional)"
+                  />
+                  <p className="text-sm text-muted-foreground mt-1">
+                    If empty, the page title will be used for SEO
+                  </p>
+                </div>
+
+                <div>
+                  <Label htmlFor="seoDescription">SEO Description</Label>
+                  <Textarea
+                    id="seoDescription"
+                    name="seoDescription"
+                    rows={3}
+                    defaultValue={editingPage?.seoDescription || ""}
+                    placeholder="Brief description for search engine results (optional)"
+                  />
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Recommended: 150-160 characters
+                  </p>
+                </div>
+              </div>
+
+              {/* URL Preview */}
+              {editingPage && (
+                <div className="space-y-2">
+                  <h3 className="text-lg font-semibold">URL Preview</h3>
+                  <div className="p-3 bg-muted rounded-md">
+                    <code className="text-sm">/{editingPage.slug}</code>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex space-x-2 pt-4">
+                <Button type="button" variant="outline" onClick={() => setShowPageForm(false)}>
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={createPageMutation.isPending || updatePageMutation.isPending}
+                >
+                  {createPageMutation.isPending || updatePageMutation.isPending 
+                    ? "Saving..." 
+                    : editingPage ? "Update Page" : "Create Page"
+                  }
                 </Button>
               </div>
             </form>
