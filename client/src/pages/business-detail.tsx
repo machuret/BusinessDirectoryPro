@@ -185,7 +185,7 @@ export default function BusinessDetail() {
         <div className="grid lg:grid-cols-3 gap-8 mb-8">
           <div className="lg:col-span-2">
             {/* Business Actions */}
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center gap-2 mb-4 no-print">
               <Button onClick={handleShare} variant="outline" size="sm">
                 <Share2 className="h-4 w-4 mr-2" />
                 Share

@@ -103,5 +103,41 @@
   }
 }
 
+/* Print-friendly styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .print-only {
+    display: block !important;
+  }
+  
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  
+  .business-card {
+    border: 1px solid #ccc !important;
+    padding: 20px !important;
+    margin: 20px 0 !important;
+    page-break-inside: avoid;
+  }
+  
+  a {
+    color: black !important;
+    text-decoration: none !important;
+  }
+  
+  .photo-gallery {
+    display: none !important;
+  }
+  
+  .reviews-section {
+    page-break-before: always;
+  }
+}
+
 /* FontAwesome Icons */
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
