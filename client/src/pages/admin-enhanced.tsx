@@ -1477,7 +1477,6 @@ export default function AdminEnhanced() {
           </form>
         </DialogContent>
       </Dialog>
-      </Tabs>
     </div>
   );
 }
