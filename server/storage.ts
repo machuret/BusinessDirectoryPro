@@ -1,4 +1,4 @@
-import { eq, like, ilike, and, or, desc, sql, ne } from "drizzle-orm";
+import { eq, like, ilike, and, or, desc, asc, sql, ne } from "drizzle-orm";
 import { db } from "./db";
 import {
   users,
@@ -268,7 +268,11 @@ export class DatabaseStorage implements IStorage {
         query = query.where(eq(businesses.featured, true));
       }
 
-      const result = await query.limit(limit).offset(offset);
+      // Order by featured status first (featured businesses at top), then by name
+      const result = await query
+        .orderBy(desc(businesses.featured), asc(businesses.title))
+        .limit(limit)
+        .offset(offset);
       return result as BusinessWithCategory[];
     } catch (error) {
       console.error('Error in getBusinesses:', error);

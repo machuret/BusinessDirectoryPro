@@ -101,6 +101,11 @@ export default function Admin() {
     enabled: !!user && (user as any).role === 'admin'
   });
 
+  const { data: websiteFaqs, isLoading: faqsLoading } = useQuery<any[]>({
+    queryKey: ["/api/admin/website-faqs"],
+    enabled: !!user && (user as any).role === 'admin'
+  });
+
   const { data: citiesData, isLoading: citiesLoading } = useQuery<{city: string, count: number}[]>({
     queryKey: ["/api/cities"],
     enabled: !!user && (user as any).role === 'admin'
@@ -679,6 +684,10 @@ export default function Admin() {
           <TabsTrigger value="seo" className="flex items-center space-x-2">
             <Globe className="h-4 w-4" />
             <span>Global SEO</span>
+          </TabsTrigger>
+          <TabsTrigger value="faq" className="flex items-center space-x-2">
+            <AlertTriangle className="h-4 w-4" />
+            <span>FAQ</span>
           </TabsTrigger>
           <TabsTrigger value="settings" className="flex items-center space-x-2">
             <Settings className="h-4 w-4" />

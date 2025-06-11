@@ -441,6 +441,85 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Website FAQ management routes
+  app.get("/api/admin/website-faqs", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { category } = req.query;
+      const faqs = await storage.getWebsiteFaqs(category as string);
+      res.json(faqs);
+    } catch (error) {
+      console.error("Error fetching website FAQs:", error);
+      res.status(500).send("Internal server error");
+    }
+  });
+
+  app.post("/api/admin/website-faqs", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const faq = await storage.createWebsiteFaq(req.body);
+      res.status(201).json(faq);
+    } catch (error) {
+      console.error("Error creating website FAQ:", error);
+      res.status(500).send("Internal server error");
+    }
+  });
+
+  app.patch("/api/admin/website-faqs/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const id = parseInt(req.params.id);
+      const faq = await storage.updateWebsiteFaq(id, req.body);
+      if (!faq) {
+        return res.status(404).send("FAQ not found");
+      }
+      res.json(faq);
+    } catch (error) {
+      console.error("Error updating website FAQ:", error);
+      res.status(500).send("Internal server error");
+    }
+  });
+
+  app.delete("/api/admin/website-faqs/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const id = parseInt(req.params.id);
+      await storage.deleteWebsiteFaq(id);
+      res.sendStatus(200);
+    } catch (error) {
+      console.error("Error deleting website FAQ:", error);
+      res.status(500).send("Internal server error");
+    }
+  });
+
+  // Public website FAQ endpoint
+  app.get("/api/website-faqs", async (req, res) => {
+    try {
+      const { category } = req.query;
+      const faqs = await storage.getWebsiteFaqs(category as string);
+      res.json(faqs);
+    } catch (error) {
+      console.error("Error fetching website FAQs:", error);
+      res.status(500).send("Internal server error");
+    }
+  });
+
   // Review routes
   app.get('/api/businesses/:id/reviews', async (req, res) => {
     try {
