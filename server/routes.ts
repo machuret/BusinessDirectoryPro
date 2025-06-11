@@ -1222,6 +1222,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Website FAQ routes
+  app.get("/api/website-faqs", async (req, res) => {
+    try {
+      const { category } = req.query;
+      const faqs = await storage.getWebsiteFaqs(category as string);
+      res.json(faqs);
+    } catch (error) {
+      console.error('Error fetching website FAQs:', error);
+      res.status(500).json({ message: "Failed to fetch FAQs" });
+    }
+  });
+
+  app.post("/api/website-faqs", isAuthenticated, async (req, res) => {
+    try {
+      const faqData = req.body;
+      const faq = await storage.createWebsiteFaq(faqData);
+      res.status(201).json(faq);
+    } catch (error) {
+      console.error('Error creating website FAQ:', error);
+      res.status(500).json({ message: "Failed to create FAQ" });
+    }
+  });
+
+  app.patch("/api/website-faqs/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const faqData = req.body;
+      const faq = await storage.updateWebsiteFaq(id, faqData);
+      res.json(faq);
+    } catch (error) {
+      console.error('Error updating website FAQ:', error);
+      res.status(500).json({ message: "Failed to update FAQ" });
+    }
+  });
+
+  app.delete("/api/website-faqs/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteWebsiteFaq(id);
+      res.status(204).send();
+    } catch (error) {
+      console.error('Error deleting website FAQ:', error);
+      res.status(500).json({ message: "Failed to delete FAQ" });
+    }
+  });
+
+  // Analytics endpoint for admin dashboard
+  app.get("/api/admin/analytics", isAuthenticated, async (req, res) => {
+    try {
+      const [users, businesses, reviews, cities] = await Promise.all([
+        storage.getAllUsers(),
+        storage.getBusinesses(),
+        storage.getAllReviewsForAdmin(),
+        storage.getUniqueCities()
+      ]);
+
+      res.json({
+        totalUsers: users.length,
+        totalBusinesses: businesses.length,
+        totalReviews: reviews.length,
+        totalCities: cities.length
+      });
+    } catch (error) {
+      console.error('Error fetching analytics:', error);
+      res.status(500).json({ message: "Failed to fetch analytics" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -111,6 +111,12 @@ export default function Admin() {
     enabled: !!user && (user as any).role === 'admin'
   });
 
+  // Separate pending and approved reviews
+  const pendingReviews = allReviews?.filter(review => review.status === 'pending') || [];
+  const reviews = allReviews?.filter(review => review.status !== 'pending') || [];
+  const reviewsLoading = allReviewsLoading;
+  const pendingReviewsLoading = allReviewsLoading;
+
   // CSV Import mutation
   const csvImportMutation = useMutation({
     mutationFn: async (file: File) => {

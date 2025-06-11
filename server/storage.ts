@@ -23,6 +23,8 @@ import {
   type InsertMenuItem,
   type Page,
   type InsertPage,
+  type WebsiteFaq,
+  type InsertWebsiteFaq,
   type BusinessWithCategory,
   type CategoryWithCount,
 } from "@shared/schema";
