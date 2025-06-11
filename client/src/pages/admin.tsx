@@ -16,7 +16,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { AlertTriangle, Upload, Users, Building2, Settings, FileText, Star, Menu, Key, Zap, MapPin, Globe } from "lucide-react";
-import type { BusinessWithCategory, User, Category, SiteSetting, MenuItem } from "@shared/schema";
+import type { BusinessWithCategory, User, Category, SiteSetting, MenuItem, Page } from "@shared/schema";
 
 export default function Admin() {
   const { user } = useAuth();
@@ -36,6 +36,9 @@ export default function Admin() {
   const [optimizerProgress, setOptimizerProgress] = useState<{type: string, current: number, total: number} | null>(null);
   const [optimizerResults, setOptimizerResults] = useState<any>(null);
   const [showResultsModal, setShowResultsModal] = useState(false);
+  const [editingPage, setEditingPage] = useState<Page | null>(null);
+  const [showPageForm, setShowPageForm] = useState(false);
+  const [deletingPageId, setDeletingPageId] = useState<number | null>(null);
 
 
   // Data queries
@@ -83,6 +86,11 @@ export default function Admin() {
 
   const { data: menuItems, isLoading: menuItemsLoading } = useQuery<MenuItem[]>({
     queryKey: ["/api/admin/menus"],
+    enabled: !!user && (user as any).role === 'admin'
+  });
+
+  const { data: pages, isLoading: pagesLoading } = useQuery<Page[]>({
+    queryKey: ["/api/admin/pages"],
     enabled: !!user && (user as any).role === 'admin'
   });
 

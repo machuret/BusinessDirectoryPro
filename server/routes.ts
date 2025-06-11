@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, isAdmin } from "./auth";
-import { insertBusinessSchema, insertReviewSchema, insertCategorySchema, insertMenuItemSchema, publicReviewSchema } from "@shared/schema";
+import { insertBusinessSchema, insertReviewSchema, insertCategorySchema, insertMenuItemSchema, insertPageSchema, publicReviewSchema } from "@shared/schema";
 import { optimizeBusinesses } from "./openai";
 import { z } from "zod";
 import multer from "multer";
@@ -997,6 +997,107 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error generating FAQs:", error);
       res.status(500).json({ message: "Failed to generate FAQs" });
+    }
+  });
+
+  // CMS Page management routes
+  app.get('/api/admin/pages', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { status } = req.query;
+      const pages = await storage.getPages(status as string);
+      res.json(pages);
+    } catch (error) {
+      console.error("Error fetching pages:", error);
+      res.status(500).json({ message: "Failed to fetch pages" });
+    }
+  });
+
+  app.get('/api/admin/pages/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const page = await storage.getPage(parseInt(id));
+      if (!page) {
+        return res.status(404).json({ message: "Page not found" });
+      }
+      res.json(page);
+    } catch (error) {
+      console.error("Error fetching page:", error);
+      res.status(500).json({ message: "Failed to fetch page" });
+    }
+  });
+
+  app.get('/api/pages/:slug', async (req, res) => {
+    try {
+      const { slug } = req.params;
+      const page = await storage.getPageBySlug(slug);
+      if (!page || page.status !== 'published') {
+        return res.status(404).json({ message: "Page not found" });
+      }
+      res.json(page);
+    } catch (error) {
+      console.error("Error fetching page by slug:", error);
+      res.status(500).json({ message: "Failed to fetch page" });
+    }
+  });
+
+  app.post('/api/admin/pages', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const userId = (req.session as any).userId;
+      const validatedData = insertPageSchema.parse({
+        ...req.body,
+        authorId: userId
+      });
+      
+      const page = await storage.createPage(validatedData);
+      res.status(201).json(page);
+    } catch (error) {
+      console.error("Error creating page:", error);
+      res.status(500).json({ message: "Failed to create page" });
+    }
+  });
+
+  app.patch('/api/admin/pages/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      
+      const page = await storage.updatePage(parseInt(id), updates);
+      if (!page) {
+        return res.status(404).json({ message: "Page not found" });
+      }
+      
+      res.json(page);
+    } catch (error) {
+      console.error("Error updating page:", error);
+      res.status(500).json({ message: "Failed to update page" });
+    }
+  });
+
+  app.patch('/api/admin/pages/:id/publish', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const userId = (req.session as any).userId;
+      
+      const page = await storage.publishPage(parseInt(id), userId);
+      if (!page) {
+        return res.status(404).json({ message: "Page not found" });
+      }
+      
+      res.json(page);
+    } catch (error) {
+      console.error("Error publishing page:", error);
+      res.status(500).json({ message: "Failed to publish page" });
+    }
+  });
+
+  app.delete('/api/admin/pages/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deletePage(parseInt(id));
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting page:", error);
+      res.status(500).json({ message: "Failed to delete page" });
     }
   });
 
