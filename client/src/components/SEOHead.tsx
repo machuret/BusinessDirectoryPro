@@ -325,17 +325,34 @@ export default function SEOHead({
 
   // Update document head
   useEffect(() => {
+    // Validate data before processing
+    if (!siteSettings && !business && !category) {
+      return; // Skip if no data available
+    }
+
     const finalTitle = generateTitle();
     const finalDescription = generateDescription();
     const finalKeywords = generateKeywords();
     const finalCanonical = generateCanonical();
     const finalOGImage = generateOGImage();
 
+    // Validate generated content
+    if (!finalTitle || finalTitle.length < 10) {
+      console.warn('SEO: Generated title is too short or empty');
+      return;
+    }
+
+    if (!finalDescription || finalDescription.length < 50) {
+      console.warn('SEO: Generated description is too short or empty');
+    }
+
     // Update title
     document.title = finalTitle;
 
-    // Update or create meta tags
+    // Optimized meta tag update function
     const updateMetaTag = (name: string, content: string, property?: boolean) => {
+      if (!content || content.trim() === '') return; // Skip empty content
+      
       const selector = property ? `meta[property="${name}"]` : `meta[name="${name}"]`;
       let meta = document.querySelector(selector) as HTMLMetaElement;
       
@@ -349,7 +366,10 @@ export default function SEOHead({
         document.head.appendChild(meta);
       }
       
-      meta.setAttribute('content', content);
+      // Only update if content has changed
+      if (meta.getAttribute('content') !== content) {
+        meta.setAttribute('content', content);
+      }
     };
 
     // Basic meta tags
@@ -380,25 +400,39 @@ export default function SEOHead({
     }
     canonical_link.setAttribute('href', finalCanonical);
 
-    // JSON-LD Schema markup
-    const schemas = [
-      generateLocalBusinessSchema(),
-      generateOrganizationSchema(),
-      generateBreadcrumbSchema()
-    ].filter(Boolean);
+    // JSON-LD Schema markup with error handling
+    try {
+      const schemas = [
+        generateLocalBusinessSchema(),
+        generateOrganizationSchema(),
+        generateBreadcrumbSchema()
+      ].filter(Boolean);
 
-    // Remove existing schema scripts
-    const existingSchemas = document.querySelectorAll('script[type="application/ld+json"]');
-    existingSchemas.forEach(script => script.remove());
+      // Only update schemas if they exist and are valid
+      if (schemas.length > 0) {
+        // Remove existing schema scripts to prevent duplicates
+        const existingSchemas = document.querySelectorAll('script[type="application/ld+json"][id^="schema-"]');
+        existingSchemas.forEach(script => script.remove());
 
-    // Add new schema scripts
-    schemas.forEach((schema, index) => {
-      const script = document.createElement('script');
-      script.type = 'application/ld+json';
-      script.textContent = JSON.stringify(schema, null, 2);
-      script.id = `schema-${index}`;
-      document.head.appendChild(script);
-    });
+        // Add new schema scripts with validation
+        schemas.forEach((schema, index) => {
+          if (schema && typeof schema === 'object') {
+            const script = document.createElement('script');
+            script.type = 'application/ld+json';
+            script.id = `schema-${index}`;
+            
+            try {
+              script.textContent = JSON.stringify(schema, null, 0); // Compact JSON to save space
+              document.head.appendChild(script);
+            } catch (jsonError) {
+              console.warn(`SEO: Failed to stringify schema ${index}:`, jsonError);
+            }
+          }
+        });
+      }
+    } catch (schemaError) {
+      console.warn('SEO: Schema generation failed:', schemaError);
+    }
 
     // Cleanup function
     return () => {

@@ -102,7 +102,7 @@ export default function BusinessDetail() {
     enabled: !!business,
   });
 
-  const { data: siteSettings = [] } = useQuery({
+  const { data: siteSettings } = useQuery<Record<string, any>>({
     queryKey: ["/api/site-settings"],
   });
 

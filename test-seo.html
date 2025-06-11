@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SEO Test Page</title>
+</head>
+<body>
+    <script>
+        // Test the SEO Head component output
+        fetch('/business/north-brisbane-dental-clinic')
+            .then(response => response.text())
+            .then(html => {
+                console.log('=== SEO AUDIT RESULTS ===');
+                
+                // Check for title
+                const titleMatch = html.match(/<title[^>]*>([^<]*)<\/title>/i);
+                console.log('Title:', titleMatch ? titleMatch[1] : 'NOT FOUND');
+                
+                // Check for meta description
+                const descMatch = html.match(/<meta[^>]*name=["']description["'][^>]*content=["']([^"']*)["']/i);
+                console.log('Meta Description:', descMatch ? descMatch[1] : 'NOT FOUND');
+                
+                // Check for Open Graph tags
+                const ogTitleMatch = html.match(/<meta[^>]*property=["']og:title["'][^>]*content=["']([^"']*)["']/i);
+                console.log('OG Title:', ogTitleMatch ? ogTitleMatch[1] : 'NOT FOUND');
+                
+                // Check for schema markup
+                const schemaMatches = html.match(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([^<]*)<\/script>/gi);
+                console.log('Schema Scripts Found:', schemaMatches ? schemaMatches.length : 0);
+                
+                if (schemaMatches) {
+                    schemaMatches.forEach((script, index) => {
+                        try {
+                            const jsonMatch = script.match(/>([^<]*)</);
+                            if (jsonMatch) {
+                                const data = JSON.parse(jsonMatch[1]);
+                                console.log(`Schema ${index + 1} Type:`, data['@type']);
+                            }
+                        } catch (e) {
+                            console.log(`Schema ${index + 1}: Parse Error`);
+                        }
+                    });
+                }
+                
+                // Check for canonical URL
+                const canonicalMatch = html.match(/<link[^>]*rel=["']canonical["'][^>]*href=["']([^"']*)["']/i);
+                console.log('Canonical URL:', canonicalMatch ? canonicalMatch[1] : 'NOT FOUND');
+            })
+            .catch(err => console.error('Test failed:', err));
+    </script>
+</body>
+</html>
