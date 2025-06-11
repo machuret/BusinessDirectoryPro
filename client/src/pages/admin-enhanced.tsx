@@ -63,6 +63,21 @@ export default function AdminEnhanced() {
     enabled: !!user && (user as any).role === 'admin'
   });
 
+  const { data: leads } = useQuery<LeadWithBusiness[]>({
+    queryKey: ["/api/admin/leads"],
+    enabled: !!user && (user as any).role === 'admin'
+  });
+
+  const { data: websiteFaqs } = useQuery<any[]>({
+    queryKey: ["/api/admin/website-faqs"],
+    enabled: !!user && (user as any).role === 'admin'
+  });
+
+  const { data: siteSettings } = useQuery<SiteSetting[]>({
+    queryKey: ["/api/site-settings"],
+    enabled: !!user && (user as any).role === 'admin'
+  });
+
   // Mass operations mutations
   const massCategoryChangeMutation = useMutation({
     mutationFn: async ({ businessIds, categoryId }: { businessIds: string[]; categoryId: number }) => {
@@ -338,7 +353,7 @@ export default function AdminEnhanced() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8">
+        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-12">
           <TabsTrigger value="businesses" className="flex items-center space-x-2">
             <Building2 className="h-4 w-4" />
             <span>Businesses</span>
@@ -362,6 +377,30 @@ export default function AdminEnhanced() {
           <TabsTrigger value="ownership" className="flex items-center space-x-2">
             <UserCheck className="h-4 w-4" />
             <span>Ownership</span>
+          </TabsTrigger>
+          <TabsTrigger value="importer" className="flex items-center space-x-2">
+            <Upload className="h-4 w-4" />
+            <span>CSV Import</span>
+          </TabsTrigger>
+          <TabsTrigger value="leads" className="flex items-center space-x-2">
+            <Mail className="h-4 w-4" />
+            <span>Leads</span>
+          </TabsTrigger>
+          <TabsTrigger value="faq" className="flex items-center space-x-2">
+            <HelpCircle className="h-4 w-4" />
+            <span>FAQ</span>
+          </TabsTrigger>
+          <TabsTrigger value="seo" className="flex items-center space-x-2">
+            <Globe className="h-4 w-4" />
+            <span>SEO</span>
+          </TabsTrigger>
+          <TabsTrigger value="homepage" className="flex items-center space-x-2">
+            <Settings className="h-4 w-4" />
+            <span>Homepage</span>
+          </TabsTrigger>
+          <TabsTrigger value="optimization" className="flex items-center space-x-2">
+            <Zap className="h-4 w-4" />
+            <span>AI Optimize</span>
           </TabsTrigger>
         </TabsList>
 
@@ -851,6 +890,369 @@ export default function AdminEnhanced() {
                   </TableBody>
                 </Table>
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* CSV Import Tab */}
+        <TabsContent value="importer" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>CSV Business Import</CardTitle>
+              <CardDescription>Upload and import business data from CSV files</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                  <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                  <div className="mt-4">
+                    <label htmlFor="csv-upload" className="cursor-pointer">
+                      <span className="mt-2 block text-sm font-medium text-gray-900">
+                        Click to upload CSV file or drag and drop
+                      </span>
+                      <span className="mt-1 block text-xs text-gray-500">
+                        CSV files up to 10MB
+                      </span>
+                    </label>
+                    <input
+                      id="csv-upload"
+                      name="csv-upload"
+                      type="file"
+                      accept=".csv"
+                      className="sr-only"
+                    />
+                  </div>
+                </div>
+                <div className="flex space-x-2">
+                  <Button>
+                    <Upload className="h-4 w-4 mr-2" />
+                    Import CSV
+                  </Button>
+                  <Button variant="outline">Download Template</Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Leads Inbox Tab */}
+        <TabsContent value="leads" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Leads Inbox</CardTitle>
+              <CardDescription>Manage incoming customer inquiries and leads</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Contact</TableHead>
+                      <TableHead>Business</TableHead>
+                      <TableHead>Message</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {leads && leads.length > 0 ? (
+                      leads.map((lead) => (
+                        <TableRow key={lead.id}>
+                          <TableCell>
+                            <div>
+                              <div className="font-medium">{(lead as any).name || 'Unknown'}</div>
+                              <div className="text-sm text-muted-foreground">{(lead as any).email || ''}</div>
+                              {(lead as any).phone && (
+                                <div className="text-sm text-muted-foreground">{(lead as any).phone}</div>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div>
+                              <div className="font-medium">{lead.business?.title || 'Unknown Business'}</div>
+                              <div className="text-sm text-muted-foreground">{(lead.business as any)?.city || ''}</div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="max-w-xs truncate">{(lead as any).message || ''}</div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="text-sm">{lead.createdAt ? new Date(lead.createdAt).toLocaleDateString() : 'N/A'}</div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={lead.status === 'new' ? 'default' : lead.status === 'contacted' ? 'secondary' : 'outline'}>
+                              {lead.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex space-x-2">
+                              <Button size="sm" variant="outline">
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                              <Button size="sm" variant="outline">
+                                <Mail className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center text-muted-foreground">
+                          No leads found
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* FAQ Management Tab */}
+        <TabsContent value="faq" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Website FAQ Management</CardTitle>
+              <CardDescription>Manage frequently asked questions for the website</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex justify-between items-center mb-4">
+                <Button>
+                  <HelpCircle className="h-4 w-4 mr-2" />
+                  Add FAQ
+                </Button>
+              </div>
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Question</TableHead>
+                      <TableHead>Category</TableHead>
+                      <TableHead>Order</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {websiteFaqs && websiteFaqs.length > 0 ? (
+                      websiteFaqs.map((faq) => (
+                        <TableRow key={faq.id}>
+                          <TableCell>
+                            <div className="max-w-xs">
+                              <div className="font-medium">{faq.question}</div>
+                              <div className="text-sm text-muted-foreground truncate">{faq.answer}</div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="secondary">{faq.category || 'General'}</Badge>
+                          </TableCell>
+                          <TableCell>{faq.sortOrder || 0}</TableCell>
+                          <TableCell>
+                            <Badge variant={faq.isActive ? 'default' : 'secondary'}>
+                              {faq.isActive ? 'Active' : 'Inactive'}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex space-x-2">
+                              <Button size="sm" variant="outline">
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button size="sm" variant="outline">
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center text-muted-foreground">
+                          No FAQs found
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* SEO Settings Tab */}
+        <TabsContent value="seo" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>SEO Settings</CardTitle>
+              <CardDescription>Configure search engine optimization settings</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="site-title">Site Title</Label>
+                    <Input id="site-title" placeholder="Your Business Directory" />
+                  </div>
+                  <div>
+                    <Label htmlFor="meta-description">Meta Description</Label>
+                    <Textarea id="meta-description" placeholder="Discover local businesses..." />
+                  </div>
+                  <div>
+                    <Label htmlFor="meta-keywords">Meta Keywords</Label>
+                    <Input id="meta-keywords" placeholder="business, directory, local" />
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="og-title">Open Graph Title</Label>
+                    <Input id="og-title" placeholder="Business Directory" />
+                  </div>
+                  <div>
+                    <Label htmlFor="og-description">Open Graph Description</Label>
+                    <Textarea id="og-description" placeholder="Find local businesses..." />
+                  </div>
+                  <div>
+                    <Label htmlFor="google-analytics">Google Analytics ID</Label>
+                    <Input id="google-analytics" placeholder="GA-XXXXXXXXX-X" />
+                  </div>
+                </div>
+              </div>
+              <Button>
+                <Globe className="h-4 w-4 mr-2" />
+                Save SEO Settings
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Homepage Customization Tab */}
+        <TabsContent value="homepage" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Homepage Customization</CardTitle>
+              <CardDescription>Customize the homepage layout and content</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="hero-title">Hero Section Title</Label>
+                    <Input id="hero-title" placeholder="Find Local Businesses" />
+                  </div>
+                  <div>
+                    <Label htmlFor="hero-subtitle">Hero Section Subtitle</Label>
+                    <Textarea id="hero-subtitle" placeholder="Discover amazing local businesses..." />
+                  </div>
+                  <div>
+                    <Label htmlFor="featured-section-title">Featured Section Title</Label>
+                    <Input id="featured-section-title" placeholder="Featured Businesses" />
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="categories-section-title">Categories Section Title</Label>
+                    <Input id="categories-section-title" placeholder="Browse Categories" />
+                  </div>
+                  <div>
+                    <Label htmlFor="footer-text">Footer Text</Label>
+                    <Textarea id="footer-text" placeholder="© 2024 Business Directory" />
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox id="show-search" />
+                    <Label htmlFor="show-search">Show search on homepage</Label>
+                  </div>
+                </div>
+              </div>
+              <Button>
+                <Settings className="h-4 w-4 mr-2" />
+                Save Homepage Settings
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* AI Optimization Tab */}
+        <TabsContent value="optimization" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>AI Content Optimization</CardTitle>
+              <CardDescription>Use AI to optimize business descriptions and generate content</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Optimize Descriptions</CardTitle>
+                    <CardDescription>Improve business descriptions using AI</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <Select>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select businesses to optimize" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Businesses</SelectItem>
+                          <SelectItem value="missing">Businesses with missing descriptions</SelectItem>
+                          <SelectItem value="short">Businesses with short descriptions</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Button className="w-full">
+                        <Zap className="h-4 w-4 mr-2" />
+                        Optimize Descriptions
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Generate FAQs</CardTitle>
+                    <CardDescription>Auto-generate FAQs for businesses</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <Select>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select businesses for FAQ generation" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Businesses</SelectItem>
+                          <SelectItem value="no-faq">Businesses without FAQs</SelectItem>
+                          <SelectItem value="category">By Category</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Button className="w-full">
+                        <HelpCircle className="h-4 w-4 mr-2" />
+                        Generate FAQs
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Bulk Operations</CardTitle>
+                  <CardDescription>Perform AI-powered bulk operations on your directory</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Button variant="outline" className="w-full">
+                      <FileText className="h-4 w-4 mr-2" />
+                      Generate Meta Descriptions
+                    </Button>
+                    <Button variant="outline" className="w-full">
+                      <Key className="h-4 w-4 mr-2" />
+                      Generate SEO Keywords
+                    </Button>
+                    <Button variant="outline" className="w-full">
+                      <Star className="h-4 w-4 mr-2" />
+                      Optimize for Featured Listings
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
             </CardContent>
           </Card>
         </TabsContent>
