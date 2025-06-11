@@ -1478,17 +1478,17 @@ export default function AdminEnhanced() {
         </DialogContent>
       </Dialog>
 
-      {/* API Management Tab */}
-      <TabsContent value="api" className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>API Management</CardTitle>
-            <CardDescription>Manage API keys, rate limits, and access controls</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-6">
-              <div>
-                <h3 className="text-lg font-semibold mb-4">API Statistics</h3>
+        {/* API Management Tab */}
+        <TabsContent value="api" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>API Management</CardTitle>
+              <CardDescription>Manage API keys, rate limits, and access controls</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-6">
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">API Statistics</h3>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <Card>
                     <CardContent className="p-4">
@@ -1828,7 +1828,8 @@ export default function AdminEnhanced() {
             </div>
           </CardContent>
         </Card>
-      </TabsContent>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
