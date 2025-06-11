@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { 
   Star, 
@@ -592,6 +592,9 @@ export default function BusinessListing() {
                   <DialogContent>
                     <DialogHeader>
                       <DialogTitle>Claim Business Ownership</DialogTitle>
+                      <DialogDescription>
+                        Submit a request to claim ownership of this business listing.
+                      </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4">
                       <p className="text-sm text-gray-600">

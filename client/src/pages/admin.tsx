@@ -889,6 +889,9 @@ export default function Admin() {
                                 <DialogContent>
                                   <DialogHeader>
                                     <DialogTitle>Review Ownership Claim</DialogTitle>
+                                    <DialogDescription>
+                                      Review and approve or reject this business ownership claim request.
+                                    </DialogDescription>
                                   </DialogHeader>
                                   <div className="space-y-4">
                                     <div>
@@ -1541,6 +1544,9 @@ export default function Admin() {
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Edit Business: {editingBusiness.title}</DialogTitle>
+              <DialogDescription>
+                Update business information and SEO settings.
+              </DialogDescription>
             </DialogHeader>
             <form
               onSubmit={(e) => {
@@ -1705,6 +1711,9 @@ export default function Admin() {
           <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle>Edit User</DialogTitle>
+              <DialogDescription>
+                Update user account information and role permissions.
+              </DialogDescription>
             </DialogHeader>
             <form onSubmit={(e) => {
               e.preventDefault();
@@ -1780,6 +1789,9 @@ export default function Admin() {
           <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>AI Optimization Results</DialogTitle>
+              <DialogDescription>
+                Review the results of AI-powered business description and FAQ optimization.
+              </DialogDescription>
             </DialogHeader>
             
             <div className="space-y-6">
