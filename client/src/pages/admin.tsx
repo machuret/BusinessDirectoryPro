@@ -680,7 +680,7 @@ export default function Admin() {
                       <TableRow>
                         <TableHead className="w-12">
                           <Checkbox
-                            checked={filteredBusinesses && filteredBusinesses.length > 0 && selectedBusinesses.length === filteredBusinesses.length}
+                            checked={(filteredBusinesses?.length || 0) > 0 && selectedBusinesses.length === (filteredBusinesses?.length || 0)}
                             onCheckedChange={(checked) => {
                               if (checked) {
                                 selectAllBusinesses();
