@@ -3,6 +3,7 @@ import { useParams, Link } from "wouter";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import ReviewForm from "@/components/review-form";
+import PhotoGallery from "@/components/photo-gallery";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
@@ -16,31 +17,49 @@ import {
 } from "lucide-react";
 import type { BusinessWithCategory, Review, User as UserType } from "@shared/schema";
 
-// Helper function to get business image
-const getBusinessImage = (business: BusinessWithCategory) => {
-  // Priority order: imageurl, extract from reviews, then fallback
-  if (business.imageurl) return business.imageurl;
+// Helper function to get all business photos
+const getAllBusinessPhotos = (business: BusinessWithCategory): string[] => {
+  const photos: string[] = [];
+  
+  // Add main business image
+  if (business.imageurl) {
+    photos.push(business.imageurl);
+  }
+  
+  // Add images from imageurls array
+  if (business.imageurls && Array.isArray(business.imageurls)) {
+    photos.push(...business.imageurls.filter(url => url && typeof url === 'string'));
+  }
+  
+  // Add images from images array
+  if (business.images && Array.isArray(business.images)) {
+    photos.push(...business.images.filter(url => url && typeof url === 'string'));
+  }
   
   // Extract from reviews if available
   if (business.reviews && Array.isArray(business.reviews)) {
     for (const review of business.reviews) {
-      if (review.reviewImageUrls && Array.isArray(review.reviewImageUrls) && review.reviewImageUrls.length > 0) {
-        return review.reviewImageUrls[0];
+      if (review.reviewImageUrls && Array.isArray(review.reviewImageUrls)) {
+        photos.push(...review.reviewImageUrls.filter(url => url && typeof url === 'string'));
       }
     }
   }
   
-  // Check imageurls array
-  if (business.imageurls && Array.isArray(business.imageurls) && business.imageurls.length > 0) {
-    return business.imageurls[0];
-  }
-  
-  // Check images array
-  if (business.images && Array.isArray(business.images) && business.images.length > 0) {
-    return business.images[0];
-  }
-  
-  return "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&h=600&fit=crop&auto=format";
+  // Remove duplicates and filter out invalid URLs
+  const uniquePhotos = Array.from(new Set(photos));
+  return uniquePhotos.filter(photo => 
+    photo && 
+    typeof photo === 'string' && 
+    photo.trim() !== '' &&
+    !photo.includes('unsplash.com') &&
+    (photo.startsWith('http') || photo.startsWith('//'))
+  );
+};
+
+// Helper function to get primary business image
+const getBusinessImage = (business: BusinessWithCategory) => {
+  const allPhotos = getAllBusinessPhotos(business);
+  return allPhotos.length > 0 ? allPhotos[0] : business.imageurl || '';
 };
 
 export default function BusinessDetail() {
@@ -118,17 +137,12 @@ export default function BusinessDetail() {
         {/* Business Header */}
         <div className="grid lg:grid-cols-3 gap-8 mb-8">
           <div className="lg:col-span-2">
-            <div className="relative mb-6">
-              <img
-                src={businessImage}
-                alt={business.title}
-                className="w-full h-64 object-cover rounded-lg"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.src = "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&h=600&fit=crop&auto=format";
-                }}
-              />
-            </div>
+            {/* Photo Gallery */}
+            <PhotoGallery 
+              photos={getAllBusinessPhotos(business)}
+              businessName={business.title || business.name || 'Business'}
+              className="mb-6"
+            />
 
             <div className="space-y-4">
               <div>
