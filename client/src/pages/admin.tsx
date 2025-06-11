@@ -195,6 +195,25 @@ export default function Admin() {
     },
   });
 
+  // Bulk delete businesses mutation
+  const bulkDeleteBusinessesMutation = useMutation({
+    mutationFn: async (businessIds: string[]) => {
+      await apiRequest("POST", "/api/admin/businesses/bulk-delete", { businessIds });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/businesses"] });
+      setSelectedBusinesses([]);
+      toast({ title: "Selected businesses deleted successfully" });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Bulk delete failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   // User mutations
   const deleteUserMutation = useMutation({
     mutationFn: async (userId: string) => {
@@ -512,6 +531,23 @@ export default function Admin() {
     generateFAQsMutation.mutate(selectedBusinesses);
   };
 
+  const handleBulkDelete = () => {
+    if (selectedBusinesses.length === 0) {
+      toast({
+        title: "No businesses selected",
+        description: "Please select businesses to delete",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const confirmMessage = `Are you sure you want to delete ${selectedBusinesses.length} selected business${selectedBusinesses.length > 1 ? 'es' : ''}? This action cannot be undone.`;
+    
+    if (confirm(confirmMessage)) {
+      bulkDeleteBusinessesMutation.mutate(selectedBusinesses);
+    }
+  };
+
   // Auth check
   if (!user || (user as any).role !== 'admin') {
     return (
@@ -613,7 +649,26 @@ export default function Admin() {
                   onChange={(e) => setBusinessSearchTerm(e.target.value)}
                   className="max-w-sm"
                 />
-                <Button onClick={() => setShowBusinessForm(true)}>Add Business</Button>
+                <div className="flex space-x-2">
+                  {selectedBusinesses.length > 0 && (
+                    <>
+                      <Button
+                        variant="destructive"
+                        onClick={handleBulkDelete}
+                        disabled={bulkDeleteBusinessesMutation.isPending}
+                      >
+                        Delete Selected ({selectedBusinesses.length})
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={clearBusinessSelection}
+                      >
+                        Clear Selection
+                      </Button>
+                    </>
+                  )}
+                  <Button onClick={() => setShowBusinessForm(true)}>Add Business</Button>
+                </div>
               </div>
 
               {businessesLoading ? (
@@ -623,6 +678,18 @@ export default function Admin() {
                   <Table>
                     <TableHeader>
                       <TableRow>
+                        <TableHead className="w-12">
+                          <Checkbox
+                            checked={filteredBusinesses && filteredBusinesses.length > 0 && selectedBusinesses.length === filteredBusinesses.length}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                selectAllBusinesses();
+                              } else {
+                                clearBusinessSelection();
+                              }
+                            }}
+                          />
+                        </TableHead>
                         <TableHead>Business</TableHead>
                         <TableHead>Category</TableHead>
                         <TableHead>Location</TableHead>
@@ -633,6 +700,12 @@ export default function Admin() {
                     <TableBody>
                       {filteredBusinesses?.map((business) => (
                         <TableRow key={business.placeid}>
+                          <TableCell>
+                            <Checkbox
+                              checked={selectedBusinesses.includes(business.placeid)}
+                              onCheckedChange={() => toggleBusinessSelection(business.placeid)}
+                            />
+                          </TableCell>
                           <TableCell>
                             <div>
                               <p className="font-medium">{business.title}</p>

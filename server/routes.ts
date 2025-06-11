@@ -394,6 +394,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Bulk delete businesses (admin only)
+  app.post('/api/admin/businesses/bulk-delete', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { businessIds } = req.body;
+      
+      if (!Array.isArray(businessIds) || businessIds.length === 0) {
+        return res.status(400).json({ message: "businessIds array is required" });
+      }
+
+      let deletedCount = 0;
+      const errors = [];
+
+      for (const businessId of businessIds) {
+        try {
+          await storage.deleteBusiness(businessId);
+          deletedCount++;
+        } catch (error) {
+          errors.push({ businessId, error: error.message });
+        }
+      }
+
+      res.json({
+        message: `${deletedCount} business(es) deleted successfully`,
+        deletedCount,
+        totalRequested: businessIds.length,
+        errors
+      });
+    } catch (error) {
+      console.error("Error bulk deleting businesses:", error);
+      res.status(500).json({ message: "Failed to bulk delete businesses" });
+    }
+  });
+
   // Review routes
   app.get('/api/businesses/:id/reviews', async (req, res) => {
     try {
