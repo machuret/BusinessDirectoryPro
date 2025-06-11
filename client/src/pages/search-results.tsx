@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, MapPin, Filter } from "lucide-react";
 import BusinessCard from "@/components/business-card";
+import BusinessCardSkeleton from "@/components/business-card-skeleton";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import type { BusinessWithCategory } from "@shared/schema";
@@ -136,8 +137,8 @@ export default function SearchResults() {
 
         {/* Loading State */}
         {isLoading && (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <BusinessCardSkeleton count={6} />
           </div>
         )}
 
