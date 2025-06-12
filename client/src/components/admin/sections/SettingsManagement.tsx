@@ -14,6 +14,17 @@ export default function SettingsManagement() {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [homepageContent, setHomepageContent] = useState({
+    hero_title: "",
+    hero_subtitle: "",
+    features_title: "",
+    feature_1_title: "",
+    feature_1_description: "",
+    feature_2_title: "",
+    feature_2_description: "",
+    feature_3_title: "",
+    feature_3_description: "",
+  });
 
   // Fetch current settings
   const { data: settings } = useQuery({
@@ -22,7 +33,9 @@ export default function SettingsManagement() {
   });
 
   // Get current logo
-  const currentLogo = settings?.find((s: any) => s.key === "website_logo")?.value;
+  const currentLogo = settings && Array.isArray(settings) 
+    ? settings.find((s: any) => s.key === "website_logo")?.value 
+    : null;
 
   // Logo upload mutation
   const uploadLogoMutation = useMutation({
@@ -80,6 +93,34 @@ export default function SettingsManagement() {
         description: "Website logo has been removed."
       });
     }
+  });
+
+  // Save homepage content mutation
+  const saveHomepageContentMutation = useMutation({
+    mutationFn: async (content: typeof homepageContent) => {
+      const promises = Object.entries(content).map(([key, value]) => {
+        return apiRequest("PATCH", `/api/admin/site-settings/homepage_${key}`, {
+          value: value,
+          description: `Homepage ${key.replace(/_/g, ' ')} content`,
+          category: "homepage"
+        });
+      });
+      return Promise.all(promises);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/site-settings"] });
+      toast({
+        title: "Success",
+        description: "Homepage content updated successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update homepage content",
+        variant: "destructive",
+      });
+    },
   });
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -209,6 +250,135 @@ export default function SettingsManagement() {
                   <Label htmlFor="site-description">Site Description</Label>
                   <Textarea id="site-description" defaultValue="Find the best local businesses in your area" />
                 </div>
+              </div>
+            </div>
+
+            {/* Homepage Content Management */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Homepage Content Management</h3>
+              <div className="space-y-6">
+                {/* Hero Section */}
+                <div className="border rounded-lg p-4">
+                  <h4 className="font-medium mb-4">Hero Section</h4>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="hero-title">Hero Title</Label>
+                      <Input 
+                        id="hero-title" 
+                        value={homepageContent.hero_title || (settings && Array.isArray(settings) 
+                          ? settings.find((s: any) => s.key === "homepage_hero_title")?.value || "Find Local Businesses"
+                          : "Find Local Businesses"
+                        )}
+                        onChange={(e) => setHomepageContent(prev => ({ ...prev, hero_title: e.target.value }))}
+                        placeholder="Find Local Businesses"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="hero-subtitle">Hero Subtitle</Label>
+                      <Textarea 
+                        id="hero-subtitle" 
+                        defaultValue={settings && Array.isArray(settings) 
+                          ? settings.find((s: any) => s.key === "homepage_hero_subtitle")?.value || "Discover and connect with trusted local businesses in your area. From restaurants to services, we've got you covered."
+                          : "Discover and connect with trusted local businesses in your area. From restaurants to services, we've got you covered."
+                        }
+                        placeholder="Discover and connect with trusted local businesses in your area. From restaurants to services, we've got you covered."
+                        rows={3}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Features Section */}
+                <div className="border rounded-lg p-4">
+                  <h4 className="font-medium mb-4">Features Section</h4>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="features-title">Features Section Title</Label>
+                      <Input 
+                        id="features-title" 
+                        defaultValue={settings && Array.isArray(settings) 
+                          ? settings.find((s: any) => s.key === "homepage_features_title")?.value || "Why Choose BusinessHub?"
+                          : "Why Choose BusinessHub?"
+                        }
+                        placeholder="Why Choose BusinessHub?"
+                      />
+                    </div>
+                    
+                    {/* Feature 1 */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Feature 1</Label>
+                      <div className="space-y-2">
+                        <Input 
+                          placeholder="Feature 1 Title" 
+                          defaultValue={settings && Array.isArray(settings) 
+                            ? settings.find((s: any) => s.key === "homepage_feature_1_title")?.value || "Trusted Businesses"
+                            : "Trusted Businesses"
+                          }
+                        />
+                        <Textarea 
+                          placeholder="Feature 1 Description" 
+                          defaultValue={settings && Array.isArray(settings) 
+                            ? settings.find((s: any) => s.key === "homepage_feature_1_description")?.value || "All businesses are verified and reviewed by our community"
+                            : "All businesses are verified and reviewed by our community"
+                          }
+                          rows={2}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Feature 2 */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Feature 2</Label>
+                      <div className="space-y-2">
+                        <Input 
+                          placeholder="Feature 2 Title" 
+                          defaultValue={settings && Array.isArray(settings) 
+                            ? settings.find((s: any) => s.key === "homepage_feature_2_title")?.value || "Local Community"
+                            : "Local Community"
+                          }
+                        />
+                        <Textarea 
+                          placeholder="Feature 2 Description" 
+                          defaultValue={settings && Array.isArray(settings) 
+                            ? settings.find((s: any) => s.key === "homepage_feature_2_description")?.value || "Connect with businesses in your local area and community"
+                            : "Connect with businesses in your local area and community"
+                          }
+                          rows={2}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Feature 3 */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Feature 3</Label>
+                      <div className="space-y-2">
+                        <Input 
+                          placeholder="Feature 3 Title" 
+                          defaultValue={settings && Array.isArray(settings) 
+                            ? settings.find((s: any) => s.key === "homepage_feature_3_title")?.value || "Quality Reviews"
+                            : "Quality Reviews"
+                          }
+                        />
+                        <Textarea 
+                          placeholder="Feature 3 Description" 
+                          defaultValue={settings && Array.isArray(settings) 
+                            ? settings.find((s: any) => s.key === "homepage_feature_3_description")?.value || "Read authentic reviews from real customers to make informed decisions"
+                            : "Read authentic reviews from real customers to make informed decisions"
+                          }
+                          rows={2}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <Button 
+                  className="w-full"
+                  onClick={() => saveHomepageContentMutation.mutate(homepageContent)}
+                  disabled={saveHomepageContentMutation.isPending}
+                >
+                  {saveHomepageContentMutation.isPending ? "Saving..." : "Save Homepage Content"}
+                </Button>
               </div>
             </div>
             
