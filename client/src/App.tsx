@@ -43,6 +43,7 @@ import AdminLeadsPage from "@/pages/admin/leads";
 import AdminImportPage from "@/pages/admin/import";
 import AdminExportPage from "@/pages/admin/export";
 import AdminFeaturedPage from "@/pages/admin/featured";
+import AdminServicesPage from "@/pages/admin/services";
 import AdminSettingsPage from "@/pages/admin/settings";
 
 function Router() {
@@ -87,6 +88,7 @@ function Router() {
           <Route path="/admin/import" component={AdminImportPage} />
           <Route path="/admin/export" component={AdminExportPage} />
           <Route path="/admin/featured" component={AdminFeaturedPage} />
+          <Route path="/admin/services" component={AdminServicesPage} />
           <Route path="/admin/settings" component={AdminSettingsPage} />
           <Route path="/admin/menu/:id" component={MenuEdit} />
         </>

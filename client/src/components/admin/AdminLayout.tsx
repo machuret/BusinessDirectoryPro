@@ -8,7 +8,7 @@ import Header from "@/components/header";
 import { 
   Building2, Users, Star, Settings, FileText, HelpCircle, Mail, MapPin,
   Download, Upload, Key, CheckCircle, Globe, UserCheck, Home, Menu, BookOpen,
-  ChevronLeft, ChevronRight, Search, Inbox
+  ChevronLeft, ChevronRight, Search, Inbox, Tag
 } from "lucide-react";
 
 interface AdminLayoutProps {
@@ -64,6 +64,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       title: "Cities",
       icon: MapPin,
       path: "/admin/cities"
+    },
+    {
+      title: "Services",
+      icon: Tag,
+      path: "/admin/services"
     },
     {
       title: "Ownership Requests",
