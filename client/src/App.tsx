@@ -25,6 +25,18 @@ import BusinessesPage from "@/pages/businesses";
 import SlugRouter from "@/components/SlugRouter";
 import NotFound from "@/pages/not-found";
 
+// Admin Pages
+import AdminBusinessesPage from "@/pages/admin/businesses";
+import AdminUsersPage from "@/pages/admin/users";
+import AdminCategoriesPage from "@/pages/admin/categories";
+import AdminReviewsPage from "@/pages/admin/reviews";
+import AdminCitiesPage from "@/pages/admin/cities";
+import AdminMenusPage from "@/pages/admin/menus";
+import AdminPagesPage from "@/pages/admin/pages";
+import AdminSEOPage from "@/pages/admin/seo";
+import AdminInboxPage from "@/pages/admin/inbox";
+import AdminHomepagePage from "@/pages/admin/homepage";
+
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
 
@@ -50,6 +62,16 @@ function Router() {
         <>
           <Route path="/dashboard" component={Dashboard} />
           <Route path="/admin" component={AdminLayout} />
+          <Route path="/admin/businesses" component={AdminBusinessesPage} />
+          <Route path="/admin/users" component={AdminUsersPage} />
+          <Route path="/admin/categories" component={AdminCategoriesPage} />
+          <Route path="/admin/reviews" component={AdminReviewsPage} />
+          <Route path="/admin/cities" component={AdminCitiesPage} />
+          <Route path="/admin/menus" component={AdminMenusPage} />
+          <Route path="/admin/pages" component={AdminPagesPage} />
+          <Route path="/admin/seo" component={AdminSEOPage} />
+          <Route path="/admin/inbox" component={AdminInboxPage} />
+          <Route path="/admin/homepage" component={AdminHomepagePage} />
           <Route path="/admin/menu/:id" component={MenuEdit} />
         </>
       )}
