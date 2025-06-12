@@ -17,6 +17,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Plus, Edit, Trash2, Eye, Building2, Loader2, Star, Search, Phone, Mail, Globe, MapPin, Clock, Users, Filter } from "lucide-react";
+import FAQManager from "../FAQManager";
 
 interface Business {
   placeid: string;
@@ -830,17 +831,12 @@ export default function BusinessManagement() {
                     name="faq"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Frequently Asked Questions</FormLabel>
                         <FormControl>
-                          <Textarea 
-                            placeholder="Enter FAQ content in JSON format or plain text"
-                            rows={8}
-                            {...field} 
+                          <FAQManager
+                            value={field.value || []}
+                            onChange={field.onChange}
                           />
                         </FormControl>
-                        <p className="text-sm text-muted-foreground">
-                          Add frequently asked questions about this business
-                        </p>
                         <FormMessage />
                       </FormItem>
                     )}

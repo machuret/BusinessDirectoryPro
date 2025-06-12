@@ -13,6 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Building, Loader2, AlertTriangle, Save } from "lucide-react";
+import FAQManager from "../admin/FAQManager";
 
 const businessSubmissionSchema = z.object({
   title: z.string().min(2, "Business name is required").max(100, "Business name is too long"),
