@@ -1,9 +1,12 @@
-import { Pool } from 'pg';
-import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool, neonConfig } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-serverless';
+import ws from "ws";
 import * as schema from "@shared/schema";
 
-// Use the new PostgreSQL database environment variables
-const DATABASE_URL = process.env.DATABASE_URL;
+neonConfig.webSocketConstructor = ws;
+
+// Use the correct database with your business data
+const DATABASE_URL = "postgresql://repplit_owner:npg_qtLveA26UxGP@ep-proud-mountain-a85015ts-pooler.eastus2.azure.neon.tech/repllib?sslmode=require";
 
 if (!DATABASE_URL) {
   throw new Error('DATABASE_URL environment variable is not set');
