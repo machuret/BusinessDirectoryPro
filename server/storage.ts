@@ -205,23 +205,23 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getCategories(): Promise<CategoryWithCount[]> {
-    const result = await db
-      .select({
-        id: categories.id,
-        name: categories.name,
-        slug: categories.slug,
-        description: categories.description,
-        icon: categories.icon,
-        color: categories.color,
-        createdAt: categories.createdAt,
-        businessCount: sql<number>`COALESCE(COUNT(${businesses.placeid}), 0)::int`,
-      })
-      .from(categories)
-      .leftJoin(businesses, eq(categories.name, businesses.categoryname))
-      .groupBy(categories.id, categories.name, categories.slug, categories.description, categories.icon, categories.color, categories.createdAt)
-      .orderBy(categories.name);
+    const result = await db.execute(sql`
+      SELECT 
+        c.id,
+        c.name,
+        c.slug,
+        c.description,
+        c.icon,
+        c.color,
+        c.created_at as "createdAt",
+        COUNT(b.placeid)::int as "businessCount"
+      FROM categories c
+      LEFT JOIN businesses b ON c.name = b.categoryname
+      GROUP BY c.id, c.name, c.slug, c.description, c.icon, c.color, c.created_at
+      ORDER BY c.name
+    `);
 
-    return result;
+    return result.rows as CategoryWithCount[];
   }
 
   async getCategoryBySlug(slug: string): Promise<Category | undefined> {
