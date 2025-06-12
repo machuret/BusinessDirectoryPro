@@ -195,9 +195,7 @@ interface IStorage {
 }
 
 export { 
-  db, eq, like, ilike, and, or, desc, asc, sql, ne,
-  users, categories, businesses, reviews, siteSettings, 
-  menuItems, pages, websiteFaq, leads, contactMessages
+  services, businessServices
 };
 
 // Export the IStorage interface

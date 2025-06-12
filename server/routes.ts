@@ -233,22 +233,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Services Setup Route
+  app.post("/api/admin/services/setup", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { setupServicesTables } = await import("./setup-services");
+      await setupServicesTables();
+      res.json({ message: "Services tables created successfully" });
+    } catch (error) {
+      console.error("Error setting up services:", error);
+      res.status(500).json({ message: "Failed to setup services tables" });
+    }
+  });
+
   // Services Management Routes
   app.get("/api/admin/services", isAuthenticated, isAdmin, async (req, res) => {
     try {
-      // Return empty array when services table doesn't exist yet
-      // This allows the frontend to display the "initializing" state
-      res.json([]);
+      const services = await storage.getServices();
+      res.json(services);
     } catch (error) {
       console.error("Error fetching services:", error);
-      res.status(500).json({ message: "Failed to fetch services" });
+      // Return empty array if table doesn't exist yet
+      res.json([]);
     }
   });
 
   app.post("/api/admin/services", isAuthenticated, isAdmin, async (req, res) => {
     try {
-      // Placeholder for service creation - will be implemented when tables exist
-      res.status(501).json({ message: "Services system is being initialized" });
+      const service = await storage.createService(req.body);
+      res.status(201).json(service);
     } catch (error) {
       console.error("Error creating service:", error);
       res.status(500).json({ message: "Failed to create service" });
@@ -257,8 +269,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/admin/services/:id", isAuthenticated, isAdmin, async (req, res) => {
     try {
-      // Placeholder for service updates - will be implemented when tables exist
-      res.status(501).json({ message: "Services system is being initialized" });
+      const id = parseInt(req.params.id);
+      const service = await storage.updateService(id, req.body);
+      if (!service) {
+        return res.status(404).json({ message: "Service not found" });
+      }
+      res.json(service);
     } catch (error) {
       console.error("Error updating service:", error);
       res.status(500).json({ message: "Failed to update service" });
@@ -267,8 +283,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/admin/services/:id", isAuthenticated, isAdmin, async (req, res) => {
     try {
-      // Placeholder for service deletion - will be implemented when tables exist
-      res.status(501).json({ message: "Services system is being initialized" });
+      const id = parseInt(req.params.id);
+      const deleted = await storage.deleteService(id);
+      if (!deleted) {
+        return res.status(404).json({ message: "Service not found" });
+      }
+      res.json({ message: "Service deleted successfully" });
     } catch (error) {
       console.error("Error deleting service:", error);
       res.status(500).json({ message: "Failed to delete service" });
