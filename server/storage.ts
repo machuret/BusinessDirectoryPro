@@ -205,23 +205,37 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getCategories(): Promise<CategoryWithCount[]> {
-    const result = await db.execute(sql`
-      SELECT 
-        c.id,
-        c.name,
-        c.slug,
-        c.description,
-        c.icon,
-        c.color,
-        c.created_at as "createdAt",
-        COUNT(b.placeid)::int as "businessCount"
-      FROM categories c
-      LEFT JOIN businesses b ON c.name = b.categoryname
-      GROUP BY c.id, c.name, c.slug, c.description, c.icon, c.color, c.created_at
-      ORDER BY c.name
-    `);
+    try {
+      const result = await db.execute(sql`
+        SELECT 
+          c.id,
+          c.name,
+          c.slug,
+          c.description,
+          c.icon,
+          c.color,
+          c.created_at as "createdAt",
+          COUNT(b.placeid)::int as "businessCount"
+        FROM categories c
+        LEFT JOIN businesses b ON c.name = b.categoryname
+        GROUP BY c.id, c.name, c.slug, c.description, c.icon, c.color, c.created_at
+        ORDER BY c.name
+      `);
 
-    return result.rows as CategoryWithCount[];
+      return result.rows.map(row => ({
+        id: row.id,
+        name: row.name,
+        slug: row.slug,
+        description: row.description,
+        icon: row.icon,
+        color: row.color,
+        createdAt: new Date(row.createdAt),
+        businessCount: row.businessCount
+      })) as CategoryWithCount[];
+    } catch (error) {
+      console.error('Error in getCategories:', error);
+      throw error;
+    }
   }
 
   async getCategoryBySlug(slug: string): Promise<Category | undefined> {

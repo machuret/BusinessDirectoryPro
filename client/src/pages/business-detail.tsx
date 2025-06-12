@@ -16,7 +16,7 @@ export default function BusinessDetail() {
   const { slug } = useParams();
   
   const { data: business, isLoading: businessLoading } = useQuery<BusinessWithCategory>({
-    queryKey: [`/api/businesses/${slug}`],
+    queryKey: [`/api/businesses/slug/${slug}`],
     enabled: !!slug,
   });
 
