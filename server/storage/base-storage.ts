@@ -11,6 +11,8 @@ import {
   websiteFaq,
   leads,
   contactMessages,
+  services,
+  businessServices,
   type User,
   type UpsertUser,
   type Category,

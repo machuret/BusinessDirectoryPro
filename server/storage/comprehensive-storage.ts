@@ -4,13 +4,14 @@ import { BusinessStorage } from "./business-storage";
 import { CategoryStorage } from "./category-storage";
 import { 
   db, eq, like, ilike, and, or, desc, asc, sql, ne,
-  reviews, siteSettings, menuItems, pages, websiteFaq, leads, contactMessages,
+  reviews, siteSettings, menuItems, pages, websiteFaq, leads, contactMessages, services, businessServices,
   type Review, type InsertReview, type SiteSetting, type InsertSiteSetting,
   type MenuItem, type InsertMenuItem, type Page, type InsertPage,
   type WebsiteFaq, type InsertWebsiteFaq, type Lead, type InsertLead,
   type ContactMessage, type InsertContactMessage, type LeadWithBusiness,
   type User, type UpsertUser, type Category, type InsertCategory,
-  type Business, type InsertBusiness, type BusinessWithCategory, type CategoryWithCount
+  type Business, type InsertBusiness, type BusinessWithCategory, type CategoryWithCount,
+  type Service, type InsertService, type BusinessService, type InsertBusinessService
 } from "./base-storage";
 
 export class ComprehensiveStorage implements IStorage {

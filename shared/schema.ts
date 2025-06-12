@@ -216,6 +216,30 @@ export const contactMessages = pgTable("contact_messages", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+// Services table
+export const services = pgTable("services", {
+  id: serial("id").primaryKey(),
+  name: varchar("name").notNull(), // Generic service name e.g. "Teeth Whitening"
+  slug: varchar("slug").notNull().unique(), // URL-friendly version e.g. "teeth-whitening"
+  description: text("description"), // Service description
+  category: varchar("category"), // Service category for organization
+  seoTitle: varchar("seo_title"), // SEO page title
+  seoDescription: text("seo_description"), // SEO meta description
+  content: text("content"), // Rich content for service page
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Business Services junction table (many-to-many relationship)
+export const businessServices = pgTable("business_services", {
+  id: serial("id").primaryKey(),
+  businessId: text("business_id").notNull().references(() => businesses.placeid, { onDelete: "cascade" }),
+  serviceId: integer("service_id").notNull().references(() => services.id, { onDelete: "cascade" }),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Schema definitions for validation
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -297,6 +321,17 @@ export const insertWebsiteFaqSchema = createInsertSchema(websiteFaq).omit({
   updatedAt: true,
 });
 
+export const insertServiceSchema = createInsertSchema(services).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertBusinessServiceSchema = createInsertSchema(businessServices).omit({
+  id: true,
+  createdAt: true,
+});
+
 
 
 // Type exports
@@ -319,6 +354,10 @@ export type InsertPage = z.infer<typeof insertPageSchema>;
 export type Page = typeof pages.$inferSelect;
 export type InsertWebsiteFaq = z.infer<typeof insertWebsiteFaqSchema>;
 export type WebsiteFaq = typeof websiteFaq.$inferSelect;
+export type InsertService = z.infer<typeof insertServiceSchema>;
+export type Service = typeof services.$inferSelect;
+export type InsertBusinessService = z.infer<typeof insertBusinessServiceSchema>;
+export type BusinessService = typeof businessServices.$inferSelect;
 
 // Leads table for business inquiries
 export const leads = pgTable("leads", {
