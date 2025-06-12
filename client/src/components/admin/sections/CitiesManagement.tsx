@@ -92,8 +92,18 @@ export default function CitiesManagement() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold">Cities</h3>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1">
+                <div className="relative">
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search cities..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
               <Button onClick={() => setShowAddCityDialog(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Add City
@@ -110,7 +120,7 @@ export default function CitiesManagement() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {cities?.map((city) => (
+                  {filteredCities?.map((city) => (
                     <TableRow key={city.city}>
                       <TableCell className="font-medium">{city.city}</TableCell>
                       <TableCell>
@@ -118,7 +128,11 @@ export default function CitiesManagement() {
                       </TableCell>
                       <TableCell>
                         <div className="flex space-x-2">
-                          <Button size="sm" variant="outline">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleEditCity(city)}
+                          >
                             <Edit className="h-4 w-4" />
                           </Button>
                         </div>
@@ -144,14 +158,14 @@ export default function CitiesManagement() {
               <Label htmlFor="cityName">City Name</Label>
               <Input
                 id="cityName"
-                value={newCity.name}
-                onChange={(e) => setNewCity({...newCity, name: e.target.value})}
+                value={newCity.city}
+                onChange={(e) => setNewCity({...newCity, city: e.target.value})}
                 placeholder="City name"
               />
             </div>
             <div>
               <Label htmlFor="cityDescription">Description (Optional)</Label>
-              <Input
+              <Textarea
                 id="cityDescription"
                 value={newCity.description}
                 onChange={(e) => setNewCity({...newCity, description: e.target.value})}
@@ -159,17 +173,58 @@ export default function CitiesManagement() {
               />
             </div>
           </div>
-          <div className="flex justify-end space-x-2 mt-6">
+          <DialogFooter>
             <Button variant="outline" onClick={() => setShowAddCityDialog(false)}>
               Cancel
             </Button>
             <Button 
               onClick={() => createCityMutation.mutate(newCity)}
-              disabled={createCityMutation.isPending || !newCity.name}
+              disabled={createCityMutation.isPending || !newCity.city}
             >
               {createCityMutation.isPending ? "Adding..." : "Add City"}
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit City Dialog */}
+      <Dialog open={!!editingCity} onOpenChange={() => setEditingCity(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit City</DialogTitle>
+            <DialogDescription>Update city information</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="editCityName">City Name</Label>
+              <Input
+                id="editCityName"
+                value={editCityData.newName}
+                onChange={(e) => setEditCityData({...editCityData, newName: e.target.value})}
+                placeholder="City name"
+              />
+            </div>
+            <div>
+              <Label htmlFor="editCityDescription">Description (Optional)</Label>
+              <Textarea
+                id="editCityDescription"
+                value={editCityData.description}
+                onChange={(e) => setEditCityData({...editCityData, description: e.target.value})}
+                placeholder="City description"
+              />
+            </div>
           </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingCity(null)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleEditSubmit}
+              disabled={updateCityMutation.isPending || !editCityData.newName}
+            >
+              {updateCityMutation.isPending ? "Updating..." : "Update City"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
