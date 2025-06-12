@@ -87,7 +87,7 @@ export default function BusinessContactInfo({ business }: BusinessContactInfoPro
             <Tag className="h-5 w-5 text-muted-foreground mt-0.5" />
             <div className="flex-1">
               <p className="font-medium">Category</p>
-              <Link href={`/businesses?category=${encodeURIComponent(business.categoryname)}`}>
+              <Link href={`/categories/${business.category?.slug || business.categoryname?.toLowerCase().replace(/\s+/g, '-')}`}>
                 <Badge variant="secondary" className="cursor-pointer hover:bg-secondary/80">
                   {business.categoryname}
                 </Badge>
