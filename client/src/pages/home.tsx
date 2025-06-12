@@ -18,8 +18,8 @@ export default function Home() {
     queryKey: ["/api/businesses/featured"],
   });
 
-  const { data: latestBusinesses, isLoading: latestLoading } = useQuery<BusinessWithCategory[]>({
-    queryKey: ["/api/businesses", { limit: 8 }],
+  const { data: randomBusinesses, isLoading: randomLoading } = useQuery<BusinessWithCategory[]>({
+    queryKey: ["/api/businesses/random", { limit: 9 }],
   });
 
   const { data: categories, isLoading: categoriesLoading } = useQuery<CategoryWithCount[]>({
@@ -151,24 +151,24 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              {siteSettings?.homepage_latest_title || "Latest Businesses"}
+              {siteSettings?.homepage_random_title || "Random Businesses"}
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              {siteSettings?.homepage_latest_subtitle || "Discover newly added businesses in your area with excellent reviews and service."}
+              {siteSettings?.homepage_random_subtitle || "Discover amazing businesses from our directory with excellent reviews and service."}
             </p>
           </div>
           
-          {latestLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+          {randomLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               <BusinessCardSkeleton 
-                count={8} 
+                count={9} 
                 variant="carousel"
                 className="transition-all duration-300"
               />
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-              {latestBusinesses?.map((business) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {randomBusinesses?.map((business) => (
                 <BusinessCard key={business.placeid} business={business} />
               ))}
             </div>

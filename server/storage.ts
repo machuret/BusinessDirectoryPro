@@ -96,6 +96,7 @@ export interface IStorage {
   // Search operations
   searchBusinesses(query: string, location?: string): Promise<BusinessWithCategory[]>;
   getFeaturedBusinesses(limit?: number): Promise<BusinessWithCategory[]>;
+  getRandomBusinesses(limit?: number): Promise<BusinessWithCategory[]>;
   
   // Site settings operations
   getSiteSettings(): Promise<SiteSetting[]>;
@@ -654,6 +655,16 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(businesses)
       .where(eq(businesses.featured, true))
+      .limit(limit);
+
+    return result as BusinessWithCategory[];
+  }
+
+  async getRandomBusinesses(limit: number = 9): Promise<BusinessWithCategory[]> {
+    const result = await db
+      .select()
+      .from(businesses)
+      .orderBy(sql`RANDOM()`)
       .limit(limit);
 
     return result as BusinessWithCategory[];

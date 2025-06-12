@@ -34,6 +34,18 @@ export function setupBusinessRoutes(app: Express) {
     }
   });
 
+  // Get random businesses (public)
+  app.get("/api/businesses/random", async (req, res) => {
+    try {
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 9;
+      const businesses = await storage.getRandomBusinesses(limit);
+      res.json(businesses);
+    } catch (error) {
+      console.error("Error fetching random businesses:", error);
+      res.status(500).send("Internal server error");
+    }
+  });
+
   // Get business by ID (public)
   app.get("/api/businesses/:id", async (req, res) => {
     try {
