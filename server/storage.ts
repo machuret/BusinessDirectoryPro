@@ -1465,6 +1465,82 @@ export class DatabaseStorage implements IStorage {
       throw error;
     }
   }
+
+  async getBusinessSubmissions(): Promise<any[]> {
+    try {
+      const submissions = await db
+        .select({
+          placeid: businesses.placeid,
+          title: businesses.title,
+          description: businesses.description,
+          address: businesses.address,
+          city: businesses.city,
+          phone: businesses.phone,
+          email: businesses.email,
+          website: businesses.website,
+          hours: businesses.hours,
+          categoryid: businesses.categoryid,
+          categoryname: categories.name,
+          status: businesses.status,
+          submittedby: businesses.submittedby,
+          createdat: businesses.createdat,
+          updatedat: businesses.updatedat,
+          submitterName: sql<string>`CONCAT(${users.firstName}, ' ', ${users.lastName})`,
+          submitterEmail: users.email,
+        })
+        .from(businesses)
+        .leftJoin(categories, eq(businesses.categoryid, categories.id))
+        .leftJoin(users, eq(businesses.submittedby, users.id))
+        .where(ne(businesses.status, 'published'))
+        .orderBy(desc(businesses.createdat));
+
+      return submissions;
+    } catch (error) {
+      console.error('Error fetching business submissions:', error);
+      throw error;
+    }
+  }
+
+  async updateBusinessSubmissionStatus(id: string, status: string, adminNotes?: string, reviewedBy?: string): Promise<any> {
+    try {
+      const now = new Date();
+      
+      if (status === 'approved') {
+        // When approving, publish the business
+        const [updated] = await db
+          .update(businesses)
+          .set({
+            status: 'published',
+            updatedat: now,
+            adminNotes,
+            reviewedBy,
+            reviewedAt: now,
+          })
+          .where(eq(businesses.placeid, id))
+          .returning();
+        
+        return updated;
+      } else {
+        // When rejecting or other status changes
+        const [updated] = await db
+          .update(businesses)
+          .set({
+            status,
+            updatedat: now,
+            adminNotes,
+            reviewedBy,
+            reviewedAt: now,
+          })
+          .where(eq(businesses.placeid, id))
+          .returning();
+        
+        return updated;
+      }
+    } catch (error) {
+      console.error('Error updating business submission status:', error);
+      throw error;
+    }
+  }
 }
 
 export const storage = new DatabaseStorage();
