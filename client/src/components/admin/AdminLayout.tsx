@@ -66,11 +66,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       path: "/admin/cities"
     },
     {
-      title: "Homepage",
-      icon: Home,
-      path: "/admin/homepage"
-    },
-    {
       title: "Menu Management",
       icon: Menu,
       path: "/admin/menus"
@@ -91,29 +86,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       path: "/admin/inbox"
     },
     {
-      title: "Import/Export",
-      icon: Upload,
-      path: "/admin/import"
-    },
-    {
-      title: "API & Optimization",
-      icon: Key,
-      path: "/admin/api"
-    },
-    {
-      title: "Featured Management",
-      icon: CheckCircle,
-      path: "/admin/featured"
-    },
-    {
-      title: "Ownership Management",
-      icon: UserCheck,
-      path: "/admin/ownership"
-    },
-    {
-      title: "Settings",
-      icon: Settings,
-      path: "/admin/settings"
+      title: "Homepage",
+      icon: Home,
+      path: "/admin/homepage"
     }
   ];
 

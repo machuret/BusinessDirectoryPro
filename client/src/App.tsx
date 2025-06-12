@@ -36,11 +36,6 @@ import AdminPagesPage from "@/pages/admin/pages";
 import AdminSEOPage from "@/pages/admin/seo";
 import AdminInboxPage from "@/pages/admin/inbox";
 import AdminHomepagePage from "@/pages/admin/homepage";
-import AdminImportPage from "@/pages/admin/import";
-import AdminAPIPage from "@/pages/admin/api";
-import AdminFeaturedPage from "@/pages/admin/featured";
-import AdminOwnershipPage from "@/pages/admin/ownership";
-import AdminSettingsPage from "@/pages/admin/settings";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -66,7 +61,7 @@ function Router() {
       {isAuthenticated && (
         <>
           <Route path="/dashboard" component={Dashboard} />
-          <Route path="/admin" component={() => <AdminLayout />} />
+          <Route path="/admin" component={AdminLayout} />
           <Route path="/admin/businesses" component={AdminBusinessesPage} />
           <Route path="/admin/users" component={AdminUsersPage} />
           <Route path="/admin/categories" component={AdminCategoriesPage} />
@@ -77,11 +72,6 @@ function Router() {
           <Route path="/admin/seo" component={AdminSEOPage} />
           <Route path="/admin/inbox" component={AdminInboxPage} />
           <Route path="/admin/homepage" component={AdminHomepagePage} />
-          <Route path="/admin/import" component={AdminImportPage} />
-          <Route path="/admin/api" component={AdminAPIPage} />
-          <Route path="/admin/featured" component={AdminFeaturedPage} />
-          <Route path="/admin/ownership" component={AdminOwnershipPage} />
-          <Route path="/admin/settings" component={AdminSettingsPage} />
           <Route path="/admin/menu/:id" component={MenuEdit} />
         </>
       )}
