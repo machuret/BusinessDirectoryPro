@@ -52,11 +52,43 @@ export class ContentGenerator {
         return business.seodescription;
       }
       
-      // Generate from business data
-      const baseDesc = business.description || `${business.title} - Professional ${business.category?.name || 'business'} services`;
-      const locationPart = business.city ? ` Located in ${business.city}.` : '';
-      const contactPart = business.phone ? ` Contact: ${business.phone}` : '';
-      return `${baseDesc}${locationPart}${contactPart}`.substring(0, 155);
+      // Generate comprehensive description ensuring minimum length
+      let description = business.description || '';
+      
+      // If no custom description, generate one
+      if (!description || description.length < 50) {
+        const title = business.title || 'Business';
+        const category = business.category?.name || 'business';
+        const city = business.city || '';
+        
+        description = `${title} is a trusted ${category.toLowerCase()} ${city ? `in ${city}` : ''} providing professional services with a commitment to quality and customer satisfaction. `;
+        
+        // Add category-specific content
+        if (business.category?.name) {
+          description += `Our expert team specializes in ${business.category.name.toLowerCase()} services, ensuring reliable and efficient solutions for all your needs. `;
+        }
+        
+        // Add location and contact details
+        if (business.city) {
+          description += `Conveniently located in ${business.city}, we serve the local community with dedication. `;
+        }
+        
+        if (business.phonenumber) {
+          description += `Contact us at ${business.phonenumber} for more information. `;
+        }
+        
+        // Add rating if available
+        if (business.totalscore && parseFloat(business.totalscore) > 0) {
+          description += `Highly rated with ${parseFloat(business.totalscore).toFixed(1)} stars from satisfied customers.`;
+        }
+      }
+      
+      // Ensure minimum length and trim to maximum
+      if (description.length < 50) {
+        description += ' Visit us today to experience exceptional service and professional expertise that you can trust.';
+      }
+      
+      return description.length > 155 ? description.substring(0, 152) + '...' : description;
     }
     
     if (category) {
