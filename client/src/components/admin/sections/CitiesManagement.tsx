@@ -20,6 +20,7 @@ const citySchema = z.object({
   state: z.string().min(1, "State is required"),
   country: z.string().min(1, "Country is required"),
   pageTitle: z.string().optional(),
+  pageDescription: z.string().optional(),
 });
 
 type CityFormData = z.infer<typeof citySchema>;
@@ -30,6 +31,7 @@ interface City {
   state: string;
   country: string;
   pageTitle?: string;
+  pageDescription?: string;
   businessCount: number;
   createdAt: string;
 }
@@ -48,6 +50,7 @@ export default function CitiesManagement() {
       state: "",
       country: "",
       pageTitle: "",
+      pageDescription: "",
     },
   });
 
@@ -196,19 +199,41 @@ export default function CitiesManagement() {
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="pageTitle"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Page Title (SEO)</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter SEO page title" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="border-t pt-4">
+          <h4 className="text-sm font-medium mb-3">Page Settings</h4>
+          
+          <FormField
+            control={form.control}
+            name="pageTitle"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Page Title</FormLabel>
+                <FormControl>
+                  <Input placeholder="Custom page title for city page" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="pageDescription"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Page Description</FormLabel>
+                <FormControl>
+                  <Textarea 
+                    placeholder="Page description for city page SEO..."
+                    rows={2}
+                    {...field} 
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         <DialogFooter>
           <Button

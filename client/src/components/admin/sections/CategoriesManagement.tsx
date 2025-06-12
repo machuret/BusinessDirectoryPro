@@ -26,6 +26,8 @@ interface CategoryWithCount {
 const categorySchema = z.object({
   name: z.string().min(1, "Category name is required"),
   description: z.string().optional(),
+  pageTitle: z.string().optional(),
+  pageDescription: z.string().optional(),
 });
 
 type CategoryFormData = z.infer<typeof categorySchema>;
@@ -45,6 +47,8 @@ export default function CategoriesManagement() {
     defaultValues: {
       name: "",
       description: "",
+      pageTitle: "",
+      pageDescription: "",
     },
   });
 
@@ -253,7 +257,7 @@ export default function CategoriesManagement() {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Description</FormLabel>
+                    <FormLabel>Category Description</FormLabel>
                     <FormControl>
                       <Textarea 
                         placeholder="Category description for listings..."
@@ -266,7 +270,44 @@ export default function CategoriesManagement() {
                 )}
               />
 
+              <div className="border-t pt-4">
+                <h4 className="text-sm font-medium mb-3">Page Settings</h4>
+                
+                <FormField
+                  control={form.control}
+                  name="pageTitle"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Page Title</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="Custom page title for category page"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
+                <FormField
+                  control={form.control}
+                  name="pageDescription"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Page Description</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Page description for category page SEO..."
+                          rows={2}
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <DialogFooter>
                 <Button type="submit" disabled={addCategoryMutation.isPending || updateCategoryMutation.isPending}>
