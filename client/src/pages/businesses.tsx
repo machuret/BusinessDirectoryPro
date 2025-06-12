@@ -294,8 +294,7 @@ export default function BusinessesPage() {
             {filteredAndSortedBusinesses.map((business) => (
               <div key={business.placeid} className={viewMode === "list" ? "max-w-none" : ""}>
                 <BusinessCard 
-                  business={business} 
-                  className={viewMode === "list" ? "flex flex-row items-center h-auto" : ""}
+                  business={business}
                 />
               </div>
             ))}
