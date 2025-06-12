@@ -9,7 +9,7 @@ export class CategoryStorage {
     const result = await db.execute(sql`
       SELECT c.*, COUNT(b.placeid) as count
       FROM categories c
-      LEFT JOIN businesses b ON c.name = b.categoryname
+      LEFT JOIN businesses b ON c.name = b.categoryname AND b.permanentlyclosed = false
       GROUP BY c.id, c.name, c.slug, c.description, c.icon, c.color, c.created_at
       ORDER BY c.name
     `);
@@ -22,7 +22,7 @@ export class CategoryStorage {
       icon: row.icon,
       color: row.color,
       createdAt: row.created_at,
-      count: parseInt(row.count) || 0
+      businessCount: parseInt(row.count) || 0
     }));
   }
 
