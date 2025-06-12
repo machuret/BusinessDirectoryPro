@@ -20,49 +20,47 @@ interface BusinessesSectionProps {
 }
 
 export default function BusinessesSection({ businesses, isLoading }: BusinessesSectionProps) {
-  const { toast } = useToast();
   const [editingBusiness, setEditingBusiness] = useState<BusinessWithCategory | null>(null);
+  const { updateBusiness } = useBusinessMutations();
+  const editModal = useModalState();
 
-  const updateBusinessMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: any }) => {
-      await apiRequest("PATCH", `/api/businesses/${id}`, data);
+  const editForm = useFormManagement({
+    initialValues: {
+      title: "",
+      description: "",
+      phone: "",
+      website: "",
+      address: "",
+      seotitle: "",
+      seodescription: "",
+      slug: "",
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/user/businesses"] });
-      setEditingBusiness(null);
-      toast({ title: "Business updated successfully" });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Update failed",
-        description: error.message,
-        variant: "destructive",
+    onSubmit: async (values) => {
+      if (!editingBusiness) return;
+      
+      await updateBusiness.mutateAsync({
+        id: editingBusiness.placeid,
+        data: values,
       });
+      
+      setEditingBusiness(null);
+      editModal.close();
     },
   });
 
   const handleEditBusiness = (business: BusinessWithCategory) => {
     setEditingBusiness(business);
-  };
-
-  const handleUpdateBusiness = (formData: FormData) => {
-    if (!editingBusiness) return;
-
-    const data = {
-      title: formData.get("title"),
-      description: formData.get("description"),
-      phone: formData.get("phone"),
-      website: formData.get("website"),
-      address: formData.get("address"),
-      seotitle: formData.get("seotitle") || null,
-      seodescription: formData.get("seodescription") || null,
-      slug: formData.get("slug") || null,
-    };
-
-    updateBusinessMutation.mutate({
-      id: editingBusiness.placeid,
-      data,
+    editForm.updateFields({
+      title: business.title || "",
+      description: business.description || "",
+      phone: business.phone || "",
+      website: business.website || "",
+      address: business.address || "",
+      seotitle: business.seotitle || "",
+      seodescription: business.seodescription || "",
+      slug: business.slug || "",
     });
+    editModal.open();
   };
 
   if (isLoading) {
@@ -76,9 +74,7 @@ export default function BusinessesSection({ businesses, isLoading }: BusinessesS
           <CardDescription>Manage your business listings</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
+          <LoadingState message="Loading your businesses..." />
         </CardContent>
       </Card>
     );
@@ -127,7 +123,7 @@ export default function BusinessesSection({ businesses, isLoading }: BusinessesS
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Dialog>
+                    <Dialog open={editModal.isOpen} onOpenChange={editModal.setIsOpen}>
                       <DialogTrigger asChild>
                         <Button
                           variant="outline"
@@ -142,21 +138,14 @@ export default function BusinessesSection({ businesses, isLoading }: BusinessesS
                         <DialogHeader>
                           <DialogTitle>Edit Business: {business.title}</DialogTitle>
                         </DialogHeader>
-                        <form
-                          onSubmit={(e) => {
-                            e.preventDefault();
-                            const formData = new FormData(e.currentTarget);
-                            handleUpdateBusiness(formData);
-                          }}
-                          className="space-y-4"
-                        >
+                        <form onSubmit={editForm.handleSubmit} className="space-y-4">
                           <div className="grid grid-cols-2 gap-4">
                             <div>
                               <Label htmlFor="title">Business Name</Label>
                               <Input
                                 id="title"
-                                name="title"
-                                defaultValue={business.title || ""}
+                                value={editForm.values.title}
+                                onChange={(e) => editForm.updateField("title", e.target.value)}
                                 required
                               />
                             </div>
@@ -164,8 +153,8 @@ export default function BusinessesSection({ businesses, isLoading }: BusinessesS
                               <Label htmlFor="phone">Phone</Label>
                               <Input
                                 id="phone"
-                                name="phone"
-                                defaultValue={business.phone || ""}
+                                value={editForm.values.phone}
+                                onChange={(e) => editForm.updateField("phone", e.target.value)}
                               />
                             </div>
                           </div>
@@ -174,8 +163,8 @@ export default function BusinessesSection({ businesses, isLoading }: BusinessesS
                             <Label htmlFor="description">Description</Label>
                             <Textarea
                               id="description"
-                              name="description"
-                              defaultValue={business.description || ""}
+                              value={editForm.values.description}
+                              onChange={(e) => editForm.updateField("description", e.target.value)}
                               rows={3}
                             />
                           </div>
@@ -185,17 +174,17 @@ export default function BusinessesSection({ businesses, isLoading }: BusinessesS
                               <Label htmlFor="website">Website</Label>
                               <Input
                                 id="website"
-                                name="website"
                                 type="url"
-                                defaultValue={business.website || ""}
+                                value={editForm.values.website}
+                                onChange={(e) => editForm.updateField("website", e.target.value)}
                               />
                             </div>
                             <div>
                               <Label htmlFor="address">Address</Label>
                               <Input
                                 id="address"
-                                name="address"
-                                defaultValue={business.address || ""}
+                                value={editForm.values.address}
+                                onChange={(e) => editForm.updateField("address", e.target.value)}
                               />
                             </div>
                           </div>
@@ -206,8 +195,8 @@ export default function BusinessesSection({ businesses, isLoading }: BusinessesS
                               <Label htmlFor="seotitle">SEO Title</Label>
                               <Input
                                 id="seotitle"
-                                name="seotitle"
-                                defaultValue={business.seotitle || ""}
+                                value={editForm.values.seotitle}
+                                onChange={(e) => editForm.updateField("seotitle", e.target.value)}
                                 placeholder="Custom page title for search engines"
                               />
                             </div>
@@ -215,8 +204,8 @@ export default function BusinessesSection({ businesses, isLoading }: BusinessesS
                               <Label htmlFor="seodescription">SEO Description</Label>
                               <Textarea
                                 id="seodescription"
-                                name="seodescription"
-                                defaultValue={business.seodescription || ""}
+                                value={editForm.values.seodescription}
+                                onChange={(e) => editForm.updateField("seodescription", e.target.value)}
                                 placeholder="Meta description for search engines (150-160 characters)"
                                 rows={2}
                               />
@@ -225,16 +214,23 @@ export default function BusinessesSection({ businesses, isLoading }: BusinessesS
                               <Label htmlFor="slug">URL Slug</Label>
                               <Input
                                 id="slug"
-                                name="slug"
-                                defaultValue={business.slug || ""}
+                                value={editForm.values.slug}
+                                onChange={(e) => editForm.updateField("slug", e.target.value)}
                                 placeholder="Custom URL path (e.g., my-business-name)"
                               />
                             </div>
                           </div>
 
                           <div className="flex justify-end space-x-2">
-                            <Button type="submit" disabled={updateBusinessMutation.isPending}>
-                              {updateBusinessMutation.isPending ? "Updating..." : "Update Business"}
+                            <Button 
+                              type="button" 
+                              variant="outline" 
+                              onClick={editModal.close}
+                            >
+                              Cancel
+                            </Button>
+                            <Button type="submit" disabled={editForm.isSubmitting}>
+                              {editForm.isSubmitting ? "Updating..." : "Update Business"}
                             </Button>
                           </div>
                         </form>
