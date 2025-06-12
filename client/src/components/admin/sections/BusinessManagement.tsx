@@ -266,10 +266,27 @@ export default function BusinessManagement() {
   };
 
   const onSubmit = (data: BusinessFormData) => {
+    // Transform nested form data to match database field structure
+    const transformedData = {
+      ...data,
+      // Flatten social media fields
+      facebook: data.socialMedia?.facebook || null,
+      twitter: data.socialMedia?.twitter || null,
+      instagram: data.socialMedia?.instagram || null,
+      linkedin: data.socialMedia?.linkedin || null,
+      // Flatten owner info fields
+      ownerName: data.ownerInfo?.name || null,
+      ownerEmail: data.ownerInfo?.email || null,
+      ownerPhone: data.ownerInfo?.phone || null,
+      // Remove nested objects since we've flattened them
+      socialMedia: undefined,
+      ownerInfo: undefined,
+    };
+
     if (editingBusiness) {
-      updateBusinessMutation.mutate({ id: editingBusiness.placeid, data });
+      updateBusinessMutation.mutate({ id: editingBusiness.placeid, data: transformedData });
     } else {
-      createBusinessMutation.mutate(data);
+      createBusinessMutation.mutate(transformedData);
     }
   };
 
