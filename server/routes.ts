@@ -295,6 +295,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Setup services tables endpoint
+  app.post("/api/admin/setup-services", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { setupServicesDatabase } = await import("./services-database-setup");
+      const result = await setupServicesDatabase();
+      if (result.success) {
+        res.json({ success: true, message: "Services database setup completed", data: result });
+      } else {
+        res.status(500).json({ error: result.error });
+      }
+    } catch (error: any) {
+      console.error("Error setting up services database:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
