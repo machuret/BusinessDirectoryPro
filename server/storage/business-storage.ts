@@ -19,7 +19,7 @@ export class BusinessStorage {
                c.icon as category_icon, c.color as category_color, c.id as category_id
         FROM businesses b
         LEFT JOIN categories c ON b.categoryname = c.name
-        WHERE b.permanentlyclosed = false
+        WHERE (b.permanentlyclosed = false OR b.permanentlyclosed IS NULL)
       `;
 
       if (params?.categoryId) {
@@ -292,7 +292,7 @@ export class BusinessStorage {
                c.icon as category_icon, c.color as category_color, c.id as category_id
         FROM businesses b
         LEFT JOIN categories c ON b.categoryname = c.name
-        WHERE b.featured = true AND b.permanentlyclosed = false
+        WHERE b.featured = true AND (b.permanentlyclosed = false OR b.permanentlyclosed IS NULL)
         ORDER BY b.totalscore DESC NULLS LAST
         LIMIT ${limit}
       `);
