@@ -124,6 +124,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       title: "Homepage",
       icon: Home,
       path: "/admin/homepage"
+    },
+    {
+      title: "Settings",
+      icon: Settings,
+      path: "/admin/settings"
     }
   ];
 

@@ -36,6 +36,14 @@ import AdminPagesPage from "@/pages/admin/pages";
 import AdminSEOPage from "@/pages/admin/seo";
 import AdminInboxPage from "@/pages/admin/inbox";
 import AdminHomepagePage from "@/pages/admin/homepage";
+import AdminOwnershipPage from "@/pages/admin/ownership";
+import AdminSubmissionsPage from "@/pages/admin/submissions";
+import AdminAPIPage from "@/pages/admin/api";
+import AdminLeadsPage from "@/pages/admin/leads";
+import AdminImportPage from "@/pages/admin/import";
+import AdminExportPage from "@/pages/admin/export";
+import AdminFeaturedPage from "@/pages/admin/featured";
+import AdminSettingsPage from "@/pages/admin/settings";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -72,6 +80,14 @@ function Router() {
           <Route path="/admin/seo" component={AdminSEOPage} />
           <Route path="/admin/inbox" component={AdminInboxPage} />
           <Route path="/admin/homepage" component={AdminHomepagePage} />
+          <Route path="/admin/ownership" component={AdminOwnershipPage} />
+          <Route path="/admin/submissions" component={AdminSubmissionsPage} />
+          <Route path="/admin/api" component={AdminAPIPage} />
+          <Route path="/admin/leads" component={AdminLeadsPage} />
+          <Route path="/admin/import" component={AdminImportPage} />
+          <Route path="/admin/export" component={AdminExportPage} />
+          <Route path="/admin/featured" component={AdminFeaturedPage} />
+          <Route path="/admin/settings" component={AdminSettingsPage} />
           <Route path="/admin/menu/:id" component={MenuEdit} />
         </>
       )}
