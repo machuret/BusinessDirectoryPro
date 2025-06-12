@@ -3,315 +3,258 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Progress } from "@/components/ui/progress";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Edit, HelpCircle, Loader2, CheckCircle, AlertCircle } from "lucide-react";
+import { Loader2, Sparkles, FileText, Search } from "lucide-react";
 
 interface Business {
   placeid: string;
-  title: string;
-  categoryname: string;
+  businessname: string;
   city: string;
-  description?: string;
-  faq?: any[];
-}
-
-interface OptimizationJob {
-  id: string;
-  businessId: string;
-  businessTitle: string;
-  type: 'description' | 'faq';
-  status: 'pending' | 'processing' | 'completed' | 'failed';
-  createdAt: string;
-  result?: string;
-  error?: string;
+  category?: { name: string };
 }
 
 export default function OptimizationManagement() {
   const { toast } = useToast();
-  const [showOptimizeDialog, setShowOptimizeDialog] = useState(false);
-  const [showFaqDialog, setShowFaqDialog] = useState(false);
   const [selectedBusinesses, setSelectedBusinesses] = useState<string[]>([]);
-  const [optimizationType, setOptimizationType] = useState<'description' | 'faq'>('description');
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [currentJobs, setCurrentJobs] = useState<OptimizationJob[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showDescriptionDialog, setShowDescriptionDialog] = useState(false);
+  const [showFaqDialog, setShowFaqDialog] = useState(false);
 
-  const { data: allBusinesses } = useQuery<Business[]>({
+  const { data: businesses, isLoading } = useQuery<Business[]>({
     queryKey: ["/api/admin/businesses"],
   });
 
-  const optimizeBusinessesMutation = useMutation({
-    mutationFn: async ({ businessIds, type }: { businessIds: string[], type: 'description' | 'faq' }) => {
-      const res = await apiRequest("POST", "/api/admin/optimize-businesses", { businessIds, type });
+  const optimizeDescriptionsMutation = useMutation({
+    mutationFn: async (businessIds: string[]) => {
+      const res = await apiRequest("POST", "/api/admin/optimize-businesses", {
+        businessIds,
+        type: "descriptions"
+      });
       return res.json();
     },
     onSuccess: (data) => {
-      toast({ title: "Success", description: `Started ${optimizationType} optimization for ${selectedBusinesses.length} businesses` });
-      setShowOptimizeDialog(false);
-      setShowFaqDialog(false);
-      setSelectedBusinesses([]);
-      setIsProcessing(false);
       queryClient.invalidateQueries({ queryKey: ["/api/admin/businesses"] });
+      toast({ 
+        title: "Success", 
+        description: `Optimized descriptions for ${data.success} businesses` 
+      });
+      setSelectedBusinesses([]);
+      setShowDescriptionDialog(false);
     },
     onError: (error: Error) => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
-      setIsProcessing(false);
-    }
+    },
   });
 
+  const generateFaqsMutation = useMutation({
+    mutationFn: async (businessIds: string[]) => {
+      const res = await apiRequest("POST", "/api/admin/optimize-businesses", {
+        businessIds,
+        type: "faqs"
+      });
+      return res.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/businesses"] });
+      toast({ 
+        title: "Success", 
+        description: `Generated FAQs for ${data.success} businesses` 
+      });
+      setSelectedBusinesses([]);
+      setShowFaqDialog(false);
+    },
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const filteredBusinesses = businesses?.filter(business =>
+    business.businessname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    business.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    business.category?.name.toLowerCase().includes(searchTerm.toLowerCase())
+  ) || [];
+
+  const handleSelectAll = () => {
+    if (selectedBusinesses.length === filteredBusinesses.length) {
+      setSelectedBusinesses([]);
+    } else {
+      setSelectedBusinesses(filteredBusinesses.map(business => business.placeid));
+    }
+  };
+
+  const handleSelectBusiness = (businessId: string) => {
+    setSelectedBusinesses(prev => 
+      prev.includes(businessId) 
+        ? prev.filter(id => id !== businessId)
+        : [...prev, businessId]
+    );
+  };
+
   const handleOptimizeDescriptions = () => {
-    setOptimizationType('description');
-    setShowOptimizeDialog(true);
-  };
-
-  const handleGenerateFAQs = () => {
-    setOptimizationType('faq');
-    setShowFaqDialog(true);
-  };
-
-  const startOptimization = () => {
     if (selectedBusinesses.length === 0) {
       toast({ title: "Error", description: "Please select at least one business", variant: "destructive" });
       return;
     }
-    setIsProcessing(true);
-    optimizeBusinessesMutation.mutate({ businessIds: selectedBusinesses, type: optimizationType });
+    setShowDescriptionDialog(true);
   };
 
-  const totalBusinesses = allBusinesses?.length || 0;
-  const optimizedBusinesses = allBusinesses?.filter(b => 
-    optimizationType === 'description' ? b.description && b.description.length > 50 : b.faq && b.faq.length > 0
-  ).length || 0;
+  const handleGenerateFaqs = () => {
+    if (selectedBusinesses.length === 0) {
+      toast({ title: "Error", description: "Please select at least one business", variant: "destructive" });
+      return;
+    }
+    setShowFaqDialog(true);
+  };
+
+  const confirmOptimizeDescriptions = () => {
+    optimizeDescriptionsMutation.mutate(selectedBusinesses);
+  };
+
+  const confirmGenerateFaqs = () => {
+    generateFaqsMutation.mutate(selectedBusinesses);
+  };
 
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>AI Content Optimization</CardTitle>
-          <CardDescription>Use AI to enhance business descriptions and generate FAQs</CardDescription>
+          <CardDescription>Use AI to optimize business descriptions and generate FAQs</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              <div className="text-center p-4 border rounded">
-                <div className="text-2xl font-bold text-blue-600">{totalBusinesses}</div>
-                <div className="text-sm text-muted-foreground">Total Businesses</div>
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-4">
+                <h3 className="text-lg font-semibold">Select Businesses for Optimization</h3>
+                <Badge variant="outline">{selectedBusinesses.length} selected</Badge>
               </div>
-              <div className="text-center p-4 border rounded">
-                <div className="text-2xl font-bold text-green-600">{optimizedBusinesses}</div>
-                <div className="text-sm text-muted-foreground">With Content</div>
-              </div>
-            </div>
-            
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Optimization Tools</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex items-center gap-2">
                 <Button 
-                  variant="outline" 
-                  className="h-24 flex-col"
                   onClick={handleOptimizeDescriptions}
-                  disabled={isProcessing}
+                  disabled={selectedBusinesses.length === 0 || optimizeDescriptionsMutation.isPending}
                 >
-                  {isProcessing && optimizationType === 'description' ? (
-                    <Loader2 className="h-6 w-6 mb-2 animate-spin" />
-                  ) : (
-                    <Edit className="h-6 w-6 mb-2" />
-                  )}
-                  <div className="text-center">
-                    <div className="font-medium">Optimize Descriptions</div>
-                    <div className="text-xs text-muted-foreground">Enhance business descriptions with AI</div>
-                  </div>
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Optimize Descriptions ({selectedBusinesses.length})
                 </Button>
                 <Button 
-                  variant="outline" 
-                  className="h-24 flex-col"
-                  onClick={handleGenerateFAQs}
-                  disabled={isProcessing}
+                  onClick={handleGenerateFaqs}
+                  disabled={selectedBusinesses.length === 0 || generateFaqsMutation.isPending}
                 >
-                  {isProcessing && optimizationType === 'faq' ? (
-                    <Loader2 className="h-6 w-6 mb-2 animate-spin" />
-                  ) : (
-                    <HelpCircle className="h-6 w-6 mb-2" />
-                  )}
-                  <div className="text-center">
-                    <div className="font-medium">Generate FAQs</div>
-                    <div className="text-xs text-muted-foreground">Create FAQs for businesses</div>
-                  </div>
+                  <FileText className="h-4 w-4 mr-2" />
+                  Generate FAQs ({selectedBusinesses.length})
                 </Button>
               </div>
             </div>
-            
+
+            <div className="flex items-center gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  placeholder="Search businesses..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+
+            {isLoading ? (
+              <div className="flex items-center justify-center p-8">
+                <Loader2 className="h-8 w-8 animate-spin" />
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12">
+                      <Checkbox
+                        checked={selectedBusinesses.length === filteredBusinesses.length && filteredBusinesses.length > 0}
+                        onCheckedChange={handleSelectAll}
+                      />
+                    </TableHead>
+                    <TableHead>Business Name</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead>City</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredBusinesses.map((business) => (
+                    <TableRow key={business.placeid}>
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedBusinesses.includes(business.placeid)}
+                          onCheckedChange={() => handleSelectBusiness(business.placeid)}
+                        />
+                      </TableCell>
+                      <TableCell className="font-medium">{business.businessname}</TableCell>
+                      <TableCell>{business.category?.name || 'N/A'}</TableCell>
+                      <TableCell>{business.city}</TableCell>
+                    </TableRow>
+                  ))}
+                  {filteredBusinesses.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
+                        {searchTerm ? "No businesses match your search." : "No businesses found."}
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            )}
           </div>
         </CardContent>
       </Card>
 
-      {/* Optimize Descriptions Dialog */}
-      <Dialog open={showOptimizeDialog} onOpenChange={setShowOptimizeDialog}>
-        <DialogContent className="max-w-4xl">
+      {/* Optimize Descriptions Confirmation Dialog */}
+      <Dialog open={showDescriptionDialog} onOpenChange={setShowDescriptionDialog}>
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Optimize Business Descriptions</DialogTitle>
             <DialogDescription>
-              Select businesses to enhance their descriptions using AI
+              This will use AI to optimize descriptions for {selectedBusinesses.length} selected businesses. 
+              This action will overwrite existing descriptions.
             </DialogDescription>
           </DialogHeader>
-          
-          <div className="max-h-96 overflow-y-auto border rounded">
-            {allBusinesses && allBusinesses.length > 0 ? (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-12">Select</TableHead>
-                    <TableHead>Business</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Current Description</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {allBusinesses.map((business) => (
-                    <TableRow key={business.placeid}>
-                      <TableCell>
-                        <input
-                          type="checkbox"
-                          checked={selectedBusinesses.includes(business.placeid)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedBusinesses([...selectedBusinesses, business.placeid]);
-                            } else {
-                              setSelectedBusinesses(selectedBusinesses.filter(id => id !== business.placeid));
-                            }
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          <div className="font-medium">{business.title}</div>
-                          <div className="text-sm text-muted-foreground">{business.city}</div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{business.categoryname}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-sm">
-                          {business.description ? 
-                            (business.description.length > 50 ? 
-                              business.description.substring(0, 50) + '...' : 
-                              business.description) : 
-                            'No description'
-                          }
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                No businesses available
-              </div>
-            )}
-          </div>
-
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowOptimizeDialog(false)}>
+            <Button variant="outline" onClick={() => setShowDescriptionDialog(false)}>
               Cancel
             </Button>
-            <Button onClick={startOptimization} disabled={isProcessing || selectedBusinesses.length === 0}>
-              {isProcessing ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Processing...
-                </>
-              ) : (
-                `Optimize ${selectedBusinesses.length} Businesses`
-              )}
+            <Button 
+              onClick={confirmOptimizeDescriptions}
+              disabled={optimizeDescriptionsMutation.isPending}
+            >
+              {optimizeDescriptionsMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Optimize Descriptions
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Generate FAQs Dialog */}
+      {/* Generate FAQs Confirmation Dialog */}
       <Dialog open={showFaqDialog} onOpenChange={setShowFaqDialog}>
-        <DialogContent className="max-w-4xl">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Generate Business FAQs</DialogTitle>
             <DialogDescription>
-              Select businesses to generate frequently asked questions using AI
+              This will use AI to generate FAQs for {selectedBusinesses.length} selected businesses. 
+              This action will overwrite existing FAQs.
             </DialogDescription>
           </DialogHeader>
-          
-          <div className="max-h-96 overflow-y-auto border rounded">
-            {allBusinesses && allBusinesses.length > 0 ? (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-12">Select</TableHead>
-                    <TableHead>Business</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Current FAQs</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {allBusinesses.map((business) => (
-                    <TableRow key={business.placeid}>
-                      <TableCell>
-                        <input
-                          type="checkbox"
-                          checked={selectedBusinesses.includes(business.placeid)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedBusinesses([...selectedBusinesses, business.placeid]);
-                            } else {
-                              setSelectedBusinesses(selectedBusinesses.filter(id => id !== business.placeid));
-                            }
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          <div className="font-medium">{business.title}</div>
-                          <div className="text-sm text-muted-foreground">{business.city}</div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{business.categoryname}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-sm">
-                          {business.faq && business.faq.length > 0 ? 
-                            `${business.faq.length} FAQs` : 
-                            'No FAQs'
-                          }
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                No businesses available
-              </div>
-            )}
-          </div>
-
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowFaqDialog(false)}>
               Cancel
             </Button>
-            <Button onClick={startOptimization} disabled={isProcessing || selectedBusinesses.length === 0}>
-              {isProcessing ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Processing...
-                </>
-              ) : (
-                `Generate FAQs for ${selectedBusinesses.length} Businesses`
-              )}
+            <Button 
+              onClick={confirmGenerateFaqs}
+              disabled={generateFaqsMutation.isPending}
+            >
+              {generateFaqsMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Generate FAQs
             </Button>
           </DialogFooter>
         </DialogContent>

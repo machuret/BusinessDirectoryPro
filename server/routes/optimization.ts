@@ -14,8 +14,8 @@ router.post("/optimize-businesses", isAuthenticated, isAdmin, async (req, res) =
       return res.status(400).json({ message: "Business IDs are required" });
     }
 
-    if (!type || !['description', 'faq'].includes(type)) {
-      return res.status(400).json({ message: "Type must be 'description' or 'faq'" });
+    if (!type || !['descriptions', 'faqs'].includes(type)) {
+      return res.status(400).json({ message: "Type must be 'descriptions' or 'faqs'" });
     }
 
     const results = [];
