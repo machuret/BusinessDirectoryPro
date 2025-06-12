@@ -21,8 +21,8 @@ export default function BusinessDetail() {
   });
 
   const { data: reviews = [], isLoading: reviewsLoading, refetch: refetchReviews } = useQuery<(Review & { user: Pick<UserType, 'firstName' | 'lastName'> })[]>({
-    queryKey: [`/api/businesses/${slug}/reviews`],
-    enabled: !!business,
+    queryKey: [`/api/businesses/${business?.placeid}/reviews`],
+    enabled: !!business?.placeid,
   });
 
   const { data: siteSettings } = useQuery<Record<string, any>>({

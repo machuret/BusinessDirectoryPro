@@ -38,8 +38,7 @@ function Router() {
       <Route path="/cities" component={Cities} />
       <Route path="/cities/:city" component={Cities} />
       <Route path="/featured" component={Featured} />
-      <Route path="/business/:identifier" component={BusinessListing} />
-      <Route path="/businesses/search" component={SearchResults} />
+      <Route path="/search" component={SearchResults} />
       <Route path="/business-portal/:businessId" component={BusinessOwnerPortal} />
       <Route path="/pages/:slug" component={PageDisplay} />
       <Route path="/login" component={Login} />
@@ -48,10 +47,10 @@ function Router() {
         <>
           <Route path="/dashboard" component={Dashboard} />
           <Route path="/admin" component={AdminLayout} />
-
           <Route path="/admin/menu/:id" component={MenuEdit} />
         </>
       )}
+      <Route path="/:slug" component={BusinessDetail} />
       <Route component={NotFound} />
     </Switch>
   );
