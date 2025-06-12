@@ -55,6 +55,21 @@ const businessSchema = z.object({
   featured: z.boolean().default(false),
   verified: z.boolean().default(false),
   status: z.enum(["active", "inactive", "pending"]).default("active"),
+  // New fields for enhanced business management
+  seoTitle: z.string().optional(),
+  seoDescription: z.string().optional(),
+  faq: z.string().optional(),
+  socialMedia: z.object({
+    facebook: z.string().optional(),
+    twitter: z.string().optional(),
+    instagram: z.string().optional(),
+    linkedin: z.string().optional(),
+  }).optional(),
+  ownerInfo: z.object({
+    name: z.string().optional(),
+    email: z.string().optional(),
+    phone: z.string().optional(),
+  }).optional(),
 });
 
 type BusinessFormData = z.infer<typeof businessSchema>;
@@ -95,6 +110,20 @@ export default function BusinessManagement() {
       featured: false,
       verified: false,
       status: "active",
+      seoTitle: "",
+      seoDescription: "",
+      faq: "",
+      socialMedia: {
+        facebook: "",
+        twitter: "",
+        instagram: "",
+        linkedin: "",
+      },
+      ownerInfo: {
+        name: "",
+        email: "",
+        phone: "",
+      },
     },
   });
 
@@ -199,6 +228,7 @@ export default function BusinessManagement() {
 
   const handleEdit = (business: Business) => {
     setEditingBusiness(business);
+    const businessData = business as any; // Type assertion for additional fields
     form.reset({
       name: getBusinessName(business),
       address: business.address,
@@ -212,6 +242,20 @@ export default function BusinessManagement() {
       featured: business.featured,
       verified: business.verified || false,
       status: (business.status as "active" | "inactive" | "pending") || "active",
+      seoTitle: businessData.seotitle || "",
+      seoDescription: businessData.seodescription || "",
+      faq: businessData.faq ? (typeof businessData.faq === 'string' ? businessData.faq : JSON.stringify(businessData.faq)) : "",
+      socialMedia: {
+        facebook: businessData.facebook || "",
+        twitter: businessData.twitter || "",
+        instagram: businessData.instagram || "",
+        linkedin: businessData.linkedin || "",
+      },
+      ownerInfo: {
+        name: businessData.ownerName || "",
+        email: businessData.ownerEmail || "",
+        phone: businessData.ownerPhone || "",
+      },
     });
     setShowEditDialog(true);
   };
@@ -413,7 +457,11 @@ export default function BusinessManagement() {
                           )}
                         </div>
                       </TableCell>
-                      <TableCell>{business.category?.name || 'N/A'}</TableCell>
+                      <TableCell>
+                        {business.category?.name || business.categoryname || (
+                          <span className="text-muted-foreground italic">Uncategorized</span>
+                        )}
+                      </TableCell>
                       <TableCell>
                         <Badge variant={
                           business.status === "active" ? "default" : 
@@ -425,7 +473,9 @@ export default function BusinessManagement() {
                       <TableCell>
                         <div className="flex items-center gap-1">
                           <Star className="h-4 w-4 text-yellow-400" />
-                          {business.rating?.toFixed(1) || 'N/A'}
+                          {business.rating && business.rating > 0 ? business.rating.toFixed(1) : (
+                            <span className="text-muted-foreground">No rating</span>
+                          )}
                         </div>
                       </TableCell>
                       <TableCell>
@@ -491,10 +541,13 @@ export default function BusinessManagement() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <Tabs defaultValue="basic" className="w-full">
-                <TabsList className="grid w-full grid-cols-3">
+                <TabsList className="grid w-full grid-cols-6">
                   <TabsTrigger value="basic">Basic Info</TabsTrigger>
-                  <TabsTrigger value="contact">Contact & Details</TabsTrigger>
-                  <TabsTrigger value="settings">Settings</TabsTrigger>
+                  <TabsTrigger value="contact">Contact</TabsTrigger>
+                  <TabsTrigger value="seo">SEO</TabsTrigger>
+                  <TabsTrigger value="faq">FAQ</TabsTrigger>
+                  <TabsTrigger value="social">Social Media</TabsTrigger>
+                  <TabsTrigger value="owner">Owner Info</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="basic" className="space-y-4">
