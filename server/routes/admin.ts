@@ -206,6 +206,25 @@ export function setupAdminRoutes(app: Express) {
     }
   });
 
+  // Update city by ID (for frontend compatibility)
+  app.put("/api/admin/cities/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { name, state, country, pageTitle, pageDescription } = req.body;
+      
+      if (!name) {
+        return res.status(400).json({ message: "City name is required" });
+      }
+
+      // For now, we'll update based on the current name since our storage uses city names as IDs
+      await storage.updateCityName(id, name, pageDescription);
+      res.json({ message: "City updated successfully" });
+    } catch (error) {
+      console.error("Error updating city:", error);
+      res.status(500).json({ message: "Failed to update city" });
+    }
+  });
+
   app.patch("/api/admin/cities/update", isAuthenticated, isAdmin, async (req, res) => {
     try {
       const { oldName, newName, description } = req.body;

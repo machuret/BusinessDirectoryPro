@@ -153,12 +153,26 @@ export default function SEOManagement() {
                   <Input
                     id="site_title"
                     value={getSetting("site_title")}
-                    onChange={(e) => handleSettingUpdate("site_title", e.target.value, "Default site title for SEO", "seo")}
+                    onChange={(e) => handleSettingUpdate("site_title", e.target.value, "Site brand title", "branding")}
                     placeholder="Your Website Title"
                     className="mt-1"
                   />
                   <p className="text-sm text-gray-500 mt-1">
-                    Primary title for your website (recommended: 50-60 characters)
+                    Brand title for your website (used in navigation and branding)
+                  </p>
+                </div>
+
+                <div>
+                  <Label htmlFor="homepage_seo_title">Homepage SEO Title</Label>
+                  <Input
+                    id="homepage_seo_title"
+                    value={getSetting("homepage_seo_title")}
+                    onChange={(e) => handleSettingUpdate("homepage_seo_title", e.target.value, "SEO title for homepage", "seo")}
+                    placeholder="Best Business Directory | Find Local Services"
+                    className="mt-1"
+                  />
+                  <p className="text-sm text-gray-500 mt-1">
+                    SEO-optimized title for homepage (recommended: 50-60 characters)
                   </p>
                 </div>
 

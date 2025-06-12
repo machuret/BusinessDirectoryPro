@@ -37,6 +37,18 @@ export class ContentGenerator {
       return `${category.name} - Find Local Businesses | ${siteName}`;
     }
     
+    // For homepage, check for specific SEO title first
+    const homepageSeoTitle = siteSettings.getSiteSetting('homepage_seo_title') || siteSettings.getSiteSetting('seo_title');
+    if (homepageSeoTitle) {
+      return homepageSeoTitle;
+    }
+    
+    // Fallback to site title
+    const siteTitle = siteSettings.getSiteSetting('site_title');
+    if (siteTitle) {
+      return siteTitle;
+    }
+    
     return siteName;
   }
 
@@ -74,8 +86,8 @@ export class ContentGenerator {
           description += `Conveniently located in ${business.city}, we serve the local community with dedication. `;
         }
         
-        if (business.phonenumber) {
-          description += `Contact us at ${business.phonenumber} for more information. `;
+        if (business.phone) {
+          description += `Contact us at ${business.phone} for more information. `;
         }
         
         // Add rating if available

@@ -4,6 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
+import Header from "@/components/header";
+import Footer from "@/components/footer";
+import SEOHead from "@/components/SEOHead";
 import type { Page } from "@shared/schema";
 
 export default function PageDisplay() {
