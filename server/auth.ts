@@ -85,6 +85,38 @@ export function setupAuth(app: Express) {
     }
   });
 
+  // Alias for add-business flow compatibility
+  app.post("/api/register", async (req, res) => {
+    try {
+      const validatedData = registerUserSchema.parse(req.body);
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(validatedData.email);
+      if (existingUser) {
+        return res.status(400).json({ message: "User already exists" });
+      }
+
+      // Hash password and create user
+      const hashedPassword = await hashPassword(validatedData.password);
+      const newUser = await storage.createUser({
+        id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        ...validatedData,
+        password: hashedPassword,
+      });
+
+      // Set session
+      req.session.userId = newUser.id;
+      req.session.user = newUser;
+
+      // Remove password from response
+      const { password, ...userWithoutPassword } = newUser;
+      res.status(201).json(userWithoutPassword);
+    } catch (error: any) {
+      console.error("Registration error:", error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   // Login endpoint
   app.post("/api/auth/login", async (req, res) => {
     try {

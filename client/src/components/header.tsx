@@ -149,9 +149,9 @@ export default function Header() {
                     Sign In
                   </Button>
                 </Link>
-                <Link href="/login">
+                <Link href="/add-business">
                   <Button className="bg-primary text-white hover:bg-blue-700">
-                    List Your Business
+                    Add Your Business
                   </Button>
                 </Link>
               </>

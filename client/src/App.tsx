@@ -20,6 +20,7 @@ import AdminLayout from "@/components/admin/AdminLayout";
 import MenuEdit from "@/pages/menu-edit";
 import PageDisplay from "@/pages/page-display";
 import Login from "@/pages/login";
+import AddBusiness from "@/pages/add-business";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -42,6 +43,7 @@ function Router() {
       <Route path="/business-portal/:businessId" component={BusinessOwnerPortal} />
       <Route path="/pages/:slug" component={PageDisplay} />
       <Route path="/login" component={Login} />
+      <Route path="/add-business" component={AddBusiness} />
       {isAuthenticated && (
         <>
           <Route path="/dashboard" component={Dashboard} />
