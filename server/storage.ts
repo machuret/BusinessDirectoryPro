@@ -217,7 +217,7 @@ export class DatabaseStorage implements IStorage {
           c.created_at as "createdAt",
           COUNT(b.placeid)::int as "businessCount"
         FROM categories c
-        LEFT JOIN businesses b ON c.name = b.categoryname
+        LEFT JOIN businesses b ON LOWER(c.name) = LOWER(b.categoryname)
         GROUP BY c.id, c.name, c.slug, c.description, c.icon, c.color, c.created_at
         ORDER BY c.name
       `);
@@ -229,7 +229,7 @@ export class DatabaseStorage implements IStorage {
         description: row.description,
         icon: row.icon,
         color: row.color,
-        createdAt: new Date(row.createdAt),
+        createdAt: new Date(row.createdAt as string),
         businessCount: row.businessCount
       })) as CategoryWithCount[];
     } catch (error) {
