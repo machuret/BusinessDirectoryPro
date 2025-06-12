@@ -25,6 +25,7 @@ import {
   FeaturedManagement,
   MenuManagement
 } from "@/components/admin/sections";
+import BusinessSubmissions from "@/components/admin/sections/BusinessSubmissions";
 
 export default function AdminLayout() {
   const { user } = useAuth();
@@ -48,6 +49,7 @@ export default function AdminLayout() {
 
   const navigationItems = [
     { id: "businesses", label: "Businesses", icon: Building2 },
+    { id: "submissions", label: "Submissions", icon: CheckCircle },
     { id: "users", label: "Users", icon: Users },
     { id: "categories", label: "Categories", icon: FileText },
     { id: "cities", label: "Cities", icon: MapPin },
@@ -69,6 +71,8 @@ export default function AdminLayout() {
     switch (activeTab) {
       case "businesses":
         return <BusinessManagement />;
+      case "submissions":
+        return <BusinessSubmissions />;
       case "users":
         return <UserManagement />;
       case "categories":
