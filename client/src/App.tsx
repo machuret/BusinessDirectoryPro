@@ -38,6 +38,7 @@ function Router() {
       <Route path="/cities" component={Cities} />
       <Route path="/cities/:city" component={Cities} />
       <Route path="/featured" component={Featured} />
+      <Route path="/businesses" component={Categories} />
       <Route path="/search" component={SearchResults} />
       <Route path="/business-portal/:businessId" component={BusinessOwnerPortal} />
       <Route path="/pages/:slug" component={PageDisplay} />

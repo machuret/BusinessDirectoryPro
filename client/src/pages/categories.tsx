@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "wouter";
+import { useParams, useLocation } from "wouter";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import BusinessCard from "@/components/business-card";
@@ -15,6 +15,11 @@ import type { BusinessWithCategory, CategoryWithCount, Category } from "@shared/
 
 export default function Categories() {
   const { slug } = useParams();
+  const [location] = useLocation();
+  
+  // Extract category from query parameter
+  const urlParams = new URLSearchParams(location.split('?')[1] || '');
+  const categoryParam = urlParams.get('category');
   
   const { data: categories, isLoading: categoriesLoading } = useQuery<CategoryWithCount[]>({
     queryKey: ["/api/categories"],
@@ -25,9 +30,13 @@ export default function Categories() {
     enabled: !!slug,
   });
 
+  // Find category by name when using query parameter
+  const categoryByName = categoryParam && categories?.find(cat => cat.name === categoryParam);
+  const currentCategory = category || categoryByName;
+
   const { data: businesses, isLoading: businessesLoading } = useQuery<BusinessWithCategory[]>({
-    queryKey: ["/api/businesses", { categoryId: category?.id }],
-    enabled: !!category?.id,
+    queryKey: ["/api/businesses", { categoryId: currentCategory?.id }],
+    enabled: !!(currentCategory && typeof currentCategory === 'object' && 'id' in currentCategory),
   });
 
   const { data: allBusinesses, isLoading: allBusinessesLoading } = useQuery<BusinessWithCategory[]>({
@@ -68,8 +77,8 @@ export default function Categories() {
     );
   }
 
-  const currentBusinesses = slug ? businesses : allBusinesses;
-  const isLoadingBusinesses = slug ? businessesLoading : allBusinessesLoading;
+  const currentBusinesses = (slug || categoryParam) ? businesses : allBusinesses;
+  const isLoadingBusinesses = (slug || categoryParam) ? businessesLoading : allBusinessesLoading;
 
   return (
     <div className="min-h-screen bg-gray-50">

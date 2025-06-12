@@ -136,6 +136,11 @@ export default function BusinessDetail() {
             
             <div className="space-y-6">
               <BusinessContactInfo business={business} />
+              
+              <BusinessContactForm 
+                businessId={business.placeid}
+                businessName={business.title || 'Business'}
+              />
             </div>
           </div>
           
