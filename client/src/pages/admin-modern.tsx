@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import SEOManagement from "@/components/admin/sections/SEOManagement";
 
 export default function ModernAdmin() {
   const { toast } = useToast();
@@ -254,32 +255,7 @@ export default function ModernAdmin() {
       case "faq":
         return renderFAQSection();
       case "seo":
-        return (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold">SEO Settings</h2>
-            <Card>
-              <CardHeader>
-                <CardTitle>Search Engine Optimization</CardTitle>
-                <CardDescription>Configure SEO settings for better search visibility</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label>Site Title</Label>
-                  <Input placeholder="Enter site title..." />
-                </div>
-                <div>
-                  <Label>Meta Description</Label>
-                  <Textarea placeholder="Enter meta description..." />
-                </div>
-                <div>
-                  <Label>Keywords</Label>
-                  <Input placeholder="Enter keywords separated by commas..." />
-                </div>
-                <Button>Save SEO Settings</Button>
-              </CardContent>
-            </Card>
-          </div>
-        );
+        return <SEOManagement />;
       case "categories":
         return (
           <div className="space-y-6">

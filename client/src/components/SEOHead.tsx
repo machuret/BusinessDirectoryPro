@@ -100,9 +100,61 @@ export default function SEOHead({
     // Update all meta tags and schemas
     metaTagUpdater.updateAll(metaContent, schemas);
 
+    // Inject custom head code from site settings
+    const customHeadCode = siteSettingsManager.getSiteSetting('custom_head_code');
+    const googleAnalytics = siteSettingsManager.getSiteSetting('google_analytics');
+    const googleTagManager = siteSettingsManager.getSiteSetting('google_tag_manager');
+    const facebookPixel = siteSettingsManager.getSiteSetting('facebook_pixel');
+
+    // Remove existing custom scripts
+    const existingCustomScripts = document.querySelectorAll('script[data-seo-custom]');
+    existingCustomScripts.forEach(script => script.remove());
+
+    // Inject Google Analytics
+    if (googleAnalytics && googleAnalytics.trim()) {
+      const gaScript = document.createElement('div');
+      gaScript.innerHTML = googleAnalytics;
+      gaScript.setAttribute('data-seo-custom', 'google-analytics');
+      Array.from(gaScript.children).forEach(child => {
+        document.head.appendChild(child);
+      });
+    }
+
+    // Inject Google Tag Manager
+    if (googleTagManager && googleTagManager.trim()) {
+      const gtmScript = document.createElement('div');
+      gtmScript.innerHTML = googleTagManager;
+      gtmScript.setAttribute('data-seo-custom', 'google-tag-manager');
+      Array.from(gtmScript.children).forEach(child => {
+        document.head.appendChild(child);
+      });
+    }
+
+    // Inject Facebook Pixel
+    if (facebookPixel && facebookPixel.trim()) {
+      const fbScript = document.createElement('div');
+      fbScript.innerHTML = facebookPixel;
+      fbScript.setAttribute('data-seo-custom', 'facebook-pixel');
+      Array.from(fbScript.children).forEach(child => {
+        document.head.appendChild(child);
+      });
+    }
+
+    // Inject custom head code
+    if (customHeadCode && customHeadCode.trim()) {
+      const customScript = document.createElement('div');
+      customScript.innerHTML = customHeadCode;
+      customScript.setAttribute('data-seo-custom', 'custom-head');
+      Array.from(customScript.children).forEach(child => {
+        document.head.appendChild(child);
+      });
+    }
+
     // Cleanup function
     return () => {
-      // Optional: cleanup meta tags when component unmounts
+      // Remove custom scripts when component unmounts
+      const customScripts = document.querySelectorAll('script[data-seo-custom]');
+      customScripts.forEach(script => script.remove());
     };
   }, [business, category, title, description, siteSettings, pageType, canonical, noindex, ogImage, ogType]);
 

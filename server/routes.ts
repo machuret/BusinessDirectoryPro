@@ -1091,6 +1091,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // OpenGraph Image Upload endpoint (stores base64 in database)
+  app.put('/api/site-settings/og_image', isAuthenticated, upload.single('image'), async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({ message: "No image file uploaded" });
+      }
+
+      // Convert uploaded file to base64
+      const base64Data = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+      
+      // Validate file size (limit to 5MB)
+      if (req.file.size > 5 * 1024 * 1024) {
+        return res.status(400).json({ message: "Image file too large. Maximum size is 5MB." });
+      }
+
+      // Validate image type
+      if (!req.file.mimetype.startsWith('image/')) {
+        return res.status(400).json({ message: "Invalid file type. Only images are allowed." });
+      }
+      
+      const updatedSetting = await storage.updateSiteSetting(
+        'og_image', 
+        base64Data, 
+        'OpenGraph image for social media sharing', 
+        'opengraph'
+      );
+      
+      res.json(updatedSetting);
+    } catch (error) {
+      console.error("Error updating OpenGraph image:", error);
+      res.status(500).json({ message: "Failed to update OpenGraph image" });
+    }
+  });
+
   // CSV Import endpoint
   app.post('/api/admin/import-csv', isAuthenticated, async (req: any, res) => {
     try {
