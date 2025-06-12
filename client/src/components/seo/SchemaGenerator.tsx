@@ -26,7 +26,7 @@ export class SchemaGenerator {
       "@type": "LocalBusiness",
       "name": business.title,
       "description": business.description,
-      "url": `${siteUrl}/business/${business.slug}`,
+      "url": `${siteUrl}/${business.slug}`,
       
       // Address information
       ...(business.address && {
@@ -166,7 +166,7 @@ export class SchemaGenerator {
         "@type": "ListItem",
         "position": business.category ? 3 : 2,
         "name": business.title,
-        "item": `${siteUrl}/business/${business.slug}`
+        "item": `${siteUrl}/${business.slug}`
       });
     }
 

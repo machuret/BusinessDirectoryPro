@@ -82,7 +82,7 @@ export default function BusinessCardEnhanced({ business, variant = "default" }: 
           {/* Business Info */}
           <div className="flex-1 space-y-3">
             <div>
-              <Link to={`/business/${business.slug || business.placeid}`}>
+              <Link to={`/${business.slug || business.placeid}`}>
                 <a {...linkAttributes} className={`block hover:underline ${
                   isFeatured ? "text-yellow-900 font-bold" : "text-gray-900"
                 }`}>

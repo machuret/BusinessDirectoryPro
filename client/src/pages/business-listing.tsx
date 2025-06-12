@@ -13,7 +13,7 @@ import { LoadingState } from "@/components/loading/LoadingState";
 import { ErrorState } from "@/components/error/ErrorState";
 
 export default function BusinessListing() {
-  const [, params] = useRoute("/business/:identifier");
+  const [, params] = useRoute("/:identifier");
   const identifier = params?.identifier;
   
   const {
