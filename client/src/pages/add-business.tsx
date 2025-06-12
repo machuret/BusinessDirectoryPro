@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { ArrowLeft, Building, CheckCircle, Loader2, AlertCircle } from "lucide-react";
+import { ArrowLeft, Building, CheckCircle, Loader2, AlertCircle, AlertTriangle } from "lucide-react";
 
 // Registration form schema
 const registrationSchema = z.object({

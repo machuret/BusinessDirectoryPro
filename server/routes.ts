@@ -147,6 +147,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Duplicate business checking endpoint
+  app.post('/api/check-duplicate-business', async (req, res) => {
+    try {
+      const { title, address } = req.body;
+      
+      if (!title || !address) {
+        return res.status(400).json({ message: "Title and address are required" });
+      }
+
+      const businesses = await storage.searchBusinesses(title, address);
+      const isDuplicate = businesses.some(business => 
+        business.title?.toLowerCase().includes(title.toLowerCase()) &&
+        business.address?.toLowerCase().includes(address.toLowerCase())
+      );
+
+      res.json({ isDuplicate });
+    } catch (error) {
+      console.error("Error checking for duplicate business:", error);
+      res.status(500).json({ message: "Failed to check for duplicates" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
