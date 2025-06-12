@@ -24,6 +24,32 @@ export function setupAdminRoutes(app: Express) {
     }
   });
 
+  // Create new business
+  app.post('/api/admin/businesses', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const business = await storage.createBusiness(req.body);
+      res.status(201).json(business);
+    } catch (error) {
+      console.error("Error creating business:", error);
+      res.status(500).json({ message: "Failed to create business" });
+    }
+  });
+
+  // Update business
+  app.put('/api/admin/businesses/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const business = await storage.updateBusiness(id, req.body);
+      if (!business) {
+        return res.status(404).json({ message: "Business not found" });
+      }
+      res.json(business);
+    } catch (error) {
+      console.error("Error updating business:", error);
+      res.status(500).json({ message: "Failed to update business" });
+    }
+  });
+
   // Bulk delete businesses
   app.post('/api/admin/businesses/bulk-delete', isAuthenticated, isAdmin, async (req, res) => {
     try {
