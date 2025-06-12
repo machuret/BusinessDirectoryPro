@@ -29,6 +29,9 @@ const businessSchema = z.object({
   featured: z.boolean().default(false),
   verified: z.boolean().default(false),
   status: z.enum(["active", "pending", "inactive"]).default("active"),
+  seotitle: z.string().optional(),
+  seodescription: z.string().optional(),
+  ownerid: z.string().optional(),
   faq: z.array(z.object({
     question: z.string(),
     answer: z.string()
@@ -50,6 +53,10 @@ export default function BusinessDialog({ open, onClose, business, isEdit }: Busi
     queryKey: ["/api/categories"],
   });
 
+  const { data: users } = useQuery({
+    queryKey: ["/api/admin/users"],
+  });
+
   const form = useForm({
     resolver: zodResolver(businessSchema),
     defaultValues: {
@@ -65,6 +72,9 @@ export default function BusinessDialog({ open, onClose, business, isEdit }: Busi
       featured: false,
       verified: false,
       status: "active" as const,
+      seotitle: "",
+      seodescription: "",
+      ownerid: "",
       faq: []
     }
   });
@@ -88,6 +98,9 @@ export default function BusinessDialog({ open, onClose, business, isEdit }: Busi
         featured: business.featured || false,
         verified: business.verified || false,
         status: business.status || "active",
+        seotitle: business.seotitle || "",
+        seodescription: business.seodescription || "",
+        ownerid: business.ownerid || "",
         faq: Array.isArray(parsedFaq) ? parsedFaq : []
       });
     } else if (!isEdit) {
@@ -392,28 +405,92 @@ export default function BusinessDialog({ open, onClose, business, isEdit }: Busi
               </TabsContent>
 
               <TabsContent value="settings" className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="status"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Status</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Status</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="active">Active</SelectItem>
+                            <SelectItem value="pending">Pending</SelectItem>
+                            <SelectItem value="inactive">Inactive</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="ownerid"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Assign Owner</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value || ""}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select owner" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="">No Owner</SelectItem>
+                            {users?.map((user: any) => (
+                              <SelectItem key={user.id} value={user.id}>
+                                {user.email}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">SEO Settings</h3>
+                  
+                  <FormField
+                    control={form.control}
+                    name="seotitle"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>SEO Title</FormLabel>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
+                          <Input {...field} placeholder="Custom page title for search engines" />
                         </FormControl>
-                        <SelectContent>
-                          <SelectItem value="active">Active</SelectItem>
-                          <SelectItem value="pending">Pending</SelectItem>
-                          <SelectItem value="inactive">Inactive</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="seodescription"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>SEO Description</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            {...field} 
+                            rows={3}
+                            placeholder="Meta description for search engines (150-160 characters recommended)"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 <div className="flex gap-6">
                   <FormField
