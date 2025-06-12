@@ -30,7 +30,7 @@ export function setupAuth(app: Express) {
     resave: false,
     saveUninitialized: false,
     store: new PostgresSessionStore({ 
-      pool, 
+      conString: "postgresql://repplit_owner:npg_qtLveA26UxGP@ep-proud-mountain-a85015ts-pooler.eastus2.azure.neon.tech/repplit?sslmode=require",
       createTableIfMissing: true 
     }),
     cookie: {

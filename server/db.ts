@@ -6,7 +6,7 @@ import * as schema from "@shared/schema";
 neonConfig.webSocketConstructor = ws;
 
 // Use the correct database with your business data
-const DATABASE_URL = "postgresql://repplit_owner:npg_qtLveA26UxGP@ep-proud-mountain-a85015ts-pooler.eastus2.azure.neon.tech/repllib?sslmode=require";
+const DATABASE_URL = "postgresql://repplit_owner:npg_qtLveA26UxGP@ep-proud-mountain-a85015ts-pooler.eastus2.azure.neon.tech/repplit?sslmode=require";
 
 if (!DATABASE_URL) {
   throw new Error('DATABASE_URL environment variable is not set');
