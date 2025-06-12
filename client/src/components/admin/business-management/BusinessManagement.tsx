@@ -1,170 +1,141 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Building2 } from "lucide-react";
-import { BusinessTable } from "./components/BusinessTable";
-import { BusinessFilters } from "./components/BusinessFilters";
-import { useBusinesses } from "./hooks/useBusinesses";
-import type { Business, BusinessFilters as Filters } from "./types/business-types";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Plus, Search, Filter } from "lucide-react";
+import BusinessTable from "./components/BusinessTable";
+import BusinessDialog from "./components/BusinessDialog";
+import DeleteConfirmDialog from "./components/DeleteConfirmDialog";
 
 export default function BusinessManagement() {
-  const [selectedBusinesses, setSelectedBusinesses] = useState<string[]>([]);
-  const [filters, setFilters] = useState<Filters>({
-    search: "",
-    category: "all",
-    status: "all",
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [editingBusiness, setEditingBusiness] = useState(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterCategory, setFilterCategory] = useState("all");
+  const [filterStatus, setFilterStatus] = useState("all");
+
+  // Fetch businesses and categories
+  const { data: businesses, isLoading: businessesLoading } = useQuery({
+    queryKey: ["/api/admin/businesses"],
   });
 
-  const {
-    businesses,
-    categories,
-    isLoading,
-    createBusiness,
-    updateBusiness,
-    deleteBusiness,
-    bulkDeleteBusinesses,
-    bulkUpdateBusinesses,
-  } = useBusinesses();
+  const { data: categories } = useQuery({
+    queryKey: ["/api/categories"],
+  });
 
-  // Filter businesses based on current filters
-  const filteredBusinesses = businesses.filter((business) => {
-    const matchesSearch = !filters.search || 
-      (business.title || business.name || business.businessname || "")
-        .toLowerCase()
-        .includes(filters.search.toLowerCase()) ||
-      business.description?.toLowerCase().includes(filters.search.toLowerCase()) ||
-      business.city.toLowerCase().includes(filters.search.toLowerCase());
-
-    const matchesCategory = filters.category === "all" || 
-      business.categoryId.toString() === filters.category;
-
-    const matchesStatus = filters.status === "all" || 
-      (business.status || "active") === filters.status;
-
+  const filteredBusinesses = businesses?.filter(business => {
+    const matchesSearch = 
+      business.businessname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      business.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      business.category?.name?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesCategory = filterCategory === "all" || business.categoryId === parseInt(filterCategory);
+    const matchesStatus = filterStatus === "all" || business.status === filterStatus;
+    
     return matchesSearch && matchesCategory && matchesStatus;
-  });
+  }) || [];
 
-  const handleSelectBusiness = (id: string) => {
-    setSelectedBusinesses(prev => 
-      prev.includes(id) 
-        ? prev.filter(bid => bid !== id)
-        : [...prev, id]
-    );
+  const handleEdit = (business) => {
+    setEditingBusiness(business);
+    setShowEditDialog(true);
   };
 
-  const handleSelectAll = (selected: boolean) => {
-    setSelectedBusinesses(selected ? filteredBusinesses.map(b => b.placeid) : []);
+  const handleView = (business) => {
+    setEditingBusiness(business);
+    setShowEditDialog(true);
   };
 
-  const handleEdit = (business: Business) => {
-    // TODO: Open edit dialog
-    console.log("Edit business:", business);
-  };
-
-  const handleView = (business: Business) => {
-    // TODO: Open view dialog
-    console.log("View business:", business);
-  };
-
-  const handleDelete = (id: string) => {
-    // TODO: Show confirmation dialog
-    deleteBusiness(id);
-  };
-
-  const handleBulkDelete = () => {
-    if (selectedBusinesses.length > 0) {
-      bulkDeleteBusinesses(selectedBusinesses);
-      setSelectedBusinesses([]);
-    }
-  };
-
-  const handleBulkStatusChange = (status: string) => {
-    if (selectedBusinesses.length > 0) {
-      bulkUpdateBusinesses({ ids: selectedBusinesses, updates: { status } });
-      setSelectedBusinesses([]);
-    }
-  };
-
-  const handleBulkCategoryChange = (categoryId: number) => {
-    if (selectedBusinesses.length > 0) {
-      bulkUpdateBusinesses({ ids: selectedBusinesses, updates: { categoryId } });
-      setSelectedBusinesses([]);
-    }
-  };
-
-  const handleCreateNew = () => {
-    // TODO: Open create dialog
-    console.log("Create new business");
+  const handleDialogClose = () => {
+    setShowCreateDialog(false);
+    setShowEditDialog(false);
+    setEditingBusiness(null);
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="flex items-center gap-2">
-              <Building2 className="h-5 w-5" />
-              Business Management
-            </CardTitle>
-            <CardDescription>
-              Manage all businesses in your directory ({filteredBusinesses.length} businesses)
-            </CardDescription>
-          </div>
-          <Button onClick={handleCreateNew}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Business
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <BusinessFilters
-          filters={filters}
-          onFiltersChange={setFilters}
-          categories={categories}
-        />
-
-        {selectedBusinesses.length > 0 && (
-          <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg border">
-            <span className="text-sm font-medium">
-              {selectedBusinesses.length} business(es) selected
-            </span>
-            <div className="flex gap-2 ml-auto">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => handleBulkStatusChange("active")}
-              >
-                Activate
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => handleBulkStatusChange("inactive")}
-              >
-                Deactivate
-              </Button>
-              <Button
-                size="sm"
-                variant="destructive"
-                onClick={handleBulkDelete}
-              >
-                Delete
-              </Button>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle>Business Management</CardTitle>
+              <CardDescription>Manage business listings and information</CardDescription>
             </div>
+            <Button onClick={() => setShowCreateDialog(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Business
+            </Button>
           </div>
-        )}
+        </CardHeader>
+        <CardContent>
+          {/* Filters */}
+          <div className="flex flex-col sm:flex-row gap-4 mb-6">
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  placeholder="Search businesses..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+            <Select value={filterCategory} onValueChange={setFilterCategory}>
+              <SelectTrigger className="w-full sm:w-48">
+                <Filter className="h-4 w-4 mr-2" />
+                <SelectValue placeholder="All Categories" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {categories?.map((category) => (
+                  <SelectItem key={category.id} value={category.id.toString()}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <SelectTrigger className="w-full sm:w-32">
+                <SelectValue placeholder="All Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="inactive">Inactive</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-        <BusinessTable
-          businesses={filteredBusinesses}
-          isLoading={isLoading}
-          selectedBusinesses={selectedBusinesses}
-          onSelectBusiness={handleSelectBusiness}
-          onSelectAll={handleSelectAll}
-          onEdit={handleEdit}
-          onView={handleView}
-          onDelete={handleDelete}
-        />
-      </CardContent>
-    </Card>
+          <BusinessTable
+            businesses={filteredBusinesses}
+            isLoading={businessesLoading}
+            onEdit={handleEdit}
+            onView={handleView}
+            onDelete={setDeleteConfirmId}
+            searchTerm={searchTerm}
+            filterCategory={filterCategory}
+            filterStatus={filterStatus}
+          />
+        </CardContent>
+      </Card>
+
+      <BusinessDialog
+        open={showCreateDialog || showEditDialog}
+        onClose={handleDialogClose}
+        business={editingBusiness}
+        isEdit={showEditDialog}
+      />
+
+      <DeleteConfirmDialog
+        open={!!deleteConfirmId}
+        onClose={() => setDeleteConfirmId(null)}
+        businessId={deleteConfirmId}
+      />
+    </div>
   );
 }

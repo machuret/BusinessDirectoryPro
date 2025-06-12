@@ -1,4 +1,4 @@
-export { default as BusinessManagement } from './BusinessManagement';
+export { default as BusinessManagement } from '../business-management/BusinessManagement';
 export { default as UserManagement } from './UserManagement';
 export { default as CategoriesManagement } from './CategoriesManagement';
 export { default as CitiesManagement } from './CitiesManagement';

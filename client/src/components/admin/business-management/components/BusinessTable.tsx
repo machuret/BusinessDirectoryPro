@@ -1,143 +1,139 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Edit, Trash2, Eye, Star, Phone, Mail, Globe, MapPin } from "lucide-react";
-import type { BusinessTableProps } from "../types/business-types";
+import { Loader2, Edit, Trash2, Eye, Star, Building2, MapPin, Phone } from "lucide-react";
 
-export function BusinessTable({
+interface BusinessTableProps {
+  businesses: any[];
+  isLoading: boolean;
+  onEdit: (business: any) => void;
+  onView: (business: any) => void;
+  onDelete: (businessId: string) => void;
+  searchTerm: string;
+  filterCategory: string;
+  filterStatus: string;
+}
+
+export default function BusinessTable({
   businesses,
   isLoading,
-  selectedBusinesses,
-  onSelectBusiness,
-  onSelectAll,
   onEdit,
   onView,
   onDelete,
+  searchTerm,
+  filterCategory,
+  filterStatus
 }: BusinessTableProps) {
+  const getBusinessName = (business: any) => {
+    return business.title || business.businessname || business.name || "Unnamed Business";
+  };
+
+  const getStatusBadgeVariant = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case "active": return "default";
+      case "pending": return "secondary";
+      case "inactive": return "destructive";
+      default: return "outline";
+    }
+  };
+
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-2 text-sm text-muted-foreground">Loading businesses...</p>
-        </div>
+      <div className="flex items-center justify-center py-8">
+        <Loader2 className="h-8 w-8 animate-spin" />
+        <span className="ml-2">Loading businesses...</span>
       </div>
     );
   }
-
-  const allSelected = businesses.length > 0 && selectedBusinesses.length === businesses.length;
-  const someSelected = selectedBusinesses.length > 0 && selectedBusinesses.length < businesses.length;
 
   return (
     <div className="rounded-md border">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-12">
-              <Checkbox
-                checked={allSelected}
-                ref={(el) => {
-                  if (el) el.indeterminate = someSelected;
-                }}
-                onCheckedChange={(checked) => onSelectAll(!!checked)}
-              />
-            </TableHead>
             <TableHead>Business</TableHead>
             <TableHead>Category</TableHead>
             <TableHead>Location</TableHead>
             <TableHead>Contact</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Rating</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            <TableHead className="w-32">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {businesses.map((business) => (
             <TableRow key={business.placeid}>
               <TableCell>
-                <Checkbox
-                  checked={selectedBusinesses.includes(business.placeid)}
-                  onCheckedChange={() => onSelectBusiness(business.placeid)}
-                />
+                <div className="flex items-center space-x-3">
+                  <div className="flex-shrink-0">
+                    {business.imageUrl ? (
+                      <img 
+                        src={business.imageUrl} 
+                        alt={getBusinessName(business)}
+                        className="h-10 w-10 rounded-lg object-cover"
+                      />
+                    ) : (
+                      <div className="h-10 w-10 rounded-lg bg-gray-100 flex items-center justify-center">
+                        <Building2 className="h-5 w-5 text-gray-400" />
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <div className="font-medium text-gray-900">
+                      {getBusinessName(business)}
+                    </div>
+                    <div className="text-sm text-gray-500 line-clamp-1">
+                      {business.description}
+                    </div>
+                  </div>
+                </div>
               </TableCell>
               <TableCell>
-                <div className="font-medium">{business.title || business.name || business.businessname}</div>
-                <div className="text-sm text-muted-foreground truncate max-w-xs">
-                  {business.description}
+                <Badge variant="outline">
+                  {business.category?.name || "Uncategorized"}
+                </Badge>
+              </TableCell>
+              <TableCell>
+                <div className="flex items-center text-sm text-gray-500">
+                  <MapPin className="h-4 w-4 mr-1" />
+                  {business.city}
                 </div>
+              </TableCell>
+              <TableCell>
+                <div className="space-y-1">
+                  {business.phone && (
+                    <div className="flex items-center text-sm text-gray-500">
+                      <Phone className="h-4 w-4 mr-1" />
+                      {business.phone}
+                    </div>
+                  )}
+                  {business.email && (
+                    <div className="text-sm text-gray-500">{business.email}</div>
+                  )}
+                </div>
+              </TableCell>
+              <TableCell>
+                <Badge variant={getStatusBadgeVariant(business.status)}>
+                  {business.status || "active"}
+                </Badge>
                 {business.featured && (
-                  <Badge variant="secondary" className="mt-1">
+                  <Badge variant="secondary" className="ml-1">
                     <Star className="h-3 w-3 mr-1" />
                     Featured
                   </Badge>
                 )}
               </TableCell>
               <TableCell>
-                <Badge variant="outline">{business.category?.name || "Uncategorized"}</Badge>
-              </TableCell>
-              <TableCell>
-                <div className="flex items-center text-sm">
-                  <MapPin className="h-3 w-3 mr-1 text-muted-foreground" />
-                  <span className="truncate max-w-xs">{business.city}</span>
-                </div>
-                <div className="text-xs text-muted-foreground truncate max-w-xs">
-                  {business.address}
-                </div>
-              </TableCell>
-              <TableCell>
-                <div className="space-y-1">
-                  {business.phone && (
-                    <div className="flex items-center text-xs">
-                      <Phone className="h-3 w-3 mr-1 text-muted-foreground" />
-                      <span>{business.phone}</span>
-                    </div>
-                  )}
-                  {business.email && (
-                    <div className="flex items-center text-xs">
-                      <Mail className="h-3 w-3 mr-1 text-muted-foreground" />
-                      <span className="truncate max-w-20">{business.email}</span>
-                    </div>
-                  )}
-                  {business.website && (
-                    <div className="flex items-center text-xs">
-                      <Globe className="h-3 w-3 mr-1 text-muted-foreground" />
-                      <span>Website</span>
-                    </div>
-                  )}
-                </div>
-              </TableCell>
-              <TableCell>
-                <Badge
-                  variant={
-                    business.status === "active"
-                      ? "default"
-                      : business.status === "pending"
-                      ? "secondary"
-                      : "destructive"
-                  }
-                >
-                  {business.status || "active"}
-                </Badge>
-                {business.verified && (
-                  <Badge variant="outline" className="ml-1">
-                    Verified
-                  </Badge>
-                )}
-              </TableCell>
-              <TableCell>
                 <div className="flex items-center">
-                  <Star className="h-4 w-4 text-yellow-400 mr-1" />
-                  <span className="font-medium">{business.rating.toFixed(1)}</span>
+                  <Star className="h-4 w-4 text-yellow-400 fill-current" />
+                  <span className="ml-1 text-sm">{business.totalscore || business.rating || 0}</span>
                   {business.reviewCount && (
-                    <span className="text-sm text-muted-foreground ml-1">
-                      ({business.reviewCount})
-                    </span>
+                    <span className="ml-1 text-sm text-gray-500">({business.reviewCount})</span>
                   )}
                 </div>
               </TableCell>
-              <TableCell className="text-right">
-                <div className="flex items-center justify-end space-x-2">
+              <TableCell>
+                <div className="flex space-x-1">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -163,13 +159,17 @@ export function BusinessTable({
               </TableCell>
             </TableRow>
           ))}
+          {businesses.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                {searchTerm || filterCategory !== "all" || filterStatus !== "all" 
+                  ? "No businesses match your filters." 
+                  : "No businesses found. Create your first business to get started."}
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
-      {businesses.length === 0 && (
-        <div className="text-center py-8">
-          <p className="text-muted-foreground">No businesses found</p>
-        </div>
-      )}
     </div>
   );
 }
