@@ -14,44 +14,38 @@ export class BusinessStorage {
     offset?: number;
   }): Promise<BusinessWithCategory[]> {
     try {
-      let whereClause = "WHERE (b.status = 'approved' OR b.status IS NULL)";
-      const queryParams: any[] = [];
-      let paramIndex = 1;
+      let query = `
+        SELECT b.*, c.name as category_name, c.slug as category_slug, c.description as category_description, 
+               c.icon as category_icon, c.color as category_color, c.id as category_id
+        FROM businesses b
+        LEFT JOIN categories c ON b.categoryname = c.name
+        WHERE b.permanentlyclosed = false
+      `;
 
       if (params?.categoryId) {
-        whereClause += ` AND c.id = $${paramIndex}`;
-        queryParams.push(params.categoryId);
-        paramIndex++;
+        query += ` AND c.id = ${params.categoryId}`;
       }
 
       if (params?.search) {
-        whereClause += ` AND (b.title ILIKE $${paramIndex} OR b.description ILIKE $${paramIndex} OR b.categoryname ILIKE $${paramIndex})`;
-        queryParams.push(`%${params.search}%`);
-        paramIndex++;
+        const searchTerm = params.search.replace(/'/g, "''"); // Escape single quotes
+        query += ` AND (b.title ILIKE '%${searchTerm}%' OR b.description ILIKE '%${searchTerm}%' OR b.categoryname ILIKE '%${searchTerm}%')`;
       }
 
       if (params?.city) {
-        whereClause += ` AND b.city = $${paramIndex}`;
-        queryParams.push(params.city);
-        paramIndex++;
+        const cityTerm = params.city.replace(/'/g, "''"); // Escape single quotes
+        query += ` AND b.city = '${cityTerm}'`;
       }
 
       if (params?.featured) {
-        whereClause += ` AND b.featured = true`;
+        query += ` AND b.featured = true`;
       }
 
       const limit = params?.limit || 50;
       const offset = params?.offset || 0;
 
-      const result = await db.execute(sql`
-        SELECT b.*, c.name as category_name, c.slug as category_slug, c.description as category_description, 
-               c.icon as category_icon, c.color as category_color, c.id as category_id
-        FROM businesses b
-        LEFT JOIN categories c ON b.categoryname = c.name
-        ${sql.raw(whereClause)}
-        ORDER BY b.createdat DESC NULLS LAST
-        LIMIT ${limit} OFFSET ${offset}
-      `);
+      query += ` ORDER BY b.createdat DESC NULLS LAST LIMIT ${limit} OFFSET ${offset}`;
+
+      const result = await db.execute(sql.raw(query));
 
       return result.rows.map((row: any) => ({
         ...row,
@@ -298,7 +292,7 @@ export class BusinessStorage {
                c.icon as category_icon, c.color as category_color, c.id as category_id
         FROM businesses b
         LEFT JOIN categories c ON b.categoryname = c.name
-        WHERE b.featured = true AND (b.status = 'approved' OR b.status IS NULL)
+        WHERE b.featured = true AND b.permanentlyclosed = false
         ORDER BY b.totalscore DESC NULLS LAST
         LIMIT ${limit}
       `);
@@ -354,7 +348,7 @@ export class BusinessStorage {
     const result = await db.execute(sql`
       SELECT city, COUNT(*) as count 
       FROM businesses 
-      WHERE city IS NOT NULL AND city != '' AND status = 'approved'
+      WHERE city IS NOT NULL AND city != '' AND permanentlyclosed = false
       GROUP BY city 
       ORDER BY count DESC, city ASC
     `);
