@@ -95,7 +95,7 @@ export default function AddBusinessPage() {
   // Business submission mutation
   const businessMutation = useMutation({
     mutationFn: async (data: BusinessSubmissionData) => {
-      const res = await apiRequest("POST", "/api/businesses", data);
+      const res = await apiRequest("POST", "/api/submit-business", data);
       return res.json();
     },
     onSuccess: () => {
