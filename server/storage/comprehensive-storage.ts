@@ -444,17 +444,26 @@ export class ComprehensiveStorage implements IStorage {
 
   // Leads management operations
   async getLeads(): Promise<LeadWithBusiness[]> {
-    const result = await db.execute(sql`
-      SELECT l.*, b.title as business_title
-      FROM leads l
-      LEFT JOIN businesses b ON l.business_id = b.placeid
-      ORDER BY l.created_at DESC
-    `);
+    try {
+      const result = await db.execute(sql`
+        SELECT l.*, b.title as business_title
+        FROM leads l
+        LEFT JOIN businesses b ON l.business_id = b.placeid
+        ORDER BY l.created_at DESC
+      `);
 
-    return result.rows.map((row: any) => ({
-      ...row,
-      business: row.business_title ? { title: row.business_title } : null
-    })) as LeadWithBusiness[];
+      return result.rows.map((row: any) => ({
+        ...row,
+        business: row.business_title ? { title: row.business_title } : null
+      })) as LeadWithBusiness[];
+    } catch (error: any) {
+      // If leads table doesn't exist, return empty array instead of failing
+      if (error.code === '42P01' && error.message.includes('relation "leads" does not exist')) {
+        console.log('Leads table does not exist, returning empty array');
+        return [];
+      }
+      throw error;
+    }
   }
 
   async getLead(id: number): Promise<LeadWithBusiness | undefined> {
