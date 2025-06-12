@@ -95,7 +95,11 @@ export function setupBusinessRoutes(app: Express) {
   app.post("/api/businesses", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.session.userId;
-      const businessData = { ...req.body, ownerid: userId };
+      const businessData = { 
+        ...req.body, 
+        ownerid: userId,
+        placeid: `ChIJ_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      };
       const business = await storage.createBusiness(businessData);
       res.status(201).json(business);
     } catch (error) {

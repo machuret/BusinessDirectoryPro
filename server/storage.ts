@@ -413,6 +413,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createBusiness(business: InsertBusiness): Promise<Business> {
+    // Generate placeid if not provided
+    if (!business.placeid) {
+      business.placeid = `ChIJ_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    }
+    
     // Generate SEO slug if not provided
     if (!business.slug) {
       const baseSlug = this.generateSeoSlug(
