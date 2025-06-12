@@ -3,7 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   Building2, Users, Star, Settings, FileText, HelpCircle, Mail, MapPin,
-  Download, Upload, Key, CheckCircle, Globe, UserCheck
+  Download, Upload, Key, CheckCircle, Globe, UserCheck, Home
 } from "lucide-react";
 
 // Import admin sections
@@ -26,6 +26,7 @@ import {
   MenuManagement
 } from "@/components/admin/sections";
 import BusinessSubmissions from "@/components/admin/sections/BusinessSubmissions";
+import HomepageManagement from "@/components/admin/sections/HomepageManagement";
 
 export default function AdminLayout() {
   const { user } = useAuth();
@@ -50,6 +51,7 @@ export default function AdminLayout() {
   const navigationItems = [
     { id: "businesses", label: "Businesses", icon: Building2 },
     { id: "submissions", label: "Submissions", icon: CheckCircle },
+    { id: "homepage", label: "Homepage", icon: Home },
     { id: "users", label: "Users", icon: Users },
     { id: "categories", label: "Categories", icon: FileText },
     { id: "cities", label: "Cities", icon: MapPin },
@@ -73,6 +75,8 @@ export default function AdminLayout() {
         return <BusinessManagement />;
       case "submissions":
         return <BusinessSubmissions />;
+      case "homepage":
+        return <HomepageManagement />;
       case "users":
         return <UserManagement />;
       case "categories":
