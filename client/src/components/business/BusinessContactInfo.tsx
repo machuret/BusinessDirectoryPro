@@ -1,6 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Phone, Globe, Clock, MapPin, Building2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Phone, Globe, Clock, MapPin, Building2, Tag } from "lucide-react";
+import { Link } from "wouter";
 import type { BusinessWithCategory } from "@shared/schema";
 
 interface BusinessContactInfoProps {
@@ -21,14 +23,54 @@ export default function BusinessContactInfo({ business }: BusinessContactInfoPro
   };
 
   const formatOpeningHours = (hours: any) => {
-    if (!hours || !Array.isArray(hours)) return null;
+    if (!hours) return null;
     
-    return hours.map((hour: any, index: number) => (
-      <div key={index} className="flex justify-between">
-        <span>{String(hour?.day || '')}</span>
-        <span>{String(hour?.hours || '')}</span>
-      </div>
-    ));
+    try {
+      let parsedHours;
+      if (typeof hours === 'string') {
+        // Try to parse JSON string first
+        try {
+          parsedHours = JSON.parse(hours);
+        } catch {
+          // If not JSON, treat as plain text
+          return hours.split('\n').map((line: string, index: number) => (
+            <div key={index}>{line.trim()}</div>
+          ));
+        }
+      } else {
+        parsedHours = hours;
+      }
+      
+      if (Array.isArray(parsedHours)) {
+        return parsedHours.map((hour: any, index: number) => {
+          if (typeof hour === 'string') {
+            return <div key={index}>{hour}</div>;
+          } else if (hour && typeof hour === 'object') {
+            const day = hour.day || hour.Day || '';
+            const time = hour.hours || hour.Hours || hour.time || hour.Time || '';
+            return (
+              <div key={index} className="flex justify-between">
+                <span>{String(day)}</span>
+                <span>{String(time)}</span>
+              </div>
+            );
+          }
+          return <div key={index}>{String(hour)}</div>;
+        });
+      } else if (typeof parsedHours === 'object') {
+        // Handle object format
+        return Object.entries(parsedHours).map(([day, time], index) => (
+          <div key={index} className="flex justify-between">
+            <span>{day}</span>
+            <span>{String(time)}</span>
+          </div>
+        ));
+      }
+      
+      return <div>{String(parsedHours)}</div>;
+    } catch (error) {
+      return <div>{String(hours)}</div>;
+    }
   };
 
   return (
@@ -40,6 +82,20 @@ export default function BusinessContactInfo({ business }: BusinessContactInfoPro
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        {business.categoryname && (
+          <div className="flex items-start space-x-3">
+            <Tag className="h-5 w-5 text-muted-foreground mt-0.5" />
+            <div className="flex-1">
+              <p className="font-medium">Category</p>
+              <Link href={`/businesses?category=${encodeURIComponent(business.categoryname)}`}>
+                <Badge variant="secondary" className="cursor-pointer hover:bg-secondary/80">
+                  {business.categoryname}
+                </Badge>
+              </Link>
+            </div>
+          </div>
+        )}
+
         {business.phone && (
           <div className="flex items-start space-x-3">
             <Phone className="h-5 w-5 text-muted-foreground mt-0.5" />
@@ -65,19 +121,14 @@ export default function BusinessContactInfo({ business }: BusinessContactInfoPro
             <Globe className="h-5 w-5 text-muted-foreground mt-0.5" />
             <div className="flex-1">
               <p className="font-medium">Website</p>
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-primary cursor-pointer hover:underline" onClick={handleWebsiteClick}>
-                  {business.website}
-                </span>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={handleWebsiteClick}
-                  className="h-7 px-2 text-xs"
-                >
-                  Visit
-                </Button>
-              </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleWebsiteClick}
+                className="h-7 px-2 text-xs"
+              >
+                Visit Website
+              </Button>
             </div>
           </div>
         )}
@@ -98,16 +149,7 @@ export default function BusinessContactInfo({ business }: BusinessContactInfoPro
             <div>
               <p className="font-medium">Hours</p>
               <div className="text-sm text-muted-foreground space-y-1">
-                {typeof business.openinghours === 'string' 
-                  ? business.openinghours.split('\n').map((hour, index) => (
-                      <div key={index}>{hour}</div>
-                    ))
-                  : Array.isArray(business.openinghours) 
-                    ? business.openinghours.map((hour, index) => (
-                        <div key={index}>{String(hour)}</div>
-                      ))
-                    : String(business.openinghours)
-                }
+                {formatOpeningHours(business.openinghours)}
               </div>
             </div>
           </div>
