@@ -391,4 +391,30 @@ export function setupSettingsRoutes(app: Express) {
       res.status(500).json({ message: "Failed to fetch leads" });
     }
   });
+
+  // Business update and delete routes
+  app.patch("/api/admin/businesses/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const business = await storage.updateBusiness(id, req.body);
+      if (!business) {
+        return res.status(404).json({ message: "Business not found" });
+      }
+      res.json(business);
+    } catch (error) {
+      console.error("Error updating business:", error);
+      res.status(500).json({ message: "Failed to update business" });
+    }
+  });
+
+  app.delete("/api/admin/businesses/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteBusiness(id);
+      res.sendStatus(204);
+    } catch (error) {
+      console.error("Error deleting business:", error);
+      res.status(500).json({ message: "Failed to delete business" });
+    }
+  });
 }

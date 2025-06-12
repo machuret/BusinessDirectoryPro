@@ -1,95 +1,141 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Search, Plus, Edit, UserCheck } from "lucide-react";
-import type { BusinessWithCategory, Category } from "@shared/schema";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Plus, Edit, Trash2, Eye, Building2, Loader2, Star } from "lucide-react";
+
+interface Business {
+  placeid: string;
+  businessname: string;
+  address: string;
+  city: string;
+  categoryId: number;
+  featured: boolean;
+  rating: number;
+  category?: { name: string };
+}
+
+const businessSchema = z.object({
+  businessname: z.string().min(1, "Business name is required"),
+  address: z.string().min(1, "Address is required"),
+  city: z.string().min(1, "City is required"),
+  categoryId: z.number().min(1, "Category is required"),
+  featured: z.boolean().default(false),
+});
+
+type BusinessFormData = z.infer<typeof businessSchema>;
 
 export default function BusinessManagement() {
   const { toast } = useToast();
-  const [businessSearchTerm, setBusinessSearchTerm] = useState("");
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [editingBusiness, setEditingBusiness] = useState<Business | null>(null);
   const [selectedBusinesses, setSelectedBusinesses] = useState<string[]>([]);
-  const [showMassCategoryDialog, setShowMassCategoryDialog] = useState(false);
-  const [newCategoryForMass, setNewCategoryForMass] = useState("");
-  const [showAddBusinessDialog, setShowAddBusinessDialog] = useState(false);
-  const [newBusiness, setNewBusiness] = useState({
-    title: "",
-    description: "",
-    address: "",
-    city: "",
-    state: "",
-    phone: "",
-    email: "",
-    website: "",
-    categoryId: ""
-  });
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
-  // Data queries
-  const { data: businesses, isLoading: businessesLoading } = useQuery<BusinessWithCategory[]>({
+  const { data: businesses, isLoading } = useQuery<Business[]>({
     queryKey: ["/api/admin/businesses"],
   });
 
-  const { data: categories } = useQuery<Category[]>({
+  const { data: categories } = useQuery<Array<{ id: number; name: string }>>({
     queryKey: ["/api/categories"],
   });
 
-  // Mutations
-  const massCategoryChangeMutation = useMutation({
-    mutationFn: async (data: { businessIds: string[]; categoryId: number }) => {
-      const res = await apiRequest("PATCH", "/api/admin/businesses/mass-category", data);
+  const form = useForm<BusinessFormData>({
+    resolver: zodResolver(businessSchema),
+    defaultValues: {
+      businessname: "",
+      address: "",
+      city: "",
+      categoryId: 0,
+      featured: false,
+    },
+  });
+
+  const updateBusinessMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<BusinessFormData> }) => {
+      const res = await apiRequest("PATCH", `/api/admin/businesses/${id}`, data);
       return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/businesses"] });
-      toast({ title: "Success", description: "Category updated for selected businesses" });
-      setShowMassCategoryDialog(false);
+      toast({ title: "Success", description: "Business updated successfully" });
+      setShowEditDialog(false);
+      setEditingBusiness(null);
+      form.reset();
+    },
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const deleteBusinessMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await apiRequest("DELETE", `/api/admin/businesses/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/businesses"] });
+      toast({ title: "Success", description: "Business deleted successfully" });
+      setDeleteConfirmId(null);
+    },
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const massDeleteMutation = useMutation({
+    mutationFn: async (ids: string[]) => {
+      await Promise.all(ids.map(id => apiRequest("DELETE", `/api/admin/businesses/${id}`)));
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/businesses"] });
+      toast({ title: "Success", description: `${selectedBusinesses.length} businesses deleted successfully` });
       setSelectedBusinesses([]);
     },
     onError: (error: Error) => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
-    }
+    },
   });
 
-  const createBusinessMutation = useMutation({
-    mutationFn: async (businessData: typeof newBusiness) => {
-      const res = await apiRequest("POST", "/api/businesses", {
-        ...businessData,
-        categoryId: parseInt(businessData.categoryId)
-      });
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/businesses"] });
-      toast({ title: "Success", description: "Business created successfully" });
-      setShowAddBusinessDialog(false);
-      setNewBusiness({
-        title: "",
-        description: "",
-        address: "",
-        city: "",
-        state: "",
-        phone: "",
-        email: "",
-        website: "",
-        categoryId: ""
-      });
-    },
-    onError: (error: Error) => {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    }
-  });
+  const handleEdit = (business: Business) => {
+    setEditingBusiness(business);
+    form.reset({
+      businessname: business.businessname,
+      address: business.address,
+      city: business.city,
+      categoryId: business.categoryId,
+      featured: business.featured,
+    });
+    setShowEditDialog(true);
+  };
 
-  // Helper functions
-  const toggleBusinessSelection = (businessId: string) => {
+  const onSubmit = (data: BusinessFormData) => {
+    if (editingBusiness) {
+      updateBusinessMutation.mutate({ id: editingBusiness.placeid, data });
+    }
+  };
+
+  const handleSelectAll = () => {
+    if (selectedBusinesses.length === businesses?.length) {
+      setSelectedBusinesses([]);
+    } else {
+      setSelectedBusinesses(businesses?.map(business => business.placeid) || []);
+    }
+  };
+
+  const handleSelectBusiness = (businessId: string) => {
     setSelectedBusinesses(prev => 
       prev.includes(businessId) 
         ? prev.filter(id => id !== businessId)
@@ -97,306 +143,254 @@ export default function BusinessManagement() {
     );
   };
 
-  const selectAllBusinesses = () => {
-    setSelectedBusinesses(filteredBusinesses?.map(b => b.placeid) || []);
-  };
-
-  const clearBusinessSelection = () => {
-    setSelectedBusinesses([]);
-  };
-
-  const handleMassCategoryChange = () => {
-    if (!newCategoryForMass || selectedBusinesses.length === 0) return;
-    
-    massCategoryChangeMutation.mutate({
-      businessIds: selectedBusinesses,
-      categoryId: parseInt(newCategoryForMass)
-    });
-  };
-
-  const filteredBusinesses = businesses?.filter(business =>
-    (business.title || '').toLowerCase().includes(businessSearchTerm.toLowerCase()) ||
-    (business.city || '').toLowerCase().includes(businessSearchTerm.toLowerCase()) ||
-    (business.categoryname || '').toLowerCase().includes(businessSearchTerm.toLowerCase())
-  );
-
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>Business Management</CardTitle>
-          <CardDescription>Enhanced business management with mass operations and ownership tracking</CardDescription>
+          <CardDescription>Manage business listings and information</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search businesses..."
-                    value={businessSearchTerm}
-                    onChange={(e) => setBusinessSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={() => setShowAddBusinessDialog(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Business
-                </Button>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <span className="text-sm text-muted-foreground">
-                  {selectedBusinesses.length > 0 && `${selectedBusinesses.length} selected`}
-                </span>
-              </div>
-              {selectedBusinesses.length > 0 && (
-                <div className="flex space-x-2">
-                  <Button
-                    variant="outline"
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-4">
+                <h3 className="text-lg font-semibold">Businesses ({businesses?.length || 0})</h3>
+                {selectedBusinesses.length > 0 && (
+                  <Button 
+                    variant="destructive" 
                     size="sm"
-                    onClick={() => setShowMassCategoryDialog(true)}
+                    onClick={() => massDeleteMutation.mutate(selectedBusinesses)}
+                    disabled={massDeleteMutation.isPending}
                   >
-                    Change Category
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete Selected ({selectedBusinesses.length})
                   </Button>
-                  <Button
-                    variant="outline"
-                    onClick={clearBusinessSelection}
-                  >
-                    Clear Selection
-                  </Button>
-                </div>
-              )}
+                )}
+              </div>
             </div>
 
-            {businessesLoading ? (
-              <p>Loading businesses...</p>
-            ) : (
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-12">
-                        <Checkbox
-                          checked={(filteredBusinesses?.length || 0) > 0 && selectedBusinesses.length === (filteredBusinesses?.length || 0)}
-                          onCheckedChange={(checked) => {
-                            if (checked) {
-                              selectAllBusinesses();
-                            } else {
-                              clearBusinessSelection();
-                            }
-                          }}
-                        />
-                      </TableHead>
-                      <TableHead>Business</TableHead>
-                      <TableHead>Category</TableHead>
-                      <TableHead>Location</TableHead>
-                      <TableHead>Owner</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredBusinesses?.map((business) => (
-                      <TableRow key={business.placeid}>
-                        <TableCell>
-                          <Checkbox
-                            checked={selectedBusinesses.includes(business.placeid)}
-                            onCheckedChange={() => toggleBusinessSelection(business.placeid)}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            <div className="font-medium">{business.title}</div>
-                            <div className="text-sm text-muted-foreground">{business.placeid}</div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{business.categoryname || 'Uncategorized'}</Badge>
-                        </TableCell>
-                        <TableCell>{business.city}, {business.state}</TableCell>
-                        <TableCell>
-                          {business.owner ? (
-                            <div className="text-sm">
-                              {business.owner.firstName} {business.owner.lastName}
-                              <div className="text-muted-foreground">{business.owner.email}</div>
-                            </div>
-                          ) : (
-                            <Badge variant="outline">Admin (Default)</Badge>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex space-x-2">
-                            <Button size="sm" variant="outline">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button size="sm" variant="outline">
-                              <UserCheck className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+            {isLoading ? (
+              <div className="flex items-center justify-center p-8">
+                <Loader2 className="h-8 w-8 animate-spin" />
               </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12">
+                      <Checkbox
+                        checked={selectedBusinesses.length === businesses?.length && businesses?.length > 0}
+                        onCheckedChange={handleSelectAll}
+                      />
+                    </TableHead>
+                    <TableHead>Business Name</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead>City</TableHead>
+                    <TableHead>Rating</TableHead>
+                    <TableHead>Featured</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {businesses?.map((business) => (
+                    <TableRow key={business.placeid}>
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedBusinesses.includes(business.placeid)}
+                          onCheckedChange={() => handleSelectBusiness(business.placeid)}
+                        />
+                      </TableCell>
+                      <TableCell className="font-medium">{business.businessname}</TableCell>
+                      <TableCell>{business.category?.name || 'N/A'}</TableCell>
+                      <TableCell>{business.city}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1">
+                          <Star className="h-4 w-4 text-yellow-400" />
+                          {business.rating?.toFixed(1) || 'N/A'}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {business.featured && (
+                          <Badge variant="default">Featured</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEdit(business)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setDeleteConfirmId(business.placeid)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {businesses?.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                        No businesses found.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
             )}
           </div>
         </CardContent>
       </Card>
 
-      {/* Mass Category Change Dialog */}
-      <Dialog open={showMassCategoryDialog} onOpenChange={setShowMassCategoryDialog}>
-        <DialogContent>
+      {/* Edit Business Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={(open) => {
+        if (!open) {
+          setShowEditDialog(false);
+          setEditingBusiness(null);
+          form.reset();
+        }
+      }}>
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Change Category for Selected Businesses</DialogTitle>
+            <DialogTitle>Edit Business</DialogTitle>
             <DialogDescription>
-              Select a new category for {selectedBusinesses.length} selected businesses.
+              Update the business information and settings.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="category">New Category</Label>
-              <Select value={newCategoryForMass} onValueChange={setNewCategoryForMass}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories?.map((category) => (
-                    <SelectItem key={category.id} value={category.id.toString()}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => setShowMassCategoryDialog(false)}>
-                Cancel
-              </Button>
-              <Button 
-                onClick={handleMassCategoryChange}
-                disabled={massCategoryChangeMutation.isPending}
-              >
-                {massCategoryChangeMutation.isPending ? "Updating..." : "Update Category"}
-              </Button>
-            </div>
-          </div>
+          
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="businessname"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Business Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Business name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Address</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="Business address" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="city"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>City</FormLabel>
+                      <FormControl>
+                        <Input placeholder="City" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="categoryId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Category</FormLabel>
+                      <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value?.toString()}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select category" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {categories?.map((category) => (
+                            <SelectItem key={category.id} value={category.id.toString()}>
+                              {category.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="featured"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>Featured Business</FormLabel>
+                      <p className="text-sm text-muted-foreground">
+                        Display this business in the featured section
+                      </p>
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+              <DialogFooter>
+                <Button type="submit" disabled={updateBusinessMutation.isPending}>
+                  {updateBusinessMutation.isPending && (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  )}
+                  Update Business
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
 
-      {/* Add Business Dialog */}
-      <Dialog open={showAddBusinessDialog} onOpenChange={setShowAddBusinessDialog}>
-        <DialogContent className="max-w-2xl">
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteConfirmId !== null} onOpenChange={() => setDeleteConfirmId(null)}>
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add New Business</DialogTitle>
-            <DialogDescription>Create a new business listing</DialogDescription>
+            <DialogTitle>Delete Business</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this business? This action cannot be undone.
+            </DialogDescription>
           </DialogHeader>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="title">Business Name</Label>
-              <Input
-                id="title"
-                value={newBusiness.title}
-                onChange={(e) => setNewBusiness({...newBusiness, title: e.target.value})}
-                placeholder="Enter business name"
-              />
-            </div>
-            <div>
-              <Label htmlFor="category">Category</Label>
-              <Select value={newBusiness.categoryId} onValueChange={(value) => setNewBusiness({...newBusiness, categoryId: value})}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories?.map((category) => (
-                    <SelectItem key={category.id} value={category.id.toString()}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="col-span-2">
-              <Label htmlFor="description">Description</Label>
-              <Input
-                id="description"
-                value={newBusiness.description}
-                onChange={(e) => setNewBusiness({...newBusiness, description: e.target.value})}
-                placeholder="Business description"
-              />
-            </div>
-            <div className="col-span-2">
-              <Label htmlFor="address">Address</Label>
-              <Input
-                id="address"
-                value={newBusiness.address}
-                onChange={(e) => setNewBusiness({...newBusiness, address: e.target.value})}
-                placeholder="Full address"
-              />
-            </div>
-            <div>
-              <Label htmlFor="city">City</Label>
-              <Input
-                id="city"
-                value={newBusiness.city}
-                onChange={(e) => setNewBusiness({...newBusiness, city: e.target.value})}
-                placeholder="City"
-              />
-            </div>
-            <div>
-              <Label htmlFor="state">State</Label>
-              <Input
-                id="state"
-                value={newBusiness.state}
-                onChange={(e) => setNewBusiness({...newBusiness, state: e.target.value})}
-                placeholder="State"
-              />
-            </div>
-            <div>
-              <Label htmlFor="phone">Phone</Label>
-              <Input
-                id="phone"
-                value={newBusiness.phone}
-                onChange={(e) => setNewBusiness({...newBusiness, phone: e.target.value})}
-                placeholder="Phone number"
-              />
-            </div>
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={newBusiness.email}
-                onChange={(e) => setNewBusiness({...newBusiness, email: e.target.value})}
-                placeholder="Email address"
-              />
-            </div>
-            <div className="col-span-2">
-              <Label htmlFor="website">Website</Label>
-              <Input
-                id="website"
-                value={newBusiness.website}
-                onChange={(e) => setNewBusiness({...newBusiness, website: e.target.value})}
-                placeholder="Website URL"
-              />
-            </div>
-          </div>
-          <div className="flex justify-end space-x-2 mt-6">
-            <Button variant="outline" onClick={() => setShowAddBusinessDialog(false)}>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteConfirmId(null)}>
               Cancel
             </Button>
             <Button 
-              onClick={() => createBusinessMutation.mutate(newBusiness)}
-              disabled={createBusinessMutation.isPending || !newBusiness.title || !newBusiness.categoryId}
+              variant="destructive" 
+              onClick={() => deleteConfirmId && deleteBusinessMutation.mutate(deleteConfirmId)}
+              disabled={deleteBusinessMutation.isPending}
             >
-              {createBusinessMutation.isPending ? "Creating..." : "Create Business"}
+              {deleteBusinessMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Delete
             </Button>
-          </div>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
