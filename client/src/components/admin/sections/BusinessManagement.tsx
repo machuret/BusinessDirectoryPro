@@ -174,6 +174,7 @@ export default function BusinessManagement() {
   });
 
   const getBusinessName = (business: Business) => {
+    if (!business) return 'Unnamed Business';
     return business.name || business.businessname || business.title || 'Unnamed Business';
   };
 

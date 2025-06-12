@@ -4,32 +4,51 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Plus, Edit, Trash2, Building2, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import type { Category } from "@shared/schema";
+
+interface CategoryWithCount {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string;
+  pageTitle?: string;
+  count: number;
+}
 
 const categorySchema = z.object({
   name: z.string().min(1, "Category name is required"),
   description: z.string().optional(),
+  pageTitle: z.string().optional(),
 });
 
 type CategoryFormData = z.infer<typeof categorySchema>;
 
 export default function CategoriesManagement() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [editingCategory, setEditingCategory] = useState<CategoryWithCount | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
   const { toast } = useToast();
 
-  const { data: categories, isLoading } = useQuery<Category[]>({
-    queryKey: ["/api/categories"],
+  const { data: categories, isLoading } = useQuery<CategoryWithCount[]>({
+    queryKey: ["/api/admin/categories"],
+  });
+
+  const form = useForm<CategoryFormData>({
+    resolver: zodResolver(categorySchema),
+    defaultValues: {
+      name: "",
+      description: "",
+      pageTitle: "",
+    },
   });
 
   const addCategoryMutation = useMutation({
@@ -38,8 +57,10 @@ export default function CategoriesManagement() {
       return res.json();
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/categories"] });
       queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
       setIsAddDialogOpen(false);
+      form.reset();
       toast({
         title: "Success",
         description: "Category created successfully",
@@ -56,12 +77,14 @@ export default function CategoriesManagement() {
 
   const updateCategoryMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: CategoryFormData }) => {
-      const res = await apiRequest("PUT", `/api/admin/categories/${id}`, data);
+      const res = await apiRequest("PATCH", `/api/admin/categories/${id}`, data);
       return res.json();
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/categories"] });
       queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
       setEditingCategory(null);
+      form.reset();
       toast({
         title: "Success",
         description: "Category updated successfully",
@@ -81,7 +104,9 @@ export default function CategoriesManagement() {
       await apiRequest("DELETE", `/api/admin/categories/${id}`);
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/categories"] });
       queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
+      setDeleteConfirmId(null);
       toast({
         title: "Success",
         description: "Category deleted successfully",
@@ -96,212 +121,214 @@ export default function CategoriesManagement() {
     },
   });
 
-  const addForm = useForm<CategoryFormData>({
-    resolver: zodResolver(categorySchema),
-    defaultValues: {
-      name: "",
-      description: "",
-    },
-  });
-
-  const editForm = useForm<CategoryFormData>({
-    resolver: zodResolver(categorySchema),
-    defaultValues: {
-      name: "",
-      description: "",
-    },
-  });
-
-  const onAddSubmit = (data: CategoryFormData) => {
-    addCategoryMutation.mutate(data);
+  const handleAdd = () => {
+    form.reset();
+    setIsAddDialogOpen(true);
   };
 
-  const onEditSubmit = (data: CategoryFormData) => {
-    if (editingCategory) {
-      updateCategoryMutation.mutate({ id: editingCategory.id, data });
-    }
-  };
-
-  const handleEdit = (category: Category) => {
+  const handleEdit = (category: CategoryWithCount) => {
     setEditingCategory(category);
-    editForm.reset({
+    form.reset({
       name: category.name,
       description: category.description || "",
+      pageTitle: category.pageTitle || "",
     });
   };
 
-  const handleDelete = (id: number) => {
-    if (confirm("Are you sure you want to delete this category?")) {
-      deleteCategoryMutation.mutate(id);
+  const onSubmit = (data: CategoryFormData) => {
+    if (editingCategory) {
+      updateCategoryMutation.mutate({ id: editingCategory.id, data });
+    } else {
+      addCategoryMutation.mutate(data);
     }
+  };
+
+  const handleCloseDialog = () => {
+    setIsAddDialogOpen(false);
+    setEditingCategory(null);
+    form.reset();
   };
 
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Categories Management</CardTitle>
-          <CardDescription>Manage business categories and subcategories</CardDescription>
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle>Categories Management</CardTitle>
+              <CardDescription>Manage business categories with business count and SEO settings</CardDescription>
+            </div>
+            <Button onClick={handleAdd}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add New Category
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold">Categories</h3>
-              <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Category
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Add New Category</DialogTitle>
-                    <DialogDescription>
-                      Create a new business category.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <Form {...addForm}>
-                    <form onSubmit={addForm.handleSubmit(onAddSubmit)} className="space-y-4">
-                      <FormField
-                        control={addForm.control}
-                        name="name"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Category Name</FormLabel>
-                            <FormControl>
-                              <Input placeholder="e.g., Restaurants" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={addForm.control}
-                        name="description"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Description (Optional)</FormLabel>
-                            <FormControl>
-                              <Textarea placeholder="Category description..." {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <DialogFooter>
-                        <Button type="submit" disabled={addCategoryMutation.isPending}>
-                          {addCategoryMutation.isPending ? "Creating..." : "Create Category"}
+          {isLoading ? (
+            <div className="flex items-center justify-center p-8">
+              <Loader2 className="h-8 w-8 animate-spin" />
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Category Name</TableHead>
+                  <TableHead>Description</TableHead>
+                  <TableHead>Page Title</TableHead>
+                  <TableHead>Business Count</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {categories?.map((category) => (
+                  <TableRow key={category.id}>
+                    <TableCell className="font-medium">{category.name}</TableCell>
+                    <TableCell className="max-w-xs truncate">
+                      {category.description || "No description"}
+                    </TableCell>
+                    <TableCell className="max-w-xs truncate">
+                      {category.pageTitle || "No page title"}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Building2 className="h-4 w-4 text-muted-foreground" />
+                        <Badge variant="outline">{category.count}</Badge>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEdit(category)}
+                        >
+                          <Edit className="h-4 w-4" />
                         </Button>
-                      </DialogFooter>
-                    </form>
-                  </Form>
-                </DialogContent>
-              </Dialog>
-            </div>
-            
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Slug</TableHead>
-                    <TableHead>Business Count</TableHead>
-                    <TableHead>Actions</TableHead>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setDeleteConfirmId(category.id)}
+                          disabled={category.count > 0}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {isLoading ? (
-                    <TableRow>
-                      <TableCell colSpan={4} className="text-center">Loading...</TableCell>
-                    </TableRow>
-                  ) : categories?.map((category) => (
-                    <TableRow key={category.id}>
-                      <TableCell className="font-medium">{category.name}</TableCell>
-                      <TableCell>{category.slug}</TableCell>
-                      <TableCell>
-                        <Badge variant="secondary">{(category as any).count || 0} businesses</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
-                            onClick={() => handleEdit(category)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
-                            onClick={() => handleDelete(category.id)}
-                            disabled={deleteCategoryMutation.isPending}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </div>
+                ))}
+                {categories?.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                      No categories found. Create your first category to get started.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
 
-      {/* Edit Category Dialog */}
-      <Dialog open={!!editingCategory} onOpenChange={() => setEditingCategory(null)}>
+      {/* Add/Edit Category Dialog */}
+      <Dialog open={isAddDialogOpen || editingCategory !== null} onOpenChange={handleCloseDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Category</DialogTitle>
+            <DialogTitle>{editingCategory ? "Edit Category" : "Add New Category"}</DialogTitle>
             <DialogDescription>
-              Update the category information.
+              {editingCategory ? "Update the category information." : "Create a new business category with SEO settings."}
             </DialogDescription>
           </DialogHeader>
-          <Form {...editForm}>
-            <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-4">
-              <div>
-                <FormLabel>Category Name (Read-only)</FormLabel>
-                <Input
-                  value={editingCategory?.name || ''}
-                  disabled
-                  className="bg-gray-50"
-                />
-              </div>
+          
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
-                control={editForm.control}
+                control={form.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Page Title</FormLabel>
+                    <FormLabel>Category Name *</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., Restaurants" {...field} />
+                      <Input placeholder="Enter category name" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
               <FormField
-                control={editForm.control}
+                control={form.control}
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Description (Optional)</FormLabel>
+                    <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <Textarea placeholder="Category description..." {...field} />
+                      <Textarea 
+                        placeholder="Category description for listings..."
+                        rows={3}
+                        {...field} 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
+              <FormField
+                control={form.control}
+                name="pageTitle"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>SEO Page Title</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="e.g., Best Restaurants in [City] | Your Directory"
+                        {...field} 
+                      />
+                    </FormControl>
+                    <p className="text-sm text-muted-foreground">
+                      This will be used as the page title for SEO when viewing this category
+                    </p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <DialogFooter>
-                <Button type="submit" disabled={updateCategoryMutation.isPending}>
-                  {updateCategoryMutation.isPending ? "Updating..." : "Update Category"}
+                <Button type="submit" disabled={addCategoryMutation.isPending || updateCategoryMutation.isPending}>
+                  {(addCategoryMutation.isPending || updateCategoryMutation.isPending) && (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  )}
+                  {editingCategory ? "Update Category" : "Create Category"}
                 </Button>
               </DialogFooter>
             </form>
           </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteConfirmId !== null} onOpenChange={() => setDeleteConfirmId(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Category</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this category? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteConfirmId(null)}>
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={() => deleteConfirmId && deleteCategoryMutation.mutate(deleteConfirmId)}
+              disabled={deleteCategoryMutation.isPending}
+            >
+              {deleteCategoryMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Delete Category
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

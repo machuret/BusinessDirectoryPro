@@ -1,41 +1,72 @@
-import { Express } from "express";
+import type { Express } from "express";
 import { storage } from "../storage";
+import { z } from "zod";
 
-export function setupCategoryRoutes(app: Express) {
-  // Get all categories (public)
-  app.get("/api/categories", async (req, res) => {
+const categorySchema = z.object({
+  name: z.string().min(1),
+  description: z.string().optional(),
+  pageTitle: z.string().optional(),
+});
+
+export function registerCategoryRoutes(app: Express) {
+  // Get categories with business count for admin
+  app.get("/api/admin/categories", async (req, res) => {
     try {
       const categories = await storage.getCategories();
       res.json(categories);
     } catch (error) {
       console.error("Error fetching categories:", error);
-      res.status(500).send("Internal server error");
+      res.status(500).json({ message: "Failed to fetch categories" });
     }
   });
 
-  // Get category by slug (public)
-  app.get("/api/categories/:slug", async (req, res) => {
+  // Create new category
+  app.post("/api/admin/categories", async (req, res) => {
     try {
-      const { slug } = req.params;
-      const category = await storage.getCategoryBySlug(slug);
+      const data = categorySchema.parse(req.body);
+      const category = await storage.createCategory(data);
+      res.status(201).json(category);
+    } catch (error: any) {
+      console.error("Error creating category:", error);
+      if (error.name === "ZodError") {
+        res.status(400).json({ message: "Invalid category data", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Failed to create category" });
+      }
+    }
+  });
+
+  // Update category
+  app.patch("/api/admin/categories/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const data = categorySchema.partial().parse(req.body);
+      
+      const category = await storage.updateCategory(id, data);
       if (!category) {
         return res.status(404).json({ message: "Category not found" });
       }
+      
       res.json(category);
-    } catch (error) {
-      console.error("Error fetching category:", error);
-      res.status(500).send("Internal server error");
+    } catch (error: any) {
+      console.error("Error updating category:", error);
+      if (error.name === "ZodError") {
+        res.status(400).json({ message: "Invalid category data", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Failed to update category" });
+      }
     }
   });
 
-  // Get unique cities (public)
-  app.get("/api/cities", async (req, res) => {
+  // Delete category
+  app.delete("/api/admin/categories/:id", async (req, res) => {
     try {
-      const cities = await storage.getUniqueCities();
-      res.json(cities);
+      const id = parseInt(req.params.id);
+      await storage.deleteCategory(id);
+      res.status(204).send();
     } catch (error) {
-      console.error("Error fetching cities:", error);
-      res.status(500).send("Internal server error");
+      console.error("Error deleting category:", error);
+      res.status(500).json({ message: "Failed to delete category" });
     }
   });
 }
