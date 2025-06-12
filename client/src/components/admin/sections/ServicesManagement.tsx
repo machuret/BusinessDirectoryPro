@@ -193,12 +193,12 @@ export default function ServicesManagement() {
   const filteredServices = services.filter((service: Service) => {
     const matchesSearch = service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          service.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !selectedCategory || service.category === selectedCategory;
+    const matchesCategory = !selectedCategory || selectedCategory === "all" || service.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
   // Get unique categories
-  const categories = Array.from(new Set(services.map((s: Service) => s.category).filter(Boolean)));
+  const categories = Array.from(new Set(services.map((s: Service) => s.category).filter(Boolean))) as string[];
 
   if (servicesError) {
     return (
@@ -410,8 +410,8 @@ export default function ServicesManagement() {
                 <SelectValue placeholder="Filter by category" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Categories</SelectItem>
-                {categories.map((category) => (
+                <SelectItem value="all">All Categories</SelectItem>
+                {categories.map((category: string) => (
                   <SelectItem key={category} value={category}>
                     {category}
                   </SelectItem>

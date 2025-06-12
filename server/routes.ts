@@ -233,6 +233,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Services Management Routes
+  app.get("/api/admin/services", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      // Return empty array when services table doesn't exist yet
+      // This allows the frontend to display the "initializing" state
+      res.json([]);
+    } catch (error) {
+      console.error("Error fetching services:", error);
+      res.status(500).json({ message: "Failed to fetch services" });
+    }
+  });
+
+  app.post("/api/admin/services", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      // Placeholder for service creation - will be implemented when tables exist
+      res.status(501).json({ message: "Services system is being initialized" });
+    } catch (error) {
+      console.error("Error creating service:", error);
+      res.status(500).json({ message: "Failed to create service" });
+    }
+  });
+
+  app.put("/api/admin/services/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      // Placeholder for service updates - will be implemented when tables exist
+      res.status(501).json({ message: "Services system is being initialized" });
+    } catch (error) {
+      console.error("Error updating service:", error);
+      res.status(500).json({ message: "Failed to update service" });
+    }
+  });
+
+  app.delete("/api/admin/services/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      // Placeholder for service deletion - will be implemented when tables exist
+      res.status(501).json({ message: "Services system is being initialized" });
+    } catch (error) {
+      console.error("Error deleting service:", error);
+      res.status(500).json({ message: "Failed to delete service" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
