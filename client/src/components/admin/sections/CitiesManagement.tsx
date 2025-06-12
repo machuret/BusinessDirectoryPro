@@ -217,12 +217,21 @@ export default function CitiesManagement() {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="editCityName">City Name</Label>
+              <Label htmlFor="editCityName">City Name (Read-only)</Label>
               <Input
                 id="editCityName"
+                value={editingCity?.city || ''}
+                disabled
+                className="bg-gray-50"
+              />
+            </div>
+            <div>
+              <Label htmlFor="editCityTitle">Page Title</Label>
+              <Input
+                id="editCityTitle"
                 value={editCityData.newName}
                 onChange={(e) => setEditCityData({...editCityData, newName: e.target.value})}
-                placeholder="City name"
+                placeholder="Page title for this city"
               />
             </div>
             <div>

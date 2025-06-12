@@ -261,12 +261,20 @@ export default function CategoriesManagement() {
           </DialogHeader>
           <Form {...editForm}>
             <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-4">
+              <div>
+                <FormLabel>Category Name (Read-only)</FormLabel>
+                <Input
+                  value={editingCategory?.name || ''}
+                  disabled
+                  className="bg-gray-50"
+                />
+              </div>
               <FormField
                 control={editForm.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Category Name</FormLabel>
+                    <FormLabel>Page Title</FormLabel>
                     <FormControl>
                       <Input placeholder="e.g., Restaurants" {...field} />
                     </FormControl>
