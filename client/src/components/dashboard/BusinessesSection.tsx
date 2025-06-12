@@ -19,7 +19,7 @@ interface BusinessesSectionProps {
   isLoading: boolean;
 }
 
-export default function BusinessesSection({ businesses, isLoading }: BusinessesSectionProps) {
+export function BusinessesSection({ businesses, isLoading }: BusinessesSectionProps) {
   const [editingBusiness, setEditingBusiness] = useState<BusinessWithCategory | null>(null);
   const { updateBusiness } = useBusinessMutations();
   const editModal = useModalState();
@@ -252,3 +252,6 @@ export default function BusinessesSection({ businesses, isLoading }: BusinessesS
     </Card>
   );
 }
+
+// Default export for backward compatibility
+export default BusinessesSection;

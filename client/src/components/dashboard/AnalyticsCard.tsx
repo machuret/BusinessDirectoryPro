@@ -12,7 +12,7 @@ interface AnalyticsCardProps {
   };
 }
 
-export default function AnalyticsCard({ 
+export function AnalyticsCard({ 
   title, 
   value, 
   description, 
@@ -42,3 +42,6 @@ export default function AnalyticsCard({
     </Card>
   );
 }
+
+// Default export for backward compatibility
+export default AnalyticsCard;
