@@ -1,8 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import multer from "multer";
-import csv from "csv-parser";
-import { Readable } from "stream";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, isAdmin } from "./auth";
 import { optimizeBusinesses } from "./openai";
@@ -10,10 +8,10 @@ import { setupAuthRoutes } from "./routes/auth";
 import { setupBusinessRoutes } from "./routes/businesses";
 import { setupAdminRoutes } from "./routes/admin";
 import { setupReviewRoutes } from "./routes/reviews";
-// import { setupCategoryRoutes } from "./routes/categories";
 import { setupSettingsRoutes } from "./routes/settings";
 import optimizationRoutes from "./routes/optimization";
 import { registerCategoryRoutes } from "./routes/categories";
+import { csvImportService } from "./csv-import";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Configure multer for file uploads
@@ -46,35 +44,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register optimization routes
   app.use('/api/admin', optimizationRoutes);
 
-  // CSV Import functionality
+  // CSV Import functionality - Preview
+  app.post('/api/admin/import-csv-preview', isAuthenticated, isAdmin, upload.single('csvFile'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: 'No CSV file uploaded' });
+      }
+
+      const preview = await csvImportService.previewImport(req.file.buffer, 10);
+      res.json(preview);
+    } catch (error) {
+      console.error('Error previewing CSV:', error);
+      res.status(500).json({ message: 'Failed to preview CSV data' });
+    }
+  });
+
+  // CSV Import functionality - Validate only
+  app.post('/api/admin/import-csv-validate', isAuthenticated, isAdmin, upload.single('csvFile'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: 'No CSV file uploaded' });
+      }
+
+      const csvData = await csvImportService.parseCSV(req.file.buffer);
+      const result = await csvImportService.importBusinesses(csvData, {
+        validateOnly: true,
+        updateDuplicates: false,
+        skipDuplicates: true,
+        batchSize: 50
+      });
+      
+      res.json({
+        ...result,
+        message: `Validation completed. ${result.success} valid rows, ${result.errors.length} errors found.`
+      });
+    } catch (error) {
+      console.error('Error validating CSV:', error);
+      res.status(500).json({ message: 'Failed to validate CSV data' });
+    }
+  });
+
+  // CSV Import functionality - Full import
   app.post('/api/admin/import-csv', isAuthenticated, isAdmin, upload.single('csvFile'), async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ message: 'No CSV file uploaded' });
       }
 
-      const csvData: any[] = [];
-      const stream = Readable.from(req.file.buffer.toString());
+      const { updateDuplicates = false, skipDuplicates = true, batchSize = 50 } = req.body;
       
-      stream
-        .pipe(csv())
-        .on('data', (data) => csvData.push(data))
-        .on('end', async () => {
-          try {
-            const result = await storage.bulkImportBusinesses(csvData);
-            res.json({
-              message: `Import completed. ${result.success} businesses imported successfully.`,
-              success: result.success,
-              errors: result.errors
-            });
-          } catch (error) {
-            console.error('Error importing CSV:', error);
-            res.status(500).json({ message: 'Failed to import CSV data' });
-          }
-        });
+      const csvData = await csvImportService.parseCSV(req.file.buffer);
+      const result = await csvImportService.importBusinesses(csvData, {
+        validateOnly: false,
+        updateDuplicates: updateDuplicates === 'true',
+        skipDuplicates: skipDuplicates === 'true',
+        batchSize: parseInt(batchSize) || 50
+      });
+
+      res.json({
+        ...result,
+        message: `Import completed. ${result.created} created, ${result.updated} updated, ${result.duplicatesSkipped} duplicates skipped, ${result.errors.length} errors.`
+      });
     } catch (error) {
-      console.error('Error processing CSV upload:', error);
-      res.status(500).json({ message: 'Failed to process CSV upload' });
+      console.error('Error importing CSV:', error);
+      res.status(500).json({ message: 'Failed to import CSV data' });
     }
   });
 
