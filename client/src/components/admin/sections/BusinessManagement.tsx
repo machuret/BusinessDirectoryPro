@@ -45,7 +45,7 @@ export default function BusinessManagement() {
   // Mutations
   const massCategoryChangeMutation = useMutation({
     mutationFn: async (data: { businessIds: string[]; categoryId: number }) => {
-      const res = await apiRequest("POST", "/api/admin/mass-category-change", data);
+      const res = await apiRequest("PATCH", "/api/admin/businesses/mass-category", data);
       return res.json();
     },
     onSuccess: () => {

@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Plus, Edit, Search } from "lucide-react";
+import { Plus, Edit, Search, Trash2 } from "lucide-react";
 
 export default function CitiesManagement() {
   const { toast } = useToast();
@@ -55,6 +55,19 @@ export default function CitiesManagement() {
       queryClient.invalidateQueries({ queryKey: ["/api/cities"] });
       toast({ title: "Success", description: "City updated successfully" });
       setEditingCity(null);
+    },
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  });
+
+  const deleteCityMutation = useMutation({
+    mutationFn: async (cityName: string) => {
+      await apiRequest("DELETE", `/api/admin/cities/${encodeURIComponent(cityName)}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/cities"] });
+      toast({ title: "Success", description: "City deleted successfully" });
     },
     onError: (error: Error) => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -134,6 +147,14 @@ export default function CitiesManagement() {
                             onClick={() => handleEditCity(city)}
                           >
                             <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="destructive"
+                            onClick={() => deleteCityMutation.mutate(city.city)}
+                            disabled={deleteCityMutation.isPending}
+                          >
+                            <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </TableCell>

@@ -200,6 +200,28 @@ export function setupAdminRoutes(app: Express) {
     }
   });
 
+  app.delete("/api/admin/cities/:cityName", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { cityName } = req.params;
+      const decodedCityName = decodeURIComponent(cityName);
+      
+      if (!decodedCityName) {
+        return res.status(400).json({ message: "City name is required" });
+      }
+
+      // Delete all businesses in this city first, then remove the city
+      const businesses = await storage.getBusinesses({ city: decodedCityName });
+      for (const business of businesses) {
+        await storage.deleteBusiness(business.placeid);
+      }
+
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting city:", error);
+      res.status(500).json({ message: "Failed to delete city" });
+    }
+  });
+
   // Mass operations
   app.patch("/api/admin/businesses/mass-category", isAuthenticated, isAdmin, async (req, res) => {
     try {
