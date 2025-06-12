@@ -9,7 +9,7 @@ export class CategoryStorage {
     const result = await db.execute(sql`
       SELECT c.*, COUNT(b.placeid) as count
       FROM categories c
-      LEFT JOIN businesses b ON c.name = b.categoryname AND b.status = 'approved'
+      LEFT JOIN businesses b ON c.name = b.categoryname
       GROUP BY c.id, c.name, c.slug, c.description, c.icon, c.color, c.created_at
       ORDER BY c.name
     `);
