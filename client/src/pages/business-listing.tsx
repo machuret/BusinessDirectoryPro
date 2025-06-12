@@ -553,57 +553,21 @@ export default function BusinessListing() {
                 Share
               </Button>
 
-              {user && (
-                <Dialog open={showClaimModal} onOpenChange={setShowClaimModal}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" className="w-full">
-                      <User className="w-4 h-4 mr-2" />
-                      Claim Business
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Claim Business Ownership</DialogTitle>
-                      <DialogDescription>
-                        Submit a request to claim ownership of this business listing.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <p className="text-sm text-gray-600">
-                        Request ownership of "{business?.title}" to manage your business listing.
-                      </p>
-                      <div>
-                        <Label htmlFor="claim-message">Why should you be granted ownership?</Label>
-                        <Textarea
-                          id="claim-message"
-                          placeholder="Please explain your relationship to this business..."
-                          value={claimMessage}
-                          onChange={(e) => setClaimMessage(e.target.value)}
-                          className="mt-1"
-                        />
-                      </div>
-                      <div className="flex space-x-2">
-                        <Button
-                          onClick={handleClaimSubmit}
-                          disabled={claimOwnershipMutation.isPending}
-                          className="flex-1"
-                        >
-                          {claimOwnershipMutation.isPending ? "Submitting..." : "Submit Claim"}
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => {
-                            setShowClaimModal(false);
-                            setClaimMessage("");
-                          }}
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              )}
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={() => setShowClaimModal(true)}
+              >
+                <User className="w-4 h-4 mr-2" />
+                Claim Business
+              </Button>
+              
+              <ClaimBusinessModal
+                business={business}
+                user={user}
+                isOpen={showClaimModal}
+                onClose={() => setShowClaimModal(false)}
+              />
             </div>
             
             {/* Business Stats */}
