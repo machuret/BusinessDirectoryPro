@@ -97,7 +97,7 @@ export class ContentGenerator {
     if (canonical) return canonical;
     
     if (business) {
-      return `${siteUrl}/business/${business.slug}`;
+      return `${siteUrl}/${business.slug}`;
     }
     
     if (category) {
