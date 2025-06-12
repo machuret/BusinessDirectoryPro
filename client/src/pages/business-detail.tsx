@@ -37,6 +37,30 @@ export default function BusinessDetail() {
     refetchReviews();
   };
 
+  const handleClaimBusiness = () => {
+    // Open claim business modal/flow
+    console.log('Claim business clicked');
+  };
+
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: business?.title,
+        text: business?.description,
+        url: window.location.href,
+      });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+    }
+  };
+
+  const handleGetDirections = () => {
+    if (business?.address && business?.city) {
+      const address = encodeURIComponent(`${business.address}, ${business.city}`);
+      window.open(`https://www.google.com/maps/search/?api=1&query=${address}`, '_blank');
+    }
+  };
+
   if (businessLoading) {
     return (
       <div className="min-h-screen bg-background">
@@ -81,7 +105,12 @@ export default function BusinessDetail() {
       
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
-          <BusinessHeader business={business} onPrint={handlePrint} />
+          <BusinessHeader 
+            business={business} 
+            onClaimBusiness={handleClaimBusiness}
+            onShare={handleShare}
+            onGetDirections={handleGetDirections}
+          />
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
             <div className="lg:col-span-2 space-y-8">
