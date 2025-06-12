@@ -310,6 +310,38 @@ export default function SettingsManagement() {
                   </div>
                 </div>
 
+                {/* Welcome Section */}
+                <div className="border rounded-lg p-4">
+                  <h4 className="font-medium mb-4">Welcome Section</h4>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="welcome-title">Welcome Title</Label>
+                      <Input 
+                        id="welcome-title" 
+                        defaultValue={settings && Array.isArray(settings) 
+                          ? settings.find((s: any) => s.key === "welcome_title")?.value || "Welcome to Our Business Directory"
+                          : "Welcome to Our Business Directory"
+                        }
+                        placeholder="Welcome to Our Business Directory"
+                        onBlur={(e) => updateSetting('welcome_title', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="welcome-content">Welcome Content</Label>
+                      <Textarea 
+                        id="welcome-content" 
+                        defaultValue={settings && Array.isArray(settings) 
+                          ? settings.find((s: any) => s.key === "welcome_content")?.value || "Discover amazing local businesses in your area. Browse our comprehensive directory to find the services you need, read authentic reviews, and connect with trusted local providers."
+                          : "Discover amazing local businesses in your area. Browse our comprehensive directory to find the services you need, read authentic reviews, and connect with trusted local providers."
+                        }
+                        placeholder="Discover amazing local businesses in your area. Browse our comprehensive directory to find the services you need, read authentic reviews, and connect with trusted local providers."
+                        rows={3}
+                        onBlur={(e) => updateSetting('welcome_content', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 {/* Features Section */}
                 <div className="border rounded-lg p-4">
                   <h4 className="font-medium mb-4">Features Section</h4>
