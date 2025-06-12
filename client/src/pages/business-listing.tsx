@@ -6,10 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { 
   Star, 
   MapPin, 
@@ -20,8 +16,6 @@ import {
   Navigation,
   Heart,
   Share2,
-  ChevronDown,
-  ChevronUp,
   User
 } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
@@ -33,6 +27,9 @@ import SimilarBusinessesCarousel from "@/components/similar-businesses-carousel"
 import BusinessMap from "@/components/business-map";
 import MoreBusinessesCarousel from "@/components/more-businesses-carousel";
 import BusinessContactForm from "@/components/business-contact-form";
+import BusinessReviewForm from "@/components/BusinessReviewForm";
+import ClaimBusinessModal from "@/components/ClaimBusinessModal";
+import BusinessFAQ from "@/components/BusinessFAQ";
 
 export default function BusinessListing() {
   const [, params] = useRoute("/business/:identifier");
@@ -40,12 +37,8 @@ export default function BusinessListing() {
   const { user } = useAuth();
   const { toast } = useToast();
   
-  // All useState hooks at the top level
-  const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
-  const [reviewText, setReviewText] = useState("");
-  const [rating, setRating] = useState(5);
+  // State for modal visibility
   const [showClaimModal, setShowClaimModal] = useState(false);
-  const [claimMessage, setClaimMessage] = useState("");
 
   // All useQuery hooks
   const { data: business, isLoading } = useQuery<BusinessWithCategory>({
@@ -403,35 +396,7 @@ export default function BusinessListing() {
             )}
 
             {/* FAQ Section */}
-            {faqItems && faqItems.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Frequently Asked Questions</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {faqItems.map((faq: any, index: number) => (
-                      <div key={index} className="border-b border-gray-200 pb-4">
-                        <button
-                          className="flex items-center justify-between w-full text-left font-medium"
-                          onClick={() => setExpandedFaq(expandedFaq === index ? null : index)}
-                        >
-                          <span>{faq.question}</span>
-                          {expandedFaq === index ? (
-                            <ChevronUp className="w-5 h-5" />
-                          ) : (
-                            <ChevronDown className="w-5 h-5" />
-                          )}
-                        </button>
-                        {expandedFaq === index && (
-                          <p className="mt-2 text-gray-600">{faq.answer}</p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+            <BusinessFAQ faqItems={faqItems} />
 
             {/* Reviews Section */}
             <Card>
@@ -476,49 +441,7 @@ export default function BusinessListing() {
             </Card>
 
             {/* Write Review Section */}
-            {user && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Write a Review</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={handleSubmitReview} className="space-y-4">
-                    <div>
-                      <Label htmlFor="rating">Rating</Label>
-                      <div className="flex items-center space-x-1 mt-1">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <button
-                            key={star}
-                            type="button"
-                            onClick={() => setRating(star)}
-                            className="focus:outline-none"
-                          >
-                            <Star
-                              className={`w-6 h-6 ${
-                                star <= rating ? "text-yellow-400 fill-current" : "text-gray-300"
-                              }`}
-                            />
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    <div>
-                      <Label htmlFor="review">Your Review</Label>
-                      <Textarea
-                        id="review"
-                        placeholder="Share your experience..."
-                        value={reviewText}
-                        onChange={(e) => setReviewText(e.target.value)}
-                        className="mt-1"
-                      />
-                    </div>
-                    <Button type="submit" disabled={reviewMutation.isPending}>
-                      {reviewMutation.isPending ? "Submitting..." : "Submit Review"}
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
-            )}
+            <BusinessReviewForm business={business} user={user} />
           </div>
 
           {/* Sidebar */}
