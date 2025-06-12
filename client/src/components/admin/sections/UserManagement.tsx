@@ -5,13 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Search, Plus, Key, Building2 } from "lucide-react";
+import { Search, Plus, Key, Building2, Edit, Trash2 } from "lucide-react";
 import type { User } from "@shared/schema";
 
 export default function UserManagement() {
@@ -19,11 +19,21 @@ export default function UserManagement() {
   const [userSearchTerm, setUserSearchTerm] = useState("");
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [showAddUserDialog, setShowAddUserDialog] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+  const [passwordUser, setPasswordUser] = useState<User | null>(null);
+  const [newPassword, setNewPassword] = useState("");
   const [newUser, setNewUser] = useState({
     email: "",
     firstName: "",
     lastName: "",
     password: "",
+    role: "user"
+  });
+  const [editUserData, setEditUserData] = useState({
+    email: "",
+    firstName: "",
+    lastName: "",
     role: "user"
   });
 

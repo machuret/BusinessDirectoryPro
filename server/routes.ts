@@ -462,6 +462,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Categories management routes
+  app.post("/api/admin/categories", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const category = await storage.createCategory(req.body);
+      res.status(201).json(category);
+    } catch (error) {
+      console.error("Error creating category:", error);
+      res.status(500).json({ message: "Failed to create category" });
+    }
+  });
+
+  app.put("/api/admin/categories/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const categoryId = parseInt(req.params.id);
+      const category = await storage.updateCategory(categoryId, req.body);
+      
+      if (!category) {
+        return res.status(404).json({ message: "Category not found" });
+      }
+      
+      res.json(category);
+    } catch (error) {
+      console.error("Error updating category:", error);
+      res.status(500).json({ message: "Failed to update category" });
+    }
+  });
+
+  app.delete("/api/admin/categories/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const categoryId = parseInt(req.params.id);
+      await storage.deleteCategory(categoryId);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting category:", error);
+      res.status(500).json({ message: "Failed to delete category" });
+    }
+  });
+
   // Website FAQ management routes
   app.get("/api/admin/website-faqs", isAuthenticated, async (req: any, res) => {
     try {
@@ -1497,6 +1550,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error assigning businesses to user:", error);
       res.status(500).json({ message: "Failed to assign businesses" });
+    }
+  });
+
+  // User management routes - Update user information
+  app.put("/api/admin/users/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const userData = req.body;
+      
+      const user = await storage.updateUser(id, userData);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      res.json(user);
+    } catch (error) {
+      console.error("Error updating user:", error);
+      res.status(500).json({ message: "Failed to update user" });
+    }
+  });
+
+  // Cities management routes - Add new city
+  app.post("/api/admin/cities", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { city, description } = req.body;
+      
+      if (!city) {
+        return res.status(400).json({ message: "City name is required" });
+      }
+      
+      // Add city by updating city information
+      await storage.updateCityName(city, city, description);
+      res.status(201).json({ city, description, message: "City added successfully" });
+    } catch (error) {
+      console.error("Error adding city:", error);
+      res.status(500).json({ message: "Failed to add city" });
     }
   });
 
