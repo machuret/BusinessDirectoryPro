@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -11,6 +12,16 @@ export default function Header() {
   const [location] = useLocation();
   const { user, isAuthenticated, isLoading } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Fetch website logo from database
+  const { data: settings } = useQuery({
+    queryKey: ["/api/site-settings"],
+    queryFn: () => fetch("/api/site-settings").then(res => res.json())
+  });
+
+  const websiteLogo = settings && Array.isArray(settings) 
+    ? settings.find((s: any) => s.key === "website_logo")?.value 
+    : null;
 
   const navItems = [
     { href: "/", label: "Home" },
@@ -43,7 +54,15 @@ export default function Header() {
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
-              <Building className="text-primary text-2xl mr-3" />
+              {websiteLogo ? (
+                <img
+                  src={websiteLogo}
+                  alt="Website Logo"
+                  className="h-10 w-auto mr-3 object-contain"
+                />
+              ) : (
+                <Building className="text-primary text-2xl mr-3" />
+              )}
               <h1 className="text-2xl font-bold text-gray-900">BusinessHub</h1>
             </Link>
             

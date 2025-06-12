@@ -1048,6 +1048,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Website Logo Upload endpoint (stores base64 in database)
+  app.put('/api/site-settings/website_logo', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { value, description, category } = req.body;
+      
+      // Validate base64 image data if provided
+      if (value && typeof value === 'string' && value.startsWith('data:image/')) {
+        // Basic validation for base64 image format
+        const base64Data = value.split(',')[1];
+        if (!base64Data || base64Data.length === 0) {
+          return res.status(400).json({ message: "Invalid image data" });
+        }
+        
+        // Check approximate file size (base64 is ~33% larger than binary)
+        const approximateSize = (base64Data.length * 3) / 4;
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        
+        if (approximateSize > maxSize) {
+          return res.status(400).json({ message: "Image file too large. Maximum size is 5MB." });
+        }
+      }
+      
+      const updatedSetting = await storage.updateSiteSetting(
+        'website_logo', 
+        value, 
+        description || 'Website logo image stored as base64', 
+        category || 'branding'
+      );
+      
+      res.json(updatedSetting);
+    } catch (error) {
+      console.error("Error updating website logo:", error);
+      res.status(500).json({ message: "Failed to update website logo" });
+    }
+  });
+
   // CSV Import endpoint
   app.post('/api/admin/import-csv', isAuthenticated, async (req: any, res) => {
     try {
