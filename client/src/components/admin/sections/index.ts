@@ -14,3 +14,6 @@ export { default as FAQManagement } from './FAQManagement';
 export { default as OptimizationManagement } from './OptimizationManagement';
 export { default as FeaturedManagement } from './FeaturedManagement';
 export { default as MenuManagement } from './MenuManagement';
+export { default as SEOManagement } from './SEOManagement';
+export { default as InboxManagement } from './InboxManagement';
+export { default as HomepageManagement } from './HomepageManagement';
