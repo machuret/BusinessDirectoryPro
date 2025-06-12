@@ -13,8 +13,10 @@ import { Loader2, Sparkles, FileText, Search } from "lucide-react";
 
 interface Business {
   placeid: string;
-  businessname: string;
-  city: string;
+  businessname?: string;
+  title?: string;
+  name?: string;
+  city?: string;
   category?: { name: string };
 }
 
@@ -73,11 +75,15 @@ export default function OptimizationManagement() {
     },
   });
 
-  const filteredBusinesses = businesses?.filter(business =>
-    business.businessname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    business.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    business.category?.name.toLowerCase().includes(searchTerm.toLowerCase())
-  ) || [];
+  const filteredBusinesses = businesses?.filter(business => {
+    const businessName = business.businessname || business.title || business.name || "";
+    const cityName = business.city || "";
+    const categoryName = business.category?.name || "";
+    
+    return businessName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+           cityName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+           categoryName.toLowerCase().includes(searchTerm.toLowerCase());
+  }) || [];
 
   const handleSelectAll = () => {
     if (selectedBusinesses.length === filteredBusinesses.length) {
@@ -191,7 +197,7 @@ export default function OptimizationManagement() {
                           onCheckedChange={() => handleSelectBusiness(business.placeid)}
                         />
                       </TableCell>
-                      <TableCell className="font-medium">{business.businessname}</TableCell>
+                      <TableCell className="font-medium">{business.businessname || business.title || business.name || "Unnamed Business"}</TableCell>
                       <TableCell>{business.category?.name || 'N/A'}</TableCell>
                       <TableCell>{business.city}</TableCell>
                     </TableRow>
