@@ -148,6 +148,10 @@ export interface IStorage {
   updateLeadStatus(id: number, status: string): Promise<Lead | undefined>;
   deleteLead(id: number): Promise<void>;
   getLeadsByBusiness(businessId: string): Promise<LeadWithBusiness[]>;
+  
+  // Business submission management operations
+  getBusinessSubmissions(): Promise<any[]>;
+  updateBusinessSubmissionStatus(id: string, status: string, adminNotes?: string, reviewedBy?: string): Promise<any>;
 }
 
 export class DatabaseStorage implements IStorage {

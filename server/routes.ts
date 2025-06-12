@@ -169,6 +169,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Business submission management endpoints
+  app.get('/api/admin/business-submissions', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const submissions = await storage.getBusinessSubmissions();
+      res.json(submissions);
+    } catch (error) {
+      console.error("Error fetching business submissions:", error);
+      res.status(500).json({ message: "Failed to fetch business submissions" });
+    }
+  });
+
+  app.patch('/api/admin/business-submissions/:id', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const { status, adminNotes } = req.body;
+      const reviewedBy = req.session.userId;
+
+      const result = await storage.updateBusinessSubmissionStatus(id, status, adminNotes, reviewedBy);
+      
+      if (!result) {
+        return res.status(404).json({ message: "Business submission not found" });
+      }
+
+      res.json(result);
+    } catch (error) {
+      console.error("Error updating business submission:", error);
+      res.status(500).json({ message: "Failed to update business submission" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
