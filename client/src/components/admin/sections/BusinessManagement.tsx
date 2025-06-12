@@ -458,7 +458,7 @@ export default function BusinessManagement() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        {business.category?.name || business.categoryname || (
+                        {business.category?.name || (
                           <span className="text-muted-foreground italic">Uncategorized</span>
                         )}
                       </TableCell>
@@ -767,6 +767,171 @@ export default function BusinessManagement() {
                               Mark this business as verified and trustworthy
                             </p>
                           </div>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="seo" className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="seoTitle"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>SEO Title</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter SEO title for search engines" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="seoDescription"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>SEO Description</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="Enter meta description for search engines (150-160 characters recommended)"
+                            rows={3}
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </TabsContent>
+
+                <TabsContent value="faq" className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="faq"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Frequently Asked Questions</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="Enter FAQ content in JSON format or plain text"
+                            rows={8}
+                            {...field} 
+                          />
+                        </FormControl>
+                        <p className="text-sm text-muted-foreground">
+                          Add frequently asked questions about this business
+                        </p>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </TabsContent>
+
+                <TabsContent value="social" className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="socialMedia.facebook"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Facebook URL</FormLabel>
+                          <FormControl>
+                            <Input placeholder="https://facebook.com/business" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="socialMedia.twitter"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Twitter URL</FormLabel>
+                          <FormControl>
+                            <Input placeholder="https://twitter.com/business" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="socialMedia.instagram"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Instagram URL</FormLabel>
+                          <FormControl>
+                            <Input placeholder="https://instagram.com/business" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="socialMedia.linkedin"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>LinkedIn URL</FormLabel>
+                          <FormControl>
+                            <Input placeholder="https://linkedin.com/company/business" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="owner" className="space-y-4">
+                  <h3 className="text-lg font-medium">Business Owner Information</h3>
+                  
+                  <FormField
+                    control={form.control}
+                    name="ownerInfo.name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Owner Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Business owner full name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="ownerInfo.email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Owner Email</FormLabel>
+                          <FormControl>
+                            <Input placeholder="owner@business.com" type="email" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="ownerInfo.phone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Owner Phone</FormLabel>
+                          <FormControl>
+                            <Input placeholder="+1 (555) 123-4567" {...field} />
+                          </FormControl>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
