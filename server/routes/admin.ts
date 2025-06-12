@@ -168,6 +168,28 @@ export function setupAdminRoutes(app: Express) {
   });
 
   // Cities management
+  app.get("/api/admin/cities", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const cities = await storage.getUniqueCities();
+      
+      // Transform the cities data to match the expected frontend format
+      const formattedCities = cities.map(city => ({
+        id: city.city.toLowerCase().replace(/\s+/g, '-'), // Generate a simple ID
+        name: city.city,
+        state: "", // Not available in current data
+        country: "", // Not available in current data
+        pageTitle: "", // Not available in current data
+        businessCount: city.count,
+        createdAt: new Date().toISOString() // Use current date as placeholder
+      }));
+      
+      res.json(formattedCities);
+    } catch (error) {
+      console.error("Error fetching cities:", error);
+      res.status(500).json({ message: "Failed to fetch cities" });
+    }
+  });
+
   app.post("/api/admin/cities", isAuthenticated, isAdmin, async (req, res) => {
     try {
       const { city, description } = req.body;
