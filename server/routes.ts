@@ -248,11 +248,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Services Management Routes
   app.get("/api/admin/services", isAuthenticated, isAdmin, async (req, res) => {
     try {
-      const services = await storage.getServices();
+      const { servicesStorageSimple } = await import("./storage/services-storage-simple");
+      await servicesStorageSimple.ensureTablesExist();
+      const services = await servicesStorageSimple.getServices();
       res.json(services);
     } catch (error) {
       console.error("Error fetching services:", error);
-      // Return empty array if table doesn't exist yet
       res.json([]);
     }
   });
@@ -307,6 +308,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     } catch (error: any) {
       console.error("Error setting up services database:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Verify services setup endpoint
+  app.get("/api/admin/verify-services", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { verifyServicesSetup } = await import("./verify-services-setup");
+      const result = await verifyServicesSetup();
+      res.json(result);
+    } catch (error: any) {
+      console.error("Error verifying services setup:", error);
       res.status(500).json({ error: error.message });
     }
   });
