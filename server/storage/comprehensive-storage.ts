@@ -1,4 +1,4 @@
-import { IStorage } from "./base-storage";
+import type { IStorage } from "./base-storage";
 import { UserStorage } from "./user-storage";
 import { BusinessStorage } from "./business-storage";
 import { CategoryStorage } from "./category-storage";

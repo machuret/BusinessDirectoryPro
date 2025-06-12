@@ -5,7 +5,7 @@ import { ComprehensiveStorage } from "./comprehensive-storage";
 export const storage = new ComprehensiveStorage();
 
 // Export the interface for type checking
-export { IStorage } from "./base-storage";
+export type { IStorage } from "./base-storage";
 
 // Export all types for external use
 export type {

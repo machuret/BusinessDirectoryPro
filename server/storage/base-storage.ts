@@ -197,4 +197,4 @@ export {
 };
 
 // Export the IStorage interface
-export { IStorage };
+export type { IStorage };
