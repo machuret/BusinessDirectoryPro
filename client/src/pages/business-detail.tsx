@@ -9,6 +9,7 @@ import BusinessHeader from "@/components/business/BusinessHeader";
 import BusinessContactInfo from "@/components/business/BusinessContactInfo";
 import BusinessDescription from "@/components/business/BusinessDescription";
 import BusinessReviews from "@/components/business/BusinessReviews";
+import BusinessFAQ from "@/components/business/BusinessFAQ";
 import { getAllBusinessPhotos } from "@/components/business/BusinessPhotoUtils";
 import type { BusinessWithCategory, Review, User as UserType } from "@shared/schema";
 
@@ -129,6 +130,8 @@ export default function BusinessDetail() {
                 reviewsLoading={reviewsLoading}
                 onReviewSubmit={handleReviewSubmit}
               />
+              
+              <BusinessFAQ business={business} />
             </div>
             
             <div className="space-y-6">
