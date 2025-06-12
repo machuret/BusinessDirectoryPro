@@ -1,0 +1,204 @@
+Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+queryClient.ts:32 
+            
+            
+           GET https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/api/businesses/featured 500 (Internal Server Error)
+(anonymous) @ queryClient.ts:32
+fetchFn @ @tanstack_react-query.js?v=4750b8db:840
+run @ @tanstack_react-query.js?v=4750b8db:494
+start @ @tanstack_react-query.js?v=4750b8db:536
+fetch @ @tanstack_react-query.js?v=4750b8db:926
+executeFetch_fn @ @tanstack_react-query.js?v=4750b8db:2211
+onSubscribe @ @tanstack_react-query.js?v=4750b8db:1898
+subscribe @ @tanstack_react-query.js?v=4750b8db:24
+(anonymous) @ @tanstack_react-query.js?v=4750b8db:3022
+subscribeToStore @ chunk-RPCDYKBN.js?v=4750b8db:11984
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=4750b8db:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=4750b8db:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=4750b8db:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=4750b8db:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=4750b8db:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=4750b8db:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=4750b8db:19447
+commitRootImpl @ chunk-RPCDYKBN.js?v=4750b8db:19416
+commitRoot @ chunk-RPCDYKBN.js?v=4750b8db:19277
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=4750b8db:18895
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=4750b8db:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=4750b8db:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=4750b8db:555
+flush @ @tanstack_react-query.js?v=4750b8db:569
+batch @ @tanstack_react-query.js?v=4750b8db:587
+dispatch_fn @ @tanstack_react-query.js?v=4750b8db:996
+setData @ @tanstack_react-query.js?v=4750b8db:696
+onSuccess @ @tanstack_react-query.js?v=4750b8db:897
+resolve @ @tanstack_react-query.js?v=4750b8db:456
+Promise.then
+run @ @tanstack_react-query.js?v=4750b8db:498
+start @ @tanstack_react-query.js?v=4750b8db:536
+fetch @ @tanstack_react-query.js?v=4750b8db:926
+executeFetch_fn @ @tanstack_react-query.js?v=4750b8db:2211
+onSubscribe @ @tanstack_react-query.js?v=4750b8db:1898
+subscribe @ @tanstack_react-query.js?v=4750b8db:24
+(anonymous) @ @tanstack_react-query.js?v=4750b8db:3022
+subscribeToStore @ chunk-RPCDYKBN.js?v=4750b8db:11984
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=4750b8db:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=4750b8db:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=4750b8db:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=4750b8db:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=4750b8db:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=4750b8db:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=4750b8db:19447
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=4750b8db:18868
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=4750b8db:9119
+commitRootImpl @ chunk-RPCDYKBN.js?v=4750b8db:19432
+commitRoot @ chunk-RPCDYKBN.js?v=4750b8db:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=4750b8db:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=4750b8db:18718
+workLoop @ chunk-RPCDYKBN.js?v=4750b8db:197
+flushWork @ chunk-RPCDYKBN.js?v=4750b8db:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=4750b8db:384Understand this error
+MetaTagUpdater.tsx:82 SEO: Generated description is too short or empty
+updateAll @ MetaTagUpdater.tsx:82
+(anonymous) @ SEOHead.tsx:101
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=4750b8db:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=4750b8db:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=4750b8db:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=4750b8db:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=4750b8db:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=4750b8db:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=4750b8db:19447
+commitRootImpl @ chunk-RPCDYKBN.js?v=4750b8db:19416
+commitRoot @ chunk-RPCDYKBN.js?v=4750b8db:19277
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=4750b8db:18895
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=4750b8db:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=4750b8db:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=4750b8db:555
+flush @ @tanstack_react-query.js?v=4750b8db:569
+batch @ @tanstack_react-query.js?v=4750b8db:587
+dispatch_fn @ @tanstack_react-query.js?v=4750b8db:996
+setData @ @tanstack_react-query.js?v=4750b8db:696
+onSuccess @ @tanstack_react-query.js?v=4750b8db:897
+resolve @ @tanstack_react-query.js?v=4750b8db:456
+Promise.then
+run @ @tanstack_react-query.js?v=4750b8db:498
+start @ @tanstack_react-query.js?v=4750b8db:536
+fetch @ @tanstack_react-query.js?v=4750b8db:926
+executeFetch_fn @ @tanstack_react-query.js?v=4750b8db:2211
+onSubscribe @ @tanstack_react-query.js?v=4750b8db:1898
+subscribe @ @tanstack_react-query.js?v=4750b8db:24
+(anonymous) @ @tanstack_react-query.js?v=4750b8db:3022
+subscribeToStore @ chunk-RPCDYKBN.js?v=4750b8db:11984
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=4750b8db:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=4750b8db:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=4750b8db:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=4750b8db:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=4750b8db:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=4750b8db:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=4750b8db:19447
+commitRootImpl @ chunk-RPCDYKBN.js?v=4750b8db:19416
+commitRoot @ chunk-RPCDYKBN.js?v=4750b8db:19277
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=4750b8db:18895
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=4750b8db:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=4750b8db:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=4750b8db:555
+flush @ @tanstack_react-query.js?v=4750b8db:569
+batch @ @tanstack_react-query.js?v=4750b8db:587
+dispatch_fn @ @tanstack_react-query.js?v=4750b8db:996
+setData @ @tanstack_react-query.js?v=4750b8db:696
+onSuccess @ @tanstack_react-query.js?v=4750b8db:897
+resolve @ @tanstack_react-query.js?v=4750b8db:456
+Promise.then
+run @ @tanstack_react-query.js?v=4750b8db:498
+start @ @tanstack_react-query.js?v=4750b8db:536
+fetch @ @tanstack_react-query.js?v=4750b8db:926
+executeFetch_fn @ @tanstack_react-query.js?v=4750b8db:2211
+onSubscribe @ @tanstack_react-query.js?v=4750b8db:1898
+subscribe @ @tanstack_react-query.js?v=4750b8db:24
+(anonymous) @ @tanstack_react-query.js?v=4750b8db:3022
+subscribeToStore @ chunk-RPCDYKBN.js?v=4750b8db:11984
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=4750b8db:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=4750b8db:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=4750b8db:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=4750b8db:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=4750b8db:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=4750b8db:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=4750b8db:19447
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=4750b8db:18868
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=4750b8db:9119
+commitRootImpl @ chunk-RPCDYKBN.js?v=4750b8db:19432
+commitRoot @ chunk-RPCDYKBN.js?v=4750b8db:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=4750b8db:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=4750b8db:18718
+workLoop @ chunk-RPCDYKBN.js?v=4750b8db:197
+flushWork @ chunk-RPCDYKBN.js?v=4750b8db:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=4750b8db:384Understand this warning
+queryClient.ts:32 
+            
+            
+           GET https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/api/businesses/slug/nundah-central-dental-dr-andy 500 (Internal Server Error)
+(anonymous) @ queryClient.ts:32
+fetchFn @ @tanstack_react-query.js?v=4750b8db:840
+run @ @tanstack_react-query.js?v=4750b8db:494
+start @ @tanstack_react-query.js?v=4750b8db:536
+fetch @ @tanstack_react-query.js?v=4750b8db:926
+executeFetch_fn @ @tanstack_react-query.js?v=4750b8db:2211
+onSubscribe @ @tanstack_react-query.js?v=4750b8db:1898
+subscribe @ @tanstack_react-query.js?v=4750b8db:24
+(anonymous) @ @tanstack_react-query.js?v=4750b8db:3022
+subscribeToStore @ chunk-RPCDYKBN.js?v=4750b8db:11984
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=4750b8db:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=4750b8db:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=4750b8db:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=4750b8db:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=4750b8db:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=4750b8db:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=4750b8db:19447
+commitRootImpl @ chunk-RPCDYKBN.js?v=4750b8db:19416
+commitRoot @ chunk-RPCDYKBN.js?v=4750b8db:19277
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=4750b8db:18895
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=4750b8db:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=4750b8db:18627Understand this error
+MetaTagUpdater.tsx:82 SEO: Generated description is too short or empty
+updateAll @ MetaTagUpdater.tsx:82
+(anonymous) @ SEOHead.tsx:101
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=4750b8db:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=4750b8db:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=4750b8db:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=4750b8db:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=4750b8db:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=4750b8db:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=4750b8db:19447
+commitRootImpl @ chunk-RPCDYKBN.js?v=4750b8db:19416
+commitRoot @ chunk-RPCDYKBN.js?v=4750b8db:19277
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=4750b8db:18895
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=4750b8db:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=4750b8db:18627Understand this warning
+queryClient.ts:32 
+            
+            
+           GET https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/api/businesses 500 (Internal Server Error)
+(anonymous) @ queryClient.ts:32
+fetchFn @ @tanstack_react-query.js?v=4750b8db:840
+run @ @tanstack_react-query.js?v=4750b8db:494
+start @ @tanstack_react-query.js?v=4750b8db:536
+fetch @ @tanstack_react-query.js?v=4750b8db:926
+executeFetch_fn @ @tanstack_react-query.js?v=4750b8db:2211
+onSubscribe @ @tanstack_react-query.js?v=4750b8db:1898
+subscribe @ @tanstack_react-query.js?v=4750b8db:24
+(anonymous) @ @tanstack_react-query.js?v=4750b8db:3022
+subscribeToStore @ chunk-RPCDYKBN.js?v=4750b8db:11984
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=4750b8db:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=4750b8db:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=4750b8db:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=4750b8db:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=4750b8db:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=4750b8db:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=4750b8db:19447
+commitRootImpl @ chunk-RPCDYKBN.js?v=4750b8db:19416
+commitRoot @ chunk-RPCDYKBN.js?v=4750b8db:19277
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=4750b8db:18895
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=4750b8db:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=4750b8db:18627Understand this error

@@ -13,93 +13,61 @@ export class BusinessStorage {
     limit?: number;
     offset?: number;
   }): Promise<BusinessWithCategory[]> {
-    let query = db
-      .select({
-        placeid: businesses.placeid,
-        slug: businesses.slug,
-        title: businesses.title,
-        subtitle: businesses.subtitle,
-        description: businesses.description,
-        address: businesses.address,
-        city: businesses.city,
-        state: businesses.state,
-        country: businesses.country,
-        phone: businesses.phone,
-        email: businesses.email,
-        website: businesses.website,
-        hours: businesses.hours,
-        latitude: businesses.latitude,
-        longitude: businesses.longitude,
-        photos: businesses.photos,
-        logo: businesses.logo,
-        featured: businesses.featured,
-        verified: businesses.verified,
-        status: businesses.status,
-        metaTitle: businesses.metaTitle,
-        metaDescription: businesses.metaDescription,
-        totalscore: businesses.totalscore,
-        totalreviews: businesses.totalreviews,
-        averagerating: businesses.averagerating,
-        categoryname: businesses.categoryname,
-        categoryid: businesses.categoryid,
-        ownerId: businesses.ownerId,
-        submittedBy: businesses.submittedBy,
-        createdAt: businesses.createdAt,
-        updatedAt: businesses.updatedAt,
-        faqs: businesses.faqs,
-        faq: businesses.faq,
-        category: {
-          id: categories.id,
-          name: categories.name,
-          slug: categories.slug,
-          description: categories.description,
-          icon: categories.icon,
-          color: categories.color
-        }
-      })
-      .from(businesses)
-      .leftJoin(categories, eq(businesses.categoryname, categories.name))
-      .where(eq(businesses.status, 'approved'));
+    try {
+      let whereClause = "WHERE (b.status = 'approved' OR b.status IS NULL)";
+      const queryParams: any[] = [];
+      let paramIndex = 1;
 
-    const conditions = [];
+      if (params?.categoryId) {
+        whereClause += ` AND c.id = $${paramIndex}`;
+        queryParams.push(params.categoryId);
+        paramIndex++;
+      }
 
-    if (params?.categoryId) {
-      conditions.push(eq(categories.id, params.categoryId));
+      if (params?.search) {
+        whereClause += ` AND (b.title ILIKE $${paramIndex} OR b.description ILIKE $${paramIndex} OR b.categoryname ILIKE $${paramIndex})`;
+        queryParams.push(`%${params.search}%`);
+        paramIndex++;
+      }
+
+      if (params?.city) {
+        whereClause += ` AND b.city = $${paramIndex}`;
+        queryParams.push(params.city);
+        paramIndex++;
+      }
+
+      if (params?.featured) {
+        whereClause += ` AND b.featured = true`;
+      }
+
+      const limit = params?.limit || 50;
+      const offset = params?.offset || 0;
+
+      const result = await db.execute(sql`
+        SELECT b.*, c.name as category_name, c.slug as category_slug, c.description as category_description, 
+               c.icon as category_icon, c.color as category_color, c.id as category_id
+        FROM businesses b
+        LEFT JOIN categories c ON b.categoryname = c.name
+        ${sql.raw(whereClause)}
+        ORDER BY b.createdat DESC NULLS LAST
+        LIMIT ${limit} OFFSET ${offset}
+      `);
+
+      return result.rows.map((row: any) => ({
+        ...row,
+        category: row.category_id ? {
+          id: row.category_id,
+          name: row.category_name,
+          slug: row.category_slug,
+          description: row.category_description,
+          icon: row.category_icon,
+          color: row.category_color
+        } : null
+      })) as BusinessWithCategory[];
+    } catch (error) {
+      console.error('Error fetching businesses:', error);
+      return [];
     }
-
-    if (params?.search) {
-      conditions.push(
-        or(
-          ilike(businesses.title, `%${params.search}%`),
-          ilike(businesses.description, `%${params.search}%`),
-          ilike(businesses.categoryname, `%${params.search}%`)
-        )
-      );
-    }
-
-    if (params?.city) {
-      conditions.push(eq(businesses.city, params.city));
-    }
-
-    if (params?.featured) {
-      conditions.push(eq(businesses.featured, true));
-    }
-
-    if (conditions.length > 0) {
-      query = query.where(and(...conditions));
-    }
-
-    query = query.orderBy(desc(businesses.createdAt));
-
-    if (params?.limit) {
-      query = query.limit(params.limit);
-    }
-
-    if (params?.offset) {
-      query = query.offset(params.offset);
-    }
-
-    return await query;
   }
 
   async getBusinessById(id: string): Promise<BusinessWithCategory | undefined> {
@@ -156,56 +124,34 @@ export class BusinessStorage {
   }
 
   async getBusinessBySlug(slug: string): Promise<BusinessWithCategory | undefined> {
-    const result = await db
-      .select({
-        placeid: businesses.placeid,
-        slug: businesses.slug,
-        title: businesses.title,
-        subtitle: businesses.subtitle,
-        description: businesses.description,
-        address: businesses.address,
-        city: businesses.city,
-        state: businesses.state,
-        country: businesses.country,
-        phone: businesses.phone,
-        email: businesses.email,
-        website: businesses.website,
-        hours: businesses.hours,
-        latitude: businesses.latitude,
-        longitude: businesses.longitude,
-        photos: businesses.photos,
-        logo: businesses.logo,
-        featured: businesses.featured,
-        verified: businesses.verified,
-        status: businesses.status,
-        metaTitle: businesses.metaTitle,
-        metaDescription: businesses.metaDescription,
-        totalscore: businesses.totalscore,
-        totalreviews: businesses.totalreviews,
-        averagerating: businesses.averagerating,
-        categoryname: businesses.categoryname,
-        categoryid: businesses.categoryid,
-        ownerId: businesses.ownerId,
-        submittedBy: businesses.submittedBy,
-        createdAt: businesses.createdAt,
-        updatedAt: businesses.updatedAt,
-        faqs: businesses.faqs,
-        faq: businesses.faq,
-        category: {
-          id: categories.id,
-          name: categories.name,
-          slug: categories.slug,
-          description: categories.description,
-          icon: categories.icon,
-          color: categories.color
-        }
-      })
-      .from(businesses)
-      .leftJoin(categories, eq(businesses.categoryname, categories.name))
-      .where(eq(businesses.slug, slug))
-      .limit(1);
+    try {
+      const result = await db.execute(sql`
+        SELECT b.*, c.name as category_name, c.slug as category_slug, c.description as category_description, 
+               c.icon as category_icon, c.color as category_color, c.id as category_id
+        FROM businesses b
+        LEFT JOIN categories c ON b.categoryname = c.name
+        WHERE b.slug = ${slug}
+        LIMIT 1
+      `);
 
-    return result[0];
+      if (result.rows.length === 0) return undefined;
+
+      const row = result.rows[0] as any;
+      return {
+        ...row,
+        category: row.category_id ? {
+          id: row.category_id,
+          name: row.category_name,
+          slug: row.category_slug,
+          description: row.category_description,
+          icon: row.category_icon,
+          color: row.category_color
+        } : null
+      } as BusinessWithCategory;
+    } catch (error) {
+      console.error('Error fetching business by slug:', error);
+      return undefined;
+    }
   }
 
   async getBusinessesByOwner(ownerId: string): Promise<BusinessWithCategory[]> {
@@ -345,55 +291,33 @@ export class BusinessStorage {
   }
 
   async getFeaturedBusinesses(limit: number = 6): Promise<BusinessWithCategory[]> {
-    return await db
-      .select({
-        placeid: businesses.placeid,
-        slug: businesses.slug,
-        title: businesses.title,
-        subtitle: businesses.subtitle,
-        description: businesses.description,
-        address: businesses.address,
-        city: businesses.city,
-        state: businesses.state,
-        country: businesses.country,
-        phone: businesses.phone,
-        email: businesses.email,
-        website: businesses.website,
-        hours: businesses.hours,
-        latitude: businesses.latitude,
-        longitude: businesses.longitude,
-        photos: businesses.photos,
-        logo: businesses.logo,
-        featured: businesses.featured,
-        verified: businesses.verified,
-        status: businesses.status,
-        metaTitle: businesses.metaTitle,
-        metaDescription: businesses.metaDescription,
-        totalscore: businesses.totalscore,
-        totalreviews: businesses.totalreviews,
-        averagerating: businesses.averagerating,
-        categoryname: businesses.categoryname,
-        categoryid: businesses.categoryid,
-        ownerId: businesses.ownerId,
-        submittedBy: businesses.submittedBy,
-        createdAt: businesses.createdAt,
-        updatedAt: businesses.updatedAt,
-        faqs: businesses.faqs,
-        faq: businesses.faq,
-        category: {
-          id: categories.id,
-          name: categories.name,
-          slug: categories.slug,
-          description: categories.description,
-          icon: categories.icon,
-          color: categories.color
-        }
-      })
-      .from(businesses)
-      .leftJoin(categories, eq(businesses.categoryname, categories.name))
-      .where(and(eq(businesses.featured, true), eq(businesses.status, 'approved')))
-      .orderBy(desc(businesses.totalscore))
-      .limit(limit);
+    try {
+      // Use raw SQL query to avoid drizzle issues with nested selections
+      const result = await db.execute(sql`
+        SELECT b.*, c.name as category_name, c.slug as category_slug, c.description as category_description, 
+               c.icon as category_icon, c.color as category_color, c.id as category_id
+        FROM businesses b
+        LEFT JOIN categories c ON b.categoryname = c.name
+        WHERE b.featured = true AND (b.status = 'approved' OR b.status IS NULL)
+        ORDER BY b.totalscore DESC NULLS LAST
+        LIMIT ${limit}
+      `);
+
+      return result.rows.map((row: any) => ({
+        ...row,
+        category: row.category_id ? {
+          id: row.category_id,
+          name: row.category_name,
+          slug: row.category_slug,
+          description: row.category_description,
+          icon: row.category_icon,
+          color: row.category_color
+        } : null
+      })) as BusinessWithCategory[];
+    } catch (error) {
+      console.error('Error fetching featured businesses:', error);
+      return [];
+    }
   }
 
   async getRandomBusinesses(limit: number = 9): Promise<BusinessWithCategory[]> {
