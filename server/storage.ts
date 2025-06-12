@@ -214,11 +214,11 @@ export class DatabaseStorage implements IStorage {
         icon: categories.icon,
         color: categories.color,
         createdAt: categories.createdAt,
-        businessCount: sql<number>`count(${businesses.placeid})::int`,
+        businessCount: sql<number>`COALESCE(COUNT(${businesses.placeid}), 0)::int`,
       })
       .from(categories)
       .leftJoin(businesses, eq(categories.name, businesses.categoryname))
-      .groupBy(categories.id)
+      .groupBy(categories.id, categories.name, categories.slug, categories.description, categories.icon, categories.color, categories.createdAt)
       .orderBy(categories.name);
 
     return result;
