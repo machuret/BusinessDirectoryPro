@@ -9,7 +9,11 @@ export class CategoryStorage {
     const result = await db.execute(sql`
       SELECT c.*, COUNT(b.placeid) as count
       FROM categories c
-      LEFT JOIN businesses b ON c.name = b.categoryname AND (b.permanentlyclosed = false OR b.permanentlyclosed IS NULL)
+      LEFT JOIN businesses b ON (
+        LOWER(c.name) = LOWER(b.categoryname) 
+        OR LOWER(b.categoryname) LIKE LOWER('%' || c.name || '%')
+        OR LOWER(c.name) LIKE LOWER('%' || b.categoryname || '%')
+      ) AND (b.permanentlyclosed = false OR b.permanentlyclosed IS NULL)
       GROUP BY c.id, c.name, c.slug, c.description, c.icon, c.color, c.created_at
       ORDER BY c.name
     `);
