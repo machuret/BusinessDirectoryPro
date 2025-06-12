@@ -186,9 +186,11 @@ export default function Home() {
       <section className="py-16 bg-primary">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="max-w-3xl mx-auto">
-            <h2 className="text-3xl font-bold text-white mb-6">Are You a Business Owner?</h2>
+            <h2 className="text-3xl font-bold text-white mb-6">
+              {siteSettings?.homepage_cta_title || "Are You a Business Owner?"}
+            </h2>
             <p className="text-xl text-blue-100 mb-8">
-              Join thousands of businesses already listed on BusinessHub. Increase your visibility and connect with more customers today.
+              {siteSettings?.homepage_cta_subtitle || "Join thousands of businesses already listed on BusinessHub. Increase your visibility and connect with more customers today."}
             </p>
             <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6">
               <Button
