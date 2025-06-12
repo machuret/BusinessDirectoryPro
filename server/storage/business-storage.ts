@@ -1,8 +1,9 @@
+import { eq, like, ilike, and, or, desc, asc, sql, ne } from "drizzle-orm";
+import { db } from "../db";
 import { 
-  db, eq, like, ilike, and, or, desc, asc, sql, ne,
   businesses, categories, users,
   type Business, type InsertBusiness, type BusinessWithCategory
-} from "./base-storage";
+} from "@shared/schema";
 
 export class BusinessStorage {
   async getBusinesses(params?: { 

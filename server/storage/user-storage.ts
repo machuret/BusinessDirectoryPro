@@ -1,4 +1,6 @@
-import { db, eq, users, type User, type UpsertUser } from "./base-storage";
+import { eq } from "drizzle-orm";
+import { db } from "../db";
+import { users, type User, type UpsertUser } from "@shared/schema";
 
 export class UserStorage {
   async getUser(id: string): Promise<User | undefined> {

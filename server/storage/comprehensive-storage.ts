@@ -2,8 +2,9 @@ import type { IStorage } from "./base-storage";
 import { UserStorage } from "./user-storage";
 import { BusinessStorage } from "./business-storage";
 import { CategoryStorage } from "./category-storage";
+import { eq, like, ilike, and, or, desc, asc, sql, ne } from "drizzle-orm";
+import { db } from "../db";
 import { 
-  db, eq, like, ilike, and, or, desc, asc, sql, ne,
   reviews, siteSettings, menuItems, pages, websiteFaq, leads, contactMessages,
   services, businessServices,
   type Review, type InsertReview, type SiteSetting, type InsertSiteSetting,
@@ -13,7 +14,7 @@ import {
   type User, type UpsertUser, type Category, type InsertCategory,
   type Business, type InsertBusiness, type BusinessWithCategory, type CategoryWithCount,
   type Service, type InsertService, type BusinessService, type InsertBusinessService
-} from "./base-storage";
+} from "@shared/schema";
 
 // Services imports will be added after table creation
 
@@ -615,7 +616,7 @@ export class ComprehensiveStorage implements IStorage {
       
       // Then delete the service
       const result = await db.delete(services).where(eq(services.id, id));
-      return result.rowCount > 0;
+      return (result.rowCount ?? 0) > 0;
     } catch (error) {
       console.error("Error deleting service:", error);
       throw error;
@@ -673,7 +674,7 @@ export class ComprehensiveStorage implements IStorage {
           eq(businessServices.businessId, businessId),
           eq(businessServices.serviceId, serviceId)
         ));
-      return result.rowCount > 0;
+      return (result.rowCount ?? 0) > 0;
     } catch (error) {
       console.error("Error removing service from business:", error);
       throw error;

@@ -236,7 +236,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Services Setup Route
   app.post("/api/admin/services/setup", isAuthenticated, isAdmin, async (req, res) => {
     try {
-      const { setupServicesTables } = await import("./setup-services");
+      const { setupServicesTables } = await import("./services-setup");
       await setupServicesTables();
       res.json({ message: "Services tables created successfully" });
     } catch (error) {
