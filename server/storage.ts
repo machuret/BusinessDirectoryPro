@@ -662,55 +662,27 @@ export class DatabaseStorage implements IStorage {
 
   async getRandomBusinesses(limit: number = 9): Promise<BusinessWithCategory[]> {
     try {
-      const result = await db
-        .select({
-          placeid: businesses.placeid,
-          title: businesses.title,
-          description: businesses.description,
-          address: businesses.address,
-          city: businesses.city,
-          phone: businesses.phone,
-          email: businesses.email,
-          website: businesses.website,
-          hours: businesses.hours,
-          categoryid: businesses.categoryid,
-          status: businesses.status,
-          featured: businesses.featured,
-          slug: businesses.slug,
-          seotitle: businesses.seotitle,
-          seodescription: businesses.seodescription,
-          images: businesses.images,
-          totalscore: businesses.totalscore,
-          totalreviews: businesses.totalreviews,
-          averagerating: businesses.averagerating,
-          pricerange: businesses.pricerange,
-          amenities: businesses.amenities,
-          sociallinks: businesses.sociallinks,
-          businesshours: businesses.businesshours,
-          specialoffers: businesses.specialoffers,
-          photogallery: businesses.photogallery,
-          reviews: businesses.reviews,
-          faq: businesses.faq,
-          createdAt: businesses.createdAt,
-          updatedAt: businesses.updatedAt,
-          category: {
-            id: categories.id,
-            name: categories.name,
-            slug: categories.slug,
-            description: categories.description,
-            icon: categories.icon,
-            color: categories.color
-          }
-        })
-        .from(businesses)
-        .leftJoin(categories, eq(businesses.categoryid, categories.id))
-        .where(eq(businesses.status, 'active'))
-        .orderBy(sql`RANDOM()`)
-        .limit(limit);
+      // Use raw SQL query with correct column names
+      const result = await db.execute(sql`
+        SELECT b.*, c.name as category_name, c.slug as category_slug, c.description as category_description, 
+               c.icon as category_icon, c.color as category_color, c.id as category_id
+        FROM businesses b
+        LEFT JOIN categories c ON b.categoryname = c.name
+        WHERE b.featured IS NOT NULL
+        ORDER BY RANDOM()
+        LIMIT ${limit}
+      `);
 
-      return result.map(row => ({
+      return result.rows.map((row: any) => ({
         ...row,
-        category: row.category?.id ? row.category : null
+        category: row.category_id ? {
+          id: row.category_id,
+          name: row.category_name,
+          slug: row.category_slug,
+          description: row.category_description,
+          icon: row.category_icon,
+          color: row.category_color
+        } : null
       })) as BusinessWithCategory[];
     } catch (error) {
       console.error('Error fetching random businesses:', error);
