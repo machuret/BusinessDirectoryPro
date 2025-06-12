@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -11,9 +11,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { ArrowLeft, Building, CheckCircle } from "lucide-react";
+import { ArrowLeft, Building, CheckCircle, Loader2, AlertCircle } from "lucide-react";
 
 // Registration form schema
 const registrationSchema = z.object({
@@ -23,17 +24,24 @@ const registrationSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
-// Business submission schema (simplified - no reviews, SEO title/description)
+// Business submission schema with enhanced validation
 const businessSubmissionSchema = z.object({
-  title: z.string().min(2, "Business name is required"),
-  description: z.string().min(10, "Please provide a brief description"),
+  title: z.string().min(2, "Business name is required").max(100, "Business name is too long"),
+  description: z.string().min(10, "Please provide a brief description (at least 10 characters)").max(1000, "Description is too long"),
   address: z.string().min(5, "Please provide the full address"),
   city: z.string().min(2, "City is required"),
-  phone: z.string().optional(),
-  email: z.string().email().optional().or(z.literal("")),
-  website: z.string().optional(),
+  phone: z.string().optional().refine((val) => !val || /^[\+]?[1-9][\d]{0,15}$/.test(val.replace(/\s/g, "")), {
+    message: "Please enter a valid phone number"
+  }),
+  email: z.string().email("Please enter a valid email").optional().or(z.literal("")),
+  website: z.string().optional().refine((val) => !val || /^https?:\/\/.+/.test(val), {
+    message: "Website must start with http:// or https://"
+  }),
   hours: z.string().optional(),
   categoryId: z.number().min(1, "Please select a category"),
+  acceptTerms: z.boolean().refine((val) => val === true, {
+    message: "You must accept the terms of service"
+  }),
 });
 
 type RegistrationData = z.infer<typeof registrationSchema>;
@@ -44,6 +52,10 @@ export default function AddBusinessPage() {
   const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const [step, setStep] = useState<"auth" | "business" | "success">("auth");
+  const [duplicateCheck, setDuplicateCheck] = useState<{ isChecking: boolean; isDuplicate: boolean }>({
+    isChecking: false,
+    isDuplicate: false
+  });
 
   // Fetch categories for business form
   const { data: categories } = useQuery<Array<{ id: number; name: string }>>({
@@ -61,7 +73,7 @@ export default function AddBusinessPage() {
     },
   });
 
-  // Business submission form
+  // Business submission form with draft loading
   const businessForm = useForm<BusinessSubmissionData>({
     resolver: zodResolver(businessSubmissionSchema),
     defaultValues: {
@@ -74,36 +86,108 @@ export default function AddBusinessPage() {
       website: "",
       hours: "",
       categoryId: 0,
+      acceptTerms: false,
     },
   });
 
-  // Registration mutation
+  // Load draft from localStorage on mount
+  useEffect(() => {
+    const savedDraft = localStorage.getItem("business-submission-draft");
+    if (savedDraft) {
+      try {
+        const draftData = JSON.parse(savedDraft);
+        businessForm.reset(draftData);
+        toast({
+          title: "Draft Restored",
+          description: "Your previous submission has been restored.",
+        });
+      } catch (error) {
+        localStorage.removeItem("business-submission-draft");
+      }
+    }
+  }, [businessForm, toast]);
+
+  // Save draft on form changes
+  useEffect(() => {
+    const subscription = businessForm.watch((data) => {
+      if (step === "business" && (data.title || data.description || data.address)) {
+        localStorage.setItem("business-submission-draft", JSON.stringify(data));
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [businessForm, step]);
+
+  // Duplicate checking function
+  const checkForDuplicates = async (title: string, address: string) => {
+    setDuplicateCheck({ isChecking: true, isDuplicate: false });
+    try {
+      const res = await apiRequest("POST", "/api/check-duplicate-business", { title, address });
+      const result = await res.json();
+      setDuplicateCheck({ isChecking: false, isDuplicate: result.isDuplicate });
+      return result.isDuplicate;
+    } catch (error) {
+      setDuplicateCheck({ isChecking: false, isDuplicate: false });
+      return false;
+    }
+  };
+
+  // Registration mutation with enhanced error handling
   const registerMutation = useMutation({
     mutationFn: async (data: RegistrationData) => {
       const res = await apiRequest("POST", "/api/register", data);
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Registration failed");
+      }
       return res.json();
     },
     onSuccess: () => {
-      toast({ title: "Success", description: "Account created successfully!" });
+      toast({ 
+        title: "Account Created!", 
+        description: "Welcome! Now let's add your business details." 
+      });
       setStep("business");
     },
     onError: (error: Error) => {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ 
+        title: "Registration Failed", 
+        description: error.message || "Unable to create account. Please try again.",
+        variant: "destructive" 
+      });
     },
   });
 
-  // Business submission mutation
+  // Business submission mutation with duplicate checking
   const businessMutation = useMutation({
     mutationFn: async (data: BusinessSubmissionData) => {
+      // Check for duplicates first
+      const isDuplicate = await checkForDuplicates(data.title, data.address);
+      if (isDuplicate) {
+        throw new Error("A business with this name and address already exists. Please verify the details.");
+      }
+
       const res = await apiRequest("POST", "/api/submit-business", data);
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Business submission failed");
+      }
       return res.json();
     },
-    onSuccess: () => {
-      toast({ title: "Success", description: "Business submitted successfully!" });
+    onSuccess: (data) => {
+      // Clear draft on successful submission
+      localStorage.removeItem("business-submission-draft");
+      toast({ 
+        title: "Business Submitted Successfully!", 
+        description: "Your business listing is now under review. You'll be notified once it's approved." 
+      });
       setStep("success");
     },
     onError: (error: Error) => {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ 
+        title: "Submission Failed", 
+        description: error.message || "Unable to submit business. Please check your details and try again.",
+        variant: "destructive" 
+      });
     },
   });
 
@@ -432,14 +516,63 @@ export default function AddBusinessPage() {
                     />
                   </div>
 
+                  {/* Terms of Service */}
+                  <div className="space-y-4">
+                    <FormField
+                      control={businessForm.control}
+                      name="acceptTerms"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                          <FormControl>
+                            <Checkbox 
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <div className="space-y-1 leading-none">
+                            <FormLabel className="text-sm">
+                              I accept the terms of service and confirm that all information provided is accurate *
+                            </FormLabel>
+                            <FormMessage />
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
+                  {/* Duplicate Check Warning */}
+                  {duplicateCheck.isDuplicate && (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+                      <div className="flex">
+                        <AlertTriangle className="h-5 w-5 text-yellow-400" />
+                        <div className="ml-3">
+                          <p className="text-sm text-yellow-800">
+                            A business with this name and address may already exist. 
+                            Please verify your details before submitting.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   <Button 
                     type="submit" 
                     className="w-full" 
-                    disabled={businessMutation.isPending}
+                    disabled={businessMutation.isPending || duplicateCheck.isChecking}
                   >
-                    {businessMutation.isPending ? "Submitting..." : "Submit Business"}
+                    {businessMutation.isPending ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Submitting Business...
+                      </>
+                    ) : duplicateCheck.isChecking ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Checking for duplicates...
+                      </>
+                    ) : (
+                      "Submit Business"
+                    )}
                   </Button>
                 </form>
               </Form>
