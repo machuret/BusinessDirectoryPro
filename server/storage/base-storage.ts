@@ -63,7 +63,7 @@ export type {
   LeadWithBusiness,
 };
 
-export interface IStorage {
+interface IStorage {
   // User operations (for email/password auth)
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
@@ -195,3 +195,6 @@ export {
   leads,
   contactMessages
 };
+
+// Export the IStorage interface
+export { IStorage };
