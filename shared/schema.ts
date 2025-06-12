@@ -332,8 +332,6 @@ export const insertBusinessServiceSchema = createInsertSchema(businessServices).
   createdAt: true,
 });
 
-
-
 // Type exports
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -406,3 +404,4 @@ export type BusinessWithCategory = Business & {
 export type CategoryWithCount = Category & {
   businessCount: number;
 };
+
