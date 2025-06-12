@@ -829,17 +829,34 @@ export default function BusinessManagement() {
                   <FormField
                     control={form.control}
                     name="faq"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <FAQManager
-                            value={field.value || []}
-                            onChange={field.onChange}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    render={({ field }) => {
+                      // Parse FAQ data if it's a string
+                      const parseFAQValue = () => {
+                        if (!field.value) return [];
+                        if (Array.isArray(field.value)) return field.value;
+                        if (typeof field.value === 'string') {
+                          try {
+                            const parsed = JSON.parse(field.value);
+                            return Array.isArray(parsed) ? parsed : [];
+                          } catch {
+                            return [];
+                          }
+                        }
+                        return [];
+                      };
+
+                      return (
+                        <FormItem>
+                          <FormControl>
+                            <FAQManager
+                              value={parseFAQValue()}
+                              onChange={field.onChange}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
                   />
                 </TabsContent>
 

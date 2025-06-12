@@ -29,6 +29,11 @@ const businessSubmissionSchema = z.object({
   }),
   hours: z.string().optional(),
   categoryId: z.number().min(1, "Please select a category"),
+  faq: z.array(z.object({
+    id: z.string(),
+    question: z.string(),
+    answer: z.string()
+  })).optional(),
   acceptTerms: z.boolean().refine((val) => val === true, {
     message: "You must accept the terms of service"
   }),
@@ -64,6 +69,7 @@ export default function BusinessSubmissionForm({ onSuccess }: BusinessSubmission
       website: "",
       hours: "",
       categoryId: 0,
+      faq: [],
       acceptTerms: false,
     },
   });
@@ -349,6 +355,33 @@ export default function BusinessSubmissionForm({ onSuccess }: BusinessSubmission
                         {...field} 
                         rows={3}
                         placeholder="e.g. Mon-Fri 9am-5pm, Sat 10am-2pm, Closed Sunday"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* FAQ Section */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Building className="w-5 h-5" />
+                Frequently Asked Questions (Optional)
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Add common questions and answers about your business to help potential customers.
+              </p>
+              
+              <FormField
+                control={form.control}
+                name="faq"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <FAQManager
+                        value={field.value || []}
+                        onChange={field.onChange}
                       />
                     </FormControl>
                     <FormMessage />
