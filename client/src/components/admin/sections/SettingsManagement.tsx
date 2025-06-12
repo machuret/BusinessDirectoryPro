@@ -123,6 +123,28 @@ export default function SettingsManagement() {
     },
   });
 
+  // Individual setting update function
+  const updateSetting = async (key: string, value: string) => {
+    try {
+      await apiRequest("PATCH", `/api/admin/site-settings/${key}`, {
+        value: value,
+        description: `${key.replace(/_/g, ' ')} setting`,
+        category: key.startsWith('homepage_') ? 'homepage' : 'general'
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/site-settings"] });
+      toast({
+        title: "Setting updated",
+        description: `${key.replace(/_/g, ' ')} has been updated successfully`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update setting",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -368,6 +390,158 @@ export default function SettingsManagement() {
                           rows={2}
                         />
                       </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Browse by Category Section */}
+                <div className="border rounded-lg p-4">
+                  <h4 className="font-medium mb-4">Browse by Category Section</h4>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="categories-title">Section Title</Label>
+                      <Input 
+                        id="categories-title" 
+                        defaultValue={settings && Array.isArray(settings) 
+                          ? settings.find((s: any) => s.key === "homepage_categories_title")?.value || "Browse by Category"
+                          : "Browse by Category"
+                        }
+                        placeholder="Browse by Category"
+                        onBlur={(e) => updateSetting('homepage_categories_title', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="categories-subtitle">Section Description</Label>
+                      <Textarea 
+                        id="categories-subtitle" 
+                        defaultValue={settings && Array.isArray(settings) 
+                          ? settings.find((s: any) => s.key === "homepage_categories_subtitle")?.value || "Explore businesses across different industries and find exactly what you need."
+                          : "Explore businesses across different industries and find exactly what you need."
+                        }
+                        placeholder="Explore businesses across different industries and find exactly what you need."
+                        rows={2}
+                        onBlur={(e) => updateSetting('homepage_categories_subtitle', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Featured Businesses Section */}
+                <div className="border rounded-lg p-4">
+                  <h4 className="font-medium mb-4">Featured Businesses Section</h4>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="featured-title">Section Title</Label>
+                      <Input 
+                        id="featured-title" 
+                        defaultValue={settings && Array.isArray(settings) 
+                          ? settings.find((s: any) => s.key === "homepage_featured_title")?.value || "Featured Businesses"
+                          : "Featured Businesses"
+                        }
+                        placeholder="Featured Businesses"
+                        onBlur={(e) => updateSetting('homepage_featured_title', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="featured-subtitle">Section Description</Label>
+                      <Textarea 
+                        id="featured-subtitle" 
+                        defaultValue={settings && Array.isArray(settings) 
+                          ? settings.find((s: any) => s.key === "homepage_featured_subtitle")?.value || "Discover top-rated businesses handpicked for their exceptional service and quality."
+                          : "Discover top-rated businesses handpicked for their exceptional service and quality."
+                        }
+                        placeholder="Discover top-rated businesses handpicked for their exceptional service and quality."
+                        rows={2}
+                        onBlur={(e) => updateSetting('homepage_featured_subtitle', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Latest Businesses Section */}
+                <div className="border rounded-lg p-4">
+                  <h4 className="font-medium mb-4">Latest Businesses Section</h4>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="latest-title">Section Title</Label>
+                      <Input 
+                        id="latest-title" 
+                        defaultValue={settings && Array.isArray(settings) 
+                          ? settings.find((s: any) => s.key === "homepage_latest_title")?.value || "Latest Businesses"
+                          : "Latest Businesses"
+                        }
+                        placeholder="Latest Businesses"
+                        onBlur={(e) => updateSetting('homepage_latest_title', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="latest-subtitle">Section Description</Label>
+                      <Textarea 
+                        id="latest-subtitle" 
+                        defaultValue={settings && Array.isArray(settings) 
+                          ? settings.find((s: any) => s.key === "homepage_latest_subtitle")?.value || "Discover newly added businesses in your area with excellent reviews and service."
+                          : "Discover newly added businesses in your area with excellent reviews and service."
+                        }
+                        placeholder="Discover newly added businesses in your area with excellent reviews and service."
+                        rows={2}
+                        onBlur={(e) => updateSetting('homepage_latest_subtitle', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Business Owner CTA Section */}
+                <div className="border rounded-lg p-4">
+                  <h4 className="font-medium mb-4">Business Owner CTA Section</h4>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="cta-title">CTA Title</Label>
+                      <Input 
+                        id="cta-title" 
+                        defaultValue={settings && Array.isArray(settings) 
+                          ? settings.find((s: any) => s.key === "homepage_cta_title")?.value || "Are You a Business Owner?"
+                          : "Are You a Business Owner?"
+                        }
+                        placeholder="Are You a Business Owner?"
+                        onBlur={(e) => updateSetting('homepage_cta_title', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="cta-subtitle">CTA Description</Label>
+                      <Textarea 
+                        id="cta-subtitle" 
+                        defaultValue={settings && Array.isArray(settings) 
+                          ? settings.find((s: any) => s.key === "homepage_cta_subtitle")?.value || "Join thousands of businesses already listed on BusinessHub. Increase your visibility and connect with more customers today."
+                          : "Join thousands of businesses already listed on BusinessHub. Increase your visibility and connect with more customers today."
+                        }
+                        placeholder="Join thousands of businesses already listed on BusinessHub. Increase your visibility and connect with more customers today."
+                        rows={3}
+                        onBlur={(e) => updateSetting('homepage_cta_subtitle', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="cta-button-text">Primary Button Text</Label>
+                      <Input 
+                        id="cta-button-text" 
+                        defaultValue={settings && Array.isArray(settings) 
+                          ? settings.find((s: any) => s.key === "homepage_cta_button_text")?.value || "List Your Business"
+                          : "List Your Business"
+                        }
+                        placeholder="List Your Business"
+                        onBlur={(e) => updateSetting('homepage_cta_button_text', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="cta-button-secondary">Secondary Button Text</Label>
+                      <Input 
+                        id="cta-button-secondary" 
+                        defaultValue={settings && Array.isArray(settings) 
+                          ? settings.find((s: any) => s.key === "homepage_cta_button_secondary")?.value || "Learn More"
+                          : "Learn More"
+                        }
+                        placeholder="Learn More"
+                        onBlur={(e) => updateSetting('homepage_cta_button_secondary', e.target.value)}
+                      />
                     </div>
                   </div>
                 </div>
