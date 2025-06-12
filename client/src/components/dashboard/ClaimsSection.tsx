@@ -8,7 +8,7 @@ interface ClaimsSectionProps {
   isLoading: boolean;
 }
 
-export default function ClaimsSection({ claims, isLoading }: ClaimsSectionProps) {
+export function ClaimsSection({ claims, isLoading }: ClaimsSectionProps) {
   const getStatusBadge = (status: string) => {
     const statusMap = {
       pending: { variant: "outline" as const, icon: Clock, text: "Pending" },
@@ -99,3 +99,6 @@ export default function ClaimsSection({ claims, isLoading }: ClaimsSectionProps)
     </Card>
   );
 }
+
+// Default export for backward compatibility
+export default ClaimsSection;

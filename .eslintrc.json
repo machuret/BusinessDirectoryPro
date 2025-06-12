@@ -1,0 +1,97 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true,
+    "node": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "@typescript-eslint/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "plugins": ["@typescript-eslint", "react", "react-hooks"],
+  "rules": {
+    // Import/Export consistency
+    "prefer-const": "error",
+    "no-var": "error",
+    
+    // Component naming
+    "react/jsx-pascal-case": "error",
+    "react/function-component-definition": [
+      "error",
+      {
+        "namedComponents": "function-declaration",
+        "unnamedComponents": "arrow-function"
+      }
+    ],
+    
+    // Export patterns
+    "import/prefer-default-export": "off",
+    "import/no-default-export": "off",
+    
+    // Code organization
+    "react/jsx-sort-props": [
+      "error",
+      {
+        "callbacksLast": true,
+        "shorthandFirst": true,
+        "noSortAlphabetically": false
+      }
+    ],
+    
+    // Hooks consistency
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
+    
+    // TypeScript consistency
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/prefer-interface": "off",
+    "@typescript-eslint/consistent-type-definitions": ["error", "interface"],
+    
+    // Formatting consistency
+    "indent": ["error", 2],
+    "quotes": ["error", "double"],
+    "semi": ["error", "always"],
+    "comma-dangle": ["error", "always-multiline"],
+    "object-curly-spacing": ["error", "always"],
+    "array-bracket-spacing": ["error", "never"],
+    
+    // Component structure
+    "react/jsx-max-props-per-line": ["error", { "maximum": 3 }],
+    "react/jsx-closing-bracket-location": ["error", "tag-aligned"],
+    "react/jsx-indent": ["error", 2],
+    "react/jsx-indent-props": ["error", 2],
+    
+    // Naming conventions
+    "camelcase": ["error", { "properties": "never" }],
+    "@typescript-eslint/naming-convention": [
+      "error",
+      {
+        "selector": "interface",
+        "format": ["PascalCase"],
+        "suffix": ["Props", "State", "Config", "Options"]
+      },
+      {
+        "selector": "typeAlias",
+        "format": ["PascalCase"]
+      },
+      {
+        "selector": "function",
+        "format": ["camelCase", "PascalCase"]
+      }
+    ]
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  }
+}
