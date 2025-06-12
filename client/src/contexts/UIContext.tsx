@@ -46,9 +46,8 @@ export function UIProvider({ children }: UIProviderProps) {
     if (savedTheme) {
       setThemeState(savedTheme);
     } else {
-      // Check system preference
-      const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      setThemeState(systemPrefersDark ? "dark" : "light");
+      // Always default to light theme unless explicitly saved
+      setThemeState("light");
     }
   }, []);
 
@@ -68,10 +67,10 @@ export function UIProvider({ children }: UIProviderProps) {
   // Apply theme to document
   useEffect(() => {
     const root = document.documentElement;
+    // Force remove dark class and ensure light theme
+    root.classList.remove("dark");
     if (theme === "dark") {
       root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
     }
     localStorage.setItem("theme", theme);
   }, [theme]);
