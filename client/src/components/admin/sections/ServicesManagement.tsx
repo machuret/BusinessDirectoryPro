@@ -322,12 +322,12 @@ export default function ServicesManagement() {
             {generateServicesMutation.isPending ? (
               <>
                 <Sparkles className="h-4 w-4 mr-2 animate-spin" />
-                Generating...
+                Analyzing businesses & generating services...
               </>
             ) : (
               <>
                 <Wand2 className="h-4 w-4 mr-2" />
-                Generate with AI
+                Generate Services with AI
               </>
             )}
           </Button>
@@ -340,9 +340,14 @@ export default function ServicesManagement() {
             </DialogTrigger>
             <DialogContent className="max-w-2xl">
               <DialogHeader>
-                <DialogTitle>Create New Service</DialogTitle>
+                <DialogTitle>
+                  {editingService ? 'Edit Service' : 'Create New Service'}
+                </DialogTitle>
                 <DialogDescription>
-                  Add a new service that businesses can offer to customers
+                  {editingService 
+                    ? 'Update the service details and settings'
+                    : 'Add a new service that businesses can offer to customers'
+                  }
                 </DialogDescription>
               </DialogHeader>
               <Form {...createForm}>
@@ -532,7 +537,7 @@ export default function ServicesManagement() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="">All Categories</SelectItem>
-              {categories.map((category) => (
+              {categories.map((category: string) => (
                 <SelectItem key={category} value={category}>{category}</SelectItem>
               ))}
             </SelectContent>
@@ -576,13 +581,28 @@ export default function ServicesManagement() {
                     Slug: /{service.slug}
                   </div>
                   <div className="flex space-x-2">
-                    <Button size="sm" variant="outline">
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => handleEditService(service)}
+                      disabled={editServiceMutation.isPending}
+                    >
                       <Edit className="h-4 w-4" />
                     </Button>
-                    <Button size="sm" variant="outline">
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => window.open(`/services/${service.slug}`, '_blank')}
+                    >
                       <ExternalLink className="h-4 w-4" />
                     </Button>
-                    <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="text-red-600 hover:text-red-700"
+                      onClick={() => handleDeleteService(service.id)}
+                      disabled={deleteServiceMutation.isPending}
+                    >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>

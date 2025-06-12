@@ -84,7 +84,7 @@ export default function Header() {
             
             {/* Desktop Navigation */}
             <nav className="hidden md:ml-8 md:flex md:space-x-8">
-              {navItems.map((item) => (
+              {navItems.map((item: any) => (
                 <Link
                   key={item.href}
                   href={item.href}
@@ -184,7 +184,7 @@ export default function Header() {
               </SheetTrigger>
               <SheetContent side="right" className="w-[300px] sm:w-[400px]">
                 <nav className="flex flex-col space-y-4 mt-6">
-                  {navItems.map((item) => (
+                  {navItems.map((item: any) => (
                     <Link
                       key={item.href}
                       href={item.href}
