@@ -40,14 +40,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   setupBusinessRoutes(app);
   setupAdminRoutes(app);
   setupReviewRoutes(app);
-  setupCategoryRoutes(app);
   setupSettingsRoutes(app);
   
   // Register optimization routes
   app.use('/api/admin', optimizationRoutes);
-  
-  // Register category admin routes
-  registerCategoryRoutes(app);
 
   // CSV Import functionality
   app.post('/api/admin/import-csv', isAuthenticated, isAdmin, upload.single('csvFile'), async (req, res) => {

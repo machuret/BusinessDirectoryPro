@@ -207,6 +207,7 @@ export class DatabaseStorage implements IStorage {
         name: categories.name,
         slug: categories.slug,
         description: categories.description,
+        pageTitle: categories.pageTitle,
         icon: categories.icon,
         color: categories.color,
         createdAt: categories.createdAt,

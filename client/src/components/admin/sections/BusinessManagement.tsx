@@ -544,6 +544,7 @@ export default function BusinessManagement() {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
+                              <SelectItem value="0">Select a category</SelectItem>
                               {categories?.map((category) => (
                                 <SelectItem key={category.id} value={category.id.toString()}>
                                   {category.name}
