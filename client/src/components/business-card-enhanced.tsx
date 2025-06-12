@@ -168,7 +168,7 @@ export default function BusinessCardEnhanced({ business, variant = "default" }: 
 
           {/* Action Button */}
           <div className="mt-4 pt-4 border-t">
-            <Link to={`/business/${business.slug || business.placeid}`}>
+            <Link to={`/${business.slug || business.placeid}`}>
               <Button 
                 className={`w-full ${
                   isFeatured 

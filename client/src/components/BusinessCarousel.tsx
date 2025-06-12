@@ -117,7 +117,7 @@ export default function BusinessCarousel({
           const rating = formatRating(business);
           
           return (
-            <Link key={business.placeid} href={`/business/${business.slug}`}>
+            <Link key={business.placeid} href={`/${business.slug}`}>
               <Card className="h-full cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105">
                 <div className="relative aspect-video overflow-hidden rounded-t-lg">
                   {images.length > 0 ? (
