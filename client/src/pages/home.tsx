@@ -63,9 +63,11 @@ export default function Home() {
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Browse by Category</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              {siteSettings?.homepage_categories_title || "Browse by Category"}
+            </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Explore businesses across different industries and find exactly what you need.
+              {siteSettings?.homepage_categories_subtitle || "Explore businesses across different industries and find exactly what you need."}
             </p>
           </div>
           
@@ -114,9 +116,11 @@ export default function Home() {
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Featured Businesses</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              {siteSettings?.homepage_featured_title || "Featured Businesses"}
+            </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Discover top-rated businesses handpicked for their exceptional service and quality.
+              {siteSettings?.homepage_featured_subtitle || "Discover top-rated businesses handpicked for their exceptional service and quality."}
             </p>
           </div>
           
@@ -142,9 +146,11 @@ export default function Home() {
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Latest Businesses</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              {siteSettings?.homepage_latest_title || "Latest Businesses"}
+            </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Discover newly added businesses in your area with excellent reviews and service.
+              {siteSettings?.homepage_latest_subtitle || "Discover newly added businesses in your area with excellent reviews and service."}
             </p>
           </div>
           
