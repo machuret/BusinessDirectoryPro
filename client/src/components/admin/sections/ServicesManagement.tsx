@@ -80,11 +80,37 @@ export default function ServicesManagement() {
       }
       return response.json();
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
+      // Save generated services to database
+      if (data.services && data.services.length > 0) {
+        for (const service of data.services) {
+          try {
+            await fetch('/api/admin/services', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                name: service.name,
+                slug: service.slug,
+                description: service.description,
+                category: service.category,
+                seoTitle: service.seo_title,
+                seoDescription: service.seo_description,
+                content: service.content,
+                isActive: true,
+              }),
+            });
+          } catch (error) {
+            console.error('Failed to save service:', service.name, error);
+          }
+        }
+      }
+      
       queryClient.invalidateQueries({ queryKey: ['/api/admin/services'] });
       toast({
         title: "AI Services Generated",
-        description: `Generated ${data.services?.length || 0} services based on ${data.businessesAnalyzed} businesses across ${data.categoriesFound} categories`,
+        description: `Generated and saved ${data.services?.length || 0} services based on ${data.businessesAnalyzed} businesses across ${data.categoriesFound} categories`,
       });
     },
     onError: (error: Error) => {
@@ -155,8 +181,93 @@ export default function ServicesManagement() {
     },
   });
 
+  // Edit service mutation
+  const editServiceMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: ServiceFormData }) => {
+      const response = await fetch(`/api/admin/services/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to update service');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/services'] });
+      setEditingService(null);
+      setIsCreateDialogOpen(false);
+      createForm.reset();
+      toast({
+        title: "Success",
+        description: "Service updated successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delete service mutation
+  const deleteServiceMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const response = await fetch(`/api/admin/services/${id}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to delete service');
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/services'] });
+      toast({
+        title: "Success",
+        description: "Service deleted successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const onCreateSubmit = (data: ServiceFormData) => {
-    createServiceMutation.mutate(data);
+    if (editingService) {
+      editServiceMutation.mutate({ id: editingService.id, data });
+    } else {
+      createServiceMutation.mutate(data);
+    }
+  };
+
+  const handleEditService = (service: Service) => {
+    setEditingService(service);
+    createForm.reset({
+      name: service.name,
+      slug: service.slug,
+      description: service.description || "",
+      category: service.category || "",
+      seoTitle: service.seoTitle || "",
+      seoDescription: service.seoDescription || "",
+      content: service.content || "",
+      isActive: service.isActive,
+    });
+    setIsCreateDialogOpen(true);
+  };
+
+  const handleDeleteService = (id: number) => {
+    if (confirm('Are you sure you want to delete this service?')) {
+      deleteServiceMutation.mutate(id);
+    }
   };
 
   // Filter services
@@ -168,7 +279,13 @@ export default function ServicesManagement() {
   });
 
   // Get unique categories
-  const categories = [...new Set(services.map((service: Service) => service.category).filter(Boolean))];
+  const categoriesSet = new Set<string>();
+  services.forEach((service: Service) => {
+    if (service.category) {
+      categoriesSet.add(service.category);
+    }
+  });
+  const categories = Array.from(categoriesSet);
 
   if (servicesLoading) {
     return (

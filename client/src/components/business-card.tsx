@@ -23,17 +23,7 @@ export default function BusinessCard({ business }: BusinessCardProps) {
     ));
   };
 
-  const formatHours = (hours: any) => {
-    if (!hours || typeof hours !== 'object') return "Hours not available";
-    
-    const today = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
-    const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-    const todayHours = hours[dayNames[today]];
-    
-    if (todayHours === 'closed') return "Closed today";
-    if (todayHours) return `Open until ${todayHours.split('-')[1] || todayHours}`;
-    return "Hours not available";
-  };
+
 
   // Use business images in priority order: imageurl, first image from images array
   const getBusinessImage = () => {
@@ -97,14 +87,10 @@ export default function BusinessCard({ business }: BusinessCardProps) {
           {business.description}
         </p>
         
-        <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+        <div className="flex items-center text-sm text-gray-500 mb-4">
           <div className="flex items-center">
             <MapPin className="w-4 h-4 mr-1" />
             <span className="truncate">{business.city}, {business.state}</span>
-          </div>
-          <div className="flex items-center">
-            <Clock className="w-4 h-4 mr-1" />
-            <span className="truncate">{formatHours(business.openinghours)}</span>
           </div>
         </div>
         

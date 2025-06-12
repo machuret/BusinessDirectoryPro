@@ -132,6 +132,8 @@ export default function CategoriesManagement() {
     form.reset({
       name: category.name,
       description: category.description || "",
+      pageTitle: (category as any).pageTitle || "",
+      pageDescription: (category as any).pageDescription || "",
     });
   };
 
