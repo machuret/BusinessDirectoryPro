@@ -182,10 +182,9 @@ export function setupAuth(app: Express) {
         phone: phone || null,
         email: email || null,
         website: website || null,
-        hours: hours || null,
+        openinghours: hours ? { general: hours } : null,
         categoryid: parseInt(categoryId),
-        status: "pending",
-        submittedby: userId,
+        ownerid: userId,
         createdat: new Date(),
         updatedat: new Date(),
       };
