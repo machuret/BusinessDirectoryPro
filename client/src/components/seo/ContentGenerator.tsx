@@ -44,6 +44,7 @@ export class ContentGenerator {
     const { description, business, category, siteSettings } = this.options;
     const { siteDescription } = siteSettings;
     
+
     if (description) return description;
     
     if (business) {

@@ -70,10 +70,13 @@ export default function BusinessDetail() {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead 
-        business={business} 
-        siteSettings={siteSettings} 
-      />
+      {business && siteSettings && (
+        <SEOHead 
+          business={business} 
+          siteSettings={siteSettings}
+          pageType="business"
+        />
+      )}
       <Header />
       
       <main className="container mx-auto px-4 py-8">

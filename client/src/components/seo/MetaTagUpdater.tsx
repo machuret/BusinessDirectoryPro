@@ -79,10 +79,7 @@ export class MetaTagUpdater {
     }
 
     if (!content.description || content.description.length < 50) {
-      console.warn('SEO: Generated description is too short or empty', { 
-        description: content.description, 
-        length: content.description?.length || 0 
-      });
+      console.warn('SEO: Generated description is too short or empty');
     }
 
     // Update title
