@@ -19,15 +19,31 @@ export default function Header() {
     queryFn: () => fetch("/api/site-settings").then(res => res.json())
   });
 
+  // Fetch header menu items from database
+  const { data: menuItems } = useQuery({
+    queryKey: ["/api/menu-items"],
+    queryFn: async () => {
+      const response = await fetch("/api/menu-items?location=header");
+      if (!response.ok) return [];
+      return response.json();
+    }
+  });
+
   const websiteLogo = settings && Array.isArray(settings) 
     ? settings.find((s: any) => s.key === "website_logo")?.value 
     : null;
 
-  const navItems = [
-    { href: "/", label: "Home" },
-    { href: "/categories", label: "Categories" },
-    { href: "/featured", label: "Featured" },
-  ];
+  // Use dynamic menu items or fallback to default
+  const navItems = menuItems && menuItems.length > 0 
+    ? menuItems.map((item: any) => ({
+        href: item.url,
+        label: item.name
+      }))
+    : [
+        { href: "/", label: "Home" },
+        { href: "/categories", label: "Categories" },
+        { href: "/featured", label: "Featured" },
+      ];
 
   const isActiveLink = (href: string) => {
     if (href === "/" && location === "/") return true;

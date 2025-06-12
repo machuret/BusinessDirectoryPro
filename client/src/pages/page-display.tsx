@@ -11,8 +11,15 @@ export default function PageDisplay() {
   const slug = params?.slug;
 
   const { data: page, isLoading, error } = useQuery<Page>({
-    queryKey: ["/api/pages", slug],
-    enabled: !!slug
+    queryKey: [`/api/pages/${slug}`],
+    enabled: !!slug,
+    queryFn: async () => {
+      const response = await fetch(`/api/pages/${slug}`);
+      if (!response.ok) {
+        throw new Error('Page not found');
+      }
+      return response.json();
+    }
   });
 
   if (isLoading) {
