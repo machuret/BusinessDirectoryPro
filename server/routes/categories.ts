@@ -4,11 +4,42 @@ import { z } from "zod";
 
 const categorySchema = z.object({
   name: z.string().min(1),
+  slug: z.string().min(1),
+  icon: z.string().min(1),
+  color: z.string().min(1),
   description: z.string().optional(),
   pageTitle: z.string().optional(),
 });
 
 export function registerCategoryRoutes(app: Express) {
+  // Public endpoint: Get all categories with business count
+  app.get("/api/categories", async (req, res) => {
+    try {
+      const categories = await storage.getCategories();
+      res.json(categories);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      res.status(500).json({ message: "Failed to fetch categories" });
+    }
+  });
+
+  // Public endpoint: Get category by slug
+  app.get("/api/categories/:slug", async (req, res) => {
+    try {
+      const { slug } = req.params;
+      const category = await storage.getCategoryBySlug(slug);
+      
+      if (!category) {
+        return res.status(404).json({ message: "Category not found" });
+      }
+      
+      res.json(category);
+    } catch (error) {
+      console.error("Error fetching category by slug:", error);
+      res.status(500).json({ message: "Failed to fetch category" });
+    }
+  });
+
   // Get categories with business count for admin
   app.get("/api/admin/categories", async (req, res) => {
     try {
