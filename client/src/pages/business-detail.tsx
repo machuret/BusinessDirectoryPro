@@ -7,6 +7,7 @@ import BusinessCarousel from "@/components/BusinessCarousel";
 import SEOHead from "@/components/SEOHead";
 import BusinessHeader from "@/components/business/BusinessHeader";
 import BusinessContactInfo from "@/components/business/BusinessContactInfo";
+import BusinessContactForm from "@/components/business-contact-form";
 import BusinessDescription from "@/components/business/BusinessDescription";
 import BusinessReviews from "@/components/business/BusinessReviews";
 import BusinessFAQ from "@/components/business/BusinessFAQ";
