@@ -37,8 +37,11 @@ export default function BusinessListing() {
   const { user } = useAuth();
   const { toast } = useToast();
   
-  // State for modal visibility
+  // State for modal visibility and form data
   const [showClaimModal, setShowClaimModal] = useState(false);
+  const [reviewText, setReviewText] = useState("");
+  const [rating, setRating] = useState(5);
+  const [claimMessage, setClaimMessage] = useState("");
 
   // All useQuery hooks
   const { data: business, isLoading } = useQuery<BusinessWithCategory>({
@@ -238,7 +241,7 @@ export default function BusinessListing() {
 
     reviewMutation.mutate({
       businessId: business?.placeid || "",
-      userId: user.id,
+      userId: user?.id || "",
       rating,
       comment: reviewText,
     });
@@ -305,8 +308,8 @@ export default function BusinessListing() {
       {/* Hero Section */}
       <div className="relative h-96 overflow-hidden">
         <img
-          src={heroImage}
-          alt={business.title}
+          src={heroImage || ""}
+          alt={business.title || ""}
           className="w-full h-full object-cover"
           onError={(e) => {
             const target = e.target as HTMLImageElement;

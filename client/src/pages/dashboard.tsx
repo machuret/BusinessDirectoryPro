@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2, FileText } from "lucide-react";
 import type { BusinessWithCategory } from "@shared/schema";
 import Header from "@/components/header";
@@ -21,7 +22,7 @@ export default function Dashboard() {
 
   const { data: ownershipClaims, isLoading: claimsLoading } = useQuery<any[]>({
     queryKey: [`/api/ownership-claims/user/${user?.id}`],
-    enabled: !!user,
+    enabled: !!user?.id,
   });
 
   if (!user) {
