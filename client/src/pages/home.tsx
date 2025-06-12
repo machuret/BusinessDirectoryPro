@@ -6,6 +6,7 @@ import SearchBar from "@/components/search-bar";
 import CategoryGrid from "@/components/category-grid";
 import BusinessCard from "@/components/business-card";
 import BusinessCardSkeleton from "@/components/business-card-skeleton";
+import WelcomeSection from "@/components/welcome-section";
 import SEOHead from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -58,6 +59,9 @@ export default function Home() {
           <SearchBar />
         </div>
       </section>
+
+      {/* Welcome Section */}
+      <WelcomeSection />
 
       {/* Category Grid */}
       <section className="py-16 bg-white">

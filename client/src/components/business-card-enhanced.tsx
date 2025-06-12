@@ -157,13 +157,7 @@ export default function BusinessCardEnhanced({ business, variant = "default" }: 
               )}
             </div>
 
-            {/* Opening Hours */}
-            {business.openinghours && (
-              <div className="flex items-center text-sm text-gray-600">
-                <Clock className="w-4 h-4 mr-2" />
-                <span>Check opening hours</span>
-              </div>
-            )}
+
           </div>
 
           {/* Action Button */}

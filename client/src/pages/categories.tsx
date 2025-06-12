@@ -155,7 +155,7 @@ export default function Categories() {
                   ))}
                 </div>
               ) : (
-                <CategoryGrid categories={categories || []} />
+                <CategoryGrid categories={categories?.filter(cat => cat.count > 0) || []} />
               )}
             </section>
           </>
