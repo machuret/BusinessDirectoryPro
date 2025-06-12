@@ -178,7 +178,7 @@ export default function Home() {
             <Button 
               variant="secondary" 
               size="lg"
-              onClick={() => window.location.href = "/categories"}
+              onClick={() => window.location.href = "/businesses"}
             >
               View All Businesses
             </Button>

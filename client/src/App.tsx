@@ -21,6 +21,7 @@ import MenuEdit from "@/pages/menu-edit";
 import PageDisplay from "@/pages/page-display";
 import Login from "@/pages/login";
 import AddBusiness from "@/pages/add-business";
+import BusinessesPage from "@/pages/businesses";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -38,7 +39,7 @@ function Router() {
       <Route path="/cities" component={Cities} />
       <Route path="/cities/:city" component={Cities} />
       <Route path="/featured" component={Featured} />
-      <Route path="/businesses" component={Categories} />
+      <Route path="/businesses" component={BusinessesPage} />
       <Route path="/search" component={SearchResults} />
       <Route path="/business-portal/:businessId" component={BusinessOwnerPortal} />
       <Route path="/pages/:slug" component={PageDisplay} />

@@ -46,6 +46,17 @@ export function setupBusinessRoutes(app: Express) {
     }
   });
 
+  // Get unique cities (public)
+  app.get("/api/cities", async (req, res) => {
+    try {
+      const cities = await storage.getUniqueCities();
+      res.json(cities);
+    } catch (error) {
+      console.error("Error fetching cities:", error);
+      res.status(500).send("Internal server error");
+    }
+  });
+
   // Get business by ID (public)
   app.get("/api/businesses/:id", async (req, res) => {
     try {
