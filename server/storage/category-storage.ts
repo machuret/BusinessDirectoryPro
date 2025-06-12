@@ -1,8 +1,9 @@
+import { eq, sql } from "drizzle-orm";
+import { db } from "../db";
 import { 
-  db, eq, sql,
   categories, businesses,
   type Category, type InsertCategory, type CategoryWithCount
-} from "./base-storage";
+} from "@shared/schema";
 
 export class CategoryStorage {
   async getCategories(): Promise<CategoryWithCount[]> {

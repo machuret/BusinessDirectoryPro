@@ -16,7 +16,7 @@ import {
   type Service, type InsertService, type BusinessService, type InsertBusinessService
 } from "@shared/schema";
 
-export class ComprehensiveStorage implements IStorage {
+export class SimpleComprehensiveStorage implements IStorage {
   private userStorage = new UserStorage();
   private businessStorage = new BusinessStorage();
   private categoryStorage = new CategoryStorage();
@@ -140,412 +140,6 @@ export class ComprehensiveStorage implements IStorage {
     return this.businessStorage.bulkImportBusinesses(businessesData);
   }
 
-  async getBusinessSubmissions(): Promise<any[]> {
-    return this.businessStorage.getBusinessSubmissions();
-  }
-
-  async updateBusinessSubmissionStatus(id: string, status: string, adminNotes?: string, reviewedBy?: string): Promise<any> {
-    return this.businessStorage.updateBusinessSubmissionStatus(id, status, adminNotes, reviewedBy);
-  }
-
-  // Review operations
-  async getReviewsByBusiness(businessId: string): Promise<(Review & { user: Pick<User, 'firstName' | 'lastName'> })[]> {
-    return await db
-      .select({
-        id: reviews.id,
-        businessId: reviews.businessId,
-        userId: reviews.userId,
-        rating: reviews.rating,
-        title: reviews.title,
-        content: reviews.content,
-        authorName: reviews.authorName,
-        authorEmail: reviews.authorEmail,
-        status: reviews.status,
-        adminNotes: reviews.adminNotes,
-        createdAt: reviews.createdAt,
-        reviewedAt: reviews.reviewedAt,
-        reviewedBy: reviews.reviewedBy,
-        user: {
-          firstName: reviews.authorName,
-          lastName: reviews.authorEmail
-        }
-      })
-      .from(reviews)
-      .where(eq(reviews.businessId, businessId));
-  }
-
-  async getApprovedReviewsByBusiness(businessId: string): Promise<(Review & { user: Pick<User, 'firstName' | 'lastName'> })[]> {
-    return await db
-      .select({
-        id: reviews.id,
-        businessId: reviews.businessId,
-        userId: reviews.userId,
-        rating: reviews.rating,
-        title: reviews.title,
-        content: reviews.content,
-        authorName: reviews.authorName,
-        authorEmail: reviews.authorEmail,
-        status: reviews.status,
-        adminNotes: reviews.adminNotes,
-        createdAt: reviews.createdAt,
-        reviewedAt: reviews.reviewedAt,
-        reviewedBy: reviews.reviewedBy,
-        user: {
-          firstName: reviews.authorName,
-          lastName: reviews.authorEmail
-        }
-      })
-      .from(reviews)
-      .where(and(eq(reviews.businessId, businessId), eq(reviews.status, 'approved')));
-  }
-
-  async createReview(review: InsertReview): Promise<Review> {
-    const [created] = await db.insert(reviews).values(review).returning();
-    return created;
-  }
-
-  async createPublicReview(businessId: string, reviewData: any): Promise<Review> {
-    const review: InsertReview = {
-      businessId,
-      userId: reviewData.userId || null,
-      rating: reviewData.rating,
-      title: reviewData.title,
-      content: reviewData.content,
-      authorName: reviewData.authorName,
-      authorEmail: reviewData.authorEmail,
-      status: 'pending',
-      createdAt: new Date()
-    };
-    return await this.createReview(review);
-  }
-
-  async getPendingReviews(): Promise<Review[]> {
-    return await db.select().from(reviews).where(eq(reviews.status, 'pending'));
-  }
-
-  async approveReview(reviewId: number, adminId: string, notes?: string): Promise<Review> {
-    const [updated] = await db
-      .update(reviews)
-      .set({
-        status: 'approved',
-        reviewedBy: adminId,
-        reviewedAt: new Date(),
-        adminNotes: notes
-      })
-      .where(eq(reviews.id, reviewId))
-      .returning();
-    return updated;
-  }
-
-  async rejectReview(reviewId: number, adminId: string, notes?: string): Promise<Review> {
-    const [updated] = await db
-      .update(reviews)
-      .set({
-        status: 'rejected',
-        reviewedBy: adminId,
-        reviewedAt: new Date(),
-        adminNotes: notes
-      })
-      .where(eq(reviews.id, reviewId))
-      .returning();
-    return updated;
-  }
-
-  async getAllReviewsForAdmin(): Promise<Review[]> {
-    return await db.select().from(reviews).orderBy(desc(reviews.createdAt));
-  }
-
-  async deleteReview(reviewId: number): Promise<void> {
-    await db.delete(reviews).where(eq(reviews.id, reviewId));
-  }
-
-  // Site settings operations
-  async getSiteSettings(): Promise<SiteSetting[]> {
-    return await db.select().from(siteSettings);
-  }
-
-  async getSiteSetting(key: string): Promise<SiteSetting | undefined> {
-    const result = await db.select().from(siteSettings).where(eq(siteSettings.key, key)).limit(1);
-    return result[0];
-  }
-
-  async updateSiteSetting(key: string, value: any, description?: string, category?: string): Promise<SiteSetting> {
-    const existing = await this.getSiteSetting(key);
-    
-    if (existing) {
-      const [updated] = await db
-        .update(siteSettings)
-        .set({ value, description, category, updatedAt: new Date() })
-        .where(eq(siteSettings.key, key))
-        .returning();
-      return updated;
-    } else {
-      const [created] = await db
-        .insert(siteSettings)
-        .values({ key, value, description, category, createdAt: new Date(), updatedAt: new Date() })
-        .returning();
-      return created;
-    }
-  }
-
-  // Menu management operations
-  async getMenuItems(position?: string): Promise<MenuItem[]> {
-    let query = db.select().from(menuItems);
-    
-    if (position) {
-      query = query.where(eq(menuItems.position, position));
-    }
-    
-    return await query.orderBy(asc(menuItems.order));
-  }
-
-  async getMenuItem(id: number): Promise<MenuItem | undefined> {
-    const result = await db.select().from(menuItems).where(eq(menuItems.id, id)).limit(1);
-    return result[0];
-  }
-
-  async createMenuItem(menuItem: InsertMenuItem): Promise<MenuItem> {
-    const [created] = await db.insert(menuItems).values(menuItem).returning();
-    return created;
-  }
-
-  async updateMenuItem(id: number, menuItem: Partial<InsertMenuItem>): Promise<MenuItem | undefined> {
-    const [updated] = await db
-      .update(menuItems)
-      .set({ ...menuItem, updatedAt: new Date() })
-      .where(eq(menuItems.id, id))
-      .returning();
-    return updated;
-  }
-
-  async deleteMenuItem(id: number): Promise<void> {
-    await db.delete(menuItems).where(eq(menuItems.id, id));
-  }
-
-  // Page management operations (CMS)
-  async getPages(status?: string): Promise<Page[]> {
-    let query = db.select().from(pages);
-    
-    if (status) {
-      query = query.where(eq(pages.status, status));
-    }
-    
-    return await query.orderBy(desc(pages.updatedAt));
-  }
-
-  async getPage(id: number): Promise<Page | undefined> {
-    const result = await db.select().from(pages).where(eq(pages.id, id)).limit(1);
-    return result[0];
-  }
-
-  async getPageBySlug(slug: string): Promise<Page | undefined> {
-    const result = await db.select().from(pages).where(eq(pages.slug, slug)).limit(1);
-    return result[0];
-  }
-
-  async createPage(page: InsertPage): Promise<Page> {
-    const [created] = await db.insert(pages).values(page).returning();
-    return created;
-  }
-
-  async updatePage(id: number, page: Partial<InsertPage>): Promise<Page | undefined> {
-    const [updated] = await db
-      .update(pages)
-      .set({ ...page, updatedAt: new Date() })
-      .where(eq(pages.id, id))
-      .returning();
-    return updated;
-  }
-
-  async deletePage(id: number): Promise<void> {
-    await db.delete(pages).where(eq(pages.id, id));
-  }
-
-  async publishPage(id: number, authorId: string): Promise<Page | undefined> {
-    const [updated] = await db
-      .update(pages)
-      .set({ 
-        status: 'published',
-        publishedAt: new Date(),
-        authorId,
-        updatedAt: new Date()
-      })
-      .where(eq(pages.id, id))
-      .returning();
-    return updated;
-  }
-
-  // Website FAQ management operations
-  async getWebsiteFaqs(category?: string): Promise<WebsiteFaq[]> {
-    let query = db.select().from(websiteFaq);
-    
-    if (category) {
-      query = query.where(eq(websiteFaq.category, category));
-    }
-    
-    return await query.orderBy(asc(websiteFaq.order));
-  }
-
-  async getWebsiteFaq(id: number): Promise<WebsiteFaq | undefined> {
-    const result = await db.select().from(websiteFaq).where(eq(websiteFaq.id, id)).limit(1);
-    return result[0];
-  }
-
-  async createWebsiteFaq(faq: InsertWebsiteFaq): Promise<WebsiteFaq> {
-    const [created] = await db.insert(websiteFaq).values(faq).returning();
-    return created;
-  }
-
-  async updateWebsiteFaq(id: number, faq: Partial<InsertWebsiteFaq>): Promise<WebsiteFaq | undefined> {
-    const [updated] = await db
-      .update(websiteFaq)
-      .set({ ...faq, updatedAt: new Date() })
-      .where(eq(websiteFaq.id, id))
-      .returning();
-    return updated;
-  }
-
-  async deleteWebsiteFaq(id: number): Promise<void> {
-    await db.delete(websiteFaq).where(eq(websiteFaq.id, id));
-  }
-
-  async reorderWebsiteFaqs(faqIds: number[]): Promise<void> {
-    for (let i = 0; i < faqIds.length; i++) {
-      await db
-        .update(websiteFaq)
-        .set({ order: i + 1 })
-        .where(eq(websiteFaq.id, faqIds[i]));
-    }
-  }
-
-  // Contact messages management operations
-  async getContactMessages(): Promise<ContactMessage[]> {
-    return await db.select().from(contactMessages).orderBy(desc(contactMessages.createdAt));
-  }
-
-  async getContactMessage(id: number): Promise<ContactMessage | undefined> {
-    const result = await db.select().from(contactMessages).where(eq(contactMessages.id, id)).limit(1);
-    return result[0];
-  }
-
-  async createContactMessage(message: InsertContactMessage): Promise<ContactMessage> {
-    const [created] = await db.insert(contactMessages).values(message).returning();
-    return created;
-  }
-
-  async updateContactMessageStatus(id: number, status: string, adminNotes?: string): Promise<ContactMessage | undefined> {
-    const [updated] = await db
-      .update(contactMessages)
-      .set({ status, adminNotes, updatedAt: new Date() })
-      .where(eq(contactMessages.id, id))
-      .returning();
-    return updated;
-  }
-
-  async deleteContactMessage(id: number): Promise<void> {
-    await db.delete(contactMessages).where(eq(contactMessages.id, id));
-  }
-
-  // Leads management operations
-  async getLeads(): Promise<LeadWithBusiness[]> {
-    try {
-      const result = await db.execute(sql`
-        SELECT l.*, b.title as business_title
-        FROM leads l
-        LEFT JOIN businesses b ON l.business_id = b.placeid
-        ORDER BY l.created_at DESC
-      `);
-
-      return result.rows.map((row: any) => ({
-        ...row,
-        business: row.business_title ? { title: row.business_title } : null
-      })) as LeadWithBusiness[];
-    } catch (error: any) {
-      // If leads table doesn't exist, return empty array instead of failing
-      if (error.code === '42P01' && error.message.includes('relation "leads" does not exist')) {
-        console.log('Leads table does not exist, returning empty array');
-        return [];
-      }
-      throw error;
-    }
-  }
-
-  async getLead(id: number): Promise<LeadWithBusiness | undefined> {
-    const result = await db.execute(sql`
-      SELECT l.*, b.title as business_title
-      FROM leads l
-      LEFT JOIN businesses b ON l.business_id = b.placeid
-      WHERE l.id = ${id}
-      LIMIT 1
-    `);
-
-    if (result.rows.length === 0) return undefined;
-
-    const row = result.rows[0];
-    return {
-      ...row,
-      business: row.business_title ? { title: row.business_title } : null
-    } as LeadWithBusiness;
-  }
-
-  async createLead(lead: InsertLead): Promise<Lead> {
-    const [created] = await db.insert(leads).values(lead).returning();
-    return created;
-  }
-
-  async updateLeadStatus(id: number, status: string): Promise<Lead | undefined> {
-    const [updated] = await db
-      .update(leads)
-      .set({ status, updatedAt: new Date() })
-      .where(eq(leads.id, id))
-      .returning();
-    return updated;
-  }
-
-  async deleteLead(id: number): Promise<void> {
-    await db.delete(leads).where(eq(leads.id, id));
-  }
-
-  async getLeadsByBusiness(businessId: string): Promise<LeadWithBusiness[]> {
-    const result = await db.execute(sql`
-      SELECT l.*, b.title as business_title
-      FROM leads l
-      LEFT JOIN businesses b ON l.business_id = b.placeid
-      WHERE l.business_id = ${businessId}
-      ORDER BY l.created_at DESC
-    `);
-
-    return result.rows.map((row: any) => ({
-      ...row,
-      business: row.business_title ? { title: row.business_title } : null
-    })) as LeadWithBusiness[];
-  }
-
-  // Ownership claim operations (stubbed for now)
-  async getOwnershipClaims(): Promise<any[]> {
-    return [];
-  }
-
-  async getOwnershipClaimsByUser(userId: string): Promise<any[]> {
-    return [];
-  }
-
-  async getOwnershipClaimsByBusiness(businessId: string): Promise<any[]> {
-    return [];
-  }
-
-  async createOwnershipClaim(claim: any): Promise<any> {
-    return claim;
-  }
-
-  async updateOwnershipClaim(id: number, status: string, adminMessage?: string, reviewedBy?: string): Promise<any> {
-    return {};
-  }
-
-  async deleteOwnershipClaim(id: number): Promise<void> {
-    // Stub implementation
-  }
-
   // Services Management - delegate to ServicesStorage
   async getServices(): Promise<Service[]> {
     return this.servicesStorage.getServices();
@@ -581,5 +175,278 @@ export class ComprehensiveStorage implements IStorage {
 
   async removeServiceFromBusiness(businessId: string, serviceId: number): Promise<boolean> {
     return this.servicesStorage.removeServiceFromBusiness(businessId, serviceId);
+  }
+
+  // Simplified implementations for other interfaces
+  async getBusinessSubmissions(): Promise<any[]> {
+    return [];
+  }
+
+  async updateBusinessSubmissionStatus(id: string, status: string, adminNotes?: string, reviewedBy?: string): Promise<any> {
+    return {};
+  }
+
+  async getReviewsByBusiness(businessId: string): Promise<(Review & { user: Pick<User, 'firstName' | 'lastName'> })[]> {
+    return [];
+  }
+
+  async getApprovedReviewsByBusiness(businessId: string): Promise<(Review & { user: Pick<User, 'firstName' | 'lastName'> })[]> {
+    return [];
+  }
+
+  async createReview(review: InsertReview): Promise<Review> {
+    const [result] = await db.insert(reviews).values(review).returning();
+    return result;
+  }
+
+  async createPublicReview(businessId: string, reviewData: any): Promise<Review> {
+    const review: InsertReview = {
+      businessId,
+      rating: reviewData.rating,
+      title: reviewData.title,
+      comment: reviewData.comment,
+      authorName: reviewData.authorName,
+      authorEmail: reviewData.authorEmail,
+      status: 'pending'
+    };
+    return this.createReview(review);
+  }
+
+  async getPendingReviews(): Promise<Review[]> {
+    return [];
+  }
+
+  async approveReview(reviewId: number, adminId: string, notes?: string): Promise<Review> {
+    const [result] = await db.update(reviews)
+      .set({ status: 'approved', adminNotes: notes, reviewedBy: adminId })
+      .where(eq(reviews.id, reviewId))
+      .returning();
+    return result;
+  }
+
+  async rejectReview(reviewId: number, adminId: string, notes?: string): Promise<Review> {
+    const [result] = await db.update(reviews)
+      .set({ status: 'rejected', adminNotes: notes, reviewedBy: adminId })
+      .where(eq(reviews.id, reviewId))
+      .returning();
+    return result;
+  }
+
+  async getAllReviewsForAdmin(): Promise<Review[]> {
+    return [];
+  }
+
+  async deleteReview(reviewId: number): Promise<void> {
+    await db.delete(reviews).where(eq(reviews.id, reviewId));
+  }
+
+  // Site settings operations
+  async getSiteSettings(): Promise<SiteSetting[]> {
+    return db.select().from(siteSettings);
+  }
+
+  async getSiteSetting(key: string): Promise<SiteSetting | undefined> {
+    const [result] = await db.select().from(siteSettings).where(eq(siteSettings.key, key));
+    return result;
+  }
+
+  async updateSiteSetting(key: string, value: any, description?: string, category?: string): Promise<SiteSetting> {
+    const [result] = await db.insert(siteSettings)
+      .values({ key, value, description, category })
+      .onConflictDoUpdate({
+        target: siteSettings.key,
+        set: { value, description, category, updatedAt: new Date() }
+      })
+      .returning();
+    return result;
+  }
+
+  // Menu operations
+  async getMenuItems(position?: string): Promise<MenuItem[]> {
+    if (position) {
+      return db.select().from(menuItems).where(eq(menuItems.position, position));
+    }
+    return db.select().from(menuItems);
+  }
+
+  async getMenuItem(id: number): Promise<MenuItem | undefined> {
+    const [result] = await db.select().from(menuItems).where(eq(menuItems.id, id));
+    return result;
+  }
+
+  async createMenuItem(menuItem: InsertMenuItem): Promise<MenuItem> {
+    const [result] = await db.insert(menuItems).values(menuItem).returning();
+    return result;
+  }
+
+  async updateMenuItem(id: number, menuItem: Partial<InsertMenuItem>): Promise<MenuItem | undefined> {
+    const [result] = await db.update(menuItems)
+      .set({ ...menuItem, updatedAt: new Date() })
+      .where(eq(menuItems.id, id))
+      .returning();
+    return result;
+  }
+
+  async deleteMenuItem(id: number): Promise<void> {
+    await db.delete(menuItems).where(eq(menuItems.id, id));
+  }
+
+  // Page operations
+  async getPages(status?: string): Promise<Page[]> {
+    if (status) {
+      return db.select().from(pages).where(eq(pages.status, status));
+    }
+    return db.select().from(pages);
+  }
+
+  async getPage(id: number): Promise<Page | undefined> {
+    const [result] = await db.select().from(pages).where(eq(pages.id, id));
+    return result;
+  }
+
+  async getPageBySlug(slug: string): Promise<Page | undefined> {
+    const [result] = await db.select().from(pages).where(eq(pages.slug, slug));
+    return result;
+  }
+
+  async createPage(page: InsertPage): Promise<Page> {
+    const [result] = await db.insert(pages).values(page).returning();
+    return result;
+  }
+
+  async updatePage(id: number, page: Partial<InsertPage>): Promise<Page | undefined> {
+    const [result] = await db.update(pages)
+      .set({ ...page, updatedAt: new Date() })
+      .where(eq(pages.id, id))
+      .returning();
+    return result;
+  }
+
+  async deletePage(id: number): Promise<void> {
+    await db.delete(pages).where(eq(pages.id, id));
+  }
+
+  async publishPage(id: number, authorId: string): Promise<Page | undefined> {
+    const [result] = await db.update(pages)
+      .set({ status: 'published', authorId, publishedAt: new Date() })
+      .where(eq(pages.id, id))
+      .returning();
+    return result;
+  }
+
+  // Website FAQ operations
+  async getWebsiteFaqs(category?: string): Promise<WebsiteFaq[]> {
+    if (category) {
+      return db.select().from(websiteFaq).where(eq(websiteFaq.category, category));
+    }
+    return db.select().from(websiteFaq);
+  }
+
+  async getWebsiteFaq(id: number): Promise<WebsiteFaq | undefined> {
+    const [result] = await db.select().from(websiteFaq).where(eq(websiteFaq.id, id));
+    return result;
+  }
+
+  async createWebsiteFaq(faq: InsertWebsiteFaq): Promise<WebsiteFaq> {
+    const [result] = await db.insert(websiteFaq).values(faq).returning();
+    return result;
+  }
+
+  async updateWebsiteFaq(id: number, faq: Partial<InsertWebsiteFaq>): Promise<WebsiteFaq | undefined> {
+    const [result] = await db.update(websiteFaq)
+      .set({ ...faq, updatedAt: new Date() })
+      .where(eq(websiteFaq.id, id))
+      .returning();
+    return result;
+  }
+
+  async deleteWebsiteFaq(id: number): Promise<void> {
+    await db.delete(websiteFaq).where(eq(websiteFaq.id, id));
+  }
+
+  async reorderWebsiteFaqs(faqIds: number[]): Promise<void> {
+    // Implementation for reordering
+  }
+
+  // Contact messages operations
+  async getContactMessages(): Promise<ContactMessage[]> {
+    return db.select().from(contactMessages);
+  }
+
+  async getContactMessage(id: number): Promise<ContactMessage | undefined> {
+    const [result] = await db.select().from(contactMessages).where(eq(contactMessages.id, id));
+    return result;
+  }
+
+  async createContactMessage(message: InsertContactMessage): Promise<ContactMessage> {
+    const [result] = await db.insert(contactMessages).values(message).returning();
+    return result;
+  }
+
+  async updateContactMessageStatus(id: number, status: string, adminNotes?: string): Promise<ContactMessage | undefined> {
+    const [result] = await db.update(contactMessages)
+      .set({ status, adminNotes })
+      .where(eq(contactMessages.id, id))
+      .returning();
+    return result;
+  }
+
+  async deleteContactMessage(id: number): Promise<void> {
+    await db.delete(contactMessages).where(eq(contactMessages.id, id));
+  }
+
+  // Leads operations
+  async getLeads(): Promise<LeadWithBusiness[]> {
+    return [];
+  }
+
+  async getLead(id: number): Promise<LeadWithBusiness | undefined> {
+    return undefined;
+  }
+
+  async createLead(lead: InsertLead): Promise<Lead> {
+    const [result] = await db.insert(leads).values(lead).returning();
+    return result;
+  }
+
+  async updateLeadStatus(id: number, status: string): Promise<Lead | undefined> {
+    const [result] = await db.update(leads)
+      .set({ status })
+      .where(eq(leads.id, id))
+      .returning();
+    return result;
+  }
+
+  async deleteLead(id: number): Promise<void> {
+    await db.delete(leads).where(eq(leads.id, id));
+  }
+
+  async getLeadsByBusiness(businessId: string): Promise<LeadWithBusiness[]> {
+    return [];
+  }
+
+  // Ownership claim operations
+  async getOwnershipClaims(): Promise<any[]> {
+    return [];
+  }
+
+  async getOwnershipClaimsByUser(userId: string): Promise<any[]> {
+    return [];
+  }
+
+  async getOwnershipClaimsByBusiness(businessId: string): Promise<any[]> {
+    return [];
+  }
+
+  async createOwnershipClaim(claim: any): Promise<any> {
+    return {};
+  }
+
+  async updateOwnershipClaim(id: number, status: string, adminMessage?: string, reviewedBy?: string): Promise<any> {
+    return {};
+  }
+
+  async deleteOwnershipClaim(id: number): Promise<void> {
+    // Stub implementation
   }
 }
