@@ -237,7 +237,7 @@ export default function BusinessDialog({ open, onClose, business, isEdit }: Busi
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Category *</FormLabel>
-                        <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value?.toString() || ""}>
+                        <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value > 0 ? field.value.toString() : undefined}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select category" />
@@ -435,14 +435,14 @@ export default function BusinessDialog({ open, onClose, business, isEdit }: Busi
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Assign Owner</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value || ""}>
+                        <Select onValueChange={(value) => field.onChange(value === "none" ? null : value)} value={field.value || undefined}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select owner" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="">No Owner</SelectItem>
+                            <SelectItem value="none">No Owner</SelectItem>
                             {users?.map((user: any) => (
                               <SelectItem key={user.id} value={user.id}>
                                 {user.email}
