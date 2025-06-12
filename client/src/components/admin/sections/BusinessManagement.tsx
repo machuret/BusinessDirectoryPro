@@ -20,6 +20,18 @@ export default function BusinessManagement() {
   const [selectedBusinesses, setSelectedBusinesses] = useState<string[]>([]);
   const [showMassCategoryDialog, setShowMassCategoryDialog] = useState(false);
   const [newCategoryForMass, setNewCategoryForMass] = useState("");
+  const [showAddBusinessDialog, setShowAddBusinessDialog] = useState(false);
+  const [newBusiness, setNewBusiness] = useState({
+    title: "",
+    description: "",
+    address: "",
+    city: "",
+    state: "",
+    phone: "",
+    email: "",
+    website: "",
+    categoryId: ""
+  });
 
   // Data queries
   const { data: businesses, isLoading: businessesLoading } = useQuery<BusinessWithCategory[]>({
@@ -41,6 +53,35 @@ export default function BusinessManagement() {
       toast({ title: "Success", description: "Category updated for selected businesses" });
       setShowMassCategoryDialog(false);
       setSelectedBusinesses([]);
+    },
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  });
+
+  const createBusinessMutation = useMutation({
+    mutationFn: async (businessData: typeof newBusiness) => {
+      const res = await apiRequest("POST", "/api/businesses", {
+        ...businessData,
+        categoryId: parseInt(businessData.categoryId)
+      });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/businesses"] });
+      toast({ title: "Success", description: "Business created successfully" });
+      setShowAddBusinessDialog(false);
+      setNewBusiness({
+        title: "",
+        description: "",
+        address: "",
+        city: "",
+        state: "",
+        phone: "",
+        email: "",
+        website: "",
+        categoryId: ""
+      });
     },
     onError: (error: Error) => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -101,7 +142,7 @@ export default function BusinessManagement() {
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button variant="outline">
+                <Button variant="outline" onClick={() => setShowAddBusinessDialog(true)}>
                   <Plus className="h-4 w-4 mr-2" />
                   Add Business
                 </Button>
@@ -244,6 +285,117 @@ export default function BusinessManagement() {
                 {massCategoryChangeMutation.isPending ? "Updating..." : "Update Category"}
               </Button>
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Business Dialog */}
+      <Dialog open={showAddBusinessDialog} onOpenChange={setShowAddBusinessDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Add New Business</DialogTitle>
+            <DialogDescription>Create a new business listing</DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="title">Business Name</Label>
+              <Input
+                id="title"
+                value={newBusiness.title}
+                onChange={(e) => setNewBusiness({...newBusiness, title: e.target.value})}
+                placeholder="Enter business name"
+              />
+            </div>
+            <div>
+              <Label htmlFor="category">Category</Label>
+              <Select value={newBusiness.categoryId} onValueChange={(value) => setNewBusiness({...newBusiness, categoryId: value})}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories?.map((category) => (
+                    <SelectItem key={category.id} value={category.id.toString()}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="col-span-2">
+              <Label htmlFor="description">Description</Label>
+              <Input
+                id="description"
+                value={newBusiness.description}
+                onChange={(e) => setNewBusiness({...newBusiness, description: e.target.value})}
+                placeholder="Business description"
+              />
+            </div>
+            <div className="col-span-2">
+              <Label htmlFor="address">Address</Label>
+              <Input
+                id="address"
+                value={newBusiness.address}
+                onChange={(e) => setNewBusiness({...newBusiness, address: e.target.value})}
+                placeholder="Full address"
+              />
+            </div>
+            <div>
+              <Label htmlFor="city">City</Label>
+              <Input
+                id="city"
+                value={newBusiness.city}
+                onChange={(e) => setNewBusiness({...newBusiness, city: e.target.value})}
+                placeholder="City"
+              />
+            </div>
+            <div>
+              <Label htmlFor="state">State</Label>
+              <Input
+                id="state"
+                value={newBusiness.state}
+                onChange={(e) => setNewBusiness({...newBusiness, state: e.target.value})}
+                placeholder="State"
+              />
+            </div>
+            <div>
+              <Label htmlFor="phone">Phone</Label>
+              <Input
+                id="phone"
+                value={newBusiness.phone}
+                onChange={(e) => setNewBusiness({...newBusiness, phone: e.target.value})}
+                placeholder="Phone number"
+              />
+            </div>
+            <div>
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={newBusiness.email}
+                onChange={(e) => setNewBusiness({...newBusiness, email: e.target.value})}
+                placeholder="Email address"
+              />
+            </div>
+            <div className="col-span-2">
+              <Label htmlFor="website">Website</Label>
+              <Input
+                id="website"
+                value={newBusiness.website}
+                onChange={(e) => setNewBusiness({...newBusiness, website: e.target.value})}
+                placeholder="Website URL"
+              />
+            </div>
+          </div>
+          <div className="flex justify-end space-x-2 mt-6">
+            <Button variant="outline" onClick={() => setShowAddBusinessDialog(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={() => createBusinessMutation.mutate(newBusiness)}
+              disabled={createBusinessMutation.isPending || !newBusiness.title || !newBusiness.categoryId}
+            >
+              {createBusinessMutation.isPending ? "Creating..." : "Create Business"}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
