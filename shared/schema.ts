@@ -405,3 +405,5 @@ export type CategoryWithCount = Category & {
   businessCount: number;
 };
 
+
+
