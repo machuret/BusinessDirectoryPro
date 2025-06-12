@@ -13,7 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Plus, Search, Edit, Trash2, Tag, ExternalLink, Wand2 } from "lucide-react";
+import { Plus, Search, Edit, Trash2, Tag, ExternalLink, Wand2, Sparkles, Building2, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 
@@ -53,7 +53,7 @@ export default function ServicesManagement() {
   const [editingService, setEditingService] = useState<Service | null>(null);
   const { toast } = useToast();
 
-  // Fetch services with error handling
+  // Fetch services
   const { data: services = [], isLoading: servicesLoading, error: servicesError } = useQuery({
     queryKey: ['/api/admin/services'],
     queryFn: async () => {
@@ -62,6 +62,37 @@ export default function ServicesManagement() {
         throw new Error('Failed to fetch services');
       }
       return response.json();
+    },
+  });
+
+  // Generate services using AI
+  const generateServicesMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch('/api/admin/services/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to generate services');
+      }
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/services'] });
+      toast({
+        title: "AI Services Generated",
+        description: `Generated ${data.services?.length || 0} services based on ${data.businessesAnalyzed} businesses across ${data.categoriesFound} categories`,
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Generation Failed",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 
@@ -80,151 +111,80 @@ export default function ServicesManagement() {
     },
   });
 
-  // Edit service form
-  const editForm = useForm<ServiceFormData>({
-    resolver: zodResolver(serviceFormSchema),
-    defaultValues: {
-      name: "",
-      slug: "",
-      description: "",
-      category: "",
-      seoTitle: "",
-      seoDescription: "",
-      content: "",
-      isActive: true,
-    },
-  });
+  // Auto-generate slug from name
+  const handleNameChange = (name: string) => {
+    const slug = name
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim();
+    createForm.setValue('slug', slug);
+  };
 
   // Create service mutation
   const createServiceMutation = useMutation({
     mutationFn: async (data: ServiceFormData) => {
       const response = await fetch('/api/admin/services', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(data),
       });
-      if (!response.ok) throw new Error('Failed to create service');
+      if (!response.ok) {
+        throw new Error('Failed to create service');
+      }
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/services'] });
       setIsCreateDialogOpen(false);
       createForm.reset();
-      toast({ title: "Service created successfully" });
-    },
-    onError: (error: Error) => {
-      toast({ title: "Failed to create service", description: error.message, variant: "destructive" });
-    },
-  });
-
-  // Update service mutation
-  const updateServiceMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: ServiceFormData }) => {
-      const response = await fetch(`/api/admin/services/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+      toast({
+        title: "Success",
+        description: "Service created successfully",
       });
-      if (!response.ok) throw new Error('Failed to update service');
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/services'] });
-      setEditingService(null);
-      editForm.reset();
-      toast({ title: "Service updated successfully" });
     },
     onError: (error: Error) => {
-      toast({ title: "Failed to update service", description: error.message, variant: "destructive" });
-    },
-  });
-
-  // Delete service mutation
-  const deleteServiceMutation = useMutation({
-    mutationFn: async (id: number) => {
-      const response = await fetch(`/api/admin/services/${id}`, {
-        method: 'DELETE',
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
       });
-      if (!response.ok) throw new Error('Failed to delete service');
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/services'] });
-      toast({ title: "Service deleted successfully" });
-    },
-    onError: (error: Error) => {
-      toast({ title: "Failed to delete service", description: error.message, variant: "destructive" });
     },
   });
 
-  // Generate slug from name
-  const generateSlug = (name: string) => {
-    return name
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .trim();
-  };
-
-  // Handle name change and auto-generate slug
-  const handleNameChange = (name: string, form: any) => {
-    form.setValue('name', name);
-    if (!form.getValues('slug')) {
-      form.setValue('slug', generateSlug(name));
-    }
-  };
-
-  // Open edit dialog
-  const openEditDialog = (service: Service) => {
-    setEditingService(service);
-    editForm.reset({
-      name: service.name,
-      slug: service.slug,
-      description: service.description || "",
-      category: service.category || "",
-      seoTitle: service.seoTitle || "",
-      seoDescription: service.seoDescription || "",
-      content: service.content || "",
-      isActive: service.isActive,
-    });
+  const onCreateSubmit = (data: ServiceFormData) => {
+    createServiceMutation.mutate(data);
   };
 
   // Filter services
   const filteredServices = services.filter((service: Service) => {
     const matchesSearch = service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          service.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !selectedCategory || selectedCategory === "all" || service.category === selectedCategory;
+    const matchesCategory = !selectedCategory || service.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
   // Get unique categories
-  const categories = Array.from(new Set(services.map((s: Service) => s.category).filter(Boolean))) as string[];
+  const categories = [...new Set(services.map((service: Service) => service.category).filter(Boolean))];
 
-  if (servicesError) {
+  if (servicesLoading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Services Management</CardTitle>
-          <CardDescription>
-            Services system is being set up. Database tables will be created automatically.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8">
-            <Wand2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Services System Initializing</h3>
-            <p className="text-muted-foreground mb-4">
-              The services feature is being prepared. Once database tables are created, you'll be able to:
-            </p>
-            <ul className="text-left max-w-md mx-auto space-y-2 text-sm text-muted-foreground">
-              <li>• Create and manage generic services</li>
-              <li>• Link services to businesses</li>
-              <li>• Generate SEO-optimized service pages</li>
-              <li>• Use AI to populate services automatically</li>
-            </ul>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold">Services Management</h2>
+            <p className="text-muted-foreground">Manage services that businesses can offer</p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+        <div className="animate-pulse space-y-4">
+          <div className="h-10 bg-gray-200 rounded"></div>
+          <div className="h-40 bg-gray-200 rounded"></div>
+          <div className="h-40 bg-gray-200 rounded"></div>
+        </div>
+      </div>
     );
   }
 
@@ -234,74 +194,77 @@ export default function ServicesManagement() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">Services Management</h2>
-          <p className="text-muted-foreground">
-            Manage generic services that can be linked to businesses
-          </p>
+          <p className="text-muted-foreground">AI-powered service generation based on your business directory</p>
         </div>
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Service
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Create New Service</DialogTitle>
-              <DialogDescription>
-                Add a new generic service that can be linked to businesses
-              </DialogDescription>
-            </DialogHeader>
-            <Form {...createForm}>
-              <form onSubmit={createForm.handleSubmit((data) => createServiceMutation.mutate(data))} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={createForm.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Service Name</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="e.g., Teeth Whitening" 
-                            {...field}
-                            onChange={(e) => handleNameChange(e.target.value, createForm)}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={createForm.control}
-                    name="slug"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>URL Slug</FormLabel>
-                        <FormControl>
-                          <Input placeholder="teeth-whitening" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                
-                <FormField
-                  control={createForm.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Description</FormLabel>
-                      <FormControl>
-                        <Textarea placeholder="Brief description of the service" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="grid grid-cols-2 gap-4">
+        <div className="flex gap-3">
+          <Button
+            onClick={() => generateServicesMutation.mutate()}
+            disabled={generateServicesMutation.isPending}
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+          >
+            {generateServicesMutation.isPending ? (
+              <>
+                <Sparkles className="h-4 w-4 mr-2 animate-spin" />
+                Generating...
+              </>
+            ) : (
+              <>
+                <Wand2 className="h-4 w-4 mr-2" />
+                Generate with AI
+              </>
+            )}
+          </Button>
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Service
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Create New Service</DialogTitle>
+                <DialogDescription>
+                  Add a new service that businesses can offer to customers
+                </DialogDescription>
+              </DialogHeader>
+              <Form {...createForm}>
+                <form onSubmit={createForm.handleSubmit(onCreateSubmit)} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={createForm.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Service Name</FormLabel>
+                          <FormControl>
+                            <Input 
+                              {...field} 
+                              onChange={(e) => {
+                                field.onChange(e);
+                                handleNameChange(e.target.value);
+                              }}
+                              placeholder="e.g., Teeth Cleaning"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={createForm.control}
+                      name="slug"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>URL Slug</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="teeth-cleaning" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                   <FormField
                     control={createForm.control}
                     name="category"
@@ -309,7 +272,61 @@ export default function ServicesManagement() {
                       <FormItem>
                         <FormLabel>Category</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g., Cosmetic, Preventive" {...field} />
+                          <Input {...field} placeholder="e.g., Preventive Care" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={createForm.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Description</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} placeholder="Brief description of the service..." rows={3} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="grid grid-cols-1 gap-4">
+                    <FormField
+                      control={createForm.control}
+                      name="seoTitle"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>SEO Title</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="Professional Teeth Cleaning Services" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={createForm.control}
+                      name="seoDescription"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>SEO Description</FormLabel>
+                          <FormControl>
+                            <Textarea {...field} placeholder="Meta description for search engines..." rows={2} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <FormField
+                    control={createForm.control}
+                    name="content"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Detailed Content</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} placeholder="Detailed description of the service..." rows={4} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -320,335 +337,155 @@ export default function ServicesManagement() {
                     name="isActive"
                     render={({ field }) => (
                       <FormItem className="flex items-center space-x-2">
-                        <FormLabel>Active</FormLabel>
                         <FormControl>
                           <Switch checked={field.value} onCheckedChange={field.onChange} />
                         </FormControl>
+                        <FormLabel>Active</FormLabel>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                </div>
-
-                <FormField
-                  control={createForm.control}
-                  name="seoTitle"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>SEO Title</FormLabel>
-                      <FormControl>
-                        <Input placeholder="SEO-optimized page title" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={createForm.control}
-                  name="seoDescription"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>SEO Description</FormLabel>
-                      <FormControl>
-                        <Textarea placeholder="Meta description for search engines" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={createForm.control}
-                  name="content"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Page Content</FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          placeholder="Rich content for the service page"
-                          className="min-h-[100px]"
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="flex justify-end space-x-2">
-                  <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button type="submit" disabled={createServiceMutation.isPending}>
-                    {createServiceMutation.isPending ? "Creating..." : "Create Service"}
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </DialogContent>
-        </Dialog>
+                  <div className="flex justify-end space-x-2">
+                    <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button type="submit" disabled={createServiceMutation.isPending}>
+                      {createServiceMutation.isPending ? "Creating..." : "Create Service"}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
-      {/* Filters */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex items-center space-x-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  placeholder="Search services..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
+      {/* AI Generation Info */}
+      {services.length === 0 && (
+        <Card className="border-dashed border-2 border-blue-200 bg-blue-50">
+          <CardContent className="p-6 text-center">
+            <div className="flex flex-col items-center space-y-4">
+              <div className="p-3 bg-blue-100 rounded-full">
+                <Wand2 className="h-8 w-8 text-blue-600" />
               </div>
-            </div>
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Filter by category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {categories.map((category: string) => (
-                  <SelectItem key={category} value={category}>
-                    {category}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Services List */}
-      <div className="grid gap-4">
-        {servicesLoading ? (
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center py-8">Loading services...</div>
-            </CardContent>
-          </Card>
-        ) : filteredServices.length === 0 ? (
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center py-8">
-                <Tag className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No Services Found</h3>
-                <p className="text-muted-foreground">
-                  {searchTerm || selectedCategory ? "No services match your filters." : "Get started by creating your first service."}
+              <div>
+                <h3 className="text-lg font-semibold text-blue-900">No Services Yet</h3>
+                <p className="text-blue-700 max-w-md">
+                  Click "Generate with AI" to automatically create relevant services based on your existing business listings.
+                  The AI will analyze your business categories and types to generate appropriate services.
                 </p>
               </div>
-            </CardContent>
-          </Card>
-        ) : (
-          filteredServices.map((service: Service) => (
-            <Card key={service.id}>
-              <CardContent className="pt-6">
+              <Button
+                onClick={() => generateServicesMutation.mutate()}
+                disabled={generateServicesMutation.isPending}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                {generateServicesMutation.isPending ? (
+                  <>
+                    <Sparkles className="h-4 w-4 mr-2 animate-spin" />
+                    Analyzing Businesses...
+                  </>
+                ) : (
+                  <>
+                    <Building2 className="h-4 w-4 mr-2" />
+                    Analyze Directory & Generate Services
+                  </>
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Search and Filter */}
+      {services.length > 0 && (
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input
+              placeholder="Search services..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <SelectTrigger className="w-full sm:w-48">
+              <SelectValue placeholder="All Categories" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">All Categories</SelectItem>
+              {categories.map((category) => (
+                <SelectItem key={category} value={category}>{category}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
+      {/* Services Grid */}
+      {services.length > 0 && (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {filteredServices.map((service: Service) => (
+            <Card key={service.id} className="hover:shadow-lg transition-shadow">
+              <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <h3 className="text-lg font-semibold">{service.name}</h3>
-                      {service.category && (
-                        <Badge variant="secondary">{service.category}</Badge>
-                      )}
-                      {!service.isActive && (
-                        <Badge variant="destructive">Inactive</Badge>
-                      )}
-                    </div>
-                    <p className="text-muted-foreground text-sm mb-2">
-                      Slug: /services/{service.slug}
-                    </p>
-                    {service.description && (
-                      <p className="text-sm mb-2">{service.description}</p>
+                    <CardTitle className="text-lg">{service.name}</CardTitle>
+                    {service.category && (
+                      <Badge variant="secondary" className="mt-1">
+                        <Tag className="h-3 w-3 mr-1" />
+                        {service.category}
+                      </Badge>
                     )}
-                    <div className="flex items-center space-x-4 text-xs text-muted-foreground">
-                      <span>Created: {new Date(service.createdAt).toLocaleDateString()}</span>
-                      {service.businessCount !== undefined && (
-                        <span>{service.businessCount} businesses</span>
-                      )}
-                    </div>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => window.open(`/services/${service.slug}`, '_blank')}
-                    >
-                      <ExternalLink className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => openEditDialog(service)}
-                    >
+                  <div className="flex items-center space-x-1">
+                    {service.isActive ? (
+                      <Badge variant="default" className="bg-green-100 text-green-800">Active</Badge>
+                    ) : (
+                      <Badge variant="secondary">Inactive</Badge>
+                    )}
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {service.description && (
+                  <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                    {service.description}
+                  </p>
+                )}
+                <div className="flex items-center justify-between">
+                  <div className="text-xs text-muted-foreground">
+                    Slug: /{service.slug}
+                  </div>
+                  <div className="flex space-x-2">
+                    <Button size="sm" variant="outline">
                       <Edit className="h-4 w-4" />
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        if (confirm('Are you sure you want to delete this service?')) {
-                          deleteServiceMutation.mutate(service.id);
-                        }
-                      }}
-                    >
+                    <Button size="sm" variant="outline">
+                      <ExternalLink className="h-4 w-4" />
+                    </Button>
+                    <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
               </CardContent>
             </Card>
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
 
-      {/* Edit Dialog */}
-      <Dialog open={!!editingService} onOpenChange={() => setEditingService(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Edit Service</DialogTitle>
-            <DialogDescription>
-              Update service information
-            </DialogDescription>
-          </DialogHeader>
-          {editingService && (
-            <Form {...editForm}>
-              <form onSubmit={editForm.handleSubmit((data) => 
-                updateServiceMutation.mutate({ id: editingService.id, data })
-              )} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={editForm.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Service Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="e.g., Teeth Whitening" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={editForm.control}
-                    name="slug"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>URL Slug</FormLabel>
-                        <FormControl>
-                          <Input placeholder="teeth-whitening" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                
-                <FormField
-                  control={editForm.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Description</FormLabel>
-                      <FormControl>
-                        <Textarea placeholder="Brief description of the service" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={editForm.control}
-                    name="category"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Category</FormLabel>
-                        <FormControl>
-                          <Input placeholder="e.g., Cosmetic, Preventive" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={editForm.control}
-                    name="isActive"
-                    render={({ field }) => (
-                      <FormItem className="flex items-center space-x-2">
-                        <FormLabel>Active</FormLabel>
-                        <FormControl>
-                          <Switch checked={field.value} onCheckedChange={field.onChange} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <FormField
-                  control={editForm.control}
-                  name="seoTitle"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>SEO Title</FormLabel>
-                      <FormControl>
-                        <Input placeholder="SEO-optimized page title" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={editForm.control}
-                  name="seoDescription"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>SEO Description</FormLabel>
-                      <FormControl>
-                        <Textarea placeholder="Meta description for search engines" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={editForm.control}
-                  name="content"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Page Content</FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          placeholder="Rich content for the service page"
-                          className="min-h-[100px]"
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="flex justify-end space-x-2">
-                  <Button type="button" variant="outline" onClick={() => setEditingService(null)}>
-                    Cancel
-                  </Button>
-                  <Button type="submit" disabled={updateServiceMutation.isPending}>
-                    {updateServiceMutation.isPending ? "Updating..." : "Update Service"}
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          )}
-        </DialogContent>
-      </Dialog>
+      {servicesError && (
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2 text-red-800">
+              <AlertCircle className="h-5 w-5" />
+              <span>Error loading services: {servicesError.message}</span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
