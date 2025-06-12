@@ -1,5 +1,7 @@
 import { Readable } from 'stream';
 import csv from 'csv-parser';
+import { sql } from 'drizzle-orm';
+import { db } from './db';
 import { storage } from './storage';
 import type { InsertBusiness } from '@shared/schema';
 
@@ -169,8 +171,11 @@ export class CSVImportService {
     let counter = 1;
 
     while (true) {
-      const existing = await storage.getBusinessBySlug(slug);
-      if (!existing || (excludePlaceId && existing.placeid === excludePlaceId)) {
+      const existing = await db.execute(sql`
+        SELECT placeid FROM businesses WHERE slug = ${slug}
+      `);
+      
+      if (existing.rows.length === 0 || (excludePlaceId && existing.rows[0].placeid === excludePlaceId)) {
         return slug;
       }
       slug = `${baseSlug}-${counter}`;
@@ -308,10 +313,12 @@ export class CSVImportService {
           const baseSlug = this.generateSlug(businessData.title!, businessData.placeid!);
           businessData.slug = await this.ensureUniqueSlug(baseSlug, businessData.placeid);
 
-          // Check for existing business
-          const existing = await storage.getBusinessById(businessData.placeid!);
+          // Check for existing business using simple query
+          const existingCheck = await db.execute(sql`
+            SELECT placeid FROM businesses WHERE placeid = ${businessData.placeid}
+          `);
           
-          if (existing) {
+          if (existingCheck.rows.length > 0) {
             if (options.updateDuplicates) {
               await storage.updateBusiness(businessData.placeid!, businessData);
               result.updated++;

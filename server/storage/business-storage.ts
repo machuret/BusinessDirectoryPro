@@ -66,56 +66,37 @@ export class BusinessStorage {
   }
 
   async getBusinessById(id: string): Promise<BusinessWithCategory | undefined> {
-    const result = await db
-      .select({
-        placeid: businesses.placeid,
-        slug: businesses.slug,
-        title: businesses.title,
-        subtitle: businesses.subtitle,
-        description: businesses.description,
-        address: businesses.address,
-        city: businesses.city,
-        state: businesses.state,
-        country: businesses.country,
-        phone: businesses.phone,
-        email: businesses.email,
-        website: businesses.website,
-        hours: businesses.hours,
-        latitude: businesses.latitude,
-        longitude: businesses.longitude,
-        photos: businesses.photos,
-        logo: businesses.logo,
-        featured: businesses.featured,
-        verified: businesses.verified,
-        status: businesses.status,
-        metaTitle: businesses.metaTitle,
-        metaDescription: businesses.metaDescription,
-        totalscore: businesses.totalscore,
-        totalreviews: businesses.totalreviews,
-        averagerating: businesses.averagerating,
-        categoryname: businesses.categoryname,
-        categoryid: businesses.categoryid,
-        ownerId: businesses.ownerId,
-        submittedBy: businesses.submittedBy,
-        createdAt: businesses.createdAt,
-        updatedAt: businesses.updatedAt,
-        faqs: businesses.faqs,
-        faq: businesses.faq,
-        category: {
-          id: categories.id,
-          name: categories.name,
-          slug: categories.slug,
-          description: categories.description,
-          icon: categories.icon,
-          color: categories.color
-        }
-      })
-      .from(businesses)
-      .leftJoin(categories, eq(businesses.categoryname, categories.name))
-      .where(eq(businesses.placeid, id))
-      .limit(1);
+    try {
+      // Use raw SQL query to avoid field mapping issues
+      const result = await db.execute(sql`
+        SELECT b.*, c.name as category_name, c.slug as category_slug, c.description as category_description, 
+               c.icon as category_icon, c.color as category_color, c.id as category_id
+        FROM businesses b
+        LEFT JOIN categories c ON b.categoryname = c.name
+        WHERE b.placeid = ${id}
+        LIMIT 1
+      `);
 
-    return result[0];
+      if (result.rows.length === 0) {
+        return undefined;
+      }
+
+      const row = result.rows[0] as any;
+      return {
+        ...row,
+        category: row.category_id ? {
+          id: row.category_id,
+          name: row.category_name,
+          slug: row.category_slug,
+          description: row.category_description,
+          icon: row.category_icon,
+          color: row.category_color
+        } : null
+      } as BusinessWithCategory;
+    } catch (error) {
+      console.error('Error fetching business by ID:', error);
+      return undefined;
+    }
   }
 
   async getBusinessBySlug(slug: string): Promise<BusinessWithCategory | undefined> {
