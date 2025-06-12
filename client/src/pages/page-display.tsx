@@ -25,90 +25,106 @@ export default function PageDisplay() {
     }
   });
 
+  // Fetch site settings for SEO
+  const { data: siteSettings } = useQuery({
+    queryKey: ["/api/site-settings"],
+  });
+
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="animate-pulse space-y-4">
-            <div className="h-8 bg-gray-200 rounded w-1/2"></div>
-            <div className="h-4 bg-gray-200 rounded w-full"></div>
-            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-            <div className="h-4 bg-gray-200 rounded w-full"></div>
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="container mx-auto p-6">
+          <div className="max-w-4xl mx-auto">
+            <div className="animate-pulse space-y-4">
+              <div className="h-8 bg-gray-200 rounded w-1/2"></div>
+              <div className="h-4 bg-gray-200 rounded w-full"></div>
+              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+              <div className="h-4 bg-gray-200 rounded w-full"></div>
+            </div>
           </div>
         </div>
+        <Footer />
       </div>
     );
   }
 
   if (error || !page) {
     return (
-      <div className="container mx-auto p-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <Card>
-            <CardHeader>
-              <CardTitle>Page Not Found</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground mb-4">
-                The page you're looking for doesn't exist or has been removed.
-              </p>
-              <Link to="/">
-                <Button>
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Home
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="container mx-auto p-6">
+          <div className="max-w-4xl mx-auto text-center">
+            <Card>
+              <CardHeader>
+                <CardTitle>Page Not Found</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground mb-4">
+                  The page you're looking for doesn't exist or has been removed.
+                </p>
+                <Link to="/">
+                  <Button>
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Back to Home
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          </div>
         </div>
+        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="max-w-4xl mx-auto">
-        {/* Navigation */}
-        <div className="mb-6">
-          <Link to="/">
-            <Button variant="outline" size="sm">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Home
-            </Button>
-          </Link>
-        </div>
+    <div className="min-h-screen bg-gray-50">
+      <SEOHead 
+        title={page.title}
+        description={page.seoDescription || undefined}
+        siteSettings={siteSettings as any}
+        pageType="about"
+      />
+      <Header />
+      <div className="container mx-auto p-6">
+        <div className="max-w-4xl mx-auto">
+          {/* Navigation */}
+          <div className="mb-6">
+            <Link to="/">
+              <Button variant="outline" size="sm">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Home
+              </Button>
+            </Link>
+          </div>
 
-        {/* Page Content */}
-        <article className="prose prose-lg max-w-none">
-          <header className="mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
-              {page.title}
-            </h1>
-            {page.seoDescription && (
-              <p className="text-xl text-gray-600 leading-relaxed">
-                {page.seoDescription}
-              </p>
+          {/* Page Content */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-3xl font-bold">{page.title}</CardTitle>
+              {page.metaDescription && (
+                <p className="text-lg text-muted-foreground">{page.metaDescription}</p>
+              )}
+            </CardHeader>
+            <CardContent>
+              <div 
+                className="prose max-w-none"
+                dangerouslySetInnerHTML={{ __html: page.content }}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Page Meta Info */}
+          <div className="mt-8 pt-6 border-t text-sm text-muted-foreground">
+            <p>Published: {new Date(page.createdAt).toLocaleDateString()}</p>
+            {page.updatedAt && page.updatedAt !== page.createdAt && (
+              <p>Last updated: {new Date(page.updatedAt).toLocaleDateString()}</p>
             )}
-          </header>
-          
-          <div 
-            className="prose prose-lg max-w-none"
-            dangerouslySetInnerHTML={{ __html: page.content || '' }}
-          />
-          
-          {page.updatedAt && (
-            <footer className="mt-12 pt-8 border-t border-gray-200">
-              <p className="text-sm text-gray-500">
-                Last updated: {new Date(page.updatedAt).toLocaleDateString('en-AU', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
-                })}
-              </p>
-            </footer>
-          )}
-        </article>
+          </div>
+        </div>
       </div>
+      <Footer />
     </div>
   );
 }
