@@ -34,10 +34,6 @@ const businessSubmissionSchema = z.object({
   website: z.string().optional(),
   hours: z.string().optional(),
   categoryId: z.number().min(1, "Please select a category"),
-  facebook: z.string().optional(),
-  twitter: z.string().optional(),
-  instagram: z.string().optional(),
-  linkedin: z.string().optional(),
 });
 
 type RegistrationData = z.infer<typeof registrationSchema>;
@@ -78,10 +74,6 @@ export default function AddBusinessPage() {
       website: "",
       hours: "",
       categoryId: 0,
-      facebook: "",
-      twitter: "",
-      instagram: "",
-      linkedin: "",
     },
   });
 
@@ -440,68 +432,7 @@ export default function AddBusinessPage() {
                     />
                   </div>
 
-                  {/* Social Media (Optional) */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Social Media (Optional)</h3>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <FormField
-                        control={businessForm.control}
-                        name="facebook"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Facebook</FormLabel>
-                            <FormControl>
-                              <Input {...field} placeholder="Facebook URL" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={businessForm.control}
-                        name="twitter"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Twitter</FormLabel>
-                            <FormControl>
-                              <Input {...field} placeholder="Twitter URL" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={businessForm.control}
-                        name="instagram"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Instagram</FormLabel>
-                            <FormControl>
-                              <Input {...field} placeholder="Instagram URL" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={businessForm.control}
-                        name="linkedin"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>LinkedIn</FormLabel>
-                            <FormControl>
-                              <Input {...field} placeholder="LinkedIn URL" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
+
 
                   <Button 
                     type="submit" 
