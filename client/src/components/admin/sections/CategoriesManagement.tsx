@@ -20,14 +20,12 @@ interface CategoryWithCount {
   name: string;
   slug: string;
   description?: string;
-  pageTitle?: string;
   count: number;
 }
 
 const categorySchema = z.object({
   name: z.string().min(1, "Category name is required"),
   description: z.string().optional(),
-  pageTitle: z.string().optional(),
 });
 
 type CategoryFormData = z.infer<typeof categorySchema>;
@@ -47,7 +45,6 @@ export default function CategoriesManagement() {
     defaultValues: {
       name: "",
       description: "",
-      pageTitle: "",
     },
   });
 
@@ -188,7 +185,7 @@ export default function CategoriesManagement() {
                       {category.description || "No description"}
                     </TableCell>
                     <TableCell className="max-w-xs truncate">
-                      {category.pageTitle || "No page title"}
+                      {category.description || "No description"}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">

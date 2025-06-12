@@ -28,7 +28,6 @@ export const categories = pgTable("categories", {
   name: varchar("name").notNull().unique(),
   slug: varchar("slug").notNull().unique(),
   description: text("description"),
-  pageTitle: text("page_title"),
   icon: varchar("icon").notNull(),
   color: varchar("color").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
