@@ -22,6 +22,7 @@ import PageDisplay from "@/pages/page-display";
 import Login from "@/pages/login";
 import AddBusiness from "@/pages/add-business";
 import BusinessesPage from "@/pages/businesses";
+import SlugRouter from "@/components/SlugRouter";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -52,7 +53,7 @@ function Router() {
           <Route path="/admin/menu/:id" component={MenuEdit} />
         </>
       )}
-      <Route path="/:slug" component={BusinessDetail} />
+      <Route path="/:slug" component={SlugRouter} />
       <Route component={NotFound} />
     </Switch>
   );
