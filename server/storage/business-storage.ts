@@ -200,14 +200,32 @@ export class BusinessStorage {
   }
 
   async createBusiness(business: InsertBusiness): Promise<Business> {
-    const [created] = await db.insert(businesses).values(business).returning();
+    // Filter out undefined values to prevent Drizzle ORM errors
+    const sanitizedBusiness: any = {};
+    Object.keys(business).forEach(key => {
+      const value = (business as any)[key];
+      if (value !== undefined) {
+        sanitizedBusiness[key] = value;
+      }
+    });
+
+    const [created] = await db.insert(businesses).values(sanitizedBusiness).returning();
     return created;
   }
 
   async updateBusiness(id: string, business: Partial<InsertBusiness>): Promise<Business | undefined> {
+    // Filter out undefined values to prevent Drizzle ORM errors
+    const sanitizedBusiness: any = {};
+    Object.keys(business).forEach(key => {
+      const value = (business as any)[key];
+      if (value !== undefined) {
+        sanitizedBusiness[key] = value;
+      }
+    });
+
     const [updated] = await db
       .update(businesses)
-      .set({ ...business, updatedAt: new Date() })
+      .set({ ...sanitizedBusiness, updatedAt: new Date() })
       .where(eq(businesses.placeid, id))
       .returning();
     return updated;

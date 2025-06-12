@@ -184,22 +184,27 @@ export class CSVImportService {
       throw new Error('Invalid CSV row data');
     }
 
+    // Ensure required fields are present
+    if (!csvRow.placeid || !csvRow.title) {
+      throw new Error('Missing required fields: placeid and title are required');
+    }
+
     const business: any = {
       placeid: csvRow.placeid,
       title: csvRow.title || csvRow.name,
-      subtitle: csvRow.subtitle,
-      description: csvRow.description,
-      categoryname: csvRow.categoryname || csvRow.category,
-      website: csvRow.website,
-      phone: csvRow.phone,
-      phoneunformatted: csvRow.phoneunformatted,
-      email: csvRow.email,
-      address: csvRow.address,
-      neighborhood: csvRow.neighborhood,
-      street: csvRow.street,
-      city: csvRow.city,
-      postalcode: csvRow.postalcode,
-      state: csvRow.state,
+      subtitle: csvRow.subtitle || null,
+      description: csvRow.description || null,
+      categoryname: csvRow.categoryname || csvRow.category || null,
+      website: csvRow.website || null,
+      phone: csvRow.phone || null,
+      phoneunformatted: csvRow.phoneunformatted || null,
+      email: csvRow.email || null,
+      address: csvRow.address || null,
+      neighborhood: csvRow.neighborhood || null,
+      street: csvRow.street || null,
+      city: csvRow.city || null,
+      postalcode: csvRow.postalcode || null,
+      state: csvRow.state || null,
       countrycode: csvRow.countrycode || 'AU',
       lat: csvRow.lat ? parseFloat(csvRow.lat) : null,
       lng: csvRow.lng ? parseFloat(csvRow.lng) : null,
@@ -208,12 +213,12 @@ export class CSVImportService {
       featured: csvRow.featured === 'true' || csvRow.featured === true,
       permanentlyclosed: csvRow.permanentlyclosed === 'true' || csvRow.permanentlyclosed === true,
       temporarilyclosed: csvRow.temporarilyclosed === 'true' || csvRow.temporarilyclosed === true,
-      imageurl: csvRow.imageurl,
-      logo: csvRow.logo,
+      imageurl: csvRow.imageurl || null,
+      logo: csvRow.logo || null,
       status: 'approved',
-      submittedBy: 'csv-import',
-      createdAt: new Date(),
-      updatedAt: new Date()
+      submittedby: 'csv-import',
+      createdat: new Date(),
+      updatedat: new Date()
     };
 
     // Handle JSON fields safely
@@ -244,7 +249,17 @@ export class CSVImportService {
         : business.description;
     }
 
-    return business;
+    // Filter out undefined values and convert empty strings to null to prevent Drizzle ORM errors
+    const cleanBusiness: any = {};
+    Object.keys(business).forEach(key => {
+      const value = business[key];
+      if (value !== undefined) {
+        // Convert empty strings to null for proper database storage
+        cleanBusiness[key] = (typeof value === 'string' && value.trim() === '') ? null : value;
+      }
+    });
+
+    return cleanBusiness;
   }
 
   async importBusinesses(csvData: any[], options: ImportOptions = {
