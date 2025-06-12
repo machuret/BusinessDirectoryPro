@@ -179,6 +179,11 @@ export class CSVImportService {
   }
 
   private transformCSVToBusiness(csvRow: any): Partial<InsertBusiness> {
+    // Safety check to prevent null/undefined processing errors
+    if (!csvRow || typeof csvRow !== 'object') {
+      throw new Error('Invalid CSV row data');
+    }
+
     const business: any = {
       placeid: csvRow.placeid,
       title: csvRow.title || csvRow.name,
@@ -214,10 +219,15 @@ export class CSVImportService {
     // Handle JSON fields safely
     const jsonFields = ['categories', 'reviewsdistribution', 'reviews', 'imageurls', 'openinghours', 'amenities'];
     for (const field of jsonFields) {
-      if (csvRow[field]) {
+      if (csvRow[field] && csvRow[field] !== 'undefined' && csvRow[field] !== 'null' && csvRow[field] !== '') {
         try {
-          business[field] = typeof csvRow[field] === 'string' ? JSON.parse(csvRow[field]) : csvRow[field];
-        } catch {
+          // Ensure we have a valid string before parsing
+          const fieldValue = typeof csvRow[field] === 'string' ? csvRow[field].trim() : csvRow[field];
+          if (fieldValue && fieldValue !== 'undefined' && fieldValue !== 'null') {
+            business[field] = typeof fieldValue === 'string' ? JSON.parse(fieldValue) : fieldValue;
+          }
+        } catch (error) {
+          console.warn(`Failed to parse JSON field ${field}:`, csvRow[field]);
           // Skip invalid JSON
         }
       }
@@ -308,11 +318,12 @@ export class CSVImportService {
           
           result.success++;
         } catch (error) {
+          console.error('CSV import error for row:', csvData.indexOf(csvRow) + 1, error);
           result.errors.push({
             row: csvData.indexOf(csvRow) + 1,
             field: 'general',
-            value: csvRow,
-            message: error instanceof Error ? error.message : 'Unknown error occurred'
+            value: error instanceof Error ? error.message : 'Data transformation failed',
+            message: error instanceof Error ? error.message : 'Cannot process row data - check for invalid JSON fields'
           });
         }
       }
