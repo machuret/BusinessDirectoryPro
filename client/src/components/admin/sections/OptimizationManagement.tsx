@@ -145,29 +145,177 @@ export default function OptimizationManagement() {
               </div>
             </div>
             
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Recent Optimizations</h3>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center p-3 border rounded">
-                  <div>
-                    <div className="font-medium">Kedron Family Dental</div>
-                    <div className="text-sm text-muted-foreground">Description optimized • 2 hours ago</div>
-                  </div>
-                  <Badge variant="default">Completed</Badge>
-                </div>
-                
-                <div className="flex justify-between items-center p-3 border rounded">
-                  <div>
-                    <div className="font-medium">Brisbane Eye Centre</div>
-                    <div className="text-sm text-muted-foreground">FAQ generated • 4 hours ago</div>
-                  </div>
-                  <Badge variant="default">Completed</Badge>
-                </div>
-              </div>
-            </div>
           </div>
         </CardContent>
       </Card>
+
+      {/* Optimize Descriptions Dialog */}
+      <Dialog open={showOptimizeDialog} onOpenChange={setShowOptimizeDialog}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Optimize Business Descriptions</DialogTitle>
+            <DialogDescription>
+              Select businesses to enhance their descriptions using AI
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="max-h-96 overflow-y-auto border rounded">
+            {allBusinesses && allBusinesses.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12">Select</TableHead>
+                    <TableHead>Business</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead>Current Description</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {allBusinesses.map((business) => (
+                    <TableRow key={business.placeid}>
+                      <TableCell>
+                        <input
+                          type="checkbox"
+                          checked={selectedBusinesses.includes(business.placeid)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedBusinesses([...selectedBusinesses, business.placeid]);
+                            } else {
+                              setSelectedBusinesses(selectedBusinesses.filter(id => id !== business.placeid));
+                            }
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <div className="font-medium">{business.title}</div>
+                          <div className="text-sm text-muted-foreground">{business.city}</div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{business.categoryname}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm">
+                          {business.description ? 
+                            (business.description.length > 50 ? 
+                              business.description.substring(0, 50) + '...' : 
+                              business.description) : 
+                            'No description'
+                          }
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                No businesses available
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowOptimizeDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={startOptimization} disabled={isProcessing || selectedBusinesses.length === 0}>
+              {isProcessing ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                `Optimize ${selectedBusinesses.length} Businesses`
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Generate FAQs Dialog */}
+      <Dialog open={showFaqDialog} onOpenChange={setShowFaqDialog}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Generate Business FAQs</DialogTitle>
+            <DialogDescription>
+              Select businesses to generate frequently asked questions using AI
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="max-h-96 overflow-y-auto border rounded">
+            {allBusinesses && allBusinesses.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12">Select</TableHead>
+                    <TableHead>Business</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead>Current FAQs</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {allBusinesses.map((business) => (
+                    <TableRow key={business.placeid}>
+                      <TableCell>
+                        <input
+                          type="checkbox"
+                          checked={selectedBusinesses.includes(business.placeid)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedBusinesses([...selectedBusinesses, business.placeid]);
+                            } else {
+                              setSelectedBusinesses(selectedBusinesses.filter(id => id !== business.placeid));
+                            }
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <div className="font-medium">{business.title}</div>
+                          <div className="text-sm text-muted-foreground">{business.city}</div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{business.categoryname}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm">
+                          {business.faq && business.faq.length > 0 ? 
+                            `${business.faq.length} FAQs` : 
+                            'No FAQs'
+                          }
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                No businesses available
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowFaqDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={startOptimization} disabled={isProcessing || selectedBusinesses.length === 0}>
+              {isProcessing ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                `Generate FAQs for ${selectedBusinesses.length} Businesses`
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

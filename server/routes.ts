@@ -12,6 +12,7 @@ import { setupAdminRoutes } from "./routes/admin";
 import { setupReviewRoutes } from "./routes/reviews";
 import { setupCategoryRoutes } from "./routes/categories";
 import { setupSettingsRoutes } from "./routes/settings";
+import optimizationRoutes from "./routes/optimization";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Configure multer for file uploads
@@ -40,6 +41,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   setupReviewRoutes(app);
   setupCategoryRoutes(app);
   setupSettingsRoutes(app);
+  
+  // Register optimization routes
+  app.use('/api/admin', optimizationRoutes);
 
   // CSV Import functionality
   app.post('/api/admin/import-csv', isAuthenticated, isAdmin, upload.single('csvFile'), async (req, res) => {
