@@ -4,6 +4,9 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
+import { UIProvider } from "@/contexts/UIContext";
+import { ErrorBoundary } from "@/components/error/ErrorBoundary";
+import { LoadingState } from "@/components/loading/LoadingState";
 import Home from "@/pages/home";
 import Categories from "@/pages/categories";
 import Cities from "@/pages/cities";
@@ -23,11 +26,7 @@ function Router() {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <LoadingState variant="spinner" size="lg" message="Initializing application..." />;
   }
 
   return (
@@ -59,10 +58,14 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Router />
-      </TooltipProvider>
+      <UIProvider>
+        <ErrorBoundary>
+          <TooltipProvider>
+            <Toaster />
+            <Router />
+          </TooltipProvider>
+        </ErrorBoundary>
+      </UIProvider>
     </QueryClientProvider>
   );
 }

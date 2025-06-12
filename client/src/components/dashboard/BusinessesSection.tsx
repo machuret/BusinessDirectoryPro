@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,8 +7,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useBusinessMutations } from "@/hooks/useBusinessData";
+import { useFormManagement, useModalState } from "@/hooks/useFormManagement";
+import { LoadingState } from "@/components/loading/LoadingState";
+import { ErrorState } from "@/components/error/ErrorState";
 import { Building2, Edit, Star, MapPin, Phone } from "lucide-react";
 import type { BusinessWithCategory } from "@shared/schema";
 
