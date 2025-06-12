@@ -1,4 +1,4 @@
-import { Link, useLocation } from "wouter";
+import { Link } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Header from "@/components/header";
@@ -9,7 +9,6 @@ import {
 
 export default function AdminLayout() {
   const { user } = useAuth();
-  const [location] = useLocation();
 
   // Check admin access
   if (!user || (user as any).role !== 'admin') {
@@ -103,104 +102,83 @@ export default function AdminLayout() {
     }
   ];
 
-  const navigationItems = [
-    { id: "businesses", label: "Businesses", icon: Building2 },
-    { id: "submissions", label: "Submissions", icon: CheckCircle },
-    { id: "homepage", label: "Homepage", icon: Home },
-    { id: "users", label: "Users", icon: Users },
-    { id: "categories", label: "Categories", icon: FileText },
-    { id: "cities", label: "Cities", icon: MapPin },
-    { id: "reviews", label: "Reviews", icon: Star },
-    { id: "ownership", label: "Ownership", icon: UserCheck },
-    { id: "import", label: "Import", icon: Download },
-    { id: "api", label: "API", icon: Key },
-    { id: "cms", label: "CMS", icon: Globe },
-    { id: "export", label: "Export", icon: Upload },
-    { id: "leads", label: "Leads", icon: Mail },
-    { id: "settings", label: "Settings", icon: Settings },
-    { id: "faq", label: "FAQ", icon: HelpCircle },
-    { id: "optimization", label: "Optimization", icon: Star },
-    { id: "featured", label: "Featured", icon: CheckCircle },
-    { id: "menu", label: "Menu", icon: Settings },
-  ];
-
-  const renderActiveSection = () => {
-    switch (activeTab) {
-      case "businesses":
-        return <BusinessManagement />;
-      case "submissions":
-        return <BusinessSubmissions />;
-      case "homepage":
-        return <HomepageManagement />;
-      case "users":
-        return <UserManagement />;
-      case "categories":
-        return <CategoriesManagement />;
-      case "cities":
-        return <CitiesManagement />;
-      case "reviews":
-        return <ReviewsManagement />;
-      case "ownership":
-        return <OwnershipManagement />;
-      case "import":
-        return <ImportManagement />;
-      case "api":
-        return <APIManagement />;
-      case "cms":
-        return <CMSManagement />;
-      case "export":
-        return <ExportManagement />;
-      case "leads":
-        return <LeadsManagement />;
-      case "settings":
-        return <SettingsManagement />;
-      case "faq":
-        return <FAQManagement />;
-      case "optimization":
-        return <OptimizationManagement />;
-      case "featured":
-        return <FeaturedManagement />;
-      case "menu":
-        return <MenuManagement />;
-      default:
-        return <BusinessManagement />;
-    }
-  };
-
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Sidebar */}
-      <div className="w-64 bg-white dark:bg-gray-800 shadow-lg border-r border-gray-200 dark:border-gray-700">
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-          <h1 className="text-xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h1>
-          <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">Business Directory Management</p>
+    <div className="min-h-screen bg-gray-50">
+      <Header />
+      
+      <div className="container mx-auto p-6">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+          <p className="text-gray-600 mt-2">Manage your business directory platform</p>
         </div>
-        
-        <nav className="mt-6 px-3 pb-6 space-y-1">
-          {navigationItems.map((item) => {
-            const Icon = item.icon;
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {adminSections.map((section, index) => {
+            const Icon = section.icon;
             return (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
-                  activeTab === item.id 
-                    ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300" 
-                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                }`}
+              <Link 
+                key={index}
+                href={section.path}
+                className="group"
               >
-                <Icon className="h-5 w-5 mr-3" />
-                {item.label}
-              </button>
+                <Card className="h-full transition-all duration-200 hover:shadow-lg hover:scale-105 cursor-pointer border-2 hover:border-gray-300">
+                  <CardContent className="p-6">
+                    <div className="flex flex-col items-center text-center space-y-4">
+                      <div className={`${section.color} p-4 rounded-full text-white group-hover:scale-110 transition-transform duration-200`}>
+                        <Icon className="h-8 w-8" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                          {section.title}
+                        </h3>
+                        <p className="text-sm text-gray-600 leading-relaxed">
+                          {section.description}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
             );
           })}
-        </nav>
-      </div>
+        </div>
 
-      {/* Main Content Area */}
-      <div className="flex-1 overflow-hidden">
-        <div className="h-full overflow-y-auto p-6">
-          {renderActiveSection()}
+        <div className="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Building2 className="h-5 w-5" />
+                <span>Quick Stats</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600">Overview of your platform metrics</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Star className="h-5 w-5" />
+                <span>Recent Activity</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600">Latest reviews and submissions</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Settings className="h-5 w-5" />
+                <span>System Status</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600">Platform health and performance</p>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
