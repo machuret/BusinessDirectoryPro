@@ -4,15 +4,16 @@ import { BusinessStorage } from "./business-storage";
 import { CategoryStorage } from "./category-storage";
 import { 
   db, eq, like, ilike, and, or, desc, asc, sql, ne,
-  reviews, siteSettings, menuItems, pages, websiteFaq, leads, contactMessages, services, businessServices,
+  reviews, siteSettings, menuItems, pages, websiteFaq, leads, contactMessages,
   type Review, type InsertReview, type SiteSetting, type InsertSiteSetting,
   type MenuItem, type InsertMenuItem, type Page, type InsertPage,
   type WebsiteFaq, type InsertWebsiteFaq, type Lead, type InsertLead,
   type ContactMessage, type InsertContactMessage, type LeadWithBusiness,
   type User, type UpsertUser, type Category, type InsertCategory,
-  type Business, type InsertBusiness, type BusinessWithCategory, type CategoryWithCount,
-  type Service, type InsertService, type BusinessService, type InsertBusinessService
+  type Business, type InsertBusiness, type BusinessWithCategory, type CategoryWithCount
 } from "./base-storage";
+
+// Services imports will be added after table creation
 
 export class ComprehensiveStorage implements IStorage {
   private userStorage = new UserStorage();

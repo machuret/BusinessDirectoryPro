@@ -36,6 +36,10 @@ import {
   type BusinessWithCategory,
   type CategoryWithCount,
   type LeadWithBusiness,
+  type Service,
+  type InsertService,
+  type BusinessService,
+  type InsertBusinessService,
 } from "@shared/schema";
 
 // Re-export types for storage modules
@@ -63,7 +67,13 @@ export type {
   BusinessWithCategory,
   CategoryWithCount,
   LeadWithBusiness,
+  Service,
+  InsertService,
+  BusinessService,
+  InsertBusinessService,
 };
+
+// Re-export database utilities and tables for storage modules
 
 interface IStorage {
   // User operations (for email/password auth)
@@ -184,18 +194,10 @@ interface IStorage {
   updateBusinessSubmissionStatus(id: string, status: string, adminNotes?: string, reviewedBy?: string): Promise<any>;
 }
 
-export { db, eq, like, ilike, and, or, desc, asc, sql, ne };
-export {
-  users,
-  categories,
-  businesses,
-  reviews,
-  siteSettings,
-  menuItems,
-  pages,
-  websiteFaq,
-  leads,
-  contactMessages
+export { 
+  db, eq, like, ilike, and, or, desc, asc, sql, ne,
+  users, categories, businesses, reviews, siteSettings, 
+  menuItems, pages, websiteFaq, leads, contactMessages
 };
 
 // Export the IStorage interface
