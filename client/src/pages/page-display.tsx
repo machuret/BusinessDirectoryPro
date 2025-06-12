@@ -103,14 +103,14 @@ export default function PageDisplay() {
           <Card>
             <CardHeader>
               <CardTitle className="text-3xl font-bold">{page.title}</CardTitle>
-              {page.metaDescription && (
-                <p className="text-lg text-muted-foreground">{page.metaDescription}</p>
+              {page.seoDescription && (
+                <p className="text-lg text-muted-foreground">{page.seoDescription}</p>
               )}
             </CardHeader>
             <CardContent>
               <div 
                 className="prose max-w-none"
-                dangerouslySetInnerHTML={{ __html: page.content }}
+                dangerouslySetInnerHTML={{ __html: page.content || '' }}
               />
             </CardContent>
           </Card>
