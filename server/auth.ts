@@ -56,7 +56,7 @@ export function setupAuth(app: Express) {
   // Register endpoint
   app.post("/api/auth/register", async (req, res) => {
     try {
-      const validatedData = registerUserSchema.parse(req.body);
+      const validatedData = insertUserSchema.parse(req.body);
       
       // Check if user already exists
       const existingUser = await storage.getUserByEmail(validatedData.email);
