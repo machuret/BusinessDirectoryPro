@@ -128,7 +128,6 @@ export default function CategoriesManagement() {
     form.reset({
       name: category.name,
       description: category.description || "",
-      pageTitle: category.pageTitle || "",
     });
   };
 
@@ -172,7 +171,6 @@ export default function CategoriesManagement() {
                 <TableRow>
                   <TableHead>Category Name</TableHead>
                   <TableHead>Description</TableHead>
-                  <TableHead>Page Title</TableHead>
                   <TableHead>Business Count</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
@@ -181,9 +179,6 @@ export default function CategoriesManagement() {
                 {categories?.map((category) => (
                   <TableRow key={category.id}>
                     <TableCell className="font-medium">{category.name}</TableCell>
-                    <TableCell className="max-w-xs truncate">
-                      {category.description || "No description"}
-                    </TableCell>
                     <TableCell className="max-w-xs truncate">
                       {category.description || "No description"}
                     </TableCell>
@@ -271,25 +266,7 @@ export default function CategoriesManagement() {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="pageTitle"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>SEO Page Title</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="e.g., Best Restaurants in [City] | Your Directory"
-                        {...field} 
-                      />
-                    </FormControl>
-                    <p className="text-sm text-muted-foreground">
-                      This will be used as the page title for SEO when viewing this category
-                    </p>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+
 
               <DialogFooter>
                 <Button type="submit" disabled={addCategoryMutation.isPending || updateCategoryMutation.isPending}>
