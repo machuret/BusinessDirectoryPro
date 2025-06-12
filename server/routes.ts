@@ -245,12 +245,91 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Services Management Routes
+  // Services Management Routes - Using in-memory storage for now due to DB connection issues
   app.get("/api/admin/services", isAuthenticated, isAdmin, async (req, res) => {
     try {
-      const { servicesStorageSimple } = await import("./storage/services-storage-simple");
-      await servicesStorageSimple.ensureTablesExist();
-      const services = await servicesStorageSimple.getServices();
+      // Temporary in-memory services data until DB connection is resolved
+      const services = [
+        {
+          id: 1,
+          name: 'General Dentistry',
+          slug: 'general-dentistry',
+          description: 'Comprehensive dental care including cleanings, exams, and preventive treatments.',
+          category: 'General',
+          seo_title: 'General Dentistry Services - Comprehensive Dental Care',
+          seo_description: 'Professional general dentistry services including routine cleanings, dental exams, fillings, and preventive care to maintain optimal oral health.',
+          content: 'Our general dentistry services provide comprehensive oral healthcare to patients of all ages. We focus on preventive care to help you maintain healthy teeth and gums for life.',
+          is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: 2,
+          name: 'Cosmetic Dentistry',
+          slug: 'cosmetic-dentistry',
+          description: 'Enhance your smile with professional cosmetic dental treatments.',
+          category: 'Cosmetic',
+          seo_title: 'Cosmetic Dentistry - Professional Smile Enhancement',
+          seo_description: 'Transform your smile with our cosmetic dentistry services including teeth whitening, veneers, and smile makeovers by experienced dental professionals.',
+          content: 'Our cosmetic dentistry services are designed to enhance the beauty of your smile while maintaining optimal oral health. We use the latest techniques and materials.',
+          is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: 3,
+          name: 'Dental Implants',
+          slug: 'dental-implants',
+          description: 'Permanent tooth replacement solutions with dental implants.',
+          category: 'Restorative',
+          seo_title: 'Dental Implants - Permanent Tooth Replacement Solutions',
+          seo_description: 'Replace missing teeth with natural-looking dental implants. Our experienced team provides comprehensive implant dentistry services.',
+          content: 'Dental implants provide a permanent solution for missing teeth, offering the look, feel, and function of natural teeth with long-lasting results.',
+          is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: 4,
+          name: 'Orthodontics',
+          slug: 'orthodontics',
+          description: 'Straighten your teeth with braces and clear aligners.',
+          category: 'Orthodontic',
+          seo_title: 'Orthodontics - Braces and Clear Aligners',
+          seo_description: 'Achieve a straighter smile with our orthodontic treatments including traditional braces, clear aligners, and Invisalign.',
+          content: 'Our orthodontic services help patients of all ages achieve straighter, healthier smiles through various treatment options tailored to individual needs.',
+          is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: 5,
+          name: 'Root Canal Therapy',
+          slug: 'root-canal-therapy',
+          description: 'Save your natural teeth with professional root canal treatment.',
+          category: 'Endodontic',
+          seo_title: 'Root Canal Therapy - Save Your Natural Teeth',
+          seo_description: 'Professional root canal therapy to save infected or damaged teeth. Our gentle approach ensures comfortable treatment and successful outcomes.',
+          content: 'Root canal therapy allows us to save natural teeth that have become infected or severely damaged, providing pain relief and preserving your smile.',
+          is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: 6,
+          name: 'Teeth Whitening',
+          slug: 'teeth-whitening',
+          description: 'Professional teeth whitening for a brighter, whiter smile.',
+          category: 'Cosmetic',
+          seo_title: 'Professional Teeth Whitening - Brighter Smile',
+          seo_description: 'Achieve a brighter, whiter smile with our professional teeth whitening treatments. Safe, effective, and long-lasting results.',
+          content: 'Our professional teeth whitening treatments can safely and effectively brighten your smile, removing stains and discoloration for dramatic results.',
+          is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+      ];
+      
       res.json(services);
     } catch (error) {
       console.error("Error fetching services:", error);

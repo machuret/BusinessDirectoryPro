@@ -1,4 +1,7 @@
-import { Pool } from '@neondatabase/serverless';
+import { Pool, neonConfig } from '@neondatabase/serverless';
+import ws from 'ws';
+
+neonConfig.webSocketConstructor = ws;
 
 // Simple services storage that uses direct SQL queries
 export class ServicesStorageSimple {
