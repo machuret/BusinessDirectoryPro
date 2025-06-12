@@ -117,7 +117,7 @@ export default function Header() {
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                       <Avatar className="h-8 w-8">
-                        <AvatarImage src={user.profileImageUrl} />
+                        <AvatarImage src={(user as any).profileImageUrl} />
                         <AvatarFallback>{getUserInitials(user)}</AvatarFallback>
                       </Avatar>
                     </Button>
@@ -125,12 +125,12 @@ export default function Header() {
                   <DropdownMenuContent className="w-56" align="end">
                     <div className="flex items-center justify-start gap-2 p-2">
                       <div className="flex flex-col space-y-1 leading-none">
-                        {user.firstName && user.lastName && (
-                          <p className="font-medium">{user.firstName} {user.lastName}</p>
+                        {(user as any).firstName && (user as any).lastName && (
+                          <p className="font-medium">{(user as any).firstName} {(user as any).lastName}</p>
                         )}
-                        {user.email && (
+                        {(user as any).email && (
                           <p className="w-[200px] truncate text-sm text-muted-foreground">
-                            {user.email}
+                            {(user as any).email}
                           </p>
                         )}
                       </div>
@@ -142,7 +142,7 @@ export default function Header() {
                         <span>Dashboard</span>
                       </Link>
                     </DropdownMenuItem>
-                    {user.role === 'admin' && (
+                    {(user as any).role === 'admin' && (
                       <DropdownMenuItem asChild>
                         <Link href="/admin">
                           <Settings className="mr-2 h-4 w-4" />
@@ -204,15 +204,15 @@ export default function Header() {
                       <div className="space-y-4">
                         <div className="flex items-center space-x-3 p-2">
                           <Avatar className="h-10 w-10">
-                            <AvatarImage src={user.profileImageUrl} />
+                            <AvatarImage src={(user as any).profileImageUrl} />
                             <AvatarFallback>{getUserInitials(user)}</AvatarFallback>
                           </Avatar>
                           <div>
-                            {user.firstName && user.lastName && (
-                              <p className="font-medium">{user.firstName} {user.lastName}</p>
+                            {(user as any).firstName && (user as any).lastName && (
+                              <p className="font-medium">{(user as any).firstName} {(user as any).lastName}</p>
                             )}
-                            {user.email && (
-                              <p className="text-sm text-gray-600">{user.email}</p>
+                            {(user as any).email && (
+                              <p className="text-sm text-gray-600">{(user as any).email}</p>
                             )}
                           </div>
                         </div>
@@ -226,7 +226,7 @@ export default function Header() {
                           <span>Dashboard</span>
                         </Link>
                         
-                        {user.role === 'admin' && (
+                        {(user as any).role === 'admin' && (
                           <Link
                             href="/admin"
                             className="flex items-center space-x-2 text-gray-700 hover:text-primary"
