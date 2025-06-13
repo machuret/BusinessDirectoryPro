@@ -16,7 +16,7 @@ export default function BusinessCard({ business }: BusinessCardProps) {
         key={i}
         className={`w-4 h-4 ${
           i < rating
-            ? "text-yellow-400 fill-current"
+            ? "fill-yellow-500 text-yellow-500"
             : "text-gray-300"
         }`}
       />
