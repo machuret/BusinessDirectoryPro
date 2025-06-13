@@ -200,13 +200,13 @@ export default function Login() {
             
             <TabsContent value="register" className="space-y-4">
               <SectionErrorBoundary fallbackTitle="Unable to load registration form">
-              <Form {...registerForm}>
-                <form onSubmit={registerForm.handleSubmit(onRegister)} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={registerForm.control}
-                      name="firstName"
-                      render={({ field }) => (
+                <Form {...registerForm}>
+                  <form onSubmit={registerForm.handleSubmit(onRegister)} className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={registerForm.control}
+                        name="firstName"
+                        render={({ field }) => (
                         <FormItem>
                           <FormLabel>First Name</FormLabel>
                           <FormControl>

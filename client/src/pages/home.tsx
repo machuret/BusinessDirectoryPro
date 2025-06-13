@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useApiQuery } from "@/hooks/useApiQuery";
 import { useEffect } from "react";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
@@ -8,25 +8,26 @@ import BusinessCard from "@/components/business-card";
 import BusinessCardSkeleton from "@/components/business-card-skeleton";
 import WelcomeSection from "@/components/welcome-section";
 import SEOHead from "@/components/SEOHead";
+import SectionErrorBoundary from "@/components/error/SectionErrorBoundary";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Building, Users, Star, MapPin } from "lucide-react";
+import { Building, Users, Star, MapPin, RefreshCw } from "lucide-react";
 import type { BusinessWithCategory, CategoryWithCount } from "@shared/schema";
 
 export default function Home() {
-  const { data: featuredBusinesses, isLoading: featuredLoading } = useQuery<BusinessWithCategory[]>({
+  const { data: featuredBusinesses, isLoading: featuredLoading, error: featuredError, retry: retryFeatured } = useApiQuery<BusinessWithCategory[]>({
     queryKey: ["/api/businesses/featured"],
   });
 
-  const { data: randomBusinesses, isLoading: randomLoading } = useQuery<BusinessWithCategory[]>({
+  const { data: randomBusinesses, isLoading: randomLoading, error: randomError, retry: retryRandom } = useApiQuery<BusinessWithCategory[]>({
     queryKey: ["/api/businesses/random", { limit: 9 }],
   });
 
-  const { data: categories, isLoading: categoriesLoading } = useQuery<CategoryWithCount[]>({
+  const { data: categories, isLoading: categoriesLoading, error: categoriesError, retry: retryCategories } = useApiQuery<CategoryWithCount[]>({
     queryKey: ["/api/categories"],
   });
 
-  const { data: siteSettings } = useQuery<Record<string, any>>({
+  const { data: siteSettings, error: settingsError, retry: retrySettings } = useApiQuery<Record<string, any>>({
     queryKey: ["/api/site-settings"],
   });
 
