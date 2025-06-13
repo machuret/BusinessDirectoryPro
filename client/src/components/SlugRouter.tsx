@@ -3,7 +3,7 @@ import { useRoute } from "wouter";
 import { useState, useEffect } from "react";
 import CMSPage from "@/pages/cms-page";
 import BusinessDetail from "@/pages/business-detail";
-import BusinessDetailTest from "@/pages/business-detail-test";
+import BusinessDetailMinimal from "@/pages/business-detail-minimal";
 import NotFound from "@/pages/not-found";
 import type { Page } from "@shared/schema";
 import type { BusinessWithCategory } from "@shared/schema";
@@ -57,7 +57,7 @@ export default function SlugRouter() {
   }
 
   if (contentType === 'business') {
-    return <BusinessDetailTest preloadedBusiness={business} />;
+    return <BusinessDetailMinimal preloadedBusiness={business} />;
   }
 
   return <NotFound />;

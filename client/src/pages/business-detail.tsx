@@ -18,7 +18,8 @@ interface BusinessDetailProps {
   preloadedBusiness?: BusinessWithCategory;
 }
 
-export default function BusinessDetail({ preloadedBusiness }: BusinessDetailProps = {}) {
+export default function BusinessDetail(props: BusinessDetailProps = {}) {
+  const { preloadedBusiness } = props;
   const { slug } = useParams();
   
   // Use preloaded business if available, otherwise fetch from API
@@ -29,13 +30,16 @@ export default function BusinessDetail({ preloadedBusiness }: BusinessDetailProp
   
   const business = preloadedBusiness || fetchedBusiness;
   
-  console.log('BusinessDetail Debug:', {
-    slug,
-    hasPreloaded: !!preloadedBusiness,
-    hasFetched: !!fetchedBusiness,
-    hasBusiness: !!business,
-    businessTitle: business?.title
-  });
+  // Debug logging
+  if (process.env.NODE_ENV === 'development') {
+    console.log('BusinessDetail Debug:', {
+      slug,
+      hasPreloaded: !!preloadedBusiness,
+      hasFetched: !!fetchedBusiness,
+      hasBusiness: !!business,
+      businessTitle: business?.title
+    });
+  }
 
   const { data: reviews = [], isLoading: reviewsLoading, refetch: refetchReviews } = useQuery<(Review & { user: Pick<UserType, 'firstName' | 'lastName'> })[]>({
     queryKey: [`/api/businesses/${business?.placeid}/reviews`],
@@ -60,10 +64,10 @@ export default function BusinessDetail({ preloadedBusiness }: BusinessDetailProp
   };
 
   const handleShare = () => {
-    if (navigator.share) {
+    if (navigator.share && business) {
       navigator.share({
-        title: business?.title ?? undefined,
-        text: business?.description ?? undefined,
+        title: business.title || 'Business',
+        text: business.description || 'Check out this business',
         url: window.location.href,
       });
     } else {
