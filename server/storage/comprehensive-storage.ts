@@ -43,8 +43,16 @@ export class ComprehensiveStorage implements IStorage {
     return this.userStorage.getAllUsers();
   }
 
+  async getUsers(): Promise<User[]> {
+    return this.userStorage.getAllUsers();
+  }
+
   async updateUser(id: string, userData: Partial<UpsertUser>): Promise<User | undefined> {
     return this.userStorage.updateUser(id, userData);
+  }
+
+  async updateUserPassword(id: string, hashedPassword: string): Promise<void> {
+    return this.userStorage.updateUserPassword(id, hashedPassword);
   }
 
   async deleteUser(id: string): Promise<void> {
