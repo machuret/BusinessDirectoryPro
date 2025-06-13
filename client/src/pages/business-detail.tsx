@@ -63,6 +63,13 @@ export default function BusinessDetail(props: BusinessDetailProps = {}) {
     );
   }
 
+  console.log('BusinessDetail rendering:', {
+    businessTitle: business?.title,
+    businessData: business,
+    hasTitle: !!business?.title,
+    hasDescription: !!business?.description
+  });
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
