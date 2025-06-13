@@ -118,13 +118,13 @@ export default function BusinessDetailSimple({ preloadedBusiness }: BusinessDeta
               {business.totalscore && (
                 <div className="flex items-center space-x-3 mb-6">
                   <div className="flex">
-                    {renderStars(Math.round(business.totalscore))}
+                    {renderStars(Math.round(Number(business.totalscore)))}
                   </div>
                   <span className="text-lg font-medium text-gray-700">
-                    {business.totalscore.toFixed(1)}
+                    {Number(business.totalscore).toFixed(1)}
                   </span>
                   <span className="text-gray-500">
-                    ({business.totalreviews || 0} reviews)
+                    ({business.reviewscount || 0} reviews)
                   </span>
                 </div>
               )}
@@ -211,7 +211,7 @@ export default function BusinessDetailSimple({ preloadedBusiness }: BusinessDeta
                   <Button 
                     size="lg"
                     variant="outline"
-                    onClick={() => window.open(business.website, '_blank')}
+                    onClick={() => business.website && window.open(business.website, '_blank')}
                   >
                     <ExternalLink className="w-4 h-4 mr-2" />
                     Visit Website
