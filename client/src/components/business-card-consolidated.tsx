@@ -79,7 +79,7 @@ export function BusinessCard({
       <div className="relative">
         <img 
           src={displayImage}
-          alt={business.title || 'Business'}
+          alt={`${business.title} - ${business.category?.name || 'Business'} located in ${business.address || 'local area'}`}
           className={`w-full object-cover transition-transform duration-200 ${
             isEnhanced ? "h-48" : "h-48 group-hover:scale-105"
           }`}
@@ -204,9 +204,10 @@ export function BusinessCard({
                       : "bg-primary text-white hover:bg-blue-700"
                   }`}
                   variant={isFeatured && isEnhanced ? "default" : "default"}
+                  aria-label={`View details for ${business.title}`}
                 >
                   View Details
-                  {isFeatured && isEnhanced && <Crown className="w-4 h-4 ml-2" />}
+                  {isFeatured && isEnhanced && <Crown className="w-4 h-4 ml-2" aria-hidden="true" />}
                 </Button>
               </Link>
               
@@ -215,8 +216,10 @@ export function BusinessCard({
                   variant="outline"
                   size="icon"
                   onClick={() => window.open(`tel:${business.phone}`, '_self')}
+                  aria-label={`Call ${business.title} at ${business.phone}`}
                 >
-                  <Phone className="w-4 h-4" />
+                  <Phone className="w-4 h-4" aria-hidden="true" />
+                  <span className="sr-only">Call Business</span>
                 </Button>
               )}
             </div>

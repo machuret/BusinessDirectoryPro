@@ -26,6 +26,7 @@ import BusinessesPage from "@/pages/businesses";
 import SlugRouter from "@/components/SlugRouter";
 import BusinessDebug from "@/pages/business-debug";
 import FormsDemo from "@/pages/forms-demo";
+import AccessibilityDemo from "@/pages/accessibility-demo";
 import NotFound from "@/pages/not-found";
 
 // Admin Pages
@@ -72,6 +73,7 @@ function Router() {
       <Route path="/add-business" component={AddBusiness} />
       <Route path="/debug/:slug" component={BusinessDebug} />
       <Route path="/forms-demo" component={FormsDemo} />
+      <Route path="/accessibility-demo" component={AccessibilityDemo} />
       {isAuthenticated && (
         <>
           <Route path="/dashboard" component={Dashboard} />
