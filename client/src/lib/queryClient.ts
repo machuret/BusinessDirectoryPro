@@ -7,9 +7,15 @@ async function throwIfResNotOk(res: Response) {
       const contentType = res.headers.get('content-type');
       if (contentType && contentType.includes('application/json')) {
         const json = await res.json();
-        text = json.message || JSON.stringify(json);
+        text = json.message || json.error || JSON.stringify(json);
       } else {
-        text = await res.text();
+        const responseText = await res.text();
+        // Check if we received HTML instead of JSON (common routing issue)
+        if (responseText.includes('<!DOCTYPE') || responseText.includes('<html')) {
+          text = 'Received HTML instead of JSON - this may be a routing configuration issue';
+        } else {
+          text = responseText || res.statusText;
+        }
       }
     } catch (e) {
       text = res.statusText;
