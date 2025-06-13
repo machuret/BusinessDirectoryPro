@@ -4,7 +4,7 @@ import { Input } from './input';
 import { Label } from './label';
 import { Button } from './button';
 import { Card, CardContent, CardHeader, CardTitle } from './card';
-import { Search, Mail, Lock, Eye, EyeOff, Calendar, DollarSign } from 'lucide-react';
+import { Search as SearchIcon, Mail, Lock, Eye, EyeOff, Calendar, DollarSign } from 'lucide-react';
 import { useState } from 'react';
 
 /**
@@ -91,7 +91,7 @@ export const Password: Story = {
 /**
  * Search input with appropriate styling.
  */
-export const Search: Story = {
+export const SearchInput: Story = {
   args: {
     type: 'search',
     placeholder: 'Search...',
@@ -209,7 +209,7 @@ function SearchWithIcon() {
     <div className="space-y-2">
       <Label htmlFor="search-input">Search</Label>
       <div className="relative">
-        <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+        <SearchIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
         <Input
           id="search-input"
           type="search"
