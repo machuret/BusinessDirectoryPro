@@ -251,6 +251,15 @@ export class ComprehensiveStorage implements IStorage {
     return updated;
   }
 
+  async getBusinessReviews(businessId: string): Promise<Review[]> {
+    return await db.select().from(reviews)
+      .where(and(
+        eq(reviews.businessId, businessId),
+        eq(reviews.status, 'approved')
+      ))
+      .orderBy(desc(reviews.createdAt));
+  }
+
   async getAllReviewsForAdmin(): Promise<Review[]> {
     return await db.select().from(reviews).orderBy(desc(reviews.createdAt));
   }
