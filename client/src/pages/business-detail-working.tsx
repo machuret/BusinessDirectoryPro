@@ -325,7 +325,7 @@ export default function BusinessDetailWorking() {
               <Button 
                 variant="outline" 
                 size="lg"
-                onClick={() => setShowClaimModal(true)}
+                onClick={handleClaimBusiness}
                 className="border-black text-black hover:bg-gray-100"
               >
                 <Heart className="w-4 h-4 mr-2" />
@@ -408,12 +408,25 @@ export default function BusinessDetailWorking() {
                             </div>
                             <div>
                               <p className="font-medium text-black">
-                                {review.author_name || review.reviewerName || review.author || "Anonymous"}
+                                {review.author_name || review.reviewerName || review.author || review.user?.name || review.name || 
+                                 (review.author_name === null || review.author_name === undefined ? "Customer" : "Anonymous")}
                               </p>
                               <p className="text-sm text-gray-500">
-                                {review.time ? new Date(review.time * 1000).toLocaleDateString() : 
-                                 review.createdAt ? new Date(review.createdAt).toLocaleDateString() : 
-                                 "Unknown date"}
+                                {(() => {
+                                  if (review.time) {
+                                    return new Date(review.time * 1000).toLocaleDateString();
+                                  }
+                                  if (review.createdAt) {
+                                    return new Date(review.createdAt).toLocaleDateString();
+                                  }
+                                  if (review.date) {
+                                    return new Date(review.date).toLocaleDateString();
+                                  }
+                                  if (review.timestamp) {
+                                    return new Date(review.timestamp).toLocaleDateString();
+                                  }
+                                  return new Date().toLocaleDateString();
+                                })()}
                               </p>
                             </div>
                           </div>
