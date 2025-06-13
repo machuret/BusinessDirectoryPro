@@ -51,7 +51,7 @@ export function BusinessGallery({ images, businessTitle }: BusinessGalleryProps)
           if (state.error) return null;
           
           return (
-            <div key={index} className="relative aspect-square rounded-lg overflow-hidden bg-gray-100">
+            <div key={index} className="relative aspect-[4/3] rounded-lg overflow-hidden bg-gray-100 max-h-64">
               {state.loading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
                   <Loader2 className="w-6 h-6 animate-spin text-gray-400" />

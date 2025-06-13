@@ -14,6 +14,7 @@ import { BusinessDescription } from "@/components/business-detail/BusinessDescri
 import { BusinessReviews } from "@/components/business-detail/BusinessReviews";
 import { BusinessFAQ } from "@/components/business-detail/BusinessFAQ";
 import { BusinessHours } from "@/components/business-detail/BusinessHours";
+import { BusinessContactForm } from "@/components/business-detail/BusinessContactForm";
 import BusinessContactInfo from "@/components/business/BusinessContactInfo";
 import type { BusinessWithCategory, Review } from "@shared/schema";
 
@@ -253,6 +254,11 @@ export default function BusinessDetailRefactored() {
             
             {/* Business Hours */}
             <BusinessHours business={business} />
+            
+            {/* Contact Form */}
+            <SectionErrorBoundary fallbackTitle="Unable to load contact form">
+              <BusinessContactForm business={business} />
+            </SectionErrorBoundary>
           </div>
         </div>
       </div>
