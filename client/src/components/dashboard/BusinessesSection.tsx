@@ -113,7 +113,7 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center">
-                      <Star className="mr-1 h-4 w-4 text-yellow-400" />
+                      <Star className="mr-1 h-4 w-4 text-yellow-500" />
                       {(business as any).averagerating || "No ratings"}
                     </div>
                   </TableCell>
