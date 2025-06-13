@@ -9,6 +9,10 @@ export class BusinessValidation {
     Object.keys(business).forEach(key => {
       const value = (business as any)[key];
       if (value !== undefined) {
+        // Skip foreign key fields if they're empty/null to avoid constraint violations
+        if (key === 'ownerid' && (!value || value === '')) {
+          return; // Skip this field entirely
+        }
         sanitized[key] = value;
       }
     });

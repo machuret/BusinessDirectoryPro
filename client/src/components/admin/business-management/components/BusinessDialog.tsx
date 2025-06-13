@@ -15,6 +15,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Loader2, Building2, Star, Globe, Phone, Mail, MapPin, Clock } from "lucide-react";
 import FAQManager from "../../FAQManager";
+import PhotoGalleryManager from "./PhotoGalleryManager";
+import ReviewsManager from "./ReviewsManager";
 
 const businessSchema = z.object({
   title: z.string().min(1, "Business name is required"),
@@ -209,10 +211,12 @@ export default function BusinessDialog({ open, onClose, business, isEdit }: Busi
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="basic">Basic Info</TabsTrigger>
                 <TabsTrigger value="details">Details</TabsTrigger>
                 <TabsTrigger value="settings">Settings</TabsTrigger>
+                {isEdit && <TabsTrigger value="photos">Photos</TabsTrigger>}
+                {isEdit && <TabsTrigger value="reviews">Reviews</TabsTrigger>}
               </TabsList>
 
               <TabsContent value="basic" className="space-y-4">
@@ -539,6 +543,18 @@ export default function BusinessDialog({ open, onClose, business, isEdit }: Busi
                   />
                 </div>
               </TabsContent>
+
+              {isEdit && (
+                <TabsContent value="photos" className="space-y-4">
+                  <PhotoGalleryManager businessId={business?.placeid} />
+                </TabsContent>
+              )}
+
+              {isEdit && (
+                <TabsContent value="reviews" className="space-y-4">
+                  <ReviewsManager businessId={business?.placeid} />
+                </TabsContent>
+              )}
             </Tabs>
 
             <DialogFooter>
