@@ -23,7 +23,7 @@ export class BusinessQueries {
     `;
 
     if (params?.categoryId) {
-      query += ` AND c.id = ${params.categoryId}`;
+      query += ` AND (c.id = ${params.categoryId} OR b.categoryname ILIKE c.name)`;
     }
 
     if (params?.search) {
