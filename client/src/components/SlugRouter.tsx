@@ -42,10 +42,10 @@ export default function SlugRouter() {
 
     if (pageLoading || businessLoading) {
       setContentType('loading');
-    } else if (page && !pageError) {
-      setContentType('cms');
     } else if (business && !businessError) {
       setContentType('business');
+    } else if (page && !pageError) {
+      setContentType('cms');
     } else {
       setContentType('notfound');
     }
