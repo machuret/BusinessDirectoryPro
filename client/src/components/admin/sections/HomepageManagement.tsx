@@ -119,7 +119,7 @@ export default function HomepageManagement() {
 
       {/* Save/Reset Actions */}
       {hasChanges && (
-        <Card className="border-orange-200 bg-orange-50">
+        <Card className="border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-950">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">

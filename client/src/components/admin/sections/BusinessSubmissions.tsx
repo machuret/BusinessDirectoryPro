@@ -283,10 +283,10 @@ export default function BusinessSubmissions() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'approved': return 'bg-green-100 text-green-800';
-      case 'rejected': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'pending': return 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-100';
+      case 'approved': return 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100';
+      case 'rejected': return 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-100';
+      default: return 'bg-muted text-muted-foreground';
     }
   };
 
@@ -310,7 +310,7 @@ export default function BusinessSubmissions() {
           <p className="text-gray-600">Review and approve business listings submitted by users</p>
         </div>
         {pendingCount > 0 && (
-          <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+          <Badge variant="secondary" className="bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-100">
             {pendingCount} pending approval
           </Badge>
         )}
