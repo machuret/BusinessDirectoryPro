@@ -22,6 +22,7 @@ export class ComprehensiveStorage implements IStorage {
   private businessStorage = new BusinessStorage();
   private categoryStorage = new CategoryStorage();
   private servicesStorage = new ServicesStorage();
+  private ownershipClaimsStorage = new OwnershipClaimsStorage();
 
   // User operations - delegate to UserStorage
   async getUser(id: string): Promise<User | undefined> {
@@ -539,29 +540,69 @@ export class ComprehensiveStorage implements IStorage {
     })) as LeadWithBusiness[];
   }
 
-  // Ownership claim operations (stubbed for now)
-  async getOwnershipClaims(): Promise<any[]> {
-    return [];
+  // Ownership claim operations - delegate to OwnershipClaimsStorage
+  /**
+   * Get all ownership claims with full details
+   * Used by admin panel to view and manage all claims
+   */
+  async getOwnershipClaims(): Promise<OwnershipClaimWithDetails[]> {
+    return this.ownershipClaimsStorage.getAllOwnershipClaims();
   }
 
-  async getOwnershipClaimsByUser(userId: string): Promise<any[]> {
-    return [];
+  /**
+   * Get ownership claims for a specific user
+   * Used by user dashboard to show their submitted claims
+   */
+  async getOwnershipClaimsByUser(userId: string): Promise<OwnershipClaimWithDetails[]> {
+    return this.ownershipClaimsStorage.getOwnershipClaimsByUser(userId);
   }
 
-  async getOwnershipClaimsByBusiness(businessId: string): Promise<any[]> {
-    return [];
+  /**
+   * Get ownership claims for a specific business
+   * Used to check existing claims before allowing new submissions
+   */
+  async getOwnershipClaimsByBusiness(businessId: string): Promise<OwnershipClaimWithDetails[]> {
+    return this.ownershipClaimsStorage.getOwnershipClaimsByBusiness(businessId);
   }
 
-  async createOwnershipClaim(claim: any): Promise<any> {
-    return claim;
+  /**
+   * Create a new ownership claim
+   * Validates business exists and prevents duplicate claims
+   */
+  async createOwnershipClaim(claimData: any): Promise<any> {
+    return this.ownershipClaimsStorage.createOwnershipClaim(claimData);
   }
 
+  /**
+   * Update ownership claim status (admin action)
+   * Records reviewer information and admin response
+   */
   async updateOwnershipClaim(id: number, status: string, adminMessage?: string, reviewedBy?: string): Promise<any> {
-    return {};
+    return this.ownershipClaimsStorage.updateOwnershipClaim(id, status as any, adminMessage, reviewedBy);
   }
 
+  /**
+   * Delete ownership claim (admin action)
+   * Permanently removes claim from database
+   */
   async deleteOwnershipClaim(id: number): Promise<void> {
-    // Stub implementation
+    return this.ownershipClaimsStorage.deleteOwnershipClaim(id);
+  }
+
+  /**
+   * Get ownership claim by ID with full details
+   * Used for detailed claim review
+   */
+  async getOwnershipClaim(id: number): Promise<OwnershipClaimWithDetails | undefined> {
+    return this.ownershipClaimsStorage.getOwnershipClaim(id);
+  }
+
+  /**
+   * Get ownership claims statistics
+   * Used for admin dashboard metrics
+   */
+  async getOwnershipClaimsStats(): Promise<{ total: number; pending: number; approved: number; rejected: number }> {
+    return this.ownershipClaimsStorage.getOwnershipClaimsStats();
   }
 
   // Services Management - delegate to ServicesStorage

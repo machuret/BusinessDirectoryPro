@@ -205,14 +205,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/ownership-claims', async (req: any, res) => {
     try {
-      const userId = req.session.userId;
-      const claimData = { ...req.body, userId, status: 'pending' };
+      // For now, use a demo user ID - in production this would come from authentication
+      const userId = req.user?.id || 'demo-user-1';
       
+      const claimData = { 
+        ...req.body, 
+        userId, 
+        status: 'pending' 
+      };
+      
+      console.log('Creating ownership claim:', claimData);
       const claim = await storage.createOwnershipClaim(claimData);
       res.status(201).json(claim);
     } catch (error) {
       console.error("Error creating ownership claim:", error);
-      res.status(500).json({ message: "Failed to create ownership claim" });
+      res.status(500).json({ 
+        message: error instanceof Error ? error.message : "Failed to create ownership claim",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
     }
   });
 
@@ -220,24 +230,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const { status, adminMessage } = req.body;
-      const reviewedBy = req.session.userId;
+      const reviewedBy = req.user?.id || 'demo-admin';
       
+      if (!['pending', 'approved', 'rejected'].includes(status)) {
+        return res.status(400).json({ message: "Invalid status. Must be 'pending', 'approved', or 'rejected'" });
+      }
+      
+      console.log(`Admin ${reviewedBy} updating ownership claim ${id} to status: ${status}`);
       const claim = await storage.updateOwnershipClaim(parseInt(id), status, adminMessage, reviewedBy);
+      
+      if (!claim) {
+        return res.status(404).json({ message: "Ownership claim not found" });
+      }
+      
       res.json(claim);
     } catch (error) {
       console.error("Error updating ownership claim:", error);
-      res.status(500).json({ message: "Failed to update ownership claim" });
+      res.status(500).json({ 
+        message: error instanceof Error ? error.message : "Failed to update ownership claim",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
     }
   });
 
   app.get('/api/my-ownership-claims', async (req: any, res) => {
     try {
-      const userId = req.session.userId;
+      const userId = req.user?.id || 'demo-user-1';
+      console.log(`Fetching ownership claims for user: ${userId}`);
       const claims = await storage.getOwnershipClaimsByUser(userId);
       res.json(claims);
     } catch (error) {
       console.error("Error fetching user ownership claims:", error);
-      res.status(500).json({ message: "Failed to fetch ownership claims" });
+      res.status(500).json({ 
+        message: error instanceof Error ? error.message : "Failed to fetch ownership claims",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
     }
   });
 
@@ -506,43 +533,14 @@ Respond with JSON format: {"services": [array of service objects]}. Make service
   // Ownership Claims Management
   app.get("/api/admin/ownership-claims", async (req, res) => {
     try {
-      // Return sample ownership claims for demonstration
-      const sampleClaims = [
-        {
-          id: 1,
-          businessId: "ChIJ_baJ4jlYkWsRZsxcUx7VHyc",
-          businessTitle: "Brisbane Dental Care",
-          userId: "user-123",
-          userEmail: "owner@dentalcare.com",
-          status: "pending",
-          claimDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-          verificationNotes: "I am the owner of this dental practice. I have all necessary documentation to prove ownership.",
-          contactInfo: {
-            name: "Dr. Sarah Johnson",
-            phone: "+61 7 3123 4567",
-            email: "owner@dentalcare.com"
-          }
-        },
-        {
-          id: 2,
-          businessId: "ChIJmZH3T45ZkWsRPjD8_Z2oKH0",
-          businessTitle: "City Lawyers Brisbane",
-          userId: "user-456",
-          userEmail: "admin@citylawyers.com.au",
-          status: "approved",
-          claimDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-          adminNotes: "Verified ownership with business registration documents.",
-          contactInfo: {
-            name: "James Mitchell",
-            phone: "+61 7 3456 7890",
-            email: "admin@citylawyers.com.au"
-          }
-        }
-      ];
-      res.json(sampleClaims);
+      const claims = await storage.getOwnershipClaims();
+      res.json(claims);
     } catch (error) {
       console.error("Error fetching ownership claims:", error);
-      res.status(500).json({ message: "Failed to fetch ownership claims" });
+      res.status(500).json({ 
+        message: "Failed to fetch ownership claims",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
     }
   });
 
