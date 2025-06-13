@@ -120,10 +120,6 @@ export default function ReviewsManagement() {
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader>
-          <CardTitle>Reviews Management</CardTitle>
-          <CardDescription>Moderate reviews, approve submissions, and manage feedback</CardDescription>
-        </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
