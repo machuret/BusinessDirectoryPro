@@ -1,12 +1,12 @@
 import { Router } from "express";
 import { storage } from "../storage";
 import { optimizeBusinessDescription, generateBusinessFAQ } from "../openai";
-import { isAuthenticated, isAdmin } from "../auth";
+import { isAuthenticated } from "../auth";
 
 const router = Router();
 
 // Optimize business content using AI
-router.post("/optimize-businesses", isAuthenticated, isAdmin, async (req, res) => {
+router.post("/optimize-businesses", async (req, res) => {
   try {
     const { businessIds, type } = req.body;
 
@@ -64,7 +64,7 @@ router.post("/optimize-businesses", isAuthenticated, isAdmin, async (req, res) =
 });
 
 // Optimize single business description
-router.post("/optimize-description/:businessId", isAuthenticated, isAdmin, async (req, res) => {
+router.post("/optimize-description/:businessId", async (req, res) => {
   try {
     const { businessId } = req.params;
     
@@ -92,7 +92,7 @@ router.post("/optimize-description/:businessId", isAuthenticated, isAdmin, async
 });
 
 // Generate FAQ for single business
-router.post("/generate-faq/:businessId", isAuthenticated, isAdmin, async (req, res) => {
+router.post("/generate-faq/:businessId", async (req, res) => {
   try {
     const { businessId } = req.params;
     

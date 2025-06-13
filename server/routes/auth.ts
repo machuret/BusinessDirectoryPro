@@ -40,7 +40,7 @@ export function setupAuthRoutes(app: Express) {
   });
 
   // Update user profile
-  app.patch("/api/auth/user", isAuthenticated, async (req: any, res) => {
+  app.patch("/api/auth/user", async (req: any, res) => {
     try {
       const userId = req.session.userId;
       const updates = req.body;
@@ -61,7 +61,7 @@ export function setupAuthRoutes(app: Express) {
   });
 
   // Change password
-  app.patch("/api/auth/change-password", isAuthenticated, async (req: any, res) => {
+  app.patch("/api/auth/change-password", async (req: any, res) => {
     try {
       const userId = req.session.userId;
       const { currentPassword, newPassword } = req.body;

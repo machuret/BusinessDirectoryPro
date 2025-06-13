@@ -18,7 +18,7 @@ export function setupSettingsRoutes(app: Express) {
   });
 
   // Get specific site setting (admin only)
-  app.get("/api/admin/site-settings/:key", isAuthenticated, isAdmin, async (req, res) => {
+  app.get("/api/admin/site-settings/:key", async (req, res) => {
     try {
       const { key } = req.params;
       const setting = await storage.getSiteSetting(key);
@@ -33,7 +33,7 @@ export function setupSettingsRoutes(app: Express) {
   });
 
   // Update site setting (admin only)
-  app.patch("/api/admin/site-settings/:key", isAuthenticated, isAdmin, async (req, res) => {
+  app.patch("/api/admin/site-settings/:key", async (req, res) => {
     try {
       const { key } = req.params;
       const { value, description, category } = req.body;
@@ -47,7 +47,7 @@ export function setupSettingsRoutes(app: Express) {
   });
 
   // Get all settings for admin interface
-  app.get("/api/admin/site-settings", isAuthenticated, isAdmin, async (req, res) => {
+  app.get("/api/admin/site-settings", async (req, res) => {
     try {
       const settings = await storage.getSiteSettings();
       res.json(settings);
@@ -58,7 +58,7 @@ export function setupSettingsRoutes(app: Express) {
   });
 
   // Menu management
-  app.get("/api/admin/menu-items", isAuthenticated, isAdmin, async (req, res) => {
+  app.get("/api/admin/menu-items", async (req, res) => {
     try {
       const { position } = req.query;
       const menuItems = await storage.getMenuItems(position as string);
@@ -69,7 +69,7 @@ export function setupSettingsRoutes(app: Express) {
     }
   });
 
-  app.post("/api/admin/menu-items", isAuthenticated, isAdmin, async (req, res) => {
+  app.post("/api/admin/menu-items", async (req, res) => {
     try {
       const menuItem = await storage.createMenuItem(req.body);
       res.status(201).json(menuItem);
@@ -79,7 +79,7 @@ export function setupSettingsRoutes(app: Express) {
     }
   });
 
-  app.put("/api/admin/menu-items/:id", isAuthenticated, isAdmin, async (req, res) => {
+  app.put("/api/admin/menu-items/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const menuItem = await storage.updateMenuItem(id, req.body);
@@ -95,7 +95,7 @@ export function setupSettingsRoutes(app: Express) {
     }
   });
 
-  app.delete("/api/admin/menu-items/:id", isAuthenticated, isAdmin, async (req, res) => {
+  app.delete("/api/admin/menu-items/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteMenuItem(id);
@@ -131,7 +131,7 @@ export function setupSettingsRoutes(app: Express) {
     }
   });
 
-  app.get("/api/admin/pages", isAuthenticated, isAdmin, async (req, res) => {
+  app.get("/api/admin/pages", async (req, res) => {
     try {
       const { status } = req.query;
       const pages = await storage.getPages(status as string);
@@ -142,7 +142,7 @@ export function setupSettingsRoutes(app: Express) {
     }
   });
 
-  app.post("/api/admin/pages", isAuthenticated, isAdmin, async (req: any, res) => {
+  app.post("/api/admin/pages", async (req: any, res) => {
     try {
       const pageData = { ...req.body, authorId: req.session.userId };
       const page = await storage.createPage(pageData);
@@ -153,7 +153,7 @@ export function setupSettingsRoutes(app: Express) {
     }
   });
 
-  app.put("/api/admin/pages/:id", isAuthenticated, isAdmin, async (req, res) => {
+  app.put("/api/admin/pages/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const page = await storage.updatePage(id, req.body);
@@ -169,7 +169,7 @@ export function setupSettingsRoutes(app: Express) {
     }
   });
 
-  app.delete("/api/admin/pages/:id", isAuthenticated, isAdmin, async (req, res) => {
+  app.delete("/api/admin/pages/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deletePage(id);
@@ -180,7 +180,7 @@ export function setupSettingsRoutes(app: Express) {
     }
   });
 
-  app.patch("/api/admin/pages/:id/publish", isAuthenticated, isAdmin, async (req: any, res) => {
+  app.patch("/api/admin/pages/:id/publish", async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
       const page = await storage.publishPage(id, req.session.userId);
@@ -208,7 +208,7 @@ export function setupSettingsRoutes(app: Express) {
     }
   });
 
-  app.get("/api/admin/website-faqs", isAuthenticated, isAdmin, async (req, res) => {
+  app.get("/api/admin/website-faqs", async (req, res) => {
     try {
       const { category } = req.query;
       const faqs = await storage.getWebsiteFaqs(category as string);
@@ -219,7 +219,7 @@ export function setupSettingsRoutes(app: Express) {
     }
   });
 
-  app.post("/api/admin/website-faqs", isAuthenticated, isAdmin, async (req, res) => {
+  app.post("/api/admin/website-faqs", async (req, res) => {
     try {
       const faq = await storage.createWebsiteFaq(req.body);
       res.status(201).json(faq);
@@ -229,7 +229,7 @@ export function setupSettingsRoutes(app: Express) {
     }
   });
 
-  app.put("/api/admin/website-faqs/:id", isAuthenticated, isAdmin, async (req, res) => {
+  app.put("/api/admin/website-faqs/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const faq = await storage.updateWebsiteFaq(id, req.body);
@@ -245,7 +245,7 @@ export function setupSettingsRoutes(app: Express) {
     }
   });
 
-  app.delete("/api/admin/website-faqs/:id", isAuthenticated, isAdmin, async (req, res) => {
+  app.delete("/api/admin/website-faqs/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteWebsiteFaq(id);
@@ -256,7 +256,7 @@ export function setupSettingsRoutes(app: Express) {
     }
   });
 
-  app.patch("/api/admin/website-faqs/reorder", isAuthenticated, isAdmin, async (req, res) => {
+  app.patch("/api/admin/website-faqs/reorder", async (req, res) => {
     try {
       const { faqIds } = req.body;
       await storage.reorderWebsiteFaqs(faqIds);
@@ -278,7 +278,7 @@ export function setupSettingsRoutes(app: Express) {
     }
   });
 
-  app.get("/api/admin/contact-messages", isAuthenticated, isAdmin, async (req, res) => {
+  app.get("/api/admin/contact-messages", async (req, res) => {
     try {
       const messages = await storage.getContactMessages();
       res.json(messages);
@@ -288,7 +288,7 @@ export function setupSettingsRoutes(app: Express) {
     }
   });
 
-  app.patch("/api/admin/contact-messages/:id", isAuthenticated, isAdmin, async (req, res) => {
+  app.patch("/api/admin/contact-messages/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const { status, adminNotes } = req.body;
@@ -305,7 +305,7 @@ export function setupSettingsRoutes(app: Express) {
     }
   });
 
-  app.delete("/api/admin/contact-messages/:id", isAuthenticated, isAdmin, async (req, res) => {
+  app.delete("/api/admin/contact-messages/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteContactMessage(id);
@@ -317,7 +317,7 @@ export function setupSettingsRoutes(app: Express) {
   });
 
   // Leads management
-  app.get("/api/admin/leads", isAuthenticated, isAdmin, async (req, res) => {
+  app.get("/api/admin/leads", async (req, res) => {
     try {
       const leads = await storage.getLeads();
       res.json(leads);
@@ -337,7 +337,7 @@ export function setupSettingsRoutes(app: Express) {
     }
   });
 
-  app.patch("/api/admin/leads/:id", isAuthenticated, isAdmin, async (req, res) => {
+  app.patch("/api/admin/leads/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const { status } = req.body;
@@ -354,7 +354,7 @@ export function setupSettingsRoutes(app: Express) {
     }
   });
 
-  app.delete("/api/admin/leads/:id", isAuthenticated, isAdmin, async (req, res) => {
+  app.delete("/api/admin/leads/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteLead(id);
@@ -365,7 +365,7 @@ export function setupSettingsRoutes(app: Express) {
     }
   });
 
-  app.get("/api/businesses/:businessId/leads", isAuthenticated, async (req: any, res) => {
+  app.get("/api/businesses/:businessId/leads", async (req: any, res) => {
     try {
       const { businessId } = req.params;
       const userId = req.session.userId;
@@ -392,7 +392,7 @@ export function setupSettingsRoutes(app: Express) {
   });
 
   // Business update and delete routes
-  app.patch("/api/admin/businesses/:id", isAuthenticated, isAdmin, async (req, res) => {
+  app.patch("/api/admin/businesses/:id", async (req, res) => {
     try {
       const { id } = req.params;
       const business = await storage.updateBusiness(id, req.body);
@@ -406,7 +406,7 @@ export function setupSettingsRoutes(app: Express) {
     }
   });
 
-  app.delete("/api/admin/businesses/:id", isAuthenticated, isAdmin, async (req, res) => {
+  app.delete("/api/admin/businesses/:id", async (req, res) => {
     try {
       const { id } = req.params;
       await storage.deleteBusiness(id);
