@@ -148,7 +148,8 @@ export default function SlugRouter() {
       businessPlaceId: business?.placeid
     });
 
-    if (pageLoading || businessLoading) {
+    // Only show loading if both are still loading initially
+    if ((pageLoading || businessLoading) && !page && !business) {
       setContentType('loading');
       return;
     }
@@ -185,12 +186,12 @@ export default function SlugRouter() {
 
   if (contentType === 'loading') {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse space-y-4 w-full max-w-4xl mx-auto p-6">
-          <div className="h-8 bg-gray-200 rounded w-1/2"></div>
-          <div className="h-4 bg-gray-200 rounded w-full"></div>
-          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-          <div className="h-4 bg-gray-200 rounded w-full"></div>
+      <div className="min-h-screen bg-background">
+        <div className="flex items-center justify-center py-20">
+          <div className="text-center space-y-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+            <p className="text-sm text-muted-foreground">Loading content...</p>
+          </div>
         </div>
       </div>
     );
