@@ -1,25 +1,20 @@
-import { useParams, Link } from "wouter";
+import { useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import BusinessCard from "@/components/business-card";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { useToast } from "@/hooks/use-toast";
-import { Star, MapPin, Share2, Heart, Phone, Globe, Clock, Mail, User, MessageSquare, ChevronDown, ChevronUp } from "lucide-react";
+import { BusinessHero } from "@/components/business-detail/BusinessHero";
+import { BusinessGallery } from "@/components/business-detail/BusinessGallery";
+import { BusinessActions } from "@/components/business-detail/BusinessActions";
+import { BusinessDescription } from "@/components/business-detail/BusinessDescription";
+import { BusinessReviews } from "@/components/business-detail/BusinessReviews";
+import { BusinessFAQ } from "@/components/business-detail/BusinessFAQ";
+import { BusinessHours } from "@/components/business-detail/BusinessHours";
+import BusinessContactInfo from "@/components/business/BusinessContactInfo";
 import type { BusinessWithCategory, Review } from "@shared/schema";
 
 export default function BusinessDetailWorking() {
   const { slug } = useParams<{ slug: string }>();
-  const [showClaimModal, setShowClaimModal] = useState(false);
-  const [showReviewForm, setShowReviewForm] = useState(false);
-  const { toast } = useToast();
 
   const { data: business, isLoading, error } = useQuery<BusinessWithCategory>({
     queryKey: ["/api/businesses/slug", slug],
@@ -42,15 +37,6 @@ export default function BusinessDetailWorking() {
     queryKey: ["/api/businesses/random", { limit: 6 }],
     enabled: !!business?.placeid,
   });
-
-  const [contactForm, setContactForm] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    message: ''
-  });
-
-  const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
 
   if (isLoading) {
     return (

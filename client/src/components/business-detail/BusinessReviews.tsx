@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Star, MessageSquare, User } from "lucide-react";
-import { ReviewForm } from "@/components/business/ReviewForm";
+// ReviewForm component will be implemented separately
 import type { BusinessWithCategory } from "@shared/schema";
 
 interface BusinessReviewsProps {
@@ -102,16 +102,7 @@ export function BusinessReviews({ business, allReviews }: BusinessReviewsProps) 
         )}
       </CardContent>
       
-      {showReviewForm && (
-        <ReviewForm
-          businessId={business.placeid}
-          onClose={() => setShowReviewForm(false)}
-          onSuccess={() => {
-            setShowReviewForm(false);
-            window.location.reload();
-          }}
-        />
-      )}
+      {/* Review form would be implemented here */}
     </Card>
   );
 }
