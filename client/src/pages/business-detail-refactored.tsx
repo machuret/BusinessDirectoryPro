@@ -37,8 +37,8 @@ export default function BusinessDetailRefactored() {
     isError: reviewsError,
     refetch: refetchReviews 
   } = useApiQuery<Review[]>({
-    queryKey: [`/api/businesses/${business?.placeid}/reviews`],
-    enabled: !!business?.placeid,
+    queryKey: business?.placeid ? [`/api/businesses/${business.placeid}/reviews`] : ['disabled'],
+    enabled: !!business?.placeid && !isLoading,
   });
 
   const { 
@@ -47,7 +47,7 @@ export default function BusinessDetailRefactored() {
     refetch: refetchSimilar 
   } = useApiQuery<BusinessWithCategory[]>({
     queryKey: ["/api/businesses/random", { limit: 6 }],
-    enabled: !!business?.placeid,
+    enabled: !!business?.placeid && !isLoading,
   });
 
   const handleRetry = () => {

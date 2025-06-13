@@ -49,18 +49,7 @@ export const getQueryFn: <T>(options: {
     }
 
     await throwIfResNotOk(res);
-    
-    // Handle potential JSON parsing issues
-    try {
-      return await res.json();
-    } catch (e) {
-      // If JSON parsing fails, check if response is actually HTML
-      const text = await res.text();
-      if (text.includes('<!DOCTYPE')) {
-        throw new Error(`Received HTML instead of JSON from ${queryKey[0]}`);
-      }
-      throw new Error(`Invalid JSON response from ${queryKey[0]}: ${e.message}`);
-    }
+    return await res.json();
   };
 
 export const queryClient = new QueryClient({
