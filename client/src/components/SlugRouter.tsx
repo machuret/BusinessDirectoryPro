@@ -57,7 +57,7 @@ export default function SlugRouter() {
   }
 
   if (contentType === 'business') {
-    return <BusinessDetailMinimal preloadedBusiness={business} />;
+    return <BusinessDetail preloadedBusiness={business} />;
   }
 
   return <NotFound />;
