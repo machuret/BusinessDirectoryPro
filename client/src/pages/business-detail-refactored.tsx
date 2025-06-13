@@ -2,7 +2,7 @@ import { useParams } from "wouter";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useApiQuery } from "@/hooks/useApiQuery";
+import { useQuery } from "@tanstack/react-query";
 import { SectionErrorBoundary } from "@/components/error/SectionErrorBoundary";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
@@ -28,7 +28,7 @@ export default function BusinessDetailRefactored() {
     error, 
     refetch: refetchBusiness 
   } = useApiQuery<BusinessWithCategory>({
-    queryKey: ["/api/businesses/slug", slug],
+    queryKey: [`/api/businesses/slug/${slug}`],
     enabled: !!slug,
   });
 
@@ -46,7 +46,7 @@ export default function BusinessDetailRefactored() {
     isError: similarError,
     refetch: refetchSimilar 
   } = useApiQuery<BusinessWithCategory[]>({
-    queryKey: ["/api/businesses/random", { limit: 6 }],
+    queryKey: [`/api/businesses/random?limit=6`],
     enabled: !!business?.placeid && !isLoading,
   });
 
