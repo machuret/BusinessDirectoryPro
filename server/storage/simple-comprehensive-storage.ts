@@ -1,6 +1,6 @@
 import type { IStorage } from "./base-storage";
 import { UserStorage } from "./user-storage";
-import { BusinessStorage } from "./business-storage";
+import { BusinessStorage } from "./business";
 import { CategoryStorage } from "./category-storage";
 import { ServicesStorage } from "./services-storage";
 import { eq, like, ilike, and, or, desc, asc, sql, ne } from "drizzle-orm";

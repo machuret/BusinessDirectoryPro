@@ -36,6 +36,6 @@ export type {
 
 // Export individual storage modules for advanced use cases
 export { UserStorage } from "./user-storage";
-export { BusinessStorage } from "./business-storage";
+export { BusinessStorage } from "./business";
 export { CategoryStorage } from "./category-storage";
 export { ComprehensiveStorage } from "./comprehensive-storage";
