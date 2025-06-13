@@ -21,10 +21,20 @@ interface BusinessDetailProps {
 export default function BusinessDetail({ preloadedBusiness }: BusinessDetailProps = {}) {
   const { slug } = useParams();
   
-  const { data: business, isLoading: businessLoading } = useQuery<BusinessWithCategory>({
+  // Use preloaded business if available, otherwise fetch from API
+  const { data: fetchedBusiness, isLoading: businessLoading } = useQuery<BusinessWithCategory>({
     queryKey: [`/api/businesses/slug/${slug}`],
     enabled: !!slug && !preloadedBusiness,
-    initialData: preloadedBusiness,
+  });
+  
+  const business = preloadedBusiness || fetchedBusiness;
+  
+  console.log('BusinessDetail Debug:', {
+    slug,
+    hasPreloaded: !!preloadedBusiness,
+    hasFetched: !!fetchedBusiness,
+    hasBusiness: !!business,
+    businessTitle: business?.title
   });
 
   const { data: reviews = [], isLoading: reviewsLoading, refetch: refetchReviews } = useQuery<(Review & { user: Pick<UserType, 'firstName' | 'lastName'> })[]>({
@@ -52,8 +62,8 @@ export default function BusinessDetail({ preloadedBusiness }: BusinessDetailProp
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
-        title: business?.title,
-        text: business?.description,
+        title: business?.title ?? undefined,
+        text: business?.description ?? undefined,
         url: window.location.href,
       });
     } else {
