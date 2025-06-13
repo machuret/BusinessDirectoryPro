@@ -133,8 +133,9 @@ export default function Login() {
             </TabsList>
             
             <TabsContent value="login" className="space-y-4">
-              <Form {...loginForm}>
-                <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-4">
+              <SectionErrorBoundary fallbackTitle="Unable to load login form">
+                <Form {...loginForm}>
+                  <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-4">
                   <FormField
                     control={loginForm.control}
                     name="email"
@@ -192,11 +193,13 @@ export default function Login() {
                       </AlertDescription>
                     </Alert>
                   )}
-                </form>
-              </Form>
+                  </form>
+                </Form>
+              </SectionErrorBoundary>
             </TabsContent>
             
             <TabsContent value="register" className="space-y-4">
+              <SectionErrorBoundary fallbackTitle="Unable to load registration form">
               <Form {...registerForm}>
                 <form onSubmit={registerForm.handleSubmit(onRegister)} className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
@@ -286,6 +289,7 @@ export default function Login() {
                   )}
                 </form>
               </Form>
+              </SectionErrorBoundary>
             </TabsContent>
           </Tabs>
         </CardContent>
