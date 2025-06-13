@@ -41,8 +41,8 @@ export function StandardizedForm({
       className={cn("space-y-6", className)}
     >
       {error && (
-        <div className="rounded-md bg-red-50 border border-red-200 p-4">
-          <div className="text-sm text-red-600">{error}</div>
+        <div className="rounded-md bg-destructive/10 border border-destructive/20 p-4">
+          <div className="text-sm text-destructive">{error}</div>
         </div>
       )}
       {children}
@@ -64,23 +64,25 @@ export function StandardizedFormField({
   return (
     <div className="space-y-2">
       {label && (
-        <Label htmlFor={id} className={required ? "after:content-['*'] after:text-red-500 after:ml-1" : ""}>
+        <Label htmlFor={id} className={required ? "after:content-['*'] after:text-destructive after:ml-1" : ""}>
           {label}
         </Label>
       )}
       <Input
         id={id}
         className={cn(
-          error && "border-red-500 focus-visible:ring-red-500",
+          error && "border-destructive focus-visible:ring-destructive",
           className
         )}
+        aria-invalid={!!error}
+        aria-describedby={error ? `${id}-error` : undefined}
         {...props}
       />
       {error && (
-        <p className="text-sm text-red-600">{error}</p>
+        <p id={`${id}-error`} className="text-sm text-destructive">{error}</p>
       )}
       {helperText && !error && (
-        <p className="text-sm text-gray-500">{helperText}</p>
+        <p className="text-sm text-muted-foreground">{helperText}</p>
       )}
     </div>
   )
@@ -100,23 +102,25 @@ export function StandardizedTextareaField({
   return (
     <div className="space-y-2">
       {label && (
-        <Label htmlFor={id} className={required ? "after:content-['*'] after:text-red-500 after:ml-1" : ""}>
+        <Label htmlFor={id} className={required ? "after:content-['*'] after:text-destructive after:ml-1" : ""}>
           {label}
         </Label>
       )}
       <Textarea
         id={id}
         className={cn(
-          error && "border-red-500 focus-visible:ring-red-500",
+          error && "border-destructive focus-visible:ring-destructive",
           className
         )}
+        aria-invalid={!!error}
+        aria-describedby={error ? `${id}-error` : undefined}
         {...props}
       />
       {error && (
-        <p className="text-sm text-red-600">{error}</p>
+        <p id={`${id}-error`} className="text-sm text-destructive">{error}</p>
       )}
       {helperText && !error && (
-        <p className="text-sm text-gray-500">{helperText}</p>
+        <p className="text-sm text-muted-foreground">{helperText}</p>
       )}
     </div>
   )
