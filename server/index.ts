@@ -1,35 +1,22 @@
 import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes-simple";
+import session from "express-session";
+import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy for Replit environment
 
-// COMPLETE authentication bypass for ALL environments
-app.use((req, res, next) => {
-  // Force authentication bypass for ALL requests
-  console.log('[GLOBAL AUTH BYPASS] Request:', req.method, req.path);
-  req.user = {
-    id: "demo-user-1",
-    email: "maria.garcia@email.com", 
-    firstName: "Maria",
-    lastName: "Garcia",
-    role: "admin"
-  };
-  req.isAuthenticated = () => true;
-  next();
-});
-
-app.get('/api/auth/user', (req, res) => {
-  console.log('[AUTH BYPASS] Returning demo user for business page viewing');
-  res.json({
-    id: "demo-user-1",
-    email: "maria.garcia@email.com", 
-    firstName: "Maria",
-    lastName: "Garcia",
-    role: "user"
-  });
-});
+// Session configuration
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'fallback-secret-for-dev',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: false, // Set to true in production with HTTPS
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
