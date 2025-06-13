@@ -165,7 +165,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch('/api/admin/users/:id/password', async (req, res) => {
     try {
-      await storage.updateUserPassword(req.params.id, req.body.password);
+      const { scrypt, randomBytes } = await import('crypto');
+      const { promisify } = await import('util');
+      const scryptAsync = promisify(scrypt);
+      
+      // Hash the password
+      const salt = randomBytes(16).toString('hex');
+      const buf = (await scryptAsync(req.body.password, salt, 64)) as Buffer;
+      const hashedPassword = `${buf.toString('hex')}.${salt}`;
+      
+      await storage.updateUserPassword(req.params.id, hashedPassword);
       res.json({ message: 'Password updated successfully' });
     } catch (error) {
       console.error('Error updating password:', error);
