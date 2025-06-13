@@ -102,6 +102,16 @@ export default function BusinessDetailWorking() {
     return images.filter((img, index, arr) => arr.indexOf(img) === index); // Remove duplicates
   };
 
+  const getHeroImage = () => {
+    const images = getBusinessImages();
+    return images.length > 0 ? images[0] : 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=600&h=400&fit=crop&auto=format';
+  };
+
+  const getGalleryImages = () => {
+    const images = getBusinessImages();
+    return images.slice(1, 4); // Get images 2, 3, 4 (skip the first one used in hero)
+  };
+
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
       <Star
@@ -114,14 +124,16 @@ export default function BusinessDetailWorking() {
   };
 
   const parseHours = () => {
-    if (!business.openinghours) return [];
+    // Check multiple possible field names for hours
+    const hoursData = business.openinghours || (business as any).hours || (business as any).operatingHours;
+    if (!hoursData) return [];
     
     try {
-      if (typeof business.openinghours === 'string') {
-        return JSON.parse(business.openinghours);
+      if (typeof hoursData === 'string') {
+        return JSON.parse(hoursData);
       }
-      if (Array.isArray(business.openinghours)) {
-        return business.openinghours;
+      if (Array.isArray(hoursData)) {
+        return hoursData;
       }
       return [];
     } catch {
@@ -130,14 +142,34 @@ export default function BusinessDetailWorking() {
   };
 
   const parseFAQ = () => {
-    if (!business.faq) return [];
+    // Check multiple possible field names for FAQ
+    const faqData = business.faq || (business as any).faqs || (business as any).frequently_asked_questions;
+    if (!faqData) return [];
     
     try {
-      if (typeof business.faq === 'string') {
-        return JSON.parse(business.faq);
+      if (typeof faqData === 'string') {
+        return JSON.parse(faqData);
       }
-      if (Array.isArray(business.faq)) {
-        return business.faq;
+      if (Array.isArray(faqData)) {
+        return faqData;
+      }
+      return [];
+    } catch {
+      return [];
+    }
+  };
+
+  const parseReviews = () => {
+    // Check multiple possible field names for reviews
+    const reviewsData = (business as any).reviews || (business as any).review || (business as any).businessReviews;
+    if (!reviewsData) return [];
+    
+    try {
+      if (typeof reviewsData === 'string') {
+        return JSON.parse(reviewsData);
+      }
+      if (Array.isArray(reviewsData)) {
+        return reviewsData;
       }
       return [];
     } catch {
@@ -154,6 +186,10 @@ export default function BusinessDetailWorking() {
   const businessImages = getBusinessImages();
   const hours = parseHours();
   const faqItems = parseFAQ();
+  const businessReviews = parseReviews();
+  
+  // Combine API reviews with business JSON reviews
+  const allReviews = [...reviews, ...businessReviews];
 
   return (
     <div className="min-h-screen bg-white text-black">
@@ -162,7 +198,7 @@ export default function BusinessDetailWorking() {
       {/* Hero Section with Image */}
       <div className="relative h-64 md:h-96 overflow-hidden">
         <img
-          src={getBusinessImage()}
+          src={getHeroImage()}
           alt={business.title || "Business"}
           className="w-full h-full object-cover"
           onError={(e) => {
@@ -203,15 +239,15 @@ export default function BusinessDetailWorking() {
         </div>
       </div>
 
-      {/* Photos Section - Under Hero */}
-      {businessImages.length > 0 && (
+      {/* Photos Section - Under Hero (images 2, 3, 4) */}
+      {getGalleryImages().length > 0 && (
         <div className="container mx-auto px-4 py-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {businessImages.slice(0, 8).map((image: string, index: number) => (
+          <div className="grid grid-cols-3 gap-4">
+            {getGalleryImages().map((image: string, index: number) => (
               <img
                 key={index}
                 src={image}
-                alt={`${business.title} - Photo ${index + 1}`}
+                alt={`${business.title} - Photo ${index + 2}`}
                 className="w-full h-32 object-cover rounded-lg"
                 onError={(e) => {
                   e.currentTarget.style.display = 'none';
@@ -283,7 +319,7 @@ export default function BusinessDetailWorking() {
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center text-black">
                     <MessageSquare className="w-5 h-5 mr-2" />
-                    Customer Reviews ({reviews.length})
+                    Customer Reviews ({allReviews.length})
                   </CardTitle>
                   <Button 
                     onClick={() => setShowReviewForm(!showReviewForm)}
@@ -323,9 +359,9 @@ export default function BusinessDetailWorking() {
                   </div>
                 )}
 
-                {reviews.length > 0 ? (
+                {allReviews.length > 0 ? (
                   <div className="space-y-4">
-                    {reviews.map((review: any, index: number) => (
+                    {allReviews.map((review: any, index: number) => (
                       <div key={index} className="border-b pb-4 last:border-b-0">
                         <div className="flex items-start justify-between mb-2">
                           <div className="flex items-center space-x-3">
@@ -334,10 +370,12 @@ export default function BusinessDetailWorking() {
                             </div>
                             <div>
                               <p className="font-medium text-black">
-                                {review.reviewerName || "Anonymous"}
+                                {review.author_name || review.reviewerName || review.author || "Anonymous"}
                               </p>
                               <p className="text-sm text-gray-500">
-                                {new Date(review.createdAt || Date.now()).toLocaleDateString()}
+                                {review.time ? new Date(review.time * 1000).toLocaleDateString() : 
+                                 review.createdAt ? new Date(review.createdAt).toLocaleDateString() : 
+                                 "Unknown date"}
                               </p>
                             </div>
                           </div>
@@ -349,7 +387,7 @@ export default function BusinessDetailWorking() {
                           </div>
                         </div>
                         <p className="text-black leading-relaxed">
-                          {review.comment || review.reviewText}
+                          {review.text || review.comment || review.reviewText || review.content}
                         </p>
                       </div>
                     ))}
@@ -407,61 +445,6 @@ export default function BusinessDetailWorking() {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Contact Form */}
-            <Card className="border-gray-200">
-              <CardHeader>
-                <CardTitle className="text-black">Contact {business.title}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleContactSubmit} className="space-y-4">
-                  <div>
-                    <Label htmlFor="name" className="text-black">Name</Label>
-                    <Input
-                      id="name"
-                      value={contactForm.name}
-                      onChange={(e) => setContactForm(prev => ({ ...prev, name: e.target.value }))}
-                      className="mt-1 text-black"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="email" className="text-black">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={contactForm.email}
-                      onChange={(e) => setContactForm(prev => ({ ...prev, email: e.target.value }))}
-                      className="mt-1 text-black"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="phone" className="text-black">Phone</Label>
-                    <Input
-                      id="phone"
-                      value={contactForm.phone}
-                      onChange={(e) => setContactForm(prev => ({ ...prev, phone: e.target.value }))}
-                      className="mt-1 text-black"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="message" className="text-black">Message</Label>
-                    <Textarea
-                      id="message"
-                      value={contactForm.message}
-                      onChange={(e) => setContactForm(prev => ({ ...prev, message: e.target.value }))}
-                      className="mt-1 text-black"
-                      rows={4}
-                      required
-                    />
-                  </div>
-                  <Button type="submit" className="w-full bg-black text-white hover:bg-gray-800">
-                    Send Message
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-
             {/* Contact Information */}
             <Card className="border-gray-200">
               <CardHeader>
@@ -555,6 +538,61 @@ export default function BusinessDetailWorking() {
                 </CardContent>
               </Card>
             )}
+
+            {/* Contact Form */}
+            <Card className="border-gray-200">
+              <CardHeader>
+                <CardTitle className="text-black">Contact {business.title}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleContactSubmit} className="space-y-4">
+                  <div>
+                    <Label htmlFor="name" className="text-black">Name</Label>
+                    <Input
+                      id="name"
+                      value={contactForm.name}
+                      onChange={(e) => setContactForm(prev => ({ ...prev, name: e.target.value }))}
+                      className="mt-1 text-black"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="email" className="text-black">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={contactForm.email}
+                      onChange={(e) => setContactForm(prev => ({ ...prev, email: e.target.value }))}
+                      className="mt-1 text-black"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="phone" className="text-black">Phone</Label>
+                    <Input
+                      id="phone"
+                      value={contactForm.phone}
+                      onChange={(e) => setContactForm(prev => ({ ...prev, phone: e.target.value }))}
+                      className="mt-1 text-black"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="message" className="text-black">Message</Label>
+                    <Textarea
+                      id="message"
+                      value={contactForm.message}
+                      onChange={(e) => setContactForm(prev => ({ ...prev, message: e.target.value }))}
+                      className="mt-1 text-black"
+                      rows={4}
+                      required
+                    />
+                  </div>
+                  <Button type="submit" className="w-full bg-black text-white hover:bg-gray-800">
+                    Send Message
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
           </div>
         </div>
 
