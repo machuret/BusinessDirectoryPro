@@ -71,8 +71,14 @@ export default function BusinessDetail(props: BusinessDetailProps = {}) {
         <div className="max-w-6xl mx-auto">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
             <h1 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">
-              {business.title || business.placeid}
+              {business.title || business.placeid || 'Loading...'}
             </h1>
+            
+            {!business.title && business.placeid && (
+              <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
+                <strong>Note:</strong> Business title not available, showing Place ID: {business.placeid}
+              </div>
+            )}
             
             {business.subtitle && (
               <p className="text-xl text-gray-600 dark:text-gray-300 mb-4">{business.subtitle}</p>
