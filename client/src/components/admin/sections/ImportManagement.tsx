@@ -37,7 +37,7 @@ interface PreviewData {
   }>;
 }
 
-export default function ImportManagement() {
+export function ImportManagement() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewData, setPreviewData] = useState<PreviewData | null>(null);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
@@ -412,32 +412,32 @@ export default function ImportManagement() {
           {currentStep === 'complete' && importResult && (
             <div className="space-y-4">
               <div className="text-center" role="status" aria-live="polite">
-                <CheckCircle className="h-12 w-12 mx-auto mb-4 text-emerald-600 dark:text-emerald-400" />
+                <CheckCircle className="h-12 w-12 mx-auto mb-4 text-primary" />
                 <h3 className="text-lg font-semibold mb-2">Import Complete</h3>
                 <p className="text-muted-foreground">{importResult.message}</p>
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4" role="region" aria-label="Import statistics">
-                <div className="text-center p-4 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800 rounded-lg">
-                  <div className="text-2xl font-bold text-emerald-700 dark:text-emerald-300" aria-label={`${importResult.created} records created`}>
+                <div className="text-center p-4 bg-muted/20 border border-border rounded-lg">
+                  <div className="text-2xl font-bold text-primary" aria-label={`${importResult.created} records created`}>
                     {importResult.created}
                   </div>
                   <div className="text-sm text-muted-foreground">Created</div>
                 </div>
-                <div className="text-center p-4 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                  <div className="text-2xl font-bold text-blue-700 dark:text-blue-300" aria-label={`${importResult.updated} records updated`}>
+                <div className="text-center p-4 bg-muted/20 border border-border rounded-lg">
+                  <div className="text-2xl font-bold text-primary" aria-label={`${importResult.updated} records updated`}>
                     {importResult.updated}
                   </div>
                   <div className="text-sm text-muted-foreground">Updated</div>
                 </div>
-                <div className="text-center p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
-                  <div className="text-2xl font-bold text-amber-700 dark:text-amber-300" aria-label={`${importResult.duplicatesSkipped} records skipped`}>
+                <div className="text-center p-4 bg-muted/20 border border-border rounded-lg">
+                  <div className="text-2xl font-bold text-foreground" aria-label={`${importResult.duplicatesSkipped} records skipped`}>
                     {importResult.duplicatesSkipped}
                   </div>
                   <div className="text-sm text-muted-foreground">Skipped</div>
                 </div>
-                <div className="text-center p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg">
-                  <div className="text-2xl font-bold text-red-700 dark:text-red-300" aria-label={`${importResult.errors.length} errors encountered`}>
+                <div className="text-center p-4 bg-muted/20 border border-border rounded-lg">
+                  <div className="text-2xl font-bold text-destructive" aria-label={`${importResult.errors.length} errors encountered`}>
                     {importResult.errors.length}
                   </div>
                   <div className="text-sm text-muted-foreground">Errors</div>
@@ -461,7 +461,7 @@ export default function ImportManagement() {
                       >
                         <span className="font-medium text-foreground">Row {error.row}:</span>
                         <span className="text-muted-foreground ml-1">{error.field}</span>
-                        <span className="text-red-600 dark:text-red-400 ml-1">- {error.message}</span>
+                        <span className="text-destructive ml-1">- {error.message}</span>
                       </div>
                     ))}
                     {importResult.errors.length > 10 && (

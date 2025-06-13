@@ -320,17 +320,19 @@ export default function ModernAdmin() {
                 <button
                   key={section.id}
                   onClick={() => setActiveSection(section.id)}
+                  aria-pressed={activeSection === section.id}
+                  aria-describedby={`section-${section.id}-desc`}
                   className={`w-full flex items-center justify-between p-3 rounded-lg text-left transition-colors ${
                     activeSection === section.id
-                      ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800"
-                      : "hover:bg-gray-50 dark:hover:bg-gray-700"
+                      ? "bg-primary/10 text-primary border border-primary/20"
+                      : "hover:bg-muted"
                   }`}
                 >
                   <div className="flex items-center space-x-3">
                     <section.icon className="h-5 w-5" />
                     <div>
                       <div className="font-medium">{section.label}</div>
-                      <div className="text-xs text-muted-foreground">{section.description}</div>
+                      <div id={`section-${section.id}-desc`} className="text-xs text-muted-foreground">{section.description}</div>
                     </div>
                   </div>
                   <ChevronRight className="h-4 w-4" />
