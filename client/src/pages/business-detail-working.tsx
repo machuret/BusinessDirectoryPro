@@ -1,4 +1,4 @@
-import { useParams } from "wouter";
+import { useParams, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import Header from "@/components/header";
@@ -11,12 +11,15 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { useToast } from "@/hooks/use-toast";
 import { Star, MapPin, Share2, Heart, Phone, Globe, Clock, Mail, User, MessageSquare, ChevronDown, ChevronUp } from "lucide-react";
 import type { BusinessWithCategory, Review } from "@shared/schema";
 
 export default function BusinessDetailWorking() {
   const { slug } = useParams<{ slug: string }>();
   const [showClaimModal, setShowClaimModal] = useState(false);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const { toast } = useToast();
 
   const { data: business, isLoading, error } = useQuery<BusinessWithCategory>({
     queryKey: ["/api/businesses/slug", slug],
@@ -48,7 +51,6 @@ export default function BusinessDetailWorking() {
   });
 
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
-  const [showReviewForm, setShowReviewForm] = useState(false);
 
   if (isLoading) {
     return (
@@ -177,10 +179,46 @@ export default function BusinessDetailWorking() {
     }
   };
 
-  const handleContactSubmit = (e: React.FormEvent) => {
+  const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Contact form submission logic would go here
-    console.log('Contact form submitted:', contactForm);
+    
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...contactForm,
+          businessId: business.placeid,
+          businessName: business.title,
+        }),
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Message sent successfully!",
+          description: "We'll get back to you soon.",
+        });
+        setContactForm({ name: '', email: '', phone: '', message: '' });
+      } else {
+        throw new Error('Failed to send message');
+      }
+    } catch (error) {
+      toast({
+        title: "Failed to send message",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleClaimBusiness = () => {
+    toast({
+      title: "Claim Business Request",
+      description: "Please contact us to claim this business listing.",
+    });
+    setShowClaimModal(true);
   };
 
   const businessImages = getBusinessImages();
@@ -217,10 +255,10 @@ export default function BusinessDetailWorking() {
                 <Badge variant="secondary">{business.categoryname}</Badge>
               )}
               {business.city && (
-                <div className="flex items-center gap-1 text-gray-200">
+                <Link href={`/businesses?city=${encodeURIComponent(business.city)}`} className="flex items-center gap-1 text-gray-200 hover:text-white transition-colors">
                   <MapPin className="w-4 h-4" />
                   {business.city}
-                </div>
+                </Link>
               )}
               {business.totalscore && typeof business.totalscore === 'number' && business.totalscore > 0 && (
                 <div className="flex items-center gap-1">
