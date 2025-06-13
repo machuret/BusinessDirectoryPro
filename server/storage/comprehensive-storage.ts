@@ -3,6 +3,7 @@ import { UserStorage } from "./user-storage";
 import { BusinessStorage } from "./business";
 import { CategoryStorage } from "./category-storage";
 import { ServicesStorage } from "./services-storage";
+import { OwnershipClaimsStorage, type OwnershipClaimWithDetails } from "./ownership-claims-storage";
 import { eq, like, ilike, and, or, desc, asc, sql, ne } from "drizzle-orm";
 import { db } from "../db";
 import { 
