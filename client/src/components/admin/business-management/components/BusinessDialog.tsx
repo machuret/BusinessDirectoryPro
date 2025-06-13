@@ -546,13 +546,13 @@ export default function BusinessDialog({ open, onClose, business, isEdit }: Busi
 
               {isEdit && (
                 <TabsContent value="photos" className="space-y-4">
-                  <PhotoGalleryManager businessId={business?.placeid} />
+                  <PhotoGalleryManager businessId={business?.placeid} business={business} />
                 </TabsContent>
               )}
 
               {isEdit && (
                 <TabsContent value="reviews" className="space-y-4">
-                  <ReviewsManager businessId={business?.placeid} />
+                  <ReviewsManager businessId={business?.placeid} business={business} />
                 </TabsContent>
               )}
             </Tabs>

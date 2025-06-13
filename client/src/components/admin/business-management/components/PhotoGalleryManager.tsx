@@ -10,17 +10,15 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 
 interface PhotoGalleryManagerProps {
   businessId: string;
+  business?: any;
 }
 
-export default function PhotoGalleryManager({ businessId }: PhotoGalleryManagerProps) {
+export default function PhotoGalleryManager({ businessId, business }: PhotoGalleryManagerProps) {
   const { toast } = useToast();
   const [selectedPhotos, setSelectedPhotos] = useState<string[]>([]);
 
-  // Fetch business data to get photo galleries
-  const { data: business, isLoading } = useQuery({
-    queryKey: ['/api/admin/businesses', businessId],
-    enabled: !!businessId,
-  });
+  // Use business data from props
+  const isLoading = false;
 
   const deletePhotoMutation = useMutation({
     mutationFn: async (photoUrl: string) => {
@@ -80,7 +78,7 @@ export default function PhotoGalleryManager({ businessId }: PhotoGalleryManagerP
     );
   }
 
-  const photos = business?.photogallery ? JSON.parse(business.photogallery) : [];
+  const photos = business?.images ? (Array.isArray(business.images) ? business.images : JSON.parse(business.images as string)) : [];
 
   if (!photos || photos.length === 0) {
     return (

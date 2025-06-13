@@ -10,17 +10,16 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 
 interface ReviewsManagerProps {
   businessId: string;
+  business?: any;
 }
 
-export default function ReviewsManager({ businessId }: ReviewsManagerProps) {
+export default function ReviewsManager({ businessId, business }: ReviewsManagerProps) {
   const { toast } = useToast();
   const [selectedReviews, setSelectedReviews] = useState<number[]>([]);
 
-  // Fetch reviews for this business
-  const { data: reviews, isLoading } = useQuery({
-    queryKey: ['/api/reviews', businessId],
-    enabled: !!businessId,
-  });
+  // Extract reviews from business data
+  const reviews = business?.reviews ? (Array.isArray(business.reviews) ? business.reviews : JSON.parse(business.reviews as string)) : [];
+  const isLoading = false;
 
   const deleteReviewMutation = useMutation({
     mutationFn: async (reviewId: number) => {
