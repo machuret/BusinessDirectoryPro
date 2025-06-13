@@ -8,26 +8,26 @@ import BusinessCard from "@/components/business-card";
 import BusinessCardSkeleton from "@/components/business-card-skeleton";
 import WelcomeSection from "@/components/welcome-section";
 import SEOHead from "@/components/SEOHead";
-import SectionErrorBoundary from "@/components/error/SectionErrorBoundary";
+import { SectionErrorBoundary } from "@/components/error/SectionErrorBoundary";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Building, Users, Star, MapPin, RefreshCw } from "lucide-react";
 import type { BusinessWithCategory, CategoryWithCount } from "@shared/schema";
 
 export default function Home() {
-  const { data: featuredBusinesses, isLoading: featuredLoading, error: featuredError, retry: retryFeatured } = useApiQuery<BusinessWithCategory[]>({
+  const { data: featuredBusinesses, isLoading: featuredLoading, error: featuredError, refetch: retryFeatured } = useApiQuery<BusinessWithCategory[]>({
     queryKey: ["/api/businesses/featured"],
   });
 
-  const { data: randomBusinesses, isLoading: randomLoading, error: randomError, retry: retryRandom } = useApiQuery<BusinessWithCategory[]>({
+  const { data: randomBusinesses, isLoading: randomLoading, error: randomError, refetch: retryRandom } = useApiQuery<BusinessWithCategory[]>({
     queryKey: ["/api/businesses/random", { limit: 9 }],
   });
 
-  const { data: categories, isLoading: categoriesLoading, error: categoriesError, retry: retryCategories } = useApiQuery<CategoryWithCount[]>({
+  const { data: categories, isLoading: categoriesLoading, error: categoriesError, refetch: retryCategories } = useApiQuery<CategoryWithCount[]>({
     queryKey: ["/api/categories"],
   });
 
-  const { data: siteSettings, error: settingsError, retry: retrySettings } = useApiQuery<Record<string, any>>({
+  const { data: siteSettings, error: settingsError, refetch: retrySettings } = useApiQuery<Record<string, any>>({
     queryKey: ["/api/site-settings"],
   });
 
@@ -76,15 +76,28 @@ export default function Home() {
             </p>
           </div>
           
-          {categoriesLoading ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="bg-gray-200 rounded-xl p-6 h-32 animate-pulse" />
-              ))}
-            </div>
-          ) : (
-            <CategoryGrid categories={categories?.filter(cat => (cat as any).businessCount > 0) || []} />
-          )}
+          <SectionErrorBoundary 
+            fallbackTitle="Unable to load categories"
+            fallbackMessage="We're having trouble loading business categories. Please try again."
+          >
+            {categoriesLoading ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="bg-gray-200 rounded-xl p-6 h-32 animate-pulse" />
+                ))}
+              </div>
+            ) : categoriesError ? (
+              <div className="text-center py-8">
+                <p className="text-gray-500 mb-4">Unable to load categories</p>
+                <Button onClick={retryCategories} variant="outline">
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Try Again
+                </Button>
+              </div>
+            ) : (
+              <CategoryGrid categories={categories?.filter(cat => (cat as any).businessCount > 0) || []} />
+            )}
+          </SectionErrorBoundary>
         </div>
       </section>
 
@@ -129,21 +142,38 @@ export default function Home() {
             </p>
           </div>
           
-          {featuredLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              <BusinessCardSkeleton 
-                count={6} 
-                variant="default"
-                className="transition-all duration-300"
-              />
-            </div>
-          ) : featuredBusinesses && featuredBusinesses.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {featuredBusinesses.map((business) => (
-                <BusinessCard key={business.placeid} business={business} />
-              ))}
-            </div>
-          ) : null}
+          <SectionErrorBoundary 
+            fallbackTitle="Unable to load featured businesses"
+            fallbackMessage="We're having trouble loading featured businesses. Please try again."
+          >
+            {featuredLoading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                <BusinessCardSkeleton 
+                  count={6} 
+                  variant="default"
+                  className="transition-all duration-300"
+                />
+              </div>
+            ) : featuredError ? (
+              <div className="text-center py-8">
+                <p className="text-gray-500 mb-4">Unable to load featured businesses</p>
+                <Button onClick={retryFeatured} variant="outline">
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Try Again
+                </Button>
+              </div>
+            ) : featuredBusinesses && featuredBusinesses.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                {featuredBusinesses.map((business) => (
+                  <BusinessCard key={business.placeid} business={business} />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-500">No featured businesses available</p>
+              </div>
+            )}
+          </SectionErrorBoundary>
         </div>
       </section>
 

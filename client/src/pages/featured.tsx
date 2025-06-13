@@ -1,13 +1,15 @@
-import { useQuery } from "@tanstack/react-query";
+import { useApiQuery } from "@/hooks/useApiQuery";
 import { useEffect, useState } from "react";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import BusinessCard from "@/components/business-card";
+import BusinessCardSkeleton from "@/components/business-card-skeleton";
+import { SectionErrorBoundary } from "@/components/error/SectionErrorBoundary";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Star, MapPin, Phone, Globe, Search } from "lucide-react";
+import { Star, MapPin, Phone, Globe, Search, RefreshCw, AlertCircle } from "lucide-react";
 import { Link } from "wouter";
 import type { BusinessWithCategory } from "@shared/schema";
 
