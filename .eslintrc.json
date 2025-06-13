@@ -6,7 +6,10 @@
   },
   "extends": [
     "eslint:recommended",
-    "@typescript-eslint/recommended"
+    "@typescript-eslint/recommended",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
+    "plugin:jsx-a11y/recommended"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -16,7 +19,7 @@
     "ecmaVersion": "latest",
     "sourceType": "module"
   },
-  "plugins": ["@typescript-eslint", "react", "react-hooks"],
+  "plugins": ["@typescript-eslint", "react", "react-hooks", "jsx-a11y"],
   "rules": {
     // Import/Export consistency
     "prefer-const": "error",
@@ -87,7 +90,42 @@
         "selector": "function",
         "format": ["camelCase", "PascalCase"]
       }
-    ]
+    ],
+
+    // Design System Enforcement Rules
+    "no-restricted-syntax": [
+      "error",
+      {
+        "selector": "Literal[value=/^#[0-9a-fA-F]{3,8}$/]",
+        "message": "Hardcoded hex colors are not allowed. Use CSS variables from the theme file instead (e.g., hsl(var(--primary)))"
+      },
+      {
+        "selector": "CallExpression[callee.name='rgb'] Literal",
+        "message": "Hardcoded RGB colors are not allowed. Use CSS variables from the theme file instead"
+      },
+      {
+        "selector": "CallExpression[callee.name='rgba'] Literal", 
+        "message": "Hardcoded RGBA colors are not allowed. Use CSS variables from the theme file instead"
+      },
+      {
+        "selector": "Property[key.name='color'] Literal[value=/^#[0-9a-fA-F]{3,8}$/]",
+        "message": "Hardcoded hex colors in CSS-in-JS are not allowed. Use theme colors instead"
+      }
+    ],
+
+    // React/JSX rules
+    "react/react-in-jsx-scope": "off",
+    "react/prop-types": "off",
+
+    // Accessibility enforcement
+    "jsx-a11y/alt-text": "error",
+    "jsx-a11y/aria-props": "error", 
+    "jsx-a11y/aria-proptypes": "error",
+    "jsx-a11y/aria-unsupported-elements": "error",
+    "jsx-a11y/role-has-required-aria-props": "error",
+    "jsx-a11y/role-supports-aria-props": "error",
+    "jsx-a11y/click-events-have-key-events": "error",
+    "jsx-a11y/no-static-element-interactions": "error"
   },
   "settings": {
     "react": {

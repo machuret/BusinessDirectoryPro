@@ -1,0 +1,55 @@
+{
+  "entryPoints": [
+    "client/src/components/ui/button.tsx",
+    "client/src/components/ui/input.tsx",
+    "client/src/components/accessibility/AccessibleModal.tsx"
+  ],
+  "out": "docs/components",
+  "plugin": ["typedoc-plugin-markdown"],
+  "readme": "none",
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.stories.tsx",
+    "**/node_modules/**"
+  ],
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "excludeInternal": true,
+  "hideGenerator": true,
+  "sort": ["source-order"],
+  "kindSortOrder": [
+    "Project",
+    "Module",
+    "Namespace",
+    "Enum",
+    "Class",
+    "Interface",
+    "TypeAlias",
+    "Constructor",
+    "Property",
+    "Method",
+    "Function",
+    "Accessor",
+    "Variable"
+  ],
+  "categorizeByGroup": false,
+  "defaultCategory": "Other",
+  "categoryOrder": [
+    "Components",
+    "Hooks",
+    "Types",
+    "Utilities",
+    "*",
+    "Other"
+  ],
+  "gitRevision": "main",
+  "gitRemote": "origin",
+  "includeVersion": true,
+  "searchInComments": true,
+  "validation": {
+    "invalidLink": true,
+    "notExported": false,
+    "notDocumented": false
+  }
+}
