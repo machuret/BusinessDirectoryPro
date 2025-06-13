@@ -28,6 +28,18 @@ export default function SlugRouter() {
   });
 
   useEffect(() => {
+    console.log('SlugRouter Debug:', {
+      slug,
+      pageLoading,
+      businessLoading,
+      hasPage: !!page,
+      hasBusiness: !!business,
+      pageError: pageError?.message,
+      businessError: businessError?.message,
+      businessTitle: business?.title,
+      businessPlaceId: business?.placeid
+    });
+
     if (pageLoading || businessLoading) {
       setContentType('loading');
     } else if (page && !pageError) {
@@ -37,7 +49,7 @@ export default function SlugRouter() {
     } else {
       setContentType('notfound');
     }
-  }, [page, business, pageLoading, businessLoading, pageError, businessError]);
+  }, [page, business, pageLoading, businessLoading, pageError, businessError, slug]);
 
   if (contentType === 'loading') {
     return (

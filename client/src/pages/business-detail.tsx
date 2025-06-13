@@ -12,6 +12,13 @@ export default function BusinessDetail(props: BusinessDetailProps = {}) {
   const { preloadedBusiness } = props;
   const { slug } = useParams();
   
+  console.log('BusinessDetail Debug:', {
+    hasPreloaded: !!preloadedBusiness,
+    preloadedTitle: preloadedBusiness?.title,
+    preloadedPlaceId: preloadedBusiness?.placeid,
+    slug
+  });
+  
   // Use preloaded business if available, otherwise fetch from API
   const { data: fetchedBusiness, isLoading: businessLoading } = useQuery<BusinessWithCategory>({
     queryKey: [`/api/businesses/slug/${slug}`],
@@ -19,6 +26,13 @@ export default function BusinessDetail(props: BusinessDetailProps = {}) {
   });
   
   const business = preloadedBusiness || fetchedBusiness;
+  
+  console.log('BusinessDetail Data:', {
+    business,
+    businessTitle: business?.title,
+    businessPlaceId: business?.placeid,
+    hasData: !!business
+  });
 
   if (businessLoading) {
     return (
@@ -118,10 +132,10 @@ export default function BusinessDetail(props: BusinessDetailProps = {}) {
                 </div>
               )}
               
-              {business.totalreviews && (
+              {business.reviewscount && (
                 <div className="flex flex-col">
                   <strong className="text-gray-900 dark:text-white">Reviews:</strong>
-                  <span>{business.totalreviews} reviews</span>
+                  <span>{business.reviewscount} reviews</span>
                 </div>
               )}
             </div>
