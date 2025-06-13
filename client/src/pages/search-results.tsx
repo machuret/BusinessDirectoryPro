@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, MapPin, Filter } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Search, MapPin, Filter, AlertTriangle, RefreshCw } from "lucide-react";
+import { useApiQuery } from "@/hooks/useApiQuery";
+import { SectionErrorBoundary } from "@/components/error/SectionErrorBoundary";
 import BusinessCard from "@/components/business-card";
 import BusinessCardSkeleton from "@/components/business-card-skeleton";
 import Header from "@/components/header";
@@ -23,19 +25,15 @@ export default function SearchResults() {
   const [activeQuery, setActiveQuery] = useState(initialQuery);
   const [activeLocation, setActiveLocation] = useState(initialLocation);
 
-  const { data: businesses, isLoading, error } = useQuery<BusinessWithCategory[]>({
+  const { 
+    data: businesses, 
+    isLoading, 
+    isError, 
+    isNotFound, 
+    error, 
+    refetch 
+  } = useApiQuery<BusinessWithCategory[]>({
     queryKey: ["/api/businesses/search", activeQuery, activeLocation],
-    queryFn: async () => {
-      const params = new URLSearchParams();
-      if (activeQuery) params.set('q', activeQuery);
-      if (activeLocation) params.set('location', activeLocation);
-      
-      const response = await fetch(`/api/businesses/search?${params.toString()}`);
-      if (!response.ok) {
-        throw new Error('Search failed');
-      }
-      return response.json();
-    },
     enabled: !!(activeQuery || activeLocation),
   });
 
@@ -142,19 +140,40 @@ export default function SearchResults() {
           </div>
         )}
 
-        {/* Error State */}
-        {error && (
+        {/* Error States */}
+        {isError && (
           <Card>
             <CardContent className="p-8 text-center">
-              <div className="text-red-500 mb-4">
-                <Filter className="w-12 h-12 mx-auto" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Search Error</h3>
-              <p className="text-gray-600">
-                There was an error performing your search. Please try again.
+              <AlertTriangle className="w-12 h-12 mx-auto text-destructive mb-4" />
+              <h3 className="text-lg font-semibold text-foreground mb-2">Search Error</h3>
+              <p className="text-muted-foreground mb-4">
+                {error?.message || "There was an error performing your search. Please try again."}
               </p>
+              <div className="flex justify-center gap-4">
+                <Button onClick={() => refetch()} variant="default">
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Try Again
+                </Button>
+                <Button onClick={() => {
+                  setActiveQuery('');
+                  setActiveLocation('');
+                  setQuery('');
+                  setLocationFilter('');
+                }} variant="outline">
+                  Clear Search
+                </Button>
+              </div>
             </CardContent>
           </Card>
+        )}
+        
+        {isNotFound && (
+          <Alert variant="default" className="mb-6">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              Search service is temporarily unavailable. Please try again later.
+            </AlertDescription>
+          </Alert>
         )}
 
         {/* No Search Terms */}
@@ -198,11 +217,13 @@ export default function SearchResults() {
 
         {/* Results Grid */}
         {!isLoading && businesses && businesses.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {businesses.map((business) => (
-              <BusinessCard key={business.placeid} business={business} />
-            ))}
-          </div>
+          <SectionErrorBoundary>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {businesses.map((business: BusinessWithCategory) => (
+                <BusinessCard key={business.placeid} business={business} />
+              ))}
+            </div>
+          </SectionErrorBoundary>
         )}
       </main>
       

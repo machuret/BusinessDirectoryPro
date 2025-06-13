@@ -1,5 +1,9 @@
 import { useParams } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { AlertTriangle, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useApiQuery } from "@/hooks/useApiQuery";
+import { SectionErrorBoundary } from "@/components/error/SectionErrorBoundary";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import BusinessCard from "@/components/business-card";
@@ -16,27 +20,41 @@ import type { BusinessWithCategory, Review } from "@shared/schema";
 export default function BusinessDetailRefactored() {
   const { slug } = useParams<{ slug: string }>();
 
-  const { data: business, isLoading, error } = useQuery<BusinessWithCategory>({
+  const { 
+    data: business, 
+    isLoading, 
+    isError, 
+    isNotFound, 
+    error, 
+    refetch: refetchBusiness 
+  } = useApiQuery<BusinessWithCategory>({
     queryKey: ["/api/businesses/slug", slug],
-    queryFn: async () => {
-      const response = await fetch(`/api/businesses/slug/${slug}`);
-      if (!response.ok) {
-        throw new Error("Business not found");
-      }
-      return response.json();
-    },
     enabled: !!slug,
   });
 
-  const { data: reviews = [] } = useQuery<Review[]>({
+  const { 
+    data: reviews = [], 
+    isError: reviewsError,
+    refetch: refetchReviews 
+  } = useApiQuery<Review[]>({
     queryKey: [`/api/businesses/${business?.placeid}/reviews`],
     enabled: !!business?.placeid,
   });
 
-  const { data: similarBusinesses = [] } = useQuery<BusinessWithCategory[]>({
+  const { 
+    data: similarBusinesses = [], 
+    isError: similarError,
+    refetch: refetchSimilar 
+  } = useApiQuery<BusinessWithCategory[]>({
     queryKey: ["/api/businesses/random", { limit: 6 }],
     enabled: !!business?.placeid,
   });
+
+  const handleRetry = () => {
+    refetchBusiness();
+    refetchReviews();
+    refetchSimilar();
+  };
 
   if (isLoading) {
     return (
@@ -50,16 +68,67 @@ export default function BusinessDetailRefactored() {
     );
   }
 
-  if (error || !business) {
+  if (isNotFound) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
         <div className="container mx-auto px-4 py-8">
           <div className="text-center py-20">
+            <AlertTriangle className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h1 className="text-2xl font-bold text-foreground mb-4">Business Not Found</h1>
-            <p className="text-muted-foreground mb-4">
+            <p className="text-muted-foreground mb-6">
               The business you're looking for doesn't exist or has been removed.
             </p>
+            <Button onClick={() => window.history.back()} variant="outline">
+              Go Back
+            </Button>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center py-20">
+            <AlertTriangle className="h-16 w-16 text-destructive mx-auto mb-4" />
+            <h1 className="text-2xl font-bold text-foreground mb-4">Unable to Load Business</h1>
+            <p className="text-muted-foreground mb-6">
+              {error?.message || "There was a problem loading this business. Please try again."}
+            </p>
+            <div className="flex justify-center gap-4">
+              <Button onClick={handleRetry} variant="default">
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Try Again
+              </Button>
+              <Button onClick={() => window.history.back()} variant="outline">
+                Go Back
+              </Button>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!business) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center py-20">
+            <h1 className="text-2xl font-bold text-foreground mb-4">Business Not Available</h1>
+            <p className="text-muted-foreground mb-6">
+              This business is currently not available for viewing.
+            </p>
+            <Button onClick={() => window.history.back()} variant="outline">
+              Go Back
+            </Button>
           </div>
         </div>
         <Footer />
@@ -120,33 +189,66 @@ export default function BusinessDetailRefactored() {
     <div className="min-h-screen bg-background">
       <Header />
       
+      {/* Error alerts for secondary features */}
+      {reviewsError && (
+        <Alert className="mx-4 mt-4" variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            Unable to load reviews. Some content may be missing.
+          </AlertDescription>
+        </Alert>
+      )}
+      
+      {similarError && (
+        <Alert className="mx-4 mt-4" variant="default">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            Unable to load similar businesses.
+          </AlertDescription>
+        </Alert>
+      )}
+      
       {/* Hero Section */}
-      <BusinessHero business={business} heroImage={getHeroImage()} />
+      <SectionErrorBoundary fallbackTitle="Unable to load business header">
+        <BusinessHero business={business} heroImage={getHeroImage()} />
+      </SectionErrorBoundary>
       
       {/* Photo Gallery */}
-      <BusinessGallery images={getGalleryImages()} businessTitle={business.title || "Business"} />
+      <SectionErrorBoundary fallbackTitle="Unable to load photo gallery">
+        <BusinessGallery images={getGalleryImages()} businessTitle={business.title || "Business"} />
+      </SectionErrorBoundary>
       
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Action Buttons */}
-            <BusinessActions business={business} />
+            <SectionErrorBoundary fallback="Unable to load business actions">
+              <BusinessActions business={business} />
+            </SectionErrorBoundary>
             
             {/* Description */}
-            <BusinessDescription business={business} />
+            <SectionErrorBoundary fallback="Unable to load business description">
+              <BusinessDescription business={business} />
+            </SectionErrorBoundary>
             
             {/* Reviews */}
-            <BusinessReviews business={business} allReviews={allReviews} />
+            <SectionErrorBoundary fallback="Unable to load reviews section">
+              <BusinessReviews business={business} allReviews={allReviews} />
+            </SectionErrorBoundary>
             
             {/* FAQ */}
-            <BusinessFAQ business={business} />
+            <SectionErrorBoundary fallback="Unable to load FAQ section">
+              <BusinessFAQ business={business} />
+            </SectionErrorBoundary>
           </div>
           
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Contact Info */}
-            <BusinessContactInfo business={business} />
+            <SectionErrorBoundary fallback="Unable to load contact information">
+              <BusinessContactInfo business={business} />
+            </SectionErrorBoundary>
             
             {/* Business Hours */}
             <BusinessHours business={business} />
