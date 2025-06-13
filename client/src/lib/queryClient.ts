@@ -2,7 +2,18 @@ import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
-    const text = (await res.text()) || res.statusText;
+    let text: string;
+    try {
+      const contentType = res.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const json = await res.json();
+        text = json.message || JSON.stringify(json);
+      } else {
+        text = await res.text();
+      }
+    } catch (e) {
+      text = res.statusText;
+    }
     throw new Error(`${res.status}: ${text}`);
   }
 }
@@ -38,7 +49,18 @@ export const getQueryFn: <T>(options: {
     }
 
     await throwIfResNotOk(res);
-    return await res.json();
+    
+    // Handle potential JSON parsing issues
+    try {
+      return await res.json();
+    } catch (e) {
+      // If JSON parsing fails, check if response is actually HTML
+      const text = await res.text();
+      if (text.includes('<!DOCTYPE')) {
+        throw new Error(`Received HTML instead of JSON from ${queryKey[0]}`);
+      }
+      throw new Error(`Invalid JSON response from ${queryKey[0]}: ${e.message}`);
+    }
   };
 
 export const queryClient = new QueryClient({
