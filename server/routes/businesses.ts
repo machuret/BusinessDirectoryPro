@@ -96,10 +96,21 @@ export function setupBusinessRoutes(app: Express) {
   app.get("/api/businesses/slug/:slug", async (req, res) => {
     try {
       const { slug } = req.params;
+      console.log(`[DEBUG] Fetching business with slug: ${slug}`);
       const business = await storage.getBusinessBySlug(slug);
       if (!business) {
+        console.log(`[DEBUG] No business found for slug: ${slug}`);
         return res.status(404).json({ message: "Business not found" });
       }
+      console.log(`[DEBUG] Business found:`, {
+        placeid: business.placeid,
+        title: business.title,
+        slug: business.slug,
+        hasTitle: !!business.title,
+        hasDescription: !!business.description,
+        hasPhone: !!business.phone,
+        hasWebsite: !!business.website
+      });
       res.json(business);
     } catch (error) {
       console.error("Error fetching business by slug:", error);

@@ -167,9 +167,19 @@ export default function BusinessDetail(props: BusinessDetailProps = {}) {
                 <p><strong>Place ID:</strong> {business.placeid}</p>
                 <p><strong>Data source:</strong> {preloadedBusiness ? 'Preloaded' : 'API Fetch'}</p>
                 <p><strong>Has title:</strong> {business.title ? 'Yes' : 'No'}</p>
+                <p><strong>Title value:</strong> "{business.title}"</p>
                 <p><strong>Has description:</strong> {business.description ? 'Yes' : 'No'}</p>
                 <p><strong>Has phone:</strong> {business.phone ? 'Yes' : 'No'}</p>
                 <p><strong>Has website:</strong> {business.website ? 'Yes' : 'No'}</p>
+                <p><strong>Has address:</strong> {business.address ? 'Yes' : 'No'}</p>
+                <p><strong>Loading state:</strong> {businessLoading ? 'Loading' : 'Complete'}</p>
+              </div>
+              
+              <div className="mt-4">
+                <h4 className="font-bold text-gray-900 dark:text-white mb-2">Raw Business Object:</h4>
+                <pre className="text-xs bg-gray-100 dark:bg-gray-600 p-2 rounded overflow-auto max-h-40">
+                  {JSON.stringify(business, null, 2)}
+                </pre>
               </div>
             </div>
           </div>
