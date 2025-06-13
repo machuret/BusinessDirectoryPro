@@ -392,9 +392,40 @@ Respond with JSON format: {"services": [array of service objects]}. Make service
   // Ownership Claims Management
   app.get("/api/admin/ownership-claims", isAuthenticated, isAdmin, async (req, res) => {
     try {
-      // Since we don't have actual ownership claims in the database yet, return empty array
-      // In a real implementation, this would fetch from an ownership_claims table
-      res.json([]);
+      // Return sample ownership claims for demonstration
+      const sampleClaims = [
+        {
+          id: 1,
+          businessId: "ChIJ_baJ4jlYkWsRZsxcUx7VHyc",
+          businessTitle: "Brisbane Dental Care",
+          userId: "user-123",
+          userEmail: "owner@dentalcare.com",
+          status: "pending",
+          claimDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+          verificationNotes: "I am the owner of this dental practice. I have all necessary documentation to prove ownership.",
+          contactInfo: {
+            name: "Dr. Sarah Johnson",
+            phone: "+61 7 3123 4567",
+            email: "owner@dentalcare.com"
+          }
+        },
+        {
+          id: 2,
+          businessId: "ChIJmZH3T45ZkWsRPjD8_Z2oKH0",
+          businessTitle: "City Lawyers Brisbane",
+          userId: "user-456",
+          userEmail: "admin@citylawyers.com.au",
+          status: "approved",
+          claimDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+          adminNotes: "Verified ownership with business registration documents.",
+          contactInfo: {
+            name: "James Mitchell",
+            phone: "+61 7 3456 7890",
+            email: "admin@citylawyers.com.au"
+          }
+        }
+      ];
+      res.json(sampleClaims);
     } catch (error) {
       console.error("Error fetching ownership claims:", error);
       res.status(500).json({ message: "Failed to fetch ownership claims" });
@@ -423,9 +454,71 @@ Respond with JSON format: {"services": [array of service objects]}. Make service
   // Business Submissions Management
   app.get("/api/admin/business-submissions", isAuthenticated, isAdmin, async (req, res) => {
     try {
-      // Since we don't have actual business submissions in the database yet, return empty array
-      // In a real implementation, this would fetch from a business_submissions table
-      res.json([]);
+      // Return sample business submissions for demonstration
+      const sampleSubmissions = [
+        {
+          id: 1,
+          title: "Green Valley Veterinary Clinic",
+          description: "Full-service veterinary clinic providing comprehensive care for pets including medical, surgical, and dental services.",
+          address: "123 Green Valley Road, Brisbane QLD 4000",
+          city: "Brisbane",
+          phone: "+61 7 3234 5678",
+          email: "info@greenvalleyvet.com.au",
+          website: "https://greenvalleyvet.com.au",
+          categoryName: "Veterinary Services",
+          submittedBy: "user-789",
+          submitterEmail: "owner@greenvalleyvet.com.au",
+          status: "pending",
+          submissionDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+          contactInfo: {
+            name: "Dr. Michael Chen",
+            phone: "+61 7 3234 5678",
+            email: "owner@greenvalleyvet.com.au"
+          }
+        },
+        {
+          id: 2,
+          title: "Brisbane Marketing Solutions",
+          description: "Digital marketing agency specializing in SEO, social media marketing, and web design for small to medium businesses.",
+          address: "456 Marketing Street, South Brisbane QLD 4101",
+          city: "South Brisbane",
+          phone: "+61 7 3345 6789",
+          email: "hello@brismarketing.com.au",
+          website: "https://brismarketing.com.au",
+          categoryName: "Marketing & Advertising",
+          submittedBy: "user-101",
+          submitterEmail: "admin@brismarketing.com.au",
+          status: "approved",
+          submissionDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+          adminNotes: "Approved - all documentation verified and business listing created successfully.",
+          contactInfo: {
+            name: "Lisa Rodriguez",
+            phone: "+61 7 3345 6789",
+            email: "admin@brismarketing.com.au"
+          }
+        },
+        {
+          id: 3,
+          title: "Artisan Coffee Roasters",
+          description: "Local coffee roastery and cafe serving specialty single-origin coffees and light meals in a cozy atmosphere.",
+          address: "789 Coffee Lane, Paddington QLD 4064",
+          city: "Paddington",
+          phone: "+61 7 3456 7890",
+          email: "info@artisancoffee.com.au",
+          categoryName: "Cafes & Restaurants",
+          submittedBy: "user-202",
+          submitterEmail: "owner@artisancoffee.com.au",
+          status: "rejected",
+          submissionDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+          adminNotes: "Rejected - insufficient business documentation provided. Please resubmit with business registration details.",
+          contactInfo: {
+            name: "Tom Wilson",
+            phone: "+61 7 3456 7890",
+            email: "owner@artisancoffee.com.au"
+          }
+        }
+      ];
+      res.json(sampleSubmissions);
     } catch (error) {
       console.error("Error fetching business submissions:", error);
       res.status(500).json({ message: "Failed to fetch business submissions" });
