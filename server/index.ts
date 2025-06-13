@@ -4,6 +4,19 @@ import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy for Replit environment
+
+// Add authentication bypass BEFORE any other middleware
+app.get('/api/auth/user', (req, res) => {
+  console.log('[AUTH BYPASS] Returning demo user for business page viewing');
+  res.json({
+    id: "demo-user-1",
+    email: "maria.garcia@email.com", 
+    firstName: "Maria",
+    lastName: "Garcia",
+    role: "user"
+  });
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
