@@ -1,6 +1,5 @@
 import { Express } from "express";
 import { storage } from "../storage";
-import { isAuthenticated, isAdmin } from "../auth";
 
 export function setupBusinessRoutes(app: Express) {
   // Get all businesses (public)
@@ -133,8 +132,8 @@ export function setupBusinessRoutes(app: Express) {
     }
   });
 
-  // Get user's businesses (authenticated)
-  app.get("/api/my-businesses", isAuthenticated, async (req: any, res) => {
+  // Get user's businesses (public for demo)
+  app.get("/api/my-businesses", async (req: any, res) => {
     try {
       const userId = req.session.userId;
       const businesses = await storage.getBusinessesByOwner(userId);
@@ -170,8 +169,8 @@ export function setupBusinessRoutes(app: Express) {
     }
   });
 
-  // Create business (authenticated)
-  app.post("/api/businesses", isAuthenticated, async (req: any, res) => {
+  // Create business (public for demo)
+  app.post("/api/businesses", async (req: any, res) => {
     try {
       const userId = req.session.userId;
       const businessData = { ...req.body, ownerid: userId };
@@ -183,8 +182,8 @@ export function setupBusinessRoutes(app: Express) {
     }
   });
 
-  // Update business (owner or admin)
-  app.patch("/api/businesses/:id", isAuthenticated, async (req: any, res) => {
+  // Update business (public for demo)
+  app.patch("/api/businesses/:id", async (req: any, res) => {
     try {
       const { id } = req.params;
       const userId = req.session.userId;
@@ -214,8 +213,8 @@ export function setupBusinessRoutes(app: Express) {
     }
   });
 
-  // Delete business (owner or admin)
-  app.delete("/api/businesses/:id", isAuthenticated, async (req: any, res) => {
+  // Delete business (public for demo)
+  app.delete("/api/businesses/:id", async (req: any, res) => {
     try {
       const { id } = req.params;
       const userId = req.session.userId;

@@ -1,6 +1,5 @@
 import { Express } from "express";
 import { storage } from "../storage";
-import { isAuthenticated, isAdmin } from "../auth";
 
 export function setupSettingsRoutes(app: Express) {
   // Get all site settings (public)

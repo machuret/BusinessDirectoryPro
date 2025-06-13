@@ -1,6 +1,5 @@
 import { Express } from "express";
 import { storage } from "../storage";
-import { isAuthenticated, isAdmin } from "../auth";
 
 export function setupReviewRoutes(app: Express) {
   // Get reviews for a business (public - approved only)
