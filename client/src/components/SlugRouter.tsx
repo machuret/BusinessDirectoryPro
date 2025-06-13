@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useRoute } from "wouter";
 import { useState, useEffect } from "react";
 import CMSPage from "@/pages/cms-page";
-import BusinessDetail from "@/pages/business-detail";
+import BusinessDetailSimple from "@/pages/business-detail-simple";
 import BusinessDetailMinimal from "@/pages/business-detail-minimal";
 import NotFound from "@/pages/not-found";
 import type { Page } from "@shared/schema";
@@ -69,7 +69,7 @@ export default function SlugRouter() {
   }
 
   if (contentType === 'business') {
-    return <BusinessDetail preloadedBusiness={business} />;
+    return <BusinessDetailSimple preloadedBusiness={business} />;
   }
 
   return <NotFound />;
