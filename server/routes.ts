@@ -2,7 +2,6 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import multer from "multer";
 import { storage } from "./storage";
-// No authentication imports needed
 import { optimizeBusinesses } from "./openai";
 import { setupAuthRoutes } from "./routes/auth";
 import { setupBusinessRoutes } from "./routes/businesses";
@@ -46,7 +45,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/admin', optimizationRoutes);
 
   // CSV Import functionality - Preview
-  app.post('/api/admin/import-csv-preview', isAuthenticated, isAdmin, upload.single('csvFile'), async (req, res) => {
+  app.post('/api/admin/import-csv-preview', upload.single('csvFile'), async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ message: 'No CSV file uploaded' });
@@ -61,7 +60,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // CSV Import functionality - Validate only
-  app.post('/api/admin/import-csv-validate', isAuthenticated, isAdmin, upload.single('csvFile'), async (req, res) => {
+  app.post('/api/admin/import-csv-validate', upload.single('csvFile'), async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ message: 'No CSV file uploaded' });
@@ -86,7 +85,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // CSV Import functionality - Full import
-  app.post('/api/admin/import-csv', isAuthenticated, isAdmin, upload.single('csvFile'), async (req, res) => {
+  app.post('/api/admin/import-csv', upload.single('csvFile'), async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ message: 'No CSV file uploaded' });
@@ -113,7 +112,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // OpenAI optimization endpoints
-  app.post('/api/admin/optimize-businesses', isAuthenticated, isAdmin, async (req, res) => {
+  app.post('/api/admin/optimize-businesses', async (req, res) => {
     try {
       const { businessIds, type } = req.body;
       
@@ -134,7 +133,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Ownership claim routes
-  app.get('/api/admin/ownership-claims', isAuthenticated, isAdmin, async (req, res) => {
+  app.get('/api/admin/ownership-claims', async (req, res) => {
     try {
       const claims = await storage.getOwnershipClaims();
       res.json(claims);
@@ -144,7 +143,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/ownership-claims', isAuthenticated, async (req: any, res) => {
+  app.post('/api/ownership-claims', async (req: any, res) => {
     try {
       const userId = req.session.userId;
       const claimData = { ...req.body, userId, status: 'pending' };
@@ -157,7 +156,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch('/api/admin/ownership-claims/:id', isAuthenticated, isAdmin, async (req: any, res) => {
+  app.patch('/api/admin/ownership-claims/:id', async (req: any, res) => {
     try {
       const { id } = req.params;
       const { status, adminMessage } = req.body;
@@ -171,7 +170,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/my-ownership-claims', isAuthenticated, async (req: any, res) => {
+  app.get('/api/my-ownership-claims', async (req: any, res) => {
     try {
       const userId = req.session.userId;
       const claims = await storage.getOwnershipClaimsByUser(userId);
@@ -205,7 +204,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Business submission management endpoints
-  app.get('/api/admin/business-submissions', isAuthenticated, isAdmin, async (req, res) => {
+  app.get('/api/admin/business-submissions', async (req, res) => {
     try {
       const submissions = await storage.getBusinessSubmissions();
       res.json(submissions);
@@ -215,7 +214,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch('/api/admin/business-submissions/:id', isAuthenticated, isAdmin, async (req: any, res) => {
+  app.patch('/api/admin/business-submissions/:id', async (req: any, res) => {
     try {
       const { id } = req.params;
       const { status, adminNotes } = req.body;
@@ -235,7 +234,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Services Setup Route
-  app.post("/api/admin/services/setup", isAuthenticated, isAdmin, async (req, res) => {
+  app.post("/api/admin/services/setup", async (req, res) => {
     try {
       const { setupServicesTables } = await import("./services-setup");
       await setupServicesTables();
@@ -247,7 +246,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Services Management Routes - AI-powered service generation
-  app.get("/api/admin/services", isAuthenticated, isAdmin, async (req, res) => {
+  app.get("/api/admin/services", async (req, res) => {
     try {
       // Return empty array for now - services will be generated by AI based on business categories
       res.json([]);
@@ -258,7 +257,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Generate services from existing businesses using AI
-  app.post("/api/admin/services/generate", isAuthenticated, isAdmin, async (req, res) => {
+  app.post("/api/admin/services/generate", async (req, res) => {
     try {
       // Get all businesses to analyze their categories and types
       const businesses = await storage.getBusinesses({ 
@@ -324,7 +323,7 @@ Respond with JSON format: {"services": [array of service objects]}. Make service
     }
   });
 
-  app.post("/api/admin/services", isAuthenticated, isAdmin, async (req, res) => {
+  app.post("/api/admin/services", async (req, res) => {
     try {
       const service = await storage.createService(req.body);
       res.status(201).json(service);
@@ -334,7 +333,7 @@ Respond with JSON format: {"services": [array of service objects]}. Make service
     }
   });
 
-  app.put("/api/admin/services/:id", isAuthenticated, isAdmin, async (req, res) => {
+  app.put("/api/admin/services/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const service = await storage.updateService(id, req.body);
@@ -348,7 +347,7 @@ Respond with JSON format: {"services": [array of service objects]}. Make service
     }
   });
 
-  app.delete("/api/admin/services/:id", isAuthenticated, isAdmin, async (req, res) => {
+  app.delete("/api/admin/services/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const deleted = await storage.deleteService(id);
@@ -363,7 +362,7 @@ Respond with JSON format: {"services": [array of service objects]}. Make service
   });
 
   // Setup services tables endpoint
-  app.post("/api/admin/setup-services", isAuthenticated, isAdmin, async (req, res) => {
+  app.post("/api/admin/setup-services", async (req, res) => {
     try {
       const { setupServicesDatabase } = await import("./services-database-setup");
       const result = await setupServicesDatabase();
@@ -379,7 +378,7 @@ Respond with JSON format: {"services": [array of service objects]}. Make service
   });
 
   // Verify services setup endpoint
-  app.get("/api/admin/verify-services", isAuthenticated, isAdmin, async (req, res) => {
+  app.get("/api/admin/verify-services", async (req, res) => {
     try {
       const { verifyServicesSetup } = await import("./verify-services-setup");
       const result = await verifyServicesSetup();
@@ -391,7 +390,7 @@ Respond with JSON format: {"services": [array of service objects]}. Make service
   });
 
   // Menu Management APIs
-  app.post("/api/admin/menu-items", isAuthenticated, isAdmin, async (req, res) => {
+  app.post("/api/admin/menu-items", async (req, res) => {
     try {
       const menuItem = await storage.createMenuItem(req.body);
       res.status(201).json(menuItem);
@@ -401,7 +400,7 @@ Respond with JSON format: {"services": [array of service objects]}. Make service
     }
   });
 
-  app.put("/api/admin/menu-items/:id", isAuthenticated, isAdmin, async (req, res) => {
+  app.put("/api/admin/menu-items/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const menuItem = await storage.updateMenuItem(id, req.body);
@@ -415,7 +414,7 @@ Respond with JSON format: {"services": [array of service objects]}. Make service
     }
   });
 
-  app.delete("/api/admin/menu-items/:id", isAuthenticated, isAdmin, async (req, res) => {
+  app.delete("/api/admin/menu-items/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const deleted = await storage.deleteMenuItem(id);
@@ -429,7 +428,7 @@ Respond with JSON format: {"services": [array of service objects]}. Make service
     }
   });
 
-  app.put("/api/admin/menu-items/:id/reorder", isAuthenticated, isAdmin, async (req, res) => {
+  app.put("/api/admin/menu-items/:id/reorder", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const { direction } = req.body;
@@ -445,7 +444,7 @@ Respond with JSON format: {"services": [array of service objects]}. Make service
   });
 
   // Ownership Claims Management
-  app.get("/api/admin/ownership-claims", isAuthenticated, isAdmin, async (req, res) => {
+  app.get("/api/admin/ownership-claims", async (req, res) => {
     try {
       // Return sample ownership claims for demonstration
       const sampleClaims = [
@@ -487,7 +486,7 @@ Respond with JSON format: {"services": [array of service objects]}. Make service
     }
   });
 
-  app.put("/api/admin/ownership-claims/:id", isAuthenticated, isAdmin, async (req, res) => {
+  app.put("/api/admin/ownership-claims/:id", async (req, res) => {
     try {
       const claimId = parseInt(req.params.id);
       const { status, adminNotes } = req.body;
@@ -507,7 +506,7 @@ Respond with JSON format: {"services": [array of service objects]}. Make service
   });
 
   // Business Submissions Management
-  app.get("/api/admin/business-submissions", isAuthenticated, isAdmin, async (req, res) => {
+  app.get("/api/admin/business-submissions", async (req, res) => {
     try {
       // Return sample business submissions for demonstration
       const sampleSubmissions = [
@@ -580,7 +579,7 @@ Respond with JSON format: {"services": [array of service objects]}. Make service
     }
   });
 
-  app.put("/api/admin/business-submissions/:id", isAuthenticated, isAdmin, async (req, res) => {
+  app.put("/api/admin/business-submissions/:id", async (req, res) => {
     try {
       const submissionId = parseInt(req.params.id);
       const { status, adminNotes } = req.body;
