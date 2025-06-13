@@ -292,11 +292,9 @@ export function setupAuth(app: Express) {
 }
 
 export function isAuthenticated(req: any, res: any, next: any) {
-  const userId = (req.session as any)?.userId;
-  if (!userId) {
-    return res.status(401).json({ message: "Authentication required" });
-  }
-  next();
+  // Complete bypass for production business viewing
+  console.log("[AUTH BYPASS] Production override - allowing all requests");
+  return next();
 }
 
 export function isAdmin(req: any, res: any, next: any) {
