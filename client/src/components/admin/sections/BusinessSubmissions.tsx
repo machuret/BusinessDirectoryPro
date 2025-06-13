@@ -35,12 +35,12 @@ interface BusinessSubmission {
 interface ApprovalDialogProps {
   submission: BusinessSubmission;
   action: 'approve' | 'reject';
-  isOpen: boolean;
-  onClose: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
 }
 
-function ApprovalDialog({ submission, action, isOpen, onClose, onSuccess }: ApprovalDialogProps) {
+function ApprovalDialog({ submission, action, open, onOpenChange, onSuccess }: ApprovalDialogProps) {
   const [notes, setNotes] = useState("");
   const { toast } = useToast();
 
@@ -63,7 +63,7 @@ function ApprovalDialog({ submission, action, isOpen, onClose, onSuccess }: Appr
         description: `${submission.title} has been ${action === 'approve' ? 'approved and published' : 'rejected'}.`
       });
       onSuccess();
-      onClose();
+      onOpenChange(false);
       setNotes("");
     },
     onError: (error: Error) => {
@@ -114,7 +114,7 @@ function ApprovalDialog({ submission, action, isOpen, onClose, onSuccess }: Appr
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
           <Button 
             onClick={handleSubmit}
             disabled={approveMutation.isPending || (action === 'reject' && !notes.trim())}
