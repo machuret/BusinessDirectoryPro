@@ -190,7 +190,7 @@ export default function BusinessDetailWorking() {
                 <div className="flex items-center gap-1">
                   {renderStars(business.totalscore)}
                   <span className="ml-1 text-gray-200">
-                    {business.totalscore.toFixed(1)}
+                    {Number(business.totalscore).toFixed(1)}
                     {business.reviewscount && ` (${business.reviewscount} reviews)`}
                   </span>
                 </div>
