@@ -140,19 +140,19 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   // If children are provided, render the sidebar layout
   if (children) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background">
         <Header />
         
         <div className="flex">
           {/* Sidebar */}
           <div className={cn(
-            "bg-white border-r border-gray-200 transition-all duration-300 flex flex-col",
+            "bg-card border-r border transition-all duration-300 flex flex-col",
             sidebarCollapsed ? "w-16" : "w-64"
           )}>
-            <div className="p-4 border-b border-gray-200">
+            <div className="p-4 border-b border">
               <div className="flex items-center justify-between">
                 {!sidebarCollapsed && (
-                  <h2 className="text-lg font-semibold text-gray-900">Admin Panel</h2>
+                  <h2 className="text-lg font-semibold text-foreground">Admin Panel</h2>
                 )}
                 <Button
                   variant="ghost"
@@ -175,8 +175,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     <div className={cn(
                       "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer",
                       isActive 
-                        ? "bg-blue-50 text-blue-700 border border-blue-200" 
-                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                        ? "bg-primary/10 text-primary border border-primary/20" 
+                        : "text-muted-foreground hover:bg-accent hover:text-foreground"
                     )}>
                       <IconComponent className="h-5 w-5 flex-shrink-0" />
                       {!sidebarCollapsed && (
@@ -202,13 +202,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   // Default dashboard view when no children
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Header />
       
       <div className="container mx-auto p-6">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-          <p className="text-gray-600 mt-2">Manage your business directory platform</p>
+          <h1 className="text-3xl font-bold text-foreground">Admin Dashboard</h1>
+          <p className="text-muted-foreground mt-2">Manage your business directory platform</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -220,14 +220,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 href={section.path}
                 className="group"
               >
-                <Card className="h-full transition-all duration-200 hover:shadow-lg hover:scale-105 cursor-pointer border-2 hover:border-gray-300">
+                <Card className="h-full transition-all duration-200 hover:shadow-lg hover:scale-105 cursor-pointer border-2 hover:border-primary/30">
                   <CardContent className="p-6">
                     <div className="flex flex-col items-center text-center space-y-4">
-                      <div className="bg-blue-500 p-4 rounded-full text-white group-hover:scale-110 transition-transform duration-200">
+                      <div className="bg-primary p-4 rounded-full text-primary-foreground group-hover:scale-110 transition-transform duration-200">
                         <Icon className="h-8 w-8" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                        <h3 className="font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
                           {section.title}
                         </h3>
                       </div>

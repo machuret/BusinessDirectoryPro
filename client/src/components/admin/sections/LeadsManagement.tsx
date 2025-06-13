@@ -117,7 +117,7 @@ export default function LeadsManagement() {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center">
-              <AlertCircle className="h-8 w-8 text-blue-500" />
+              <AlertCircle className="h-8 w-8 text-primary" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-muted-foreground">New Leads</p>
                 <p className="text-2xl font-bold">{leadsStats.new}</p>
@@ -128,7 +128,7 @@ export default function LeadsManagement() {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center">
-              <Clock className="h-8 w-8 text-yellow-500" />
+              <Clock className="h-8 w-8 text-yellow-600" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-muted-foreground">Contacted</p>
                 <p className="text-2xl font-bold">{leadsStats.contacted}</p>
@@ -139,7 +139,7 @@ export default function LeadsManagement() {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center">
-              <CheckCircle className="h-8 w-8 text-green-500" />
+              <CheckCircle className="h-8 w-8 text-green-600" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-muted-foreground">Converted</p>
                 <p className="text-2xl font-bold">{leadsStats.converted}</p>
@@ -150,7 +150,7 @@ export default function LeadsManagement() {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center">
-              <XCircle className="h-8 w-8 text-red-500" />
+              <XCircle className="h-8 w-8 text-destructive" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-muted-foreground">Closed</p>
                 <p className="text-2xl font-bold">{leadsStats.closed}</p>

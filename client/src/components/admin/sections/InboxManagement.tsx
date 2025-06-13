@@ -69,8 +69,8 @@ export default function InboxManagement() {
 
   if (isLoading) {
     return <div className="space-y-4">
-      <div className="h-8 bg-gray-200 rounded animate-pulse" />
-      <div className="h-32 bg-gray-200 rounded animate-pulse" />
+      <div className="h-8 bg-muted rounded animate-pulse" />
+      <div className="h-32 bg-muted rounded animate-pulse" />
     </div>;
   }
 
@@ -109,7 +109,7 @@ export default function InboxManagement() {
                   className={`p-3 border rounded-lg cursor-pointer transition-colors hover:bg-muted/50 ${
                     selectedMessage?.id === message.id ? 'bg-muted' : ''
                   } ${
-                    message.status === 'unread' ? 'border-blue-200 bg-blue-50/50' : ''
+                    message.status === 'unread' ? 'border-primary/20 bg-primary/5' : ''
                   }`}
                   onClick={() => handleViewMessage(message)}
                 >
