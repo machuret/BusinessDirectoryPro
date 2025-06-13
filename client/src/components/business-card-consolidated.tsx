@@ -132,7 +132,7 @@ export function BusinessCard({
             <div className="flex items-center bg-green-100 px-2 py-1 rounded-full ml-3">
               <Star className="w-4 h-4 text-success mr-1" />
               <span className="text-sm font-medium text-success">
-                {parseFloat(business.totalscore || business.averagerating?.toString() || "0").toFixed(1)}
+                {parseFloat(business.totalscore || "0").toFixed(1)}
               </span>
             </div>
           </div>
@@ -153,9 +153,9 @@ export function BusinessCard({
           {/* Rating */}
           <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
             <div className="flex items-center space-x-1">
-              {renderStars(Math.round(parseFloat(business.totalscore || business.averagerating?.toString() || "0")))}
+              {renderStars(Math.round(parseFloat(business.totalscore || "0")))}
               <span className="ml-1">
-                ({business.reviewscount || business.totalreviews || 0} {(business.reviewscount || business.totalreviews || 0) === 1 ? 'review' : 'reviews'})
+                ({business.reviewscount || 0} {(business.reviewscount || 0) === 1 ? 'review' : 'reviews'})
               </span>
             </div>
           </div>
@@ -163,14 +163,14 @@ export function BusinessCard({
           {/* Enhanced Variant Additional Info */}
           {isEnhanced && (
             <div className="space-y-2 mb-4">
-              {business.phonenumber && (
+              {business.phone && (
                 <div className="flex items-center text-sm text-gray-600">
                   <Phone className="w-4 h-4 mr-2" />
                   <a 
-                    href={`tel:${business.phonenumber}`}
+                    href={`tel:${business.phone}`}
                     className="hover:underline"
                   >
-                    {business.phonenumber}
+                    {business.phone}
                   </a>
                 </div>
               )}
