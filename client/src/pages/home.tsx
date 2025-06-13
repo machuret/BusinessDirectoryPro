@@ -4,7 +4,7 @@ import Header from "@/components/header";
 import Footer from "@/components/footer";
 import SearchBar from "@/components/search-bar";
 import CategoryGrid from "@/components/category-grid";
-import BusinessCard from "@/components/business-card";
+import { BusinessCard } from "@/components/business-card-consolidated";
 import BusinessCardSkeleton from "@/components/business-card-skeleton";
 import WelcomeSection from "@/components/welcome-section";
 import SEOHead from "@/components/SEOHead";
