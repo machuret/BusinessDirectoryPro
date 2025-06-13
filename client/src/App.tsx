@@ -8,6 +8,7 @@ import { UIProvider } from "@/contexts/UIContext";
 import { ErrorBoundary } from "@/components/error/ErrorBoundary";
 import { LoadingState } from "@/components/loading/LoadingState";
 import { NetworkStatusBanner } from "@/components/NetworkStatusBanner";
+import { usePerformanceMonitoring } from "@/hooks/usePerformanceMonitoring";
 import Home from "@/pages/home";
 import Categories from "@/pages/categories";
 import Cities from "@/pages/cities";
@@ -107,6 +108,13 @@ function Router() {
 }
 
 function App() {
+  // Initialize performance monitoring
+  usePerformanceMonitoring({
+    reportUrl: '/api/analytics/performance',
+    sampleRate: 0.1,
+    debug: import.meta.env.DEV
+  });
+
   return (
     <QueryClientProvider client={queryClient}>
       <ErrorBoundary>
