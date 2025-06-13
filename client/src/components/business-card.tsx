@@ -9,7 +9,7 @@ interface BusinessCardProps {
   business: BusinessWithCategory;
 }
 
-export default function BusinessCard({ business }: BusinessCardProps) {
+export function BusinessCard({ business }: BusinessCardProps) {
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }).map((_, i) => (
       <Star
@@ -96,9 +96,10 @@ export default function BusinessCard({ business }: BusinessCardProps) {
           </div>
         </div>
         
-        <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-          <div className="flex items-center space-x-1">
+        <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
+          <div className="flex items-center space-x-1" role="img" aria-label={`Rating: ${Math.round(parseFloat(business.totalscore || "0"))} out of 5 stars`}>
             {renderStars(Math.round(parseFloat(business.totalscore || "0")))}
+            <span className="ml-1 sr-only">Rating:</span>
             <span className="ml-1">
               ({business.reviewscount || 0} {(business.reviewscount || 0) === 1 ? 'review' : 'reviews'})
             </span>
@@ -125,3 +126,6 @@ export default function BusinessCard({ business }: BusinessCardProps) {
     </Card>
   );
 }
+
+// Default export for compatibility
+export default BusinessCard;

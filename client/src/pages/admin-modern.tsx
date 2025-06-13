@@ -302,13 +302,13 @@ export default function ModernAdmin() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-background">
       <div className="flex">
         {/* Modern Sidebar Navigation */}
-        <div className="w-80 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 min-h-screen">
+        <div className="w-80 bg-card border-r border-border min-h-screen">
           <div className="p-6">
             <div className="flex items-center space-x-3 mb-8">
-              <Settings className="h-8 w-8 text-blue-600" />
+              <Settings className="h-8 w-8 text-primary" />
               <div>
                 <h1 className="text-xl font-bold">Admin Dashboard</h1>
                 <p className="text-sm text-muted-foreground">Business Directory Management</p>

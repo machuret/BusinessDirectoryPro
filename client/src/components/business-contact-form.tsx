@@ -14,7 +14,7 @@ interface BusinessContactFormProps {
   businessName: string;
 }
 
-export default function BusinessContactForm({ businessId, businessName }: BusinessContactFormProps) {
+export function BusinessContactForm({ businessId, businessName }: BusinessContactFormProps) {
   const [formData, setFormData] = useState({
     senderName: "",
     senderEmail: "",
@@ -156,3 +156,6 @@ export default function BusinessContactForm({ businessId, businessName }: Busine
     </Card>
   );
 }
+
+// Default export for compatibility
+export default BusinessContactForm;
