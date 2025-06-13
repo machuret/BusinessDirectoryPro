@@ -2,8 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import multer from "multer";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated, isAdmin } from "./auth";
-// Note: NOT importing from replitAuth to avoid conflicts
+// No authentication imports needed
 import { optimizeBusinesses } from "./openai";
 import { setupAuthRoutes } from "./routes/auth";
 import { setupBusinessRoutes } from "./routes/businesses";
@@ -33,8 +32,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
 
-  // DISABLED: Authentication system for business page access
-  // setupAuth(app);
+  // No authentication system - public access
 
   // Register modular route handlers - but skip auth routes since we handle above
   // setupAuthRoutes(app);
