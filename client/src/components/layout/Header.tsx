@@ -126,7 +126,7 @@ export function Header({ variant = 'default', className }: HeaderProps) {
             {isAuthenticated ? (
               <div className="flex items-center space-x-2">
                 <span className="text-sm text-muted-foreground">
-                  Welcome, {user?.firstName || 'User'}
+                  Welcome, {(user as any)?.firstName || 'User'}
                 </span>
                 <Button variant="outline" size="sm" asChild>
                   <Link href="/profile">Profile</Link>

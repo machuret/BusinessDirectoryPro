@@ -1,8 +1,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
-import Header from './Header';
-import Footer from './Footer';
-import Sidebar from './Sidebar';
+import Header from '@/components/header';
+import Footer from '@/components/footer';
 
 interface PageWrapperProps {
   children: React.ReactNode;
@@ -48,15 +47,17 @@ export function PageWrapper({
   return (
     <div className="min-h-screen flex flex-col bg-background">
       {/* Header */}
-      <Header variant={headerVariant} />
+      <Header />
 
       {/* Main Content Area */}
       <div className="flex-1 flex">
         {/* Sidebar */}
         {showSidebar && (
-          <Sidebar className="hidden lg:block">
-            {sidebarContent}
-          </Sidebar>
+          <aside className="hidden lg:block w-64 bg-background border-r">
+            <div className="p-6">
+              {sidebarContent}
+            </div>
+          </aside>
         )}
 
         {/* Main Content */}
@@ -75,7 +76,7 @@ export function PageWrapper({
       </div>
 
       {/* Footer */}
-      <Footer variant={footerVariant} />
+      <Footer />
     </div>
   );
 }
