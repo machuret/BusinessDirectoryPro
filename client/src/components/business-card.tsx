@@ -16,9 +16,10 @@ export default function BusinessCard({ business }: BusinessCardProps) {
         key={i}
         className={`w-4 h-4 ${
           i < rating
-            ? "fill-yellow-500 text-yellow-500"
+            ? "fill-amber-400 text-amber-400"
             : "text-muted-foreground"
         }`}
+        aria-hidden="true"
       />
     ));
   };
@@ -56,7 +57,8 @@ export default function BusinessCard({ business }: BusinessCardProps) {
           }}
         />
         {business.featured && (
-          <Badge className="absolute top-3 left-3 bg-yellow-500 text-white">
+          <Badge className="absolute top-3 left-3 bg-amber-500 text-white border-amber-600">
+            <Crown className="w-3 h-3 mr-1" />
             Featured
           </Badge>
         )}
@@ -75,9 +77,9 @@ export default function BusinessCard({ business }: BusinessCardProps) {
               </p>
             </Link>
           </div>
-          <div className="flex items-center bg-green-100 px-2 py-1 rounded-full ml-3">
-            <Star className="w-4 h-4 text-success mr-1" />
-            <span className="text-sm font-medium text-success">
+          <div className="flex items-center bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800 px-3 py-1 rounded-full ml-3">
+            <Star className="w-4 h-4 text-emerald-600 dark:text-emerald-400 mr-1" />
+            <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300">
               {parseFloat(business.totalscore || "0").toFixed(1)}
             </span>
           </div>

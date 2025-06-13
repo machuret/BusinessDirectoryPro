@@ -341,29 +341,37 @@ export default function ImportManagement() {
                 </Alert>
               )}
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="update-duplicates">Handle Duplicates</Label>
-                  <div className="flex items-center space-x-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <Label htmlFor="update-duplicates" className="text-sm font-medium">
+                    Handle Duplicates
+                  </Label>
+                  <div className="flex items-center space-x-3">
                     <Switch
                       id="update-duplicates"
                       checked={importOptions.updateDuplicates}
                       onCheckedChange={(checked) =>
-                        setImportOptions(prev => ({ 
+                        setImportOptions((prev: any) => ({ 
                           ...prev, 
                           updateDuplicates: checked,
                           skipDuplicates: !checked 
                         }))
                       }
+                      aria-describedby="duplicates-helper"
                     />
-                    <Label htmlFor="update-duplicates" className="text-sm">
-                      {importOptions.updateDuplicates ? 'Update existing' : 'Skip duplicates'}
+                    <Label htmlFor="update-duplicates" className="text-sm text-muted-foreground cursor-pointer">
+                      {importOptions.updateDuplicates ? 'Update existing records' : 'Skip duplicate records'}
                     </Label>
                   </div>
+                  <p id="duplicates-helper" className="text-xs text-muted-foreground">
+                    Choose how to handle businesses that already exist in the database
+                  </p>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="batch-size">Batch Size</Label>
+                <div className="space-y-3">
+                  <Label htmlFor="batch-size" className="text-sm font-medium">
+                    Batch Size
+                  </Label>
                   <Input
                     id="batch-size"
                     type="number"
@@ -371,12 +379,17 @@ export default function ImportManagement() {
                     max="200"
                     value={importOptions.batchSize}
                     onChange={(e) =>
-                      setImportOptions(prev => ({ 
+                      setImportOptions((prev: any) => ({ 
                         ...prev, 
                         batchSize: parseInt(e.target.value) || 50 
                       }))
                     }
+                    className="focus-visible:ring-primary"
+                    aria-describedby="batch-size-helper"
                   />
+                  <p id="batch-size-helper" className="text-xs text-muted-foreground">
+                    Number of records to process at once (10-200)
+                  </p>
                 </div>
               </div>
 
@@ -398,50 +411,77 @@ export default function ImportManagement() {
 
           {currentStep === 'complete' && importResult && (
             <div className="space-y-4">
-              <div className="text-center">
-                <CheckCircle className="h-12 w-12 mx-auto mb-4 text-success" />
+              <div className="text-center" role="status" aria-live="polite">
+                <CheckCircle className="h-12 w-12 mx-auto mb-4 text-emerald-600 dark:text-emerald-400" />
                 <h3 className="text-lg font-semibold mb-2">Import Complete</h3>
                 <p className="text-muted-foreground">{importResult.message}</p>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center p-4 bg-success/10 rounded-lg">
-                  <div className="text-2xl font-bold text-success">{importResult.created}</div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4" role="region" aria-label="Import statistics">
+                <div className="text-center p-4 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800 rounded-lg">
+                  <div className="text-2xl font-bold text-emerald-700 dark:text-emerald-300" aria-label={`${importResult.created} records created`}>
+                    {importResult.created}
+                  </div>
                   <div className="text-sm text-muted-foreground">Created</div>
                 </div>
-                <div className="text-center p-4 bg-primary/10 rounded-lg">
-                  <div className="text-2xl font-bold text-primary">{importResult.updated}</div>
+                <div className="text-center p-4 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                  <div className="text-2xl font-bold text-blue-700 dark:text-blue-300" aria-label={`${importResult.updated} records updated`}>
+                    {importResult.updated}
+                  </div>
                   <div className="text-sm text-muted-foreground">Updated</div>
                 </div>
-                <div className="text-center p-4 bg-warning/10 rounded-lg">
-                  <div className="text-2xl font-bold text-warning">{importResult.duplicatesSkipped}</div>
+                <div className="text-center p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                  <div className="text-2xl font-bold text-amber-700 dark:text-amber-300" aria-label={`${importResult.duplicatesSkipped} records skipped`}>
+                    {importResult.duplicatesSkipped}
+                  </div>
                   <div className="text-sm text-muted-foreground">Skipped</div>
                 </div>
-                <div className="text-center p-4 bg-destructive/10 rounded-lg">
-                  <div className="text-2xl font-bold text-destructive">{importResult.errors.length}</div>
+                <div className="text-center p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg">
+                  <div className="text-2xl font-bold text-red-700 dark:text-red-300" aria-label={`${importResult.errors.length} errors encountered`}>
+                    {importResult.errors.length}
+                  </div>
                   <div className="text-sm text-muted-foreground">Errors</div>
                 </div>
               </div>
 
               {importResult.errors.length > 0 && (
                 <div className="space-y-2">
-                  <Label>Error Details</Label>
-                  <div className="max-h-40 overflow-y-auto border rounded-lg">
+                  <Label htmlFor="error-details" className="text-sm font-medium">Error Details</Label>
+                  <div 
+                    id="error-details"
+                    className="max-h-40 overflow-y-auto border border-border rounded-lg bg-muted/20"
+                    role="log"
+                    aria-label="Import validation errors"
+                  >
                     {importResult.errors.slice(0, 10).map((error, index) => (
-                      <div key={index} className="p-2 border-b last:border-b-0 text-sm">
-                        <span className="font-medium">Row {error.row}:</span> {error.field} - {error.message}
+                      <div 
+                        key={index} 
+                        className="p-3 border-b border-border last:border-b-0 text-sm"
+                        role="listitem"
+                      >
+                        <span className="font-medium text-foreground">Row {error.row}:</span>
+                        <span className="text-muted-foreground ml-1">{error.field}</span>
+                        <span className="text-red-600 dark:text-red-400 ml-1">- {error.message}</span>
                       </div>
                     ))}
                     {importResult.errors.length > 10 && (
-                      <div className="p-2 text-sm text-muted-foreground text-center">
+                      <div className="p-3 text-sm text-muted-foreground text-center bg-muted/50">
                         +{importResult.errors.length - 10} more errors...
                       </div>
                     )}
                   </div>
-                  <Button variant="outline" onClick={downloadErrorReport}>
+                  <Button 
+                    variant="outline" 
+                    onClick={downloadErrorReport}
+                    className="w-full sm:w-auto"
+                    aria-describedby="error-download-helper"
+                  >
                     <Download className="h-4 w-4 mr-2" />
                     Download Full Error Report
                   </Button>
+                  <p id="error-download-helper" className="text-xs text-muted-foreground">
+                    Downloads a CSV file with all validation errors for review
+                  </p>
                 </div>
               )}
 
