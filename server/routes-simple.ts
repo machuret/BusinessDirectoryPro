@@ -70,6 +70,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/businesses/:businessId/reviews', async (req, res) => {
+    try {
+      const reviews = await storage.getBusinessReviews(req.params.businessId);
+      res.json(reviews || []);
+    } catch (error) {
+      console.error('[ERROR] Error fetching business reviews:', error);
+      res.status(500).json({ error: "Failed to fetch reviews" });
+    }
+  });
+
   // Pages endpoints - NO AUTHENTICATION REQUIRED  
   app.get('/api/pages', async (req, res) => {
     try {

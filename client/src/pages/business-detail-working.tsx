@@ -1,33 +1,21 @@
 import { useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import Header from "@/components/header";
+import Footer from "@/components/footer";
+import BusinessContactInfo from "@/components/business/BusinessContactInfo";
+import BusinessInteractions from "@/components/business/BusinessInteractions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Phone, MapPin, Globe, Star, Clock, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-interface Business {
-  placeid: string;
-  title: string;
-  slug: string;
-  description?: string;
-  phone?: string;
-  website?: string;
-  address?: string;
-  categoryname?: string;
-  city?: string;
-  totalscore?: number;
-  reviewscount?: number;
-  openhours?: any;
-  email?: string;
-  featured?: boolean;
-  images?: string[];
-  faq?: any[];
-}
+import { Star, MapPin, Share2, Heart, Phone, Globe, Clock, Mail } from "lucide-react";
+import type { BusinessWithCategory, Review } from "@shared/schema";
 
 export default function BusinessDetailWorking() {
   const { slug } = useParams<{ slug: string }>();
+  const [showClaimModal, setShowClaimModal] = useState(false);
 
-  const { data: business, isLoading, error } = useQuery<Business>({
+  const { data: business, isLoading, error } = useQuery<BusinessWithCategory>({
     queryKey: ["/api/businesses/slug", slug],
     queryFn: async () => {
       const response = await fetch(`/api/businesses/slug/${slug}`);
@@ -39,230 +27,206 @@ export default function BusinessDetailWorking() {
     enabled: !!slug,
   });
 
+  const { data: reviews = [] } = useQuery<Review[]>({
+    queryKey: [`/api/businesses/${business?.placeid}/reviews`],
+    enabled: !!business?.placeid,
+  });
+
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <div className="container mx-auto px-4 py-8">
-          <div className="animate-pulse space-y-6">
-            <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/3"></div>
-            <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded"></div>
-            <div className="h-32 bg-gray-200 dark:bg-gray-700 rounded"></div>
-          </div>
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="flex items-center justify-center py-20">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
+        <Footer />
       </div>
     );
   }
 
   if (error || !business) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-            Business Not Found
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            The business you're looking for doesn't exist.
-          </p>
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center py-20">
+            <h1 className="text-2xl font-bold text-foreground mb-4">Business Not Found</h1>
+            <p className="text-muted-foreground mb-4">
+              The business you're looking for doesn't exist or has been removed.
+            </p>
+          </div>
         </div>
+        <Footer />
       </div>
     );
   }
 
+  const getBusinessImage = () => {
+    if (business.imageurl) return business.imageurl;
+    if (business.images && Array.isArray(business.images) && business.images.length > 0) {
+      return business.images[0];
+    }
+    if (business.imageurls && Array.isArray(business.imageurls) && business.imageurls.length > 0) {
+      return business.imageurls[0];
+    }
+    return 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=600&h=400&fit=crop&auto=format';
+  };
+
+  const renderStars = (rating: number) => {
+    return Array.from({ length: 5 }, (_, i) => (
+      <Star
+        key={i}
+        className={`w-4 h-4 ${
+          i < Math.floor(rating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+        }`}
+      />
+    ));
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header Section */}
-        <div className="mb-8">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
-                {business.title}
-              </h1>
-              <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-                {business.categoryname && (
-                  <Badge variant="secondary">{business.categoryname}</Badge>
-                )}
-                {business.city && (
-                  <div className="flex items-center gap-1">
-                    <MapPin className="w-4 h-4" />
-                    {business.city}
-                  </div>
-                )}
-                {business.totalscore && typeof business.totalscore === 'number' && (
-                  <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+    <div className="min-h-screen bg-background">
+      <Header />
+      
+      {/* Hero Section with Image */}
+      <div className="relative h-64 md:h-96 overflow-hidden">
+        <img
+          src={getBusinessImage()}
+          alt={business.title || "Business"}
+          className="w-full h-full object-cover"
+          onError={(e) => {
+            e.currentTarget.src = 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=600&h=400&fit=crop&auto=format';
+          }}
+        />
+        <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+        <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+          <div className="container mx-auto">
+            <h1 className="text-3xl md:text-5xl font-bold mb-2">{business.title}</h1>
+            {business.subtitle && (
+              <p className="text-lg md:text-xl text-gray-200">{business.subtitle}</p>
+            )}
+            <div className="flex flex-wrap items-center gap-4 mt-4">
+              {business.categoryname && (
+                <Badge variant="secondary">{business.categoryname}</Badge>
+              )}
+              {business.city && (
+                <div className="flex items-center gap-1 text-gray-200">
+                  <MapPin className="w-4 h-4" />
+                  {business.city}
+                </div>
+              )}
+              {business.totalscore && typeof business.totalscore === 'number' && (
+                <div className="flex items-center gap-1">
+                  {renderStars(business.totalscore)}
+                  <span className="ml-1 text-gray-200">
                     {business.totalscore.toFixed(1)}
-                    {business.reviewscount && (
-                      <span>({business.reviewscount} reviews)</span>
-                    )}
-                  </div>
-                )}
-                {business.featured && (
-                  <Badge variant="default">Featured</Badge>
-                )}
-              </div>
+                    {business.reviewscount && ` (${business.reviewscount} reviews)`}
+                  </span>
+                </div>
+              )}
+              {business.featured && (
+                <Badge variant="default">Featured</Badge>
+              )}
             </div>
           </div>
         </div>
+      </div>
 
+      <main className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Quick Actions */}
+            <div className="flex flex-wrap gap-4 mb-6">
+              {business.phone && (
+                <Button size="lg" asChild>
+                  <a href={`tel:${business.phone}`}>
+                    <Phone className="w-4 h-4 mr-2" />
+                    Call Now
+                  </a>
+                </Button>
+              )}
+              {business.website && (
+                <Button variant="outline" size="lg" asChild>
+                  <a 
+                    href={business.website} 
+                    target="_blank" 
+                    rel={business.featured ? "noopener noreferrer" : "nofollow noopener noreferrer"}
+                  >
+                    <Globe className="w-4 h-4 mr-2" />
+                    Visit Website
+                  </a>
+                </Button>
+              )}
+              <Button 
+                variant="outline" 
+                size="lg"
+                onClick={() => setShowClaimModal(true)}
+              >
+                <Heart className="w-4 h-4 mr-2" />
+                Claim Business
+              </Button>
+              <Button variant="outline" size="lg">
+                <Share2 className="w-4 h-4 mr-2" />
+                Share
+              </Button>
+            </div>
+
             {/* Description */}
             {business.description && (
               <Card>
                 <CardHeader>
-                  <CardTitle>About</CardTitle>
+                  <CardTitle>About {business.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                  <p className="text-muted-foreground leading-relaxed">
                     {business.description}
                   </p>
                 </CardContent>
               </Card>
             )}
 
-            {/* FAQ Section */}
-            {business.faq && Array.isArray(business.faq) && business.faq.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Frequently Asked Questions</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {business.faq.map((item: any, index: number) => (
-                    <div key={index} className="border-b border-gray-200 dark:border-gray-700 pb-4 last:border-b-0">
-                      <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                        {item.question}
-                      </h3>
-                      <p className="text-gray-700 dark:text-gray-300">
-                        {item.answer}
-                      </p>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            )}
+            {/* Business Interactions - Reviews, FAQ, etc. */}
+            <BusinessInteractions
+              business={business}
+              reviews={reviews}
+              showClaimModal={showClaimModal}
+              setShowClaimModal={setShowClaimModal}
+            />
           </div>
 
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Contact Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Contact Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {business.phone && (
-                  <div className="flex items-center gap-3">
-                    <Phone className="w-5 h-5 text-gray-500" />
-                    <div>
-                      <p className="font-medium">Phone</p>
-                      <a 
-                        href={`tel:${business.phone}`}
-                        className="text-blue-600 dark:text-blue-400 hover:underline"
-                      >
-                        {business.phone}
-                      </a>
-                    </div>
-                  </div>
-                )}
+            <BusinessContactInfo business={business} />
 
-                {business.email && (
-                  <div className="flex items-center gap-3">
-                    <Mail className="w-5 h-5 text-gray-500" />
-                    <div>
-                      <p className="font-medium">Email</p>
-                      <a 
-                        href={`mailto:${business.email}`}
-                        className="text-blue-600 dark:text-blue-400 hover:underline"
-                      >
-                        {business.email}
-                      </a>
-                    </div>
-                  </div>
-                )}
-
-                {business.website && (
-                  <div className="flex items-center gap-3">
-                    <Globe className="w-5 h-5 text-gray-500" />
-                    <div>
-                      <p className="font-medium">Website</p>
-                      <a 
-                        href={business.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 dark:text-blue-400 hover:underline"
-                      >
-                        Visit Website
-                      </a>
-                    </div>
-                  </div>
-                )}
-
-                {business.address && (
-                  <div className="flex items-start gap-3">
-                    <MapPin className="w-5 h-5 text-gray-500 mt-0.5" />
-                    <div>
-                      <p className="font-medium">Address</p>
-                      <p className="text-gray-700 dark:text-gray-300">
-                        {business.address}
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Hours */}
-            {business.openhours && (
+            {/* Photo Gallery */}
+            {(business.images || business.imageurls) && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Clock className="w-5 h-5" />
-                    Hours
-                  </CardTitle>
+                  <CardTitle>Photos</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-2 text-sm">
-                    {typeof business.openhours === 'object' ? (
-                      Object.entries(business.openhours).map(([day, hours]) => (
-                        <div key={day} className="flex justify-between">
-                          <span className="capitalize font-medium">{day}</span>
-                          <span className="text-gray-600 dark:text-gray-400">
-                            {hours as string}
-                          </span>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-gray-700 dark:text-gray-300">
-                        {business.openhours}
-                      </p>
-                    )}
+                  <div className="grid grid-cols-2 gap-2">
+                    {(business.images || business.imageurls || []).slice(0, 4).map((image: string, index: number) => (
+                      <img
+                        key={index}
+                        src={image}
+                        alt={`${business.title} - Photo ${index + 1}`}
+                        className="w-full h-24 object-cover rounded-lg"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    ))}
                   </div>
                 </CardContent>
               </Card>
             )}
-
-            {/* Action Buttons */}
-            <div className="space-y-3">
-              {business.phone && (
-                <Button className="w-full" size="lg">
-                  <Phone className="w-4 h-4 mr-2" />
-                  Call Now
-                </Button>
-              )}
-              {business.website && (
-                <Button variant="outline" className="w-full" size="lg" asChild>
-                  <a href={business.website} target="_blank" rel="noopener noreferrer">
-                    <Globe className="w-4 h-4 mr-2" />
-                    Visit Website
-                  </a>
-                </Button>
-              )}
-            </div>
           </div>
         </div>
-      </div>
+      </main>
+      
+      <Footer />
     </div>
   );
 }
