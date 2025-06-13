@@ -127,16 +127,16 @@ export default function ModernAdmin() {
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-sm">New business registered: Tech Solutions</span>
+                <div className="w-2 h-2 bg-green-600 dark:bg-green-400 rounded-full" aria-hidden="true"></div>
+                <span className="text-sm text-foreground">New business registered: Tech Solutions</span>
               </div>
               <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                <span className="text-sm">Review approved for Restaurant ABC</span>
+                <div className="w-2 h-2 bg-primary rounded-full" aria-hidden="true"></div>
+                <span className="text-sm text-foreground">Review approved for Restaurant ABC</span>
               </div>
               <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                <span className="text-sm">SEO settings updated</span>
+                <div className="w-2 h-2 bg-yellow-600 dark:bg-yellow-400 rounded-full" aria-hidden="true"></div>
+                <span className="text-sm text-foreground">SEO settings updated</span>
               </div>
             </div>
           </CardContent>
