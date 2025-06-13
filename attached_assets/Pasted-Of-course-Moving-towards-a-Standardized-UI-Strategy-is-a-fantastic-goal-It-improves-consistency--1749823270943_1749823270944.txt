@@ -1,0 +1,26 @@
+Of course. Moving towards a "Standardized UI Strategy" is a fantastic goal. It improves consistency, speeds up development, and makes maintenance much easier. Your previous work on error handling is a key part of this, but you can expand it much further.
+
+Here are ideas and specific questions you can ask your AI to implement a more standardized UI strategy, broken down by category.
+
+1. Design System & Component Library
+This is the foundation. It's about creating a single source of truth for all UI elements.
+
+Auditing & Inventory:
+"Analyze the entire /src/components directory and create an inventory of all presentational components. Identify duplicate or near-duplicate components (e.g., multiple Button or Card components with slight variations). Group them and suggest which one should be the 'source of truth'."
+"Report on the props being passed to our common components like Button, Input, and Modal. Are the prop names consistent (e.g., onClick vs. onHandleClick, variant vs. type)? List all inconsistencies."
+Creation & Standardization:
+"Generate a basic Design System theme file in /src/styles/theme.js. This file should export a JavaScript object containing design tokens for our brand colors (primary, secondary, success, error), font sizes (small, medium, large), and spacing units (4px, 8px, 16px, etc.)."
+"Refactor the Button.tsx and Header.tsx components to consume values from the new theme file (/src/styles/theme.js) instead of using hardcoded hex codes and pixel values."
+"Create a standardized, reusable Modal component. It must handle its own open/close state, be accessible (manage focus), and have clearly defined sections for a title, body, and footer that can be customized via props."
+2. Layouts & Responsiveness
+Ensuring pages look and feel consistent across the application.
+
+"Create a set of reusable layout components: PageWrapper, Header, Sidebar, and Footer. Refactor the HomePage and SettingsPage to use this new layout system for a consistent structure."
+"Define our responsive design strategy. In our global CSS file, generate a set of standardized media query breakpoints (e.g., sm, md, lg, xl) that should be used throughout the application."
+"Generate a Grid or FlexContainer component that uses our standardized spacing tokens for gap properties, ensuring consistent gutters between elements."
+3. Forms & User Input
+Forms are a critical part of user interaction and often a source of inconsistency.
+
+"Audit all the forms in our application. Report on how form state, validation, and submission logic are handled. Are we using a consistent library like Formik or React Hook Form, or is the logic custom for each form?"
+"Create a set of standardized form components: InputField, SelectDropdown, Checkbox, and FormButton. InputField should include a label, the input itself, and a dedicated space for displaying validation error messages in a consistent style."
+"Standardize the user feedback for form submissions. All forms, upon submission, should disable the submit button and show a Spinner to prevent duplicate requests. On success or error, they should use our global Toast notification system."
