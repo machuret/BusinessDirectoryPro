@@ -32,30 +32,34 @@ export default function SearchBar({ onSearch, className = "" }: SearchBarProps) 
       <form onSubmit={handleSearch}>
         <div className="bg-white rounded-xl shadow-lg p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
             <Input
               type="text"
               placeholder="What are you looking for?"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900 placeholder-gray-500"
+              className="pl-12"
+              aria-label="Search for businesses or services"
             />
           </div>
           
           <div className="relative">
-            <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
             <Input
               type="text"
               placeholder="City, State"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              className="pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900 placeholder-gray-500"
+              className="pl-12"
+              aria-label="Search location"
             />
           </div>
           
           <Button
             type="submit"
-            className="bg-accent text-white py-3 px-6 rounded-lg font-semibold hover:bg-orange-600 transition-colors flex items-center justify-center"
+            size="lg"
+            className="flex items-center justify-center"
+            aria-label="Search for businesses"
           >
             <Search className="w-4 h-4 mr-2" />
             Search

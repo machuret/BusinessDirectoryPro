@@ -17,7 +17,7 @@ export default function BusinessCard({ business }: BusinessCardProps) {
         className={`w-4 h-4 ${
           i < rating
             ? "fill-yellow-500 text-yellow-500"
-            : "text-gray-300"
+            : "text-muted-foreground"
         }`}
       />
     ));
@@ -66,11 +66,11 @@ export default function BusinessCard({ business }: BusinessCardProps) {
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1">
-            <h3 className="text-xl font-semibold text-gray-900 mb-1 line-clamp-1">
+            <h3 className="text-xl font-semibold text-foreground mb-1 line-clamp-1">
               {business.title}
             </h3>
             <Link href={`/categories/${business.category?.slug || business.categoryname?.toLowerCase().replace(/\s+/g, '-')}`}>
-              <p className="text-blue-600 hover:text-blue-800 text-sm cursor-pointer hover:underline transition-colors">
+              <p className="text-primary hover:text-primary/80 text-sm cursor-pointer hover:underline transition-colors">
                 {business.category?.name || business.categoryname}
               </p>
             </Link>
@@ -83,11 +83,11 @@ export default function BusinessCard({ business }: BusinessCardProps) {
           </div>
         </div>
         
-        <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+        <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
           {business.description}
         </p>
         
-        <div className="flex items-center text-sm text-gray-500 mb-4">
+        <div className="flex items-center text-sm text-muted-foreground mb-4">
           <div className="flex items-center">
             <MapPin className="w-4 h-4 mr-1" />
             <span className="truncate">{business.city}, {business.state}</span>

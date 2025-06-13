@@ -129,6 +129,7 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
                           variant="outline"
                           size="sm"
                           onClick={() => handleEditBusiness(business)}
+                          aria-label={`Edit business ${business.title}`}
                         >
                           <Edit className="mr-1 h-4 w-4" />
                           Edit
