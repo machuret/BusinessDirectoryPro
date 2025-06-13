@@ -23,6 +23,7 @@ import Login from "@/pages/login";
 import AddBusiness from "@/pages/add-business";
 import BusinessesPage from "@/pages/businesses";
 import SlugRouter from "@/components/SlugRouter";
+import BusinessDebug from "@/pages/business-debug";
 import NotFound from "@/pages/not-found";
 
 // Admin Pages
@@ -67,6 +68,7 @@ function Router() {
       <Route path="/pages/:slug" component={PageDisplay} />
       <Route path="/login" component={Login} />
       <Route path="/add-business" component={AddBusiness} />
+      <Route path="/debug/:slug" component={BusinessDebug} />
       {isAuthenticated && (
         <>
           <Route path="/dashboard" component={Dashboard} />
