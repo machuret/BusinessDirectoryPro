@@ -2,7 +2,7 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Phone, Globe, Clock, MapPin, Building2, Tag } from "lucide-react";
+import { Phone, Globe, MapPin, Building2, Tag } from "lucide-react";
 import { Link } from "wouter";
 import type { BusinessWithCategory } from "@shared/schema";
 
@@ -28,12 +28,6 @@ export default function BusinessContactInfo({ business }: BusinessContactInfoPro
       target: "_blank",
       rel: rel
     };
-  };
-
-  const formatHours = (hours: any): string => {
-    if (!hours) return 'Hours not available';
-    if (typeof hours === 'string') return hours;
-    return JSON.stringify(hours, null, 2);
   };
 
   return (
@@ -100,18 +94,6 @@ export default function BusinessContactInfo({ business }: BusinessContactInfoPro
             <div>
               <p className="font-medium">Address</p>
               <p className="text-sm text-muted-foreground">{business.address}</p>
-            </div>
-          </div>
-        )}
-
-        {business.openinghours && (
-          <div className="flex items-start space-x-3">
-            <Clock className="h-5 w-5 text-muted-foreground mt-0.5" />
-            <div>
-              <p className="font-medium">Hours</p>
-              <div className="text-sm text-muted-foreground whitespace-pre-wrap">
-                {formatHours(business.openinghours)}
-              </div>
             </div>
           </div>
         )}
