@@ -14,12 +14,17 @@ import BusinessFAQ from "@/components/business/BusinessFAQ";
 import { getAllBusinessPhotos } from "@/components/business/BusinessPhotoUtils";
 import type { BusinessWithCategory, Review, User as UserType } from "@shared/schema";
 
-export default function BusinessDetail() {
+interface BusinessDetailProps {
+  preloadedBusiness?: BusinessWithCategory;
+}
+
+export default function BusinessDetail({ preloadedBusiness }: BusinessDetailProps = {}) {
   const { slug } = useParams();
   
   const { data: business, isLoading: businessLoading } = useQuery<BusinessWithCategory>({
     queryKey: [`/api/businesses/slug/${slug}`],
-    enabled: !!slug,
+    enabled: !!slug && !preloadedBusiness,
+    initialData: preloadedBusiness,
   });
 
   const { data: reviews = [], isLoading: reviewsLoading, refetch: refetchReviews } = useQuery<(Review & { user: Pick<UserType, 'firstName' | 'lastName'> })[]>({
