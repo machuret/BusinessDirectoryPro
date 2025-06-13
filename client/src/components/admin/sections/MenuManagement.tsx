@@ -267,11 +267,8 @@ export default function MenuManagement() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold">Menu Management</h2>
-          <p className="text-muted-foreground">
-            Manage navigation menus for different sections of your website
-          </p>
+        <div className="text-sm text-muted-foreground">
+          Manage navigation menus for different sections of your website
         </div>
       </div>
 

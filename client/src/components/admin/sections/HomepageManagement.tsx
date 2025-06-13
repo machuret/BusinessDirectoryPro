@@ -97,9 +97,8 @@ export default function HomepageManagement() {
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <Home className="h-8 w-8 text-primary" />
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Homepage Content Management</h1>
-            <p className="text-gray-600">Customize all content sections on your homepage</p>
+          <div className="text-sm text-muted-foreground">
+            Customize all content sections on your homepage
           </div>
         </div>
         <div className="flex items-center space-x-3">

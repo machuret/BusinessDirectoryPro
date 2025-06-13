@@ -393,7 +393,6 @@ export default function CMSManagement() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Pages Overview</CardTitle>
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
               <Search className="h-4 w-4 text-muted-foreground" />

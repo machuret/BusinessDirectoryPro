@@ -105,7 +105,6 @@ export default function APIManagement() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>API Key Management</CardTitle>
           <CardDescription>Manage external API keys and integrations</CardDescription>
         </CardHeader>
         <CardContent>

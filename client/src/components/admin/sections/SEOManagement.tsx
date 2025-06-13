@@ -128,10 +128,6 @@ export default function SEOManagement() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Search className="h-5 w-5" />
-            SEO & Meta Settings
-          </CardTitle>
           <CardDescription>
             Manage search engine optimization, meta tags, and schema markup for your website
           </CardDescription>
