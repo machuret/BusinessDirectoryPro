@@ -38,6 +38,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/businesses/featured', async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 6;
+      const businesses = await storage.getFeaturedBusinesses(limit);
+      res.json(businesses);
+    } catch (error) {
+      console.error('[ERROR] Error fetching featured businesses:', error);
+      res.status(500).json({ error: "Failed to fetch featured businesses" });
+    }
+  });
+
+  app.get('/api/businesses/random', async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 9;
+      const businesses = await storage.getRandomBusinesses(limit);
+      res.json(businesses);
+    } catch (error) {
+      console.error('[ERROR] Error fetching random businesses:', error);
+      res.status(500).json({ error: "Failed to fetch random businesses" });
+    }
+  });
+
+  app.get('/api/categories', async (req, res) => {
+    try {
+      const categories = await storage.getCategories();
+      res.json(categories);
+    } catch (error) {
+      console.error('[ERROR] Error fetching categories:', error);
+      res.status(500).json({ error: "Failed to fetch categories" });
+    }
+  });
+
   // Pages endpoints - NO AUTHENTICATION REQUIRED  
   app.get('/api/pages', async (req, res) => {
     try {
