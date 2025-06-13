@@ -141,7 +141,7 @@ export default function ReviewForm({ businessId, onSuccess }: ReviewFormProps) {
                     <Star
                       className={`h-6 w-6 ${
                         star <= (hoverRating || rating)
-                          ? "fill-yellow-400 text-yellow-400"
+                          ? "fill-yellow-500 text-yellow-500"
                           : "text-gray-300"
                       }`}
                     />

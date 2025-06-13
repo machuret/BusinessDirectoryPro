@@ -14,7 +14,7 @@ export function BusinessHero({ business, heroImage }: BusinessHeroProps) {
       <Star
         key={i}
         className={`w-4 h-4 ${
-          i < Math.floor(rating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+          i < Math.floor(rating) ? "fill-yellow-500 text-yellow-500" : "text-gray-300"
         }`}
       />
     ));

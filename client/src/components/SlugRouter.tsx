@@ -3,7 +3,7 @@ import { useRoute } from "wouter";
 import { useState, useEffect } from "react";
 import CMSPage from "@/pages/cms-page";
 import BusinessDetailRefactored from "@/pages/business-detail-refactored";
-import BusinessDetailMinimal from "@/pages/business-detail-minimal";
+// Removed unused import
 import NotFound from "@/pages/not-found";
 import type { Page } from "@shared/schema";
 import type { BusinessWithCategory } from "@shared/schema";
