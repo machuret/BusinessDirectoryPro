@@ -17,7 +17,7 @@ export function setupBusinessRoutes(app: Express) {
       res.json(businesses);
     } catch (error) {
       console.error("Error fetching businesses:", error);
-      res.status(500).send("Internal server error");
+      res.status(500).json({ message: "Internal server error" });
     }
   });
 
@@ -29,7 +29,7 @@ export function setupBusinessRoutes(app: Express) {
       res.json(businesses);
     } catch (error) {
       console.error("Error fetching featured businesses:", error);
-      res.status(500).send("Internal server error");
+      res.status(500).json({ message: "Internal server error" });
     }
   });
 
@@ -41,7 +41,7 @@ export function setupBusinessRoutes(app: Express) {
       res.json(businesses);
     } catch (error) {
       console.error("Error fetching random businesses:", error);
-      res.status(500).send("Internal server error");
+      res.status(500).json({ message: "Internal server error" });
     }
   });
 
@@ -113,7 +113,7 @@ export function setupBusinessRoutes(app: Express) {
       res.json(business);
     } catch (error) {
       console.error("Error fetching business by slug:", error);
-      res.status(500).send("Internal server error");
+      res.status(500).json({ message: "Internal server error" });
     }
   });
 
@@ -128,7 +128,7 @@ export function setupBusinessRoutes(app: Express) {
       res.json(business);
     } catch (error) {
       console.error("Error fetching business:", error);
-      res.status(500).send("Internal server error");
+      res.status(500).json({ message: "Internal server error" });
     }
   });
 
