@@ -22,7 +22,7 @@ export default function SlugRouter() {
   // Try to fetch business by slug
   const { data: business, isLoading: businessLoading, error: businessError } = useQuery<BusinessWithCategory>({
     queryKey: [`/api/businesses/slug/${slug}`],
-    enabled: !!slug && !page && !pageLoading,
+    enabled: !!slug,
     retry: false,
   });
 
