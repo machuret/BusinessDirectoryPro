@@ -28,8 +28,7 @@ export default function SettingsManagement() {
 
   // Fetch current settings
   const { data: settings } = useQuery({
-    queryKey: ["/api/site-settings"],
-    queryFn: () => fetch("/api/site-settings").then(res => res.json())
+    queryKey: ["/api/site-settings"]
   });
 
   // Get current logo

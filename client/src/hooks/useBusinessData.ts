@@ -11,56 +11,40 @@ export function useBusinesses(params?: {
   limit?: number;
   offset?: number;
 }) {
+  const searchParams = new URLSearchParams();
+  if (params?.categoryId) searchParams.set("categoryId", params.categoryId.toString());
+  if (params?.search) searchParams.set("search", params.search);
+  if (params?.city) searchParams.set("city", params.city);
+  if (params?.featured) searchParams.set("featured", "true");
+  if (params?.limit) searchParams.set("limit", params.limit.toString());
+  if (params?.offset) searchParams.set("offset", params.offset.toString());
+  
+  const queryKey = searchParams.toString() 
+    ? ["/api/businesses", params] 
+    : ["/api/businesses"];
+    
   return useQuery<BusinessWithCategory[]>({
-    queryKey: ["/api/businesses", params],
-    queryFn: async () => {
-      const searchParams = new URLSearchParams();
-      if (params?.categoryId) searchParams.set("categoryId", params.categoryId.toString());
-      if (params?.search) searchParams.set("search", params.search);
-      if (params?.city) searchParams.set("city", params.city);
-      if (params?.featured) searchParams.set("featured", "true");
-      if (params?.limit) searchParams.set("limit", params.limit.toString());
-      if (params?.offset) searchParams.set("offset", params.offset.toString());
-      
-      const response = await fetch(`/api/businesses?${searchParams}`);
-      if (!response.ok) throw new Error("Failed to fetch businesses");
-      return response.json();
-    },
+    queryKey,
   });
 }
 
 export function useBusiness(identifier: string) {
   return useQuery<BusinessWithCategory>({
-    queryKey: ["/api/businesses", identifier],
+    queryKey: [`/api/businesses/${identifier}`],
     enabled: !!identifier,
-    queryFn: async () => {
-      const response = await fetch(`/api/businesses/${identifier}`);
-      if (!response.ok) throw new Error("Business not found");
-      return response.json();
-    },
   });
 }
 
 export function useFeaturedBusinesses(limit = 6) {
   return useQuery<BusinessWithCategory[]>({
-    queryKey: ["/api/businesses/featured", limit],
-    queryFn: async () => {
-      const response = await fetch(`/api/businesses/featured?limit=${limit}`);
-      if (!response.ok) throw new Error("Failed to fetch featured businesses");
-      return response.json();
-    },
+    queryKey: [`/api/businesses/featured?limit=${limit}`],
   });
 }
 
 export function useUserBusinesses(userId?: string) {
   return useQuery<BusinessWithCategory[]>({
-    queryKey: ["/api/user/businesses", userId],
+    queryKey: ["/api/user/businesses"],
     enabled: !!userId,
-    queryFn: async () => {
-      const response = await fetch("/api/user/businesses");
-      if (!response.ok) throw new Error("Failed to fetch user businesses");
-      return response.json();
-    },
   });
 }
 

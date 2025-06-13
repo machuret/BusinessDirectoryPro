@@ -16,7 +16,7 @@ export default function Header() {
   // Fetch website logo from database
   const { data: settings } = useQuery({
     queryKey: ["/api/site-settings"],
-    queryFn: () => fetch("/api/site-settings").then(res => res.json())
+
   });
 
   // Fetch header menu items from database
