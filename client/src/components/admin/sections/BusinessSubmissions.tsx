@@ -84,7 +84,7 @@ function ApprovalDialog({ submission, action, open, onOpenChange, onSuccess }: A
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={(open) => !open && onOpenChange(false)}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
@@ -424,8 +424,8 @@ export default function BusinessSubmissions() {
         <ApprovalDialog
           submission={approvalDialog.submission}
           action={approvalDialog.action}
-          isOpen={true}
-          onClose={() => setApprovalDialog(null)}
+          open={true}
+          onOpenChange={() => setApprovalDialog(null)}
           onSuccess={() => setApprovalDialog(null)}
         />
       )}
