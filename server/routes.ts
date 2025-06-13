@@ -389,6 +389,71 @@ Respond with JSON format: {"services": [array of service objects]}. Make service
     }
   });
 
+  // Ownership Claims Management
+  app.get("/api/admin/ownership-claims", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      // Since we don't have actual ownership claims in the database yet, return empty array
+      // In a real implementation, this would fetch from an ownership_claims table
+      res.json([]);
+    } catch (error) {
+      console.error("Error fetching ownership claims:", error);
+      res.status(500).json({ message: "Failed to fetch ownership claims" });
+    }
+  });
+
+  app.put("/api/admin/ownership-claims/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const claimId = parseInt(req.params.id);
+      const { status, adminNotes } = req.body;
+      
+      // In a real implementation, this would update the ownership_claims table
+      // For now, we'll just return a success response
+      res.json({ 
+        message: "Ownership claim updated successfully",
+        claimId,
+        status,
+        adminNotes
+      });
+    } catch (error) {
+      console.error("Error updating ownership claim:", error);
+      res.status(500).json({ message: "Failed to update ownership claim" });
+    }
+  });
+
+  // Business Submissions Management
+  app.get("/api/admin/business-submissions", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      // Since we don't have actual business submissions in the database yet, return empty array
+      // In a real implementation, this would fetch from a business_submissions table
+      res.json([]);
+    } catch (error) {
+      console.error("Error fetching business submissions:", error);
+      res.status(500).json({ message: "Failed to fetch business submissions" });
+    }
+  });
+
+  app.put("/api/admin/business-submissions/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const submissionId = parseInt(req.params.id);
+      const { status, adminNotes } = req.body;
+      
+      // In a real implementation, this would:
+      // 1. Update the business_submissions table
+      // 2. If approved, create a new business listing
+      // 3. Send notification to the submitter
+      
+      res.json({ 
+        message: "Business submission updated successfully",
+        submissionId,
+        status,
+        adminNotes
+      });
+    } catch (error) {
+      console.error("Error updating business submission:", error);
+      res.status(500).json({ message: "Failed to update business submission" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

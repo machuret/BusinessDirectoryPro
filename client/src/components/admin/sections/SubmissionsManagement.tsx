@@ -10,59 +10,63 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Search, UserCheck, Eye, CheckCircle, XCircle, Clock, Building2, User, Mail, Phone } from "lucide-react";
+import { Search, CheckCircle, Eye, XCircle, Clock, Building2, User, Mail, Phone, MapPin, Globe } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
-interface OwnershipClaim {
+interface BusinessSubmission {
   id: number;
-  businessId: string;
-  businessTitle?: string;
-  userId: string;
-  userEmail?: string;
+  title: string;
+  description?: string;
+  address?: string;
+  city?: string;
+  phone?: string;
+  email?: string;
+  website?: string;
+  categoryName?: string;
+  submittedBy: string;
+  submitterEmail?: string;
   status: 'pending' | 'approved' | 'rejected';
-  claimDate: string;
-  verificationNotes?: string;
+  submissionDate: string;
   adminNotes?: string;
-  submittedDocuments?: string[];
   contactInfo?: {
+    name?: string;
     phone?: string;
     email?: string;
-    name?: string;
   };
 }
 
-export default function OwnershipManagement() {
+export default function SubmissionsManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [selectedClaim, setSelectedClaim] = useState<OwnershipClaim | null>(null);
+  const [selectedSubmission, setSelectedSubmission] = useState<BusinessSubmission | null>(null);
   const [reviewNotes, setReviewNotes] = useState("");
   const { toast } = useToast();
 
-  // Fetch ownership claims
-  const { data: claims = [], isLoading } = useQuery({
-    queryKey: ['/api/admin/ownership-claims'],
+  // Fetch business submissions
+  const { data: submissions = [], isLoading } = useQuery({
+    queryKey: ['/api/admin/business-submissions'],
     queryFn: async () => {
-      const response = await apiRequest('GET', '/api/admin/ownership-claims');
+      const response = await apiRequest('GET', '/api/admin/business-submissions');
       return response.json();
     },
   });
 
-  // Update claim status mutation
-  const updateClaimMutation = useMutation({
-    mutationFn: async ({ claimId, status, notes }: { claimId: number; status: string; notes: string }) => {
-      const response = await apiRequest('PUT', `/api/admin/ownership-claims/${claimId}`, {
+  // Update submission status mutation
+  const updateSubmissionMutation = useMutation({
+    mutationFn: async ({ submissionId, status, notes }: { submissionId: number; status: string; notes: string }) => {
+      const response = await apiRequest('PUT', `/api/admin/business-submissions/${submissionId}`, {
         status,
         adminNotes: notes,
       });
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/ownership-claims'] });
-      setSelectedClaim(null);
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/business-submissions'] });
+      setSelectedSubmission(null);
       setReviewNotes("");
       toast({
-        title: "Claim Updated",
-        description: "Ownership claim status has been updated successfully",
+        title: "Submission Updated",
+        description: "Business submission status has been updated successfully",
       });
     },
     onError: (error: Error) => {
@@ -75,9 +79,9 @@ export default function OwnershipManagement() {
   });
 
   const handleApprove = () => {
-    if (selectedClaim) {
-      updateClaimMutation.mutate({
-        claimId: selectedClaim.id,
+    if (selectedSubmission) {
+      updateSubmissionMutation.mutate({
+        submissionId: selectedSubmission.id,
         status: 'approved',
         notes: reviewNotes,
       });
@@ -85,20 +89,21 @@ export default function OwnershipManagement() {
   };
 
   const handleReject = () => {
-    if (selectedClaim) {
-      updateClaimMutation.mutate({
-        claimId: selectedClaim.id,
+    if (selectedSubmission) {
+      updateSubmissionMutation.mutate({
+        submissionId: selectedSubmission.id,
         status: 'rejected',
         notes: reviewNotes,
       });
     }
   };
 
-  // Filter claims
-  const filteredClaims = claims.filter((claim: OwnershipClaim) => {
-    const matchesSearch = claim.businessTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         claim.userEmail?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === "all" || claim.status === statusFilter;
+  // Filter submissions
+  const filteredSubmissions = submissions.filter((submission: BusinessSubmission) => {
+    const matchesSearch = submission.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         submission.submitterEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         submission.city?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === "all" || submission.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
@@ -131,11 +136,11 @@ export default function OwnershipManagement() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Business Ownership Claims</h2>
-          <p className="text-muted-foreground">Review and manage business ownership verification requests</p>
+          <h2 className="text-2xl font-bold">Business Submissions</h2>
+          <p className="text-muted-foreground">Review and manage new business listings submitted by users</p>
         </div>
         <div className="text-sm text-muted-foreground">
-          {claims.length} total claims
+          {submissions.length} total submissions
         </div>
       </div>
 
@@ -144,14 +149,14 @@ export default function OwnershipManagement() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Search className="h-4 w-4" />
-            Search & Filter Claims
+            Search & Filter Submissions
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex gap-4">
             <div className="flex-1">
               <Input
-                placeholder="Search by business name or user email..."
+                placeholder="Search by business name, city, or submitter email..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -171,23 +176,23 @@ export default function OwnershipManagement() {
         </CardContent>
       </Card>
 
-      {/* Claims Table */}
+      {/* Submissions Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Ownership Claims</CardTitle>
+          <CardTitle>Business Submissions</CardTitle>
           <CardDescription>
-            {filteredClaims.length} claims found
+            {filteredSubmissions.length} submissions found
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {filteredClaims.length === 0 ? (
+          {filteredSubmissions.length === 0 ? (
             <div className="text-center py-8">
-              <UserCheck className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No Ownership Claims Found</h3>
+              <Building2 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-lg font-semibold mb-2">No Business Submissions Found</h3>
               <p className="text-muted-foreground">
                 {searchTerm || statusFilter !== "all" 
-                  ? "No claims match your current filters"
-                  : "No business ownership claims have been submitted yet"
+                  ? "No submissions match your current filters"
+                  : "No business submissions have been submitted yet"
                 }
               </p>
             </div>
@@ -196,21 +201,31 @@ export default function OwnershipManagement() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Business</TableHead>
-                  <TableHead>Claimant</TableHead>
+                  <TableHead>Location</TableHead>
+                  <TableHead>Submitter</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Submitted</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredClaims.map((claim: OwnershipClaim) => (
-                  <TableRow key={claim.id}>
+                {filteredSubmissions.map((submission: BusinessSubmission) => (
+                  <TableRow key={submission.id}>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Building2 className="h-4 w-4 text-muted-foreground" />
                         <div>
-                          <div className="font-medium">{claim.businessTitle || 'Unknown Business'}</div>
-                          <div className="text-sm text-muted-foreground">ID: {claim.businessId}</div>
+                          <div className="font-medium">{submission.title}</div>
+                          <div className="text-sm text-muted-foreground">{submission.categoryName || 'No category'}</div>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                        <div>
+                          <div className="text-sm">{submission.city || 'Unknown'}</div>
+                          <div className="text-xs text-muted-foreground">{submission.address}</div>
                         </div>
                       </div>
                     </TableCell>
@@ -218,15 +233,15 @@ export default function OwnershipManagement() {
                       <div className="flex items-center gap-2">
                         <User className="h-4 w-4 text-muted-foreground" />
                         <div>
-                          <div className="font-medium">{claim.contactInfo?.name || 'Unknown'}</div>
-                          <div className="text-sm text-muted-foreground">{claim.userEmail}</div>
+                          <div className="font-medium">{submission.contactInfo?.name || 'Unknown'}</div>
+                          <div className="text-sm text-muted-foreground">{submission.submitterEmail}</div>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>{getStatusBadge(claim.status)}</TableCell>
+                    <TableCell>{getStatusBadge(submission.status)}</TableCell>
                     <TableCell>
                       <div className="text-sm">
-                        {formatDistanceToNow(new Date(claim.claimDate), { addSuffix: true })}
+                        {formatDistanceToNow(new Date(submission.submissionDate), { addSuffix: true })}
                       </div>
                     </TableCell>
                     <TableCell>
@@ -235,7 +250,7 @@ export default function OwnershipManagement() {
                           <Button 
                             variant="outline" 
                             size="sm"
-                            onClick={() => setSelectedClaim(claim)}
+                            onClick={() => setSelectedSubmission(submission)}
                           >
                             <Eye className="h-4 w-4 mr-1" />
                             Review
@@ -243,13 +258,13 @@ export default function OwnershipManagement() {
                         </DialogTrigger>
                         <DialogContent className="max-w-2xl">
                           <DialogHeader>
-                            <DialogTitle>Review Ownership Claim</DialogTitle>
+                            <DialogTitle>Review Business Submission</DialogTitle>
                             <DialogDescription>
-                              Review the details and make a decision on this ownership claim
+                              Review the details and make a decision on this business submission
                             </DialogDescription>
                           </DialogHeader>
                           
-                          {selectedClaim && (
+                          {selectedSubmission && (
                             <div className="space-y-6">
                               {/* Business Info */}
                               <div className="space-y-2">
@@ -257,53 +272,79 @@ export default function OwnershipManagement() {
                                   <Building2 className="h-4 w-4" />
                                   Business Information
                                 </h4>
-                                <div className="bg-muted p-3 rounded-lg">
+                                <div className="bg-muted p-3 rounded-lg space-y-3">
                                   <div className="grid grid-cols-2 gap-4 text-sm">
                                     <div>
-                                      <span className="font-medium">Name:</span> {selectedClaim.businessTitle}
+                                      <span className="font-medium">Name:</span> {selectedSubmission.title}
                                     </div>
                                     <div>
-                                      <span className="font-medium">ID:</span> {selectedClaim.businessId}
+                                      <span className="font-medium">Category:</span> {selectedSubmission.categoryName || 'Not specified'}
                                     </div>
                                   </div>
+                                  {selectedSubmission.description && (
+                                    <div className="text-sm">
+                                      <span className="font-medium">Description:</span>
+                                      <p className="mt-1 text-muted-foreground">{selectedSubmission.description}</p>
+                                    </div>
+                                  )}
                                 </div>
                               </div>
 
-                              {/* Claimant Info */}
+                              {/* Contact Info */}
                               <div className="space-y-2">
                                 <h4 className="font-semibold flex items-center gap-2">
-                                  <User className="h-4 w-4" />
-                                  Claimant Information
+                                  <Phone className="h-4 w-4" />
+                                  Contact Information
                                 </h4>
                                 <div className="bg-muted p-3 rounded-lg">
                                   <div className="grid grid-cols-2 gap-4 text-sm">
-                                    <div className="flex items-center gap-2">
-                                      <User className="h-3 w-3" />
-                                      <span className="font-medium">Name:</span> {selectedClaim.contactInfo?.name || 'Not provided'}
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                      <Mail className="h-3 w-3" />
-                                      <span className="font-medium">Email:</span> {selectedClaim.userEmail}
-                                    </div>
-                                    {selectedClaim.contactInfo?.phone && (
+                                    {selectedSubmission.phone && (
                                       <div className="flex items-center gap-2">
                                         <Phone className="h-3 w-3" />
-                                        <span className="font-medium">Phone:</span> {selectedClaim.contactInfo.phone}
+                                        <span className="font-medium">Phone:</span> {selectedSubmission.phone}
+                                      </div>
+                                    )}
+                                    {selectedSubmission.email && (
+                                      <div className="flex items-center gap-2">
+                                        <Mail className="h-3 w-3" />
+                                        <span className="font-medium">Email:</span> {selectedSubmission.email}
+                                      </div>
+                                    )}
+                                    {selectedSubmission.website && (
+                                      <div className="flex items-center gap-2">
+                                        <Globe className="h-3 w-3" />
+                                        <span className="font-medium">Website:</span> {selectedSubmission.website}
+                                      </div>
+                                    )}
+                                    {selectedSubmission.address && (
+                                      <div className="flex items-center gap-2">
+                                        <MapPin className="h-3 w-3" />
+                                        <span className="font-medium">Address:</span> {selectedSubmission.address}
                                       </div>
                                     )}
                                   </div>
                                 </div>
                               </div>
 
-                              {/* Verification Notes */}
-                              {selectedClaim.verificationNotes && (
-                                <div className="space-y-2">
-                                  <h4 className="font-semibold">Verification Notes</h4>
-                                  <div className="bg-muted p-3 rounded-lg text-sm">
-                                    {selectedClaim.verificationNotes}
+                              {/* Submitter Info */}
+                              <div className="space-y-2">
+                                <h4 className="font-semibold flex items-center gap-2">
+                                  <User className="h-4 w-4" />
+                                  Submitter Information
+                                </h4>
+                                <div className="bg-muted p-3 rounded-lg">
+                                  <div className="grid grid-cols-2 gap-4 text-sm">
+                                    <div className="flex items-center gap-2">
+                                      <User className="h-3 w-3" />
+                                      <span className="font-medium">Name:</span> {selectedSubmission.contactInfo?.name || 'Not provided'}
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <Mail className="h-3 w-3" />
+                                      <span className="font-medium">Email:</span> {selectedSubmission.submitterEmail}
+                                    </div>
                                   </div>
                                 </div>
-                              )}
+                              </div>
 
                               {/* Admin Review */}
                               <div className="space-y-2">
@@ -317,37 +358,37 @@ export default function OwnershipManagement() {
                               </div>
 
                               {/* Actions */}
-                              {selectedClaim.status === 'pending' && (
+                              {selectedSubmission.status === 'pending' && (
                                 <div className="flex gap-2 justify-end">
                                   <Button
                                     variant="outline"
                                     onClick={handleReject}
-                                    disabled={updateClaimMutation.isPending}
+                                    disabled={updateSubmissionMutation.isPending}
                                   >
                                     <XCircle className="h-4 w-4 mr-1" />
                                     Reject
                                   </Button>
                                   <Button
                                     onClick={handleApprove}
-                                    disabled={updateClaimMutation.isPending}
+                                    disabled={updateSubmissionMutation.isPending}
                                   >
                                     <CheckCircle className="h-4 w-4 mr-1" />
-                                    Approve
+                                    Approve & Create Listing
                                   </Button>
                                 </div>
                               )}
 
-                              {selectedClaim.status !== 'pending' && (
+                              {selectedSubmission.status !== 'pending' && (
                                 <div className="bg-muted p-3 rounded-lg">
                                   <div className="flex items-center gap-2">
-                                    {getStatusBadge(selectedClaim.status)}
+                                    {getStatusBadge(selectedSubmission.status)}
                                     <span className="text-sm text-muted-foreground">
-                                      on {new Date(selectedClaim.claimDate).toLocaleDateString()}
+                                      on {new Date(selectedSubmission.submissionDate).toLocaleDateString()}
                                     </span>
                                   </div>
-                                  {selectedClaim.adminNotes && (
+                                  {selectedSubmission.adminNotes && (
                                     <div className="mt-2 text-sm">
-                                      <span className="font-medium">Admin Notes:</span> {selectedClaim.adminNotes}
+                                      <span className="font-medium">Admin Notes:</span> {selectedSubmission.adminNotes}
                                     </div>
                                   )}
                                 </div>
