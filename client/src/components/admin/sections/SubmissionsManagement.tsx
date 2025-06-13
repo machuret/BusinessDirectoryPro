@@ -133,12 +133,7 @@ export default function SubmissionsManagement() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">Business Submissions</h2>
-          <p className="text-muted-foreground">Review and manage new business listings submitted by users</p>
-        </div>
         <div className="text-sm text-muted-foreground">
           {submissions.length} total submissions
         </div>

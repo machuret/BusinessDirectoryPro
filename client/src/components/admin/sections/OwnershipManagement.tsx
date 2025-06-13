@@ -128,12 +128,7 @@ export default function OwnershipManagement() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">Business Ownership Claims</h2>
-          <p className="text-muted-foreground">Review and manage business ownership verification requests</p>
-        </div>
         <div className="text-sm text-muted-foreground">
           {claims.length} total claims
         </div>
