@@ -1,6 +1,7 @@
 import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
+import { getQueryFn } from "@/lib/queryClient";
 
 // Helper function to determine error type
 const getErrorType = (error: any): 'network' | 'not_found' | 'server' | 'unknown' => {
@@ -50,6 +51,7 @@ export function useApiQuery<TData = unknown>(
 
   const queryResult = useQuery<TData>({
     ...queryOptions,
+    queryFn: queryOptions.queryFn || getQueryFn({ on401: "returnNull" }),
     retry: (failureCount, error: any) => {
       const errorType = getErrorType(error);
       // Only retry network and server errors, not 404s or unknown errors

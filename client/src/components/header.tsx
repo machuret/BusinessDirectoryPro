@@ -21,12 +21,7 @@ export default function Header() {
 
   // Fetch header menu items from database
   const { data: menuItems } = useQuery({
-    queryKey: ["/api/menu-items"],
-    queryFn: async () => {
-      const response = await fetch("/api/menu-items?location=header");
-      if (!response.ok) return [];
-      return response.json();
-    }
+    queryKey: ["/api/menu-items?location=header"],
   });
 
   const websiteLogo = settings && Array.isArray(settings) 
@@ -34,7 +29,7 @@ export default function Header() {
     : null;
 
   // Use dynamic menu items or fallback to default
-  const navItems = menuItems && menuItems.length > 0 
+  const navItems = menuItems && Array.isArray(menuItems) && menuItems.length > 0 
     ? menuItems.map((item: any) => ({
         href: item.url,
         label: item.name
