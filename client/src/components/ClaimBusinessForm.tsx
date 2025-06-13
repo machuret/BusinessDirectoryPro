@@ -166,47 +166,68 @@ export default function ClaimBusinessForm({ businessId, businessName }: ClaimBus
             <p className="text-xs text-muted-foreground">Select how you'd like to verify your ownership</p>
           </div>
 
-      <div>
-        <Label htmlFor="documents">Supporting Documents</Label>
-        <Input
-          id="documents"
-          type="file"
-          multiple
-          accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-          onChange={handleFileChange}
-          className="cursor-pointer"
-        />
-        <p className="text-xs text-muted-foreground mt-1">
-          Upload business license, tax documents, or other proof of ownership
-        </p>
-      </div>
+          <div className="space-y-2">
+            <Label htmlFor="documents" className="text-sm font-medium">
+              Supporting Documents
+            </Label>
+            <Input
+              id="documents"
+              type="file"
+              multiple
+              accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+              onChange={handleFileChange}
+              className="cursor-pointer focus-visible:ring-primary file:border-0 file:bg-transparent file:text-sm file:font-medium"
+              aria-describedby="documents-helper"
+            />
+            <p id="documents-helper" className="text-xs text-muted-foreground">
+              Upload business license, tax documents, or other proof of ownership (PDF, JPG, PNG, DOC)
+            </p>
+          </div>
 
-      <div>
-        <Label htmlFor="message">Additional Information</Label>
-        <Textarea
-          id="message"
-          value={formData.message}
-          onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
-          placeholder="Tell us why you should be verified as the owner of this business..."
-          rows={3}
-        />
-      </div>
+          <div className="space-y-2">
+            <Label htmlFor="message" className="text-sm font-medium">
+              Additional Information
+            </Label>
+            <Textarea
+              id="message"
+              value={formData.message}
+              onChange={(e) => setFormData((prev: any) => ({ ...prev, message: e.target.value }))}
+              placeholder="Tell us why you should be verified as the owner of this business..."
+              rows={4}
+              className="focus-visible:ring-primary resize-none"
+              aria-describedby="message-helper"
+            />
+            <p id="message-helper" className="text-xs text-muted-foreground">
+              Optional: Provide additional context about your ownership
+            </p>
+          </div>
 
-      <div className="bg-muted p-3 rounded-md text-sm">
-        <strong>What happens next:</strong>
-        <ul className="list-disc list-inside mt-2 space-y-1">
-          <li>We'll review your claim within 24-48 hours</li>
-          <li>You may be contacted for additional verification</li>
-          <li>Once approved, you can manage your business listing</li>
-          <li>Update photos, hours, contact information, and more</li>
-        </ul>
-      </div>
+          <div className="bg-muted/50 border border-border p-4 rounded-lg">
+            <h4 className="font-semibold text-sm mb-2">What happens next:</h4>
+            <ul className="list-disc list-inside text-sm space-y-1 text-muted-foreground">
+              <li>We'll review your claim within 24-48 hours</li>
+              <li>You may be contacted for additional verification</li>
+              <li>Once approved, you can manage your business listing</li>
+              <li>Update photos, hours, contact information, and more</li>
+            </ul>
+          </div>
 
-      <div className="flex gap-2">
-        <Button type="submit" disabled={claimMutation.isPending} className="flex-1">
-          {claimMutation.isPending ? "Submitting..." : "Submit Claim"}
-        </Button>
-      </div>
-    </form>
+          <Button 
+            type="submit" 
+            disabled={claimMutation.isPending} 
+            className="w-full"
+            size="lg"
+            aria-describedby={claimMutation.isPending ? "submit-status" : undefined}
+          >
+            {claimMutation.isPending ? "Submitting Claim..." : "Submit Ownership Claim"}
+          </Button>
+          {claimMutation.isPending && (
+            <p id="submit-status" className="text-sm text-muted-foreground text-center">
+              Processing your ownership claim...
+            </p>
+          )}
+        </form>
+      </CardContent>
+    </Card>
   );
 }
