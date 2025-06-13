@@ -10,10 +10,13 @@ export class BusinessValidation {
       const value = (business as any)[key];
       if (value !== undefined) {
         // Skip foreign key fields if they're empty/null to avoid constraint violations
-        if (key === 'ownerid' && (!value || value === '')) {
+        if (key === 'ownerid' && (!value || value === '' || value === null)) {
           return; // Skip this field entirely
         }
-        sanitized[key] = value;
+        // Convert camelCase to lowercase for database fields
+        const dbKey = key === 'createdat' ? 'createdat' : 
+                     key === 'updatedat' ? 'updatedat' : key;
+        sanitized[dbKey] = value;
       }
     });
     return sanitized;
