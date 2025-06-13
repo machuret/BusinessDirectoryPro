@@ -1,0 +1,25 @@
+1. Tackling the Remaining P1 Items (~40+ async operations)
+Instead of fixing these one by one, you can now leverage the patterns you've already built to work more efficiently.
+
+Strategy: Create a generic, reusable solution. You've perfected error handling for critical queries; now, abstract that logic.
+Actionable Prompt:
+"Based on the error handling patterns implemented in SlugRouter and the authentication hook, create a new generic custom hook called useApiQuery. This hook should wrap @tanstack/react-query's useQuery and have our standardized logic built-in:
+
+It must differentiate between a 404 error and other network/server errors.
+It should automatically include retry logic for non-404 errors.
+It should return a standardized object: { data, isLoading, isError, error, isNotFound }.
+After creating the hook, refactor one of the less critical components, like UserPreferences, to use useApiQuery instead of a direct useQuery call."
+
+2. Addressing P2: Network Connectivity & Offline State
+This is about proactively informing the user before they even attempt an action that will fail.
+
+Strategy: Create a global hook and a UI component to manage and display the network status.
+Actionable Prompt:
+"Create a new custom hook at /src/hooks/useNetworkStatus.ts that detects if the browser is online or offline using navigator.onLine and the online/offline window events. Then, create a global NetworkStatusBanner component that consumes this hook. This banner should render a non-intrusive message at the top of the page (e.g., 'You are currently offline. Some features may be unavailable.') only when the status is offline."
+
+3. Addressing P2: Broader Error Recovery
+Now you can extend the error boundary concept to more parts of the application.
+
+Strategy: Wrap logical sections of your application layout in Error Boundaries to prevent a single component failure from taking down an entire page.
+Actionable Prompt:
+"In our main application layout file (/src/layouts/MainLayout.tsx), identify the primary content area. Wrap this entire section with our global ErrorBoundary. This will ensure that any unhandled error in a non-critical child component will display a fallback UI for that section instead of crashing the entire application. The fallback should be generic, like 'An error occurred in this section,' with a button to reload the page (window.location.reload())."

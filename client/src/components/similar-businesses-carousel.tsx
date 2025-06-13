@@ -1,10 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import BusinessCard from "@/components/business-card";
 import { BusinessCardSkeleton } from "@/components/business-card-skeleton";
+import { useApiQuery } from "@/hooks/useApiQuery";
 import type { BusinessWithCategory } from "@shared/schema";
 
 interface SimilarBusinessesCarouselProps {
@@ -23,7 +23,13 @@ export default function SimilarBusinessesCarousel({
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // Fetch similar businesses based on category and city
-  const { data: similarBusinesses, isLoading } = useQuery<BusinessWithCategory[]>({
+  const { 
+    data: similarBusinesses, 
+    isLoading, 
+    isError, 
+    isNotFound, 
+    refetch 
+  } = useApiQuery<BusinessWithCategory[]>({
     queryKey: ["/api/businesses", { categoryId, city, exclude: currentBusinessId }],
     queryFn: async () => {
       const params = new URLSearchParams();
@@ -40,6 +46,8 @@ export default function SimilarBusinessesCarousel({
         business.placeid !== currentBusinessId
       );
     },
+    customErrorMessage: "Unable to load similar businesses at the moment.",
+    showErrorToast: false, // We'll handle error display inline
   });
 
   if (isLoading) {
@@ -49,6 +57,30 @@ export default function SimilarBusinessesCarousel({
           <h3 className="text-xl font-semibold mb-4">Similar Businesses</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <BusinessCardSkeleton count={3} variant="compact" />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Handle error states with fallback UI
+  if (isError) {
+    return (
+      <Card className={className}>
+        <CardContent className="p-6">
+          <div className="text-center py-8">
+            <AlertTriangle className="w-12 h-12 mx-auto mb-3 text-yellow-500" />
+            <h3 className="text-lg font-semibold mb-2">Unable to Load Similar Businesses</h3>
+            <p className="text-gray-600 mb-4">
+              We're having trouble loading similar businesses at the moment.
+            </p>
+            <Button 
+              onClick={() => refetch()} 
+              variant="outline"
+              className="gap-2"
+            >
+              Try Again
+            </Button>
           </div>
         </CardContent>
       </Card>

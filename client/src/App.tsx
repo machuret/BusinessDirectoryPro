@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { UIProvider } from "@/contexts/UIContext";
 import { ErrorBoundary } from "@/components/error/ErrorBoundary";
 import { LoadingState } from "@/components/loading/LoadingState";
+import { NetworkStatusBanner } from "@/components/NetworkStatusBanner";
 import Home from "@/pages/home";
 import Categories from "@/pages/categories";
 import Cities from "@/pages/cities";
@@ -106,6 +107,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ErrorBoundary>
         <TooltipProvider>
+          <NetworkStatusBanner />
           <Toaster />
           <Router />
         </TooltipProvider>
