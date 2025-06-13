@@ -16,10 +16,17 @@ export default function BusinessContactInfo({ business }: BusinessContactInfoPro
     }
   };
 
-  const handleWebsiteClick = () => {
-    if (business.website) {
-      window.open(business.website, '_blank');
-    }
+  const getWebsiteLinkProps = () => {
+    if (!business.website) return {};
+    
+    // Featured businesses get dofollow links, non-featured get nofollow
+    const rel = business.featured ? "noopener noreferrer" : "nofollow noopener noreferrer";
+    
+    return {
+      href: business.website,
+      target: "_blank",
+      rel: rel
+    };
   };
 
   const formatOpeningHours = (hours: any) => {
@@ -121,14 +128,12 @@ export default function BusinessContactInfo({ business }: BusinessContactInfoPro
             <Globe className="h-5 w-5 text-muted-foreground mt-0.5" />
             <div className="flex-1">
               <p className="font-medium">Website</p>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleWebsiteClick}
-                className="h-7 px-2 text-xs"
+              <a 
+                {...getWebsiteLinkProps()}
+                className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-7 px-2 text-xs"
               >
                 Visit Website
-              </Button>
+              </a>
             </div>
           </div>
         )}
