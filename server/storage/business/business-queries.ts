@@ -43,7 +43,7 @@ export class BusinessQueries {
     const limit = params?.limit || 50;
     const offset = params?.offset || 0;
 
-    query += ` ORDER BY b.createdat DESC NULLS LAST LIMIT ${limit} OFFSET ${offset}`;
+    query += ` ORDER BY b.featured DESC, b.createdat DESC NULLS LAST LIMIT ${limit} OFFSET ${offset}`;
 
     return query;
   }

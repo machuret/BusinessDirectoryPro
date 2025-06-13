@@ -121,6 +121,13 @@ export class BusinessStorage {
     return BusinessSearch.getCitiesWithBusinessCounts();
   }
 
+  /**
+   * Get unique cities (legacy method name for compatibility)
+   */
+  async getUniqueCities(): Promise<Array<{ city: string; count: number }>> {
+    return BusinessSearch.getCitiesWithBusinessCounts();
+  }
+
   // ========== CRUD OPERATIONS ==========
 
   /**

@@ -35,8 +35,8 @@ export default function Categories() {
   const currentCategory = category || categoryByName;
 
   const { data: businesses, isLoading: businessesLoading } = useQuery<BusinessWithCategory[]>({
-    queryKey: ["/api/businesses", { categoryId: currentCategory?.id }],
-    enabled: !!(currentCategory && typeof currentCategory === 'object' && 'id' in currentCategory),
+    queryKey: [`/api/businesses/category/${slug}`],
+    enabled: !!slug,
   });
 
   const { data: allBusinesses, isLoading: allBusinessesLoading } = useQuery<BusinessWithCategory[]>({

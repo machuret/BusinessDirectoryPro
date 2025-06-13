@@ -102,6 +102,26 @@ export function setupBusinessRoutes(app: Express) {
     }
   });
 
+  // Alternative search endpoint for compatibility
+  app.get("/api/businesses/search", async (req, res) => {
+    try {
+      const { q, location } = req.query;
+      if (!q) {
+        return res.status(400).json({ message: "Query parameter is required" });
+      }
+      
+      const businesses = await storage.getBusinesses({
+        search: q as string,
+        city: location as string,
+        limit: 50
+      });
+      res.json(businesses);
+    } catch (error) {
+      console.error("Error searching businesses:", error);
+      res.status(500).send("Internal server error");
+    }
+  });
+
   // Get user's businesses (authenticated)
   app.get("/api/my-businesses", isAuthenticated, async (req: any, res) => {
     try {
@@ -111,6 +131,31 @@ export function setupBusinessRoutes(app: Express) {
     } catch (error) {
       console.error("Error fetching user businesses:", error);
       res.status(500).json({ message: "Failed to fetch businesses" });
+    }
+  });
+
+  // Get businesses by category slug (public)
+  app.get("/api/businesses/category/:slug", async (req, res) => {
+    try {
+      const { slug } = req.params;
+      const { limit = 20, offset = 0 } = req.query;
+      
+      // First get the category by slug to get the ID
+      const category = await storage.getCategoryBySlug(slug);
+      if (!category) {
+        return res.status(404).json({ message: "Category not found" });
+      }
+      
+      const businesses = await storage.getBusinesses({
+        categoryId: category.id,
+        limit: parseInt(limit as string),
+        offset: parseInt(offset as string)
+      });
+      
+      res.json(businesses);
+    } catch (error) {
+      console.error("Error fetching businesses by category:", error);
+      res.status(500).send("Internal server error");
     }
   });
 
