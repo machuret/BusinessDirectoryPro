@@ -2,17 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams } from "wouter";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
-import PhotoGallery from "@/components/photo-gallery";
-import BusinessCarousel from "@/components/BusinessCarousel";
-import SEOHead from "@/components/SEOHead";
-import BusinessHeader from "@/components/business/BusinessHeader";
-import BusinessContactInfo from "@/components/business/BusinessContactInfo";
-import BusinessContactForm from "@/components/business-contact-form";
-import BusinessDescription from "@/components/business/BusinessDescription";
-import BusinessReviews from "@/components/business/BusinessReviews";
-import BusinessFAQ from "@/components/business/BusinessFAQ";
-import { getAllBusinessPhotos } from "@/components/business/BusinessPhotoUtils";
-import type { BusinessWithCategory, Review, User as UserType } from "@shared/schema";
+import type { BusinessWithCategory } from "@shared/schema";
 
 interface BusinessDetailProps {
   preloadedBusiness?: BusinessWithCategory;
@@ -29,58 +19,6 @@ export default function BusinessDetail(props: BusinessDetailProps = {}) {
   });
   
   const business = preloadedBusiness || fetchedBusiness;
-  
-  // Debug logging
-  if (process.env.NODE_ENV === 'development') {
-    console.log('BusinessDetail Debug:', {
-      slug,
-      hasPreloaded: !!preloadedBusiness,
-      hasFetched: !!fetchedBusiness,
-      hasBusiness: !!business,
-      businessTitle: business?.title
-    });
-  }
-
-  const { data: reviews = [], isLoading: reviewsLoading, refetch: refetchReviews } = useQuery<(Review & { user: Pick<UserType, 'firstName' | 'lastName'> })[]>({
-    queryKey: [`/api/businesses/${business?.placeid}/reviews`],
-    enabled: !!business?.placeid,
-  });
-
-  const { data: siteSettings } = useQuery<Record<string, any>>({
-    queryKey: ["/api/site-settings"],
-  });
-
-  const handlePrint = () => {
-    window.print();
-  };
-
-  const handleReviewSubmit = () => {
-    refetchReviews();
-  };
-
-  const handleClaimBusiness = () => {
-    // Open claim business modal/flow
-    console.log('Claim business clicked');
-  };
-
-  const handleShare = () => {
-    if (navigator.share && business) {
-      navigator.share({
-        title: business.title || 'Business',
-        text: business.description || 'Check out this business',
-        url: window.location.href,
-      });
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-    }
-  };
-
-  const handleGetDirections = () => {
-    if (business?.address && business?.city) {
-      const address = encodeURIComponent(`${business.address}, ${business.city}`);
-      window.open(`https://www.google.com/maps/search/?api=1&query=${address}`, '_blank');
-    }
-  };
 
   if (businessLoading) {
     return (
@@ -111,63 +49,55 @@ export default function BusinessDetail(props: BusinessDetailProps = {}) {
     );
   }
 
-  const allBusinessPhotos = getAllBusinessPhotos(business);
-
   return (
     <div className="min-h-screen bg-background">
-      {business && siteSettings && (
-        <SEOHead 
-          business={business} 
-          siteSettings={siteSettings}
-          pageType="business"
-        />
-      )}
       <Header />
       
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
-          <BusinessHeader 
-            business={business} 
-            onClaimBusiness={handleClaimBusiness}
-            onShare={handleShare}
-            onGetDirections={handleGetDirections}
-          />
-          
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
-            <div className="lg:col-span-2 space-y-8">
-              {allBusinessPhotos.length > 0 && (
-                <PhotoGallery 
-                  photos={allBusinessPhotos} 
-                  businessName={business.title || 'Business'} 
-                />
-              )}
-              
-              <BusinessDescription business={business} />
-              
-              <BusinessReviews 
-                business={business}
-                reviews={reviews}
-                reviewsLoading={reviewsLoading}
-                onReviewSubmit={handleReviewSubmit}
-              />
-              
-              <BusinessFAQ business={business} />
-            </div>
+          <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h1 className="text-3xl font-bold mb-2">{business.title}</h1>
+            {business.subtitle && (
+              <p className="text-xl text-gray-600 mb-4">{business.subtitle}</p>
+            )}
+            {business.description && (
+              <p className="text-gray-700 mb-4">{business.description}</p>
+            )}
             
-            <div className="space-y-6">
-              <BusinessContactInfo business={business} />
-              
-              <BusinessContactForm 
-                businessId={business.placeid}
-                businessName={business.title || 'Business'}
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+              {business.phone && (
+                <div>
+                  <strong>Phone:</strong> {business.phone}
+                </div>
+              )}
+              {business.website && (
+                <div>
+                  <strong>Website:</strong> 
+                  <a href={business.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-2">
+                    Visit Website
+                  </a>
+                </div>
+              )}
+              {business.address && (
+                <div>
+                  <strong>Address:</strong> {business.address}
+                  {business.city && `, ${business.city}`}
+                  {business.state && `, ${business.state}`}
+                </div>
+              )}
+              {business.categoryname && (
+                <div>
+                  <strong>Category:</strong> {business.categoryname}
+                </div>
+              )}
             </div>
-          </div>
-          
-          <div className="mt-12">
-            <BusinessCarousel 
-              currentBusinessId={business.placeid}
-            />
+
+            <div className="mt-6 p-4 bg-gray-50 rounded">
+              <h3 className="font-bold">Debug Info:</h3>
+              <p>Slug: {slug}</p>
+              <p>Place ID: {business.placeid}</p>
+              <p>Data source: {preloadedBusiness ? 'Preloaded' : 'API Fetch'}</p>
+            </div>
           </div>
         </div>
       </main>
