@@ -29,7 +29,8 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  const res = await fetch(url, {
+  const absoluteUrl = ensureAbsoluteUrl(url);
+  const res = await fetch(absoluteUrl, {
     method,
     headers: data ? { "Content-Type": "application/json" } : {},
     body: data ? JSON.stringify(data) : undefined,
@@ -41,12 +42,29 @@ export async function apiRequest(
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";
+// Helper function to ensure absolute URLs
+function ensureAbsoluteUrl(url: string): string {
+  // If URL already starts with /, it's absolute
+  if (url.startsWith('/')) {
+    return url;
+  }
+  
+  // If URL starts with http, it's already a full URL
+  if (url.startsWith('http')) {
+    return url;
+  }
+  
+  // Otherwise, make it absolute by adding leading slash
+  return `/${url}`;
+}
+
 export const getQueryFn: <T>(options: {
   on401: UnauthorizedBehavior;
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const res = await fetch(queryKey[0] as string, {
+    const absoluteUrl = ensureAbsoluteUrl(queryKey[0] as string);
+    const res = await fetch(absoluteUrl, {
       credentials: "include",
     });
 
