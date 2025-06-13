@@ -11,8 +11,17 @@ import { setupSettingsRoutes } from "./routes/settings";
 import optimizationRoutes from "./routes/optimization";
 import { registerCategoryRoutes } from "./routes/categories";
 import { csvImportService } from "./csv-import";
+import { createOwnershipClaimsTable } from "./create-ownership-table";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Initialize database tables - ensure ownership_claims table exists
+  try {
+    await createOwnershipClaimsTable();
+    console.log('Database tables initialized successfully');
+  } catch (error) {
+    console.error('Error initializing database tables:', error);
+  }
+
   // Configure multer for file uploads
   const upload = multer({
     storage: multer.memoryStorage(),
@@ -29,7 +38,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     },
   });
 
-
+  // Database setup endpoint for manual initialization
+  app.post('/api/setup-db', async (req, res) => {
+    try {
+      const result = await createOwnershipClaimsTable();
+      res.json({ success: result, message: result ? 'Database tables created successfully' : 'Failed to create tables' });
+    } catch (error) {
+      res.status(500).json({ success: false, message: 'Error setting up database', error: error instanceof Error ? error.message : 'Unknown error' });
+    }
+  });
 
   // No authentication system - public access
 
