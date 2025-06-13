@@ -32,9 +32,9 @@ export class BusinessOperations {
       if (!businessData.seodescription) businessData.seodescription = seoMetadata.seodescription;
     }
 
-    // Set timestamps
-    businessData.createdat = new Date();
-    businessData.updatedat = new Date();
+    // Set timestamps - use lowercase field names for database
+    (businessData as any).createdat = new Date();
+    (businessData as any).updatedat = new Date();
 
     // Sanitize data
     const sanitizedBusiness = BusinessValidation.sanitizeBusinessData(businessData);
@@ -72,8 +72,13 @@ export class BusinessOperations {
       }
     }
 
-    // Set update timestamp
-    updates.updatedat = new Date();
+    // Set update timestamp - use lowercase field name for database
+    (updates as any).updatedat = new Date();
+
+    // Handle foreign key constraints properly
+    if (updates.ownerid === '' || updates.ownerid === null) {
+      delete (updates as any).ownerid;
+    }
 
     // Sanitize data
     const sanitizedUpdates = BusinessValidation.sanitizeBusinessData(updates);
