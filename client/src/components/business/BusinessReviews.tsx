@@ -45,7 +45,7 @@ export default function BusinessReviews({
         key={i}
         className={`h-4 w-4 ${
           i < Math.floor(rating)
-            ? "fill-yellow-400 text-yellow-400"
+            ? "fill-yellow-500 text-yellow-500"
             : "text-gray-300"
         }`}
       />
