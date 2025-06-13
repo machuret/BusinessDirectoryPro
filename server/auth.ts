@@ -201,35 +201,7 @@ export function setupAuth(app: Express) {
     });
   });
 
-  // Auth user endpoint for frontend
-  app.get("/api/auth/user", async (req, res) => {
-    try {
-      const userId = (req.session as any)?.userId;
-      if (!userId) {
-        // Provide demo user for business page viewing
-        const demoUser = {
-          id: "demo-user-1",
-          email: "maria.garcia@email.com",
-          firstName: "Maria",
-          lastName: "Garcia",
-          role: "user"
-        };
-        return res.json(demoUser);
-      }
-      
-      const user = await storage.getUser(userId);
-      if (!user) {
-        return res.status(401).json({ message: "User not found" });
-      }
-      
-      // Remove password from response
-      const { password: _, ...userWithoutPassword } = user;
-      res.json(userWithoutPassword);
-    } catch (error: any) {
-      console.error("Get auth user error:", error);
-      res.status(500).json({ message: "Failed to get user" });
-    }
-  });
+
 
   // Get current user endpoint
   app.get("/api/user", async (req, res) => {
