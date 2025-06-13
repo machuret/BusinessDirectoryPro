@@ -389,6 +389,60 @@ Respond with JSON format: {"services": [array of service objects]}. Make service
     }
   });
 
+  // Menu Management APIs
+  app.post("/api/admin/menu-items", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const menuItem = await storage.createMenuItem(req.body);
+      res.status(201).json(menuItem);
+    } catch (error) {
+      console.error("Error creating menu item:", error);
+      res.status(500).json({ message: "Failed to create menu item" });
+    }
+  });
+
+  app.put("/api/admin/menu-items/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const menuItem = await storage.updateMenuItem(id, req.body);
+      if (!menuItem) {
+        return res.status(404).json({ message: "Menu item not found" });
+      }
+      res.json(menuItem);
+    } catch (error) {
+      console.error("Error updating menu item:", error);
+      res.status(500).json({ message: "Failed to update menu item" });
+    }
+  });
+
+  app.delete("/api/admin/menu-items/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const deleted = await storage.deleteMenuItem(id);
+      if (!deleted) {
+        return res.status(404).json({ message: "Menu item not found" });
+      }
+      res.json({ message: "Menu item deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting menu item:", error);
+      res.status(500).json({ message: "Failed to delete menu item" });
+    }
+  });
+
+  app.put("/api/admin/menu-items/:id/reorder", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { direction } = req.body;
+      const result = await storage.reorderMenuItem(id, direction);
+      if (!result) {
+        return res.status(404).json({ message: "Menu item not found" });
+      }
+      res.json({ message: "Menu item reordered successfully" });
+    } catch (error) {
+      console.error("Error reordering menu item:", error);
+      res.status(500).json({ message: "Failed to reorder menu item" });
+    }
+  });
+
   // Ownership Claims Management
   app.get("/api/admin/ownership-claims", isAuthenticated, isAdmin, async (req, res) => {
     try {

@@ -26,7 +26,7 @@ export default function FeaturedManagement() {
   const { toast } = useToast();
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedBusiness, setSelectedBusiness] = useState("");
   const [removeConfirmId, setRemoveConfirmId] = useState<string | null>(null);
 
@@ -79,7 +79,7 @@ export default function FeaturedManagement() {
       const matchesSearch = searchTerm === "" || 
         business.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         business.city?.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = selectedCategory === "" || business.categoryname === selectedCategory;
+      const matchesCategory = selectedCategory === "all" || business.categoryname === selectedCategory;
       
       return notFeatured && matchesSearch && matchesCategory;
     });
@@ -182,7 +182,7 @@ export default function FeaturedManagement() {
                     <SelectValue placeholder="All Categories" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Categories</SelectItem>
+                    <SelectItem value="all">All Categories</SelectItem>
                     {categories?.map((category) => (
                       <SelectItem key={category.id} value={category.name}>
                         {category.name}
