@@ -149,7 +149,7 @@ export default function APIManagement() {
                   </div>
                   <div className="flex items-center gap-2">
                     {hasValidKey ? (
-                      <Badge variant="default" className="bg-green-100 text-green-800">
+                      <Badge variant="default" className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100">
                         <CheckCircle className="h-3 w-3 mr-1" />
                         Configured
                       </Badge>

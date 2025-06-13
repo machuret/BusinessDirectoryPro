@@ -482,15 +482,15 @@ export default function ServicesManagement() {
 
       {/* AI Generation Info */}
       {services.length === 0 && (
-        <Card className="border-dashed border-2 border-blue-200 bg-blue-50">
+        <Card className="border-dashed border-2 border-primary/20 bg-primary/5">
           <CardContent className="p-6 text-center">
             <div className="flex flex-col items-center space-y-4">
-              <div className="p-3 bg-blue-100 rounded-full">
-                <Wand2 className="h-8 w-8 text-blue-600" />
+              <div className="p-3 bg-primary/10 rounded-full">
+                <Wand2 className="h-8 w-8 text-primary" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-blue-900">No Services Yet</h3>
-                <p className="text-blue-700 max-w-md">
+                <h3 className="text-lg font-semibold text-foreground">No Services Yet</h3>
+                <p className="text-muted-foreground max-w-md">
                   Click "Generate with AI" to automatically create relevant services based on your existing business listings.
                   The AI will analyze your business categories and types to generate appropriate services.
                 </p>
@@ -498,7 +498,7 @@ export default function ServicesManagement() {
               <Button
                 onClick={() => generateServicesMutation.mutate()}
                 disabled={generateServicesMutation.isPending}
-                className="bg-blue-600 hover:bg-blue-700"
+                variant="default"
               >
                 {generateServicesMutation.isPending ? (
                   <>
@@ -561,7 +561,7 @@ export default function ServicesManagement() {
                   </div>
                   <div className="flex items-center space-x-1">
                     {service.isActive ? (
-                      <Badge variant="default" className="bg-green-100 text-green-800">Active</Badge>
+                      <Badge variant="default" className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100">Active</Badge>
                     ) : (
                       <Badge variant="secondary">Inactive</Badge>
                     )}
@@ -612,9 +612,9 @@ export default function ServicesManagement() {
       )}
 
       {servicesError && (
-        <Card className="border-red-200 bg-red-50">
+        <Card className="border-destructive/20 bg-destructive/5">
           <CardContent className="p-4">
-            <div className="flex items-center space-x-2 text-red-800">
+            <div className="flex items-center space-x-2 text-destructive">
               <AlertCircle className="h-5 w-5" />
               <span>Error loading services: {servicesError.message}</span>
             </div>

@@ -263,7 +263,7 @@ export default function SEOManagement() {
 
                     {/* Image Preview */}
                     {ogImagePreview && (
-                      <div className="flex items-center gap-4 p-4 border rounded-lg bg-blue-50">
+                      <div className="flex items-center gap-4 p-4 border rounded-lg bg-muted/20">
                         <img
                           src={ogImagePreview}
                           alt="Preview"
