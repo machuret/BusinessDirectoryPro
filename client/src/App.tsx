@@ -20,11 +20,12 @@ import Dashboard from "@/pages/dashboard";
 import AdminLayout from "@/components/admin/AdminLayout";
 import MenuEdit from "@/pages/menu-edit";
 import PageDisplay from "@/pages/page-display";
-import Login from "@/pages/login";
+import Login from "@/pages/login-migrated";
 import AddBusiness from "@/pages/add-business";
 import BusinessesPage from "@/pages/businesses";
 import SlugRouter from "@/components/SlugRouter";
 import BusinessDebug from "@/pages/business-debug";
+import FormsDemo from "@/pages/forms-demo";
 import NotFound from "@/pages/not-found";
 
 // Admin Pages
@@ -70,6 +71,7 @@ function Router() {
       <Route path="/login" component={Login} />
       <Route path="/add-business" component={AddBusiness} />
       <Route path="/debug/:slug" component={BusinessDebug} />
+      <Route path="/forms-demo" component={FormsDemo} />
       {isAuthenticated && (
         <>
           <Route path="/dashboard" component={Dashboard} />

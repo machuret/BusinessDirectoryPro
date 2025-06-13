@@ -1,10 +1,15 @@
-import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation } from '@tanstack/react-query';
+import { useToast } from '@/hooks/use-toast';
+import { 
+  StandardizedForm, 
+  InputField, 
+  TextareaField, 
+  SelectDropdown, 
+  FormButton 
+} from '@/components/forms';
+import { businessSchemas, ClaimBusinessFormData } from '@/lib/validation-schemas';
 import { apiRequest } from "@/lib/queryClient";
 
 interface ClaimBusinessFormProps {
