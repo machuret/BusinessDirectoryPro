@@ -11,7 +11,7 @@ import Home from "@/pages/home";
 import Categories from "@/pages/categories";
 import Cities from "@/pages/cities";
 import Featured from "@/pages/featured";
-import BusinessDetail from "@/pages/business-detail";
+import BusinessDetailWorking from "@/pages/business-detail-working";
 import BusinessListing from "@/pages/business-listing";
 import BusinessOwnerPortal from "@/pages/business-owner-portal";
 import SearchResults from "@/pages/search-results";
