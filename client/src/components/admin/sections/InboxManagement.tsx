@@ -22,7 +22,7 @@ interface ContactMessage {
   location?: string;
 }
 
-export default function InboxManagement() {
+export function InboxManagement() {
   const { toast } = useToast();
   const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
 
@@ -221,3 +221,6 @@ export default function InboxManagement() {
     </div>
   );
 }
+
+// Default export for backward compatibility
+export default InboxManagement;

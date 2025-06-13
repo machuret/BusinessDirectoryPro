@@ -25,7 +25,7 @@ interface Lead {
   };
 }
 
-export default function LeadsManagement() {
+export function LeadsManagement() {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const { toast } = useToast();
 
@@ -298,3 +298,6 @@ export default function LeadsManagement() {
     </div>
   );
 }
+
+// Default export for backward compatibility
+export default LeadsManagement;

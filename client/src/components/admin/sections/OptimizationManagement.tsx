@@ -268,3 +268,6 @@ export function OptimizationManagement() {
     </div>
   );
 }
+
+// Default export for backward compatibility
+export default OptimizationManagement;
