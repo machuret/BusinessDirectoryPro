@@ -33,8 +33,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
 
-  // Set up authentication system
-  setupAuth(app);
+  // DISABLED: Authentication system for business page access
+  // setupAuth(app);
 
   // Register modular route handlers - but skip auth routes since we handle above
   // setupAuthRoutes(app);
