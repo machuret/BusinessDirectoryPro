@@ -1,7 +1,5 @@
 import { useApiQuery } from "@/hooks/useApiQuery";
-import { useEffect } from "react";
-import Header from "@/components/header";
-import Footer from "@/components/footer";
+import { PageWrapper, Grid, FlexContainer } from "@/components/layout";
 import SearchBar from "@/components/search-bar";
 import CategoryGrid from "@/components/category-grid";
 import { BusinessCard } from "@/components/business-card-consolidated";
@@ -41,16 +39,19 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <PageWrapper 
+      title="Business Directory - Find Local Businesses"
+      description="Discover and connect with local businesses in your area. Browse categories, read reviews, and find exactly what you're looking for."
+      className="bg-gray-50"
+    >
       <SEOHead 
         siteSettings={siteSettings}
         pageType="home"
       />
-      <Header />
       
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-primary to-blue-700 text-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="container-responsive text-center">
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
             {siteSettings?.homepage_hero_title || "Find Local Businesses"}
           </h1>
@@ -273,7 +274,6 @@ export default function Home() {
         </div>
       </section>
 
-      <Footer />
-    </div>
+    </PageWrapper>
   );
 }
