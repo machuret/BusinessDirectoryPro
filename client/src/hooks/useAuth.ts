@@ -57,13 +57,6 @@ export function useAuth() {
               title: "Connection Issue",
               description: "Unable to verify authentication status. Please check your connection.",
               variant: "destructive",
-              action: {
-                altText: "Retry",
-                onClick: () => {
-                  setHasShownNetworkError(false);
-                  refetch();
-                }
-              }
             });
           }
           break;
