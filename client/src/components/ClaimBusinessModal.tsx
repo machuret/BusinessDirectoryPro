@@ -11,11 +11,11 @@ import type { BusinessWithCategory } from "@shared/schema";
 interface ClaimBusinessModalProps {
   business: BusinessWithCategory;
   user: any;
-  isOpen: boolean;
-  onClose: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-export default function ClaimBusinessModal({ business, user, isOpen, onClose }: ClaimBusinessModalProps) {
+export default function ClaimBusinessModal({ business, user, open, onOpenChange }: ClaimBusinessModalProps) {
   const [claimMessage, setClaimMessage] = useState("");
   const { toast } = useToast();
 
@@ -30,7 +30,7 @@ export default function ClaimBusinessModal({ business, user, isOpen, onClose }: 
         description: "Your claim has been submitted for review. We'll contact you within 2-3 business days.",
       });
       setClaimMessage("");
-      onClose();
+      onOpenChange(false);
     },
     onError: (error: any) => {
       toast({
@@ -60,7 +60,7 @@ export default function ClaimBusinessModal({ business, user, isOpen, onClose }: 
 
   const handleClose = () => {
     setClaimMessage("");
-    onClose();
+    onOpenChange(false);
   };
 
   if (!user) {
@@ -68,7 +68,7 @@ export default function ClaimBusinessModal({ business, user, isOpen, onClose }: 
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Claim Business Ownership</DialogTitle>
