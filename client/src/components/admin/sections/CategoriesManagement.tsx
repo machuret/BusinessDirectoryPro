@@ -156,9 +156,8 @@ export default function CategoriesManagement() {
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
-            <div>
-              <CardTitle>Categories Management</CardTitle>
-              <CardDescription>Manage business categories with business count and SEO settings</CardDescription>
+            <div className="text-sm text-muted-foreground">
+              Manage business categories with business count and SEO settings
             </div>
             <Button onClick={handleAdd}>
               <Plus className="h-4 w-4 mr-2" />

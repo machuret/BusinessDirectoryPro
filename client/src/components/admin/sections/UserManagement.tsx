@@ -158,7 +158,6 @@ export default function UserManagement() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>User Management</CardTitle>
           <CardDescription>Enhanced user management with mass operations</CardDescription>
         </CardHeader>
         <CardContent>

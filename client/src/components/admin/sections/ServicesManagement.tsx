@@ -307,11 +307,9 @@ export default function ServicesManagement() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">Services Management</h2>
-          <p className="text-muted-foreground">AI-powered service generation based on your business directory</p>
+        <div className="text-sm text-muted-foreground">
+          AI-powered service generation based on your business directory
         </div>
         <div className="flex gap-3">
           <Button
