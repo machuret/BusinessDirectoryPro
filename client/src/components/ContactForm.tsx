@@ -1,12 +1,17 @@
-import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
-import { Mail, Phone, MapPin } from "lucide-react";
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation } from '@tanstack/react-query';
+import { useToast } from '@/hooks/use-toast';
+import { apiRequest } from '@/lib/queryClient';
+import { 
+  StandardizedForm, 
+  InputField, 
+  TextareaField, 
+  SelectDropdown, 
+  FormButton 
+} from '@/components/forms';
+import { contactSchemas, ContactFormData } from '@/lib/validation-schemas';
+import { Mail, Phone, MapPin } from 'lucide-react';
 
 interface ContactFormProps {
   title?: string;
