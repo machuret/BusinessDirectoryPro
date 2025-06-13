@@ -57,52 +57,7 @@ export function setupBusinessRoutes(app: Express) {
     }
   });
 
-  // Get business by ID (public)
-  app.get("/api/businesses/:id", async (req, res) => {
-    try {
-      const { id } = req.params;
-      const business = await storage.getBusinessById(id);
-      if (!business) {
-        return res.status(404).json({ message: "Business not found" });
-      }
-      res.json(business);
-    } catch (error) {
-      console.error("Error fetching business:", error);
-      res.status(500).send("Internal server error");
-    }
-  });
-
-  // Get business by slug (public)
-  app.get("/api/businesses/slug/:slug", async (req, res) => {
-    try {
-      const { slug } = req.params;
-      const business = await storage.getBusinessBySlug(slug);
-      if (!business) {
-        return res.status(404).json({ message: "Business not found" });
-      }
-      res.json(business);
-    } catch (error) {
-      console.error("Error fetching business by slug:", error);
-      res.status(500).send("Internal server error");
-    }
-  });
-
-  // Search businesses (public)
-  app.get("/api/search", async (req, res) => {
-    try {
-      const { query, location } = req.query;
-      if (!query) {
-        return res.status(400).json({ message: "Query parameter is required" });
-      }
-      const businesses = await storage.searchBusinesses(query as string, location as string);
-      res.json(businesses);
-    } catch (error) {
-      console.error("Error searching businesses:", error);
-      res.status(500).send("Internal server error");
-    }
-  });
-
-  // Alternative search endpoint for compatibility
+  // Search businesses (public) - Must come before generic :id route
   app.get("/api/businesses/search", async (req, res) => {
     try {
       const { q, location } = req.query;
@@ -118,6 +73,51 @@ export function setupBusinessRoutes(app: Express) {
       res.json(businesses);
     } catch (error) {
       console.error("Error searching businesses:", error);
+      res.status(500).send("Internal server error");
+    }
+  });
+
+  // Alternative search endpoint for compatibility
+  app.get("/api/search", async (req, res) => {
+    try {
+      const { query, location } = req.query;
+      if (!query) {
+        return res.status(400).json({ message: "Query parameter is required" });
+      }
+      const businesses = await storage.searchBusinesses(query as string, location as string);
+      res.json(businesses);
+    } catch (error) {
+      console.error("Error searching businesses:", error);
+      res.status(500).send("Internal server error");
+    }
+  });
+
+  // Get business by slug (public) - Must come before generic :id route
+  app.get("/api/businesses/slug/:slug", async (req, res) => {
+    try {
+      const { slug } = req.params;
+      const business = await storage.getBusinessBySlug(slug);
+      if (!business) {
+        return res.status(404).json({ message: "Business not found" });
+      }
+      res.json(business);
+    } catch (error) {
+      console.error("Error fetching business by slug:", error);
+      res.status(500).send("Internal server error");
+    }
+  });
+
+  // Get business by ID (public)
+  app.get("/api/businesses/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const business = await storage.getBusinessById(id);
+      if (!business) {
+        return res.status(404).json({ message: "Business not found" });
+      }
+      res.json(business);
+    } catch (error) {
+      console.error("Error fetching business:", error);
       res.status(500).send("Internal server error");
     }
   });
