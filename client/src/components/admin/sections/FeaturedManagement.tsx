@@ -22,7 +22,7 @@ interface Business {
   description?: string;
 }
 
-export default function FeaturedManagement() {
+export function FeaturedManagement() {
   const { toast } = useToast();
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -95,9 +95,14 @@ export default function FeaturedManagement() {
         <CardContent>
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold">Currently Featured ({featuredBusinesses.length})</h3>
-              <Button onClick={() => setShowAddDialog(true)}>
-                <Plus className="h-4 w-4 mr-2" />
+              <h3 className="text-lg font-semibold" id="featured-businesses-title">
+                Currently Featured ({featuredBusinesses.length})
+              </h3>
+              <Button 
+                onClick={() => setShowAddDialog(true)}
+                aria-label="Add new featured business"
+              >
+                <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
                 Add Featured Business
               </Button>
             </div>

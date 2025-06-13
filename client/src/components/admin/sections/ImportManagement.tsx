@@ -495,3 +495,6 @@ export function ImportManagement() {
     </div>
   );
 }
+
+// Default export compatibility layer
+export default ImportManagement;
