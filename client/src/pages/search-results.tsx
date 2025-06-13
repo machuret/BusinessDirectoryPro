@@ -217,7 +217,7 @@ export default function SearchResults() {
 
         {/* Results Grid */}
         {!isLoading && businesses && businesses.length > 0 && (
-          <SectionErrorBoundary>
+          <SectionErrorBoundary fallbackTitle="Unable to load business results">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {businesses.map((business: BusinessWithCategory) => (
                 <BusinessCard key={business.placeid} business={business} />

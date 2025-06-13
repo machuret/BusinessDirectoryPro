@@ -7,10 +7,13 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
+import { SectionErrorBoundary } from "@/components/error/SectionErrorBoundary";
+import { AlertTriangle, Loader2 } from "lucide-react";
 import { User } from "@shared/schema";
 
 const loginSchema = z.object({
@@ -65,11 +68,16 @@ export default function Login() {
       setLocation("/");
     },
     onError: (error: Error) => {
+      const errorMessage = error.message || "Login failed. Please check your credentials and try again.";
       toast({
         title: "Login failed",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
+      
+      // Reset password field on error
+      loginForm.setValue("password", "");
+      loginForm.setFocus("password");
     },
   });
 
@@ -87,11 +95,16 @@ export default function Login() {
       setLocation("/");
     },
     onError: (error: Error) => {
+      const errorMessage = error.message || "Registration failed. Please try again.";
       toast({
         title: "Registration failed",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
+      
+      // Reset password field on error
+      registerForm.setValue("password", "");
+      registerForm.setFocus("password");
     },
   });
 
@@ -161,8 +174,24 @@ export default function Login() {
                     className="w-full" 
                     disabled={loginMutation.isPending}
                   >
-                    {loginMutation.isPending ? "Signing in..." : "Sign In"}
+                    {loginMutation.isPending ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Signing in...
+                      </>
+                    ) : (
+                      "Sign In"
+                    )}
                   </Button>
+                  
+                  {loginMutation.isError && (
+                    <Alert variant="destructive">
+                      <AlertTriangle className="h-4 w-4" />
+                      <AlertDescription>
+                        {loginMutation.error?.message || "Login failed. Please check your credentials."}
+                      </AlertDescription>
+                    </Alert>
+                  )}
                 </form>
               </Form>
             </TabsContent>
@@ -237,8 +266,24 @@ export default function Login() {
                     className="w-full" 
                     disabled={registerMutation.isPending}
                   >
-                    {registerMutation.isPending ? "Creating account..." : "Create Account"}
+                    {registerMutation.isPending ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Creating account...
+                      </>
+                    ) : (
+                      "Create Account"
+                    )}
                   </Button>
+                  
+                  {registerMutation.isError && (
+                    <Alert variant="destructive">
+                      <AlertTriangle className="h-4 w-4" />
+                      <AlertDescription>
+                        {registerMutation.error?.message || "Registration failed. Please try again."}
+                      </AlertDescription>
+                    </Alert>
+                  )}
                 </form>
               </Form>
             </TabsContent>

@@ -223,22 +223,22 @@ export default function BusinessDetailRefactored() {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Action Buttons */}
-            <SectionErrorBoundary fallback="Unable to load business actions">
+            <SectionErrorBoundary fallbackTitle="Unable to load business actions">
               <BusinessActions business={business} />
             </SectionErrorBoundary>
             
             {/* Description */}
-            <SectionErrorBoundary fallback="Unable to load business description">
+            <SectionErrorBoundary fallbackTitle="Unable to load business description">
               <BusinessDescription business={business} />
             </SectionErrorBoundary>
             
             {/* Reviews */}
-            <SectionErrorBoundary fallback="Unable to load reviews section">
+            <SectionErrorBoundary fallbackTitle="Unable to load reviews section">
               <BusinessReviews business={business} allReviews={allReviews} />
             </SectionErrorBoundary>
             
             {/* FAQ */}
-            <SectionErrorBoundary fallback="Unable to load FAQ section">
+            <SectionErrorBoundary fallbackTitle="Unable to load FAQ section">
               <BusinessFAQ business={business} />
             </SectionErrorBoundary>
           </div>
@@ -246,7 +246,7 @@ export default function BusinessDetailRefactored() {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Contact Info */}
-            <SectionErrorBoundary fallback="Unable to load contact information">
+            <SectionErrorBoundary fallbackTitle="Unable to load contact information">
               <BusinessContactInfo business={business} />
             </SectionErrorBoundary>
             
