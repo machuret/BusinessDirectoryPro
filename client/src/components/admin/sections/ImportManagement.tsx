@@ -204,11 +204,13 @@ export default function ImportManagement() {
           {currentStep === 'upload' && (
             <div className="space-y-4">
               <div 
-                className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors"
+                className="border-2 border-dashed border-muted rounded-lg p-8 text-center hover:border-muted-foreground transition-colors"
                 onDrop={handleDrop}
                 onDragOver={(e) => e.preventDefault()}
+                role="button"
+                aria-label="Upload CSV file area"
               >
-                <Upload className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                 <p className="text-lg font-medium mb-2">Upload Business CSV</p>
                 <p className="text-sm text-muted-foreground mb-4">
                   Drag and drop your CSV file here, or click to browse
@@ -258,12 +260,12 @@ export default function ImportManagement() {
               )}
 
               <div className="border rounded-lg overflow-hidden">
-                <div className="bg-gray-50 dark:bg-gray-800 p-3 border-b">
+                <div className="bg-muted p-3 border-b">
                   <p className="font-medium">Sample Data (first 5 rows)</p>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
-                    <thead className="bg-gray-100 dark:bg-gray-700">
+                    <thead className="bg-muted/50">
                       <tr>
                         {previewData.headers.slice(0, 6).map((header, index) => (
                           <th key={index} className="px-3 py-2 text-left font-medium">
@@ -286,7 +288,7 @@ export default function ImportManagement() {
                             </td>
                           ))}
                           {previewData.headers.length > 6 && (
-                            <td className="px-3 py-2 text-gray-400">...</td>
+                            <td className="px-3 py-2 text-muted-foreground">...</td>
                           )}
                         </tr>
                       ))}
@@ -397,26 +399,26 @@ export default function ImportManagement() {
           {currentStep === 'complete' && importResult && (
             <div className="space-y-4">
               <div className="text-center">
-                <CheckCircle className="h-12 w-12 mx-auto mb-4 text-green-500" />
+                <CheckCircle className="h-12 w-12 mx-auto mb-4 text-success" />
                 <h3 className="text-lg font-semibold mb-2">Import Complete</h3>
                 <p className="text-muted-foreground">{importResult.message}</p>
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                  <div className="text-2xl font-bold text-green-600">{importResult.created}</div>
+                <div className="text-center p-4 bg-success/10 rounded-lg">
+                  <div className="text-2xl font-bold text-success">{importResult.created}</div>
                   <div className="text-sm text-muted-foreground">Created</div>
                 </div>
-                <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                  <div className="text-2xl font-bold text-blue-600">{importResult.updated}</div>
+                <div className="text-center p-4 bg-primary/10 rounded-lg">
+                  <div className="text-2xl font-bold text-primary">{importResult.updated}</div>
                   <div className="text-sm text-muted-foreground">Updated</div>
                 </div>
-                <div className="text-center p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-                  <div className="text-2xl font-bold text-yellow-600">{importResult.duplicatesSkipped}</div>
+                <div className="text-center p-4 bg-warning/10 rounded-lg">
+                  <div className="text-2xl font-bold text-warning">{importResult.duplicatesSkipped}</div>
                   <div className="text-sm text-muted-foreground">Skipped</div>
                 </div>
-                <div className="text-center p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                  <div className="text-2xl font-bold text-red-600">{importResult.errors.length}</div>
+                <div className="text-center p-4 bg-destructive/10 rounded-lg">
+                  <div className="text-2xl font-bold text-destructive">{importResult.errors.length}</div>
                   <div className="text-sm text-muted-foreground">Errors</div>
                 </div>
               </div>
