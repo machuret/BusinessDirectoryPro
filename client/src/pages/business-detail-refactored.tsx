@@ -23,32 +23,33 @@ export default function BusinessDetailRefactored() {
   const { 
     data: business, 
     isLoading, 
-    isError, 
-    isNotFound, 
     error, 
     refetch: refetchBusiness 
-  } = useApiQuery<BusinessWithCategory>({
+  } = useQuery<BusinessWithCategory>({
     queryKey: [`/api/businesses/slug/${slug}`],
     enabled: !!slug,
   });
 
   const { 
     data: reviews = [], 
-    isError: reviewsError,
+    error: reviewsError,
     refetch: refetchReviews 
-  } = useApiQuery<Review[]>({
+  } = useQuery<Review[]>({
     queryKey: business?.placeid ? [`/api/businesses/${business.placeid}/reviews`] : ['disabled'],
     enabled: !!business?.placeid && !isLoading,
   });
 
   const { 
     data: similarBusinesses = [], 
-    isError: similarError,
+    error: similarError,
     refetch: refetchSimilar 
-  } = useApiQuery<BusinessWithCategory[]>({
+  } = useQuery<BusinessWithCategory[]>({
     queryKey: [`/api/businesses/random?limit=6`],
     enabled: !!business?.placeid && !isLoading,
   });
+
+  const isError = !!error;
+  const isNotFound = error?.message?.includes('404') || error?.message?.includes('not found');
 
   const handleRetry = () => {
     refetchBusiness();
