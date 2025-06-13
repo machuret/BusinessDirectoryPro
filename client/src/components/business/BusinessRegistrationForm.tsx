@@ -69,8 +69,8 @@ export default function BusinessRegistrationForm({ onSuccess }: BusinessRegistra
     <Card>
       <CardHeader className="text-center">
         <div className="flex justify-center mb-4">
-          <div className="bg-blue-100 p-3 rounded-full">
-            <User className="w-8 h-8 text-blue-600" />
+          <div className="bg-blue-100 dark:bg-blue-900 p-3 rounded-full">
+            <User className="w-8 h-8 text-blue-600 dark:text-blue-100" />
           </div>
         </div>
         <CardTitle>Create Your Account</CardTitle>

@@ -167,8 +167,8 @@ export default function BusinessSubmissionForm({ onSuccess }: BusinessSubmission
     <Card>
       <CardHeader className="text-center">
         <div className="flex justify-center mb-4">
-          <div className="bg-green-100 p-3 rounded-full">
-            <Building className="w-8 h-8 text-green-600" />
+          <div className="bg-green-100 dark:bg-green-900 p-3 rounded-full">
+            <Building className="w-8 h-8 text-green-600 dark:text-green-100" />
           </div>
         </div>
         <CardTitle>Add Your Business</CardTitle>
@@ -416,11 +416,11 @@ export default function BusinessSubmissionForm({ onSuccess }: BusinessSubmission
 
             {/* Duplicate Check Warning */}
             {duplicateCheck.isDuplicate && (
-              <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+              <div className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-md p-4">
                 <div className="flex">
-                  <AlertTriangle className="h-5 w-5 text-yellow-400" />
+                  <AlertTriangle className="h-5 w-5 text-yellow-400 dark:text-yellow-500" />
                   <div className="ml-3">
-                    <p className="text-sm text-yellow-800">
+                    <p className="text-sm text-yellow-800 dark:text-yellow-200">
                       A business with this name and address may already exist. 
                       Please verify your details before submitting.
                     </p>
