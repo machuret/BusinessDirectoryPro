@@ -7,13 +7,16 @@ interface BusinessHoursProps {
 }
 
 export function BusinessHours({ business }: BusinessHoursProps) {
-  // Parse hours data from business object
+  // Parse hours data from business object - check multiple possible field names
   let hoursData = [];
   try {
-    if (business.hours && typeof business.hours === 'string') {
-      hoursData = JSON.parse(business.hours);
-    } else if (Array.isArray(business.hours)) {
-      hoursData = business.hours;
+    // Check for hours in different possible fields
+    const hoursField = (business as any).operatinghours || (business as any).businesshours || (business as any).hours;
+    
+    if (hoursField && typeof hoursField === 'string') {
+      hoursData = JSON.parse(hoursField);
+    } else if (Array.isArray(hoursField)) {
+      hoursData = hoursField;
     }
   } catch (e) {
     console.error('Error parsing hours data:', e);
