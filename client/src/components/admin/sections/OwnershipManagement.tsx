@@ -31,7 +31,7 @@ interface OwnershipClaim {
   };
 }
 
-export default function OwnershipManagement() {
+export function OwnershipManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [selectedClaim, setSelectedClaim] = useState<OwnershipClaim | null>(null);
@@ -105,11 +105,11 @@ export default function OwnershipManagement() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="outline" className="text-yellow-600 border-yellow-600"><Clock className="h-3 w-3 mr-1" />Pending</Badge>;
+        return <Badge variant="outline" className="text-foreground border-border"><Clock className="h-3 w-3 mr-1" />Pending</Badge>;
       case 'approved':
-        return <Badge variant="outline" className="text-green-600 border-green-600"><CheckCircle className="h-3 w-3 mr-1" />Approved</Badge>;
+        return <Badge variant="outline" className="text-primary border-primary"><CheckCircle className="h-3 w-3 mr-1" />Approved</Badge>;
       case 'rejected':
-        return <Badge variant="outline" className="text-red-600 border-red-600"><XCircle className="h-3 w-3 mr-1" />Rejected</Badge>;
+        return <Badge variant="outline" className="text-destructive border-destructive"><XCircle className="h-3 w-3 mr-1" />Rejected</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -119,8 +119,8 @@ export default function OwnershipManagement() {
     return (
       <div className="space-y-6">
         <div className="animate-pulse space-y-4">
-          <div className="h-10 bg-gray-200 rounded"></div>
-          <div className="h-64 bg-gray-200 rounded"></div>
+          <div className="h-10 bg-muted rounded"></div>
+          <div className="h-64 bg-muted rounded"></div>
         </div>
       </div>
     );
@@ -362,3 +362,6 @@ export default function OwnershipManagement() {
     </div>
   );
 }
+
+// Default export compatibility layer
+export default OwnershipManagement;

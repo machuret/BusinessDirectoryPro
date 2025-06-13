@@ -279,3 +279,6 @@ export function FeaturedManagement() {
     </div>
   );
 }
+
+// Default export compatibility layer
+export default FeaturedManagement;
