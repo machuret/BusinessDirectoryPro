@@ -94,12 +94,12 @@ export function setupAdminRoutes(app: Express) {
         return res.status(404).json({ message: "Business not found" });
       }
 
-      const photos = business.photogallery ? JSON.parse(business.photogallery as string) : [];
+      const photos = (business as any).photogallery ? JSON.parse((business as any).photogallery as string) : [];
       const updatedPhotos = photos.filter((photo: string) => photo !== photoUrl);
       
       await storage.updateBusiness(businessId, { 
         photogallery: JSON.stringify(updatedPhotos) 
-      });
+      } as any);
 
       res.json({ message: "Photo deleted successfully" });
     } catch (error) {
@@ -118,12 +118,12 @@ export function setupAdminRoutes(app: Express) {
         return res.status(404).json({ message: "Business not found" });
       }
 
-      const photos = business.photogallery ? JSON.parse(business.photogallery as string) : [];
+      const photos = (business as any).photogallery ? JSON.parse((business as any).photogallery as string) : [];
       const updatedPhotos = photos.filter((photo: string) => !photoUrls.includes(photo));
       
       await storage.updateBusiness(businessId, { 
         photogallery: JSON.stringify(updatedPhotos) 
-      });
+      } as any);
 
       res.json({ message: `${photoUrls.length} photos deleted successfully` });
     } catch (error) {

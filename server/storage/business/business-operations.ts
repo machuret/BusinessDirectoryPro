@@ -142,21 +142,21 @@ export class BusinessOperations {
    * Update business featured status
    */
   static async updateFeaturedStatus(id: string, featured: boolean): Promise<Business | undefined> {
-    return this.updateBusiness(id, { featured, updatedat: new Date() });
+    return this.updateBusiness(id, { featured } as any);
   }
 
   /**
    * Update business verification status
    */
   static async updateVerificationStatus(id: string, verified: boolean): Promise<Business | undefined> {
-    return this.updateBusiness(id, { verified, updatedat: new Date() });
+    return this.updateBusiness(id, { verified } as any);
   }
 
   /**
    * Bulk update businesses
    */
   static async bulkUpdateBusinesses(ids: string[], updates: Partial<InsertBusiness>): Promise<void> {
-    updates.updatedat = new Date();
+    (updates as any).updatedat = new Date();
     const sanitizedUpdates = BusinessValidation.sanitizeBusinessData(updates);
 
     await db
