@@ -683,8 +683,12 @@ export class ComprehensiveStorage implements IStorage {
     return FeaturedRequestsStorage.getAllFeaturedRequests();
   }
 
-  async updateFeaturedRequestStatus(id: number, status: 'approved' | 'rejected', adminMessage?: string, reviewedBy?: string): Promise<any> {
-    return FeaturedRequestsStorage.updateFeaturedRequestStatus(id, status, adminMessage, reviewedBy);
+  async getAllFeaturedRequestsWithBusinessDetails(): Promise<any[]> {
+    return FeaturedRequestsStorage.getAllFeaturedRequestsWithBusinessDetails();
+  }
+
+  async updateFeaturedRequestStatus(id: number, status: 'approved' | 'rejected', reviewedBy: string, adminMessage?: string): Promise<any> {
+    return FeaturedRequestsStorage.updateFeaturedRequestStatus(id, status, reviewedBy, adminMessage);
   }
 
   async isBusinessEligibleForFeatured(businessId: string, userId: string): Promise<boolean> {

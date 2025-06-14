@@ -8,9 +8,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Plus, XCircle, Search, Filter } from "lucide-react";
+import { Plus, XCircle, Search, Filter, Star, MapPin, Phone, Globe, ExternalLink, MessageSquare, Check, X, Clock } from "lucide-react";
+import { format } from "date-fns";
 
 interface Business {
   placeid: string;
@@ -22,6 +25,28 @@ interface Business {
   description?: string;
 }
 
+interface FeaturedRequest {
+  id: number;
+  businessId: string;
+  userId: string;
+  status: 'pending' | 'approved' | 'rejected';
+  message?: string;
+  adminMessage?: string;
+  reviewedBy?: string;
+  reviewedAt?: Date;
+  createdAt: Date;
+  updatedAt?: Date;
+  businessTitle?: string;
+  businessCity?: string;
+  businessDescription?: string;
+  businessRating?: number;
+  businessCategoryName?: string;
+  businessPhone?: string;
+  businessWebsite?: string;
+  businessAddress?: string;
+  businessReviewCount?: number;
+}
+
 export function FeaturedManagement() {
   const { toast } = useToast();
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -29,6 +54,9 @@ export function FeaturedManagement() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedBusiness, setSelectedBusiness] = useState("");
   const [removeConfirmId, setRemoveConfirmId] = useState<string | null>(null);
+  const [selectedRequest, setSelectedRequest] = useState<FeaturedRequest | null>(null);
+  const [adminMessage, setAdminMessage] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const { data: allBusinesses } = useQuery<Business[]>({
     queryKey: ["/api/admin/businesses"],
@@ -36,6 +64,11 @@ export function FeaturedManagement() {
 
   const { data: categories } = useQuery<any[]>({
     queryKey: ["/api/categories"],
+  });
+
+  // Fetch featured requests with comprehensive business details
+  const { data: featuredRequests = [], isLoading: requestsLoading } = useQuery<FeaturedRequest[]>({
+    queryKey: ["/api/featured-requests/admin"],
   });
 
   const featuredBusinesses = allBusinesses?.filter(business => business.featured) || [];
@@ -69,6 +102,34 @@ export function FeaturedManagement() {
     onError: (error: Error) => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     }
+  });
+
+  // Review featured request mutation
+  const reviewRequestMutation = useMutation({
+    mutationFn: async ({ id, status, adminMessage }: { id: number; status: 'approved' | 'rejected'; adminMessage?: string }) => {
+      const res = await apiRequest("PUT", `/api/featured-requests/${id}/review`, {
+        status,
+        adminMessage,
+      });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/featured-requests/admin"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/businesses"] });
+      toast({
+        title: "Success",
+        description: "Featured request reviewed successfully",
+      });
+      setSelectedRequest(null);
+      setAdminMessage("");
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
   });
 
   const getAvailableBusinesses = () => {
