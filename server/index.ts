@@ -61,18 +61,25 @@ if (!process.env.SESSION_SECRET) {
   throw new Error("SESSION_SECRET environment variable is required for security");
 }
 
-// Session configuration
-app.use(session({
+// Session configuration with memory store for development
+const sessionConfig = {
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
+  rolling: true, // Reset expiration on each request
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
-  }
-}));
+    maxAge: 2 * 60 * 60 * 1000, // 2 hours (shorter for development)
+    sameSite: process.env.NODE_ENV === 'production' ? 'strict' as const : 'lax' as const,
+  },
+  // Use memory store for development to avoid persistence issues
+  ...(process.env.NODE_ENV === 'development' && {
+    store: undefined // Use default memory store
+  })
+};
+
+app.use(session(sessionConfig));
 
 // Body parsing with size limits
 app.use(express.json({ limit: '10mb' }));

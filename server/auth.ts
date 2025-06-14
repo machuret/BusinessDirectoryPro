@@ -212,52 +212,67 @@ export function setupAuth(app: Express) {
 
   app.post("/api/auth/logout", (req, res) => {
     console.log('[LOGOUT] Starting logout process for session:', req.sessionID);
+    console.log('[LOGOUT] Current user:', JSON.stringify((req.session as any)?.user, null, 2));
     
     // Get session ID before destroying
     const sessionId = req.sessionID;
     
-    // Clear session data first
-    (req.session as any).userId = null;
-    (req.session as any).user = null;
+    // Completely clear all session data
+    if (req.session) {
+      Object.keys(req.session).forEach(key => {
+        delete (req.session as any)[key];
+      });
+    }
     
-    req.session.destroy((err) => {
-      if (err) {
-        console.error("Logout error:", err);
-        return res.status(500).json({ message: "Logout failed" });
+    // Regenerate session with new ID
+    req.session.regenerate((regenerateErr) => {
+      if (regenerateErr) {
+        console.error('[LOGOUT] Session regenerate error:', regenerateErr);
+        // Fallback to destroy
+        req.session.destroy((destroyErr) => {
+          if (destroyErr) {
+            console.error('[LOGOUT] Session destroy error:', destroyErr);
+            return res.status(500).json({ message: "Logout failed" });
+          }
+          console.log('[LOGOUT] Session destroyed as fallback:', sessionId);
+          sendLogoutResponse(res);
+        });
+        return;
       }
       
-      console.log('[LOGOUT] Session destroyed:', sessionId);
-      
-      // Clear all possible session cookies with multiple configurations
-      res.clearCookie('connect.sid');
-      res.clearCookie('connect.sid', { path: '/' });
-      res.clearCookie('connect.sid', { 
-        path: '/',
-        httpOnly: true,
-        secure: false,
-        sameSite: 'lax'
-      });
-      res.clearCookie('connect.sid', { 
-        path: '/',
-        httpOnly: true,
-        secure: true,
-        sameSite: 'strict'
-      });
-      
-      // Clear any other potential session cookies
-      res.clearCookie('session');
-      res.clearCookie('sessionId');
-      res.clearCookie('express.sid');
-      
-      // Force session regeneration on next request
-      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-      res.setHeader('Pragma', 'no-cache');
-      res.setHeader('Expires', '0');
-      
-      console.log('[LOGOUT] Logout completed successfully');
-      res.json({ message: "Logged out successfully" });
+      console.log('[LOGOUT] Session regenerated successfully. Old:', sessionId, 'New:', req.sessionID);
+      sendLogoutResponse(res);
     });
   });
+
+  function sendLogoutResponse(res: any) {
+    // Clear all possible session cookies with multiple configurations
+    const cookieOptions = [
+      {},
+      { path: '/' },
+      { path: '/', httpOnly: true, secure: false, sameSite: 'lax' as const },
+      { path: '/', httpOnly: true, secure: true, sameSite: 'strict' as const },
+      { path: '/', domain: undefined },
+    ];
+    
+    cookieOptions.forEach(options => {
+      res.clearCookie('connect.sid', options);
+    });
+    
+    // Clear any other potential session cookies
+    ['session', 'sessionId', 'express.sid', 'sess'].forEach(cookieName => {
+      res.clearCookie(cookieName);
+      res.clearCookie(cookieName, { path: '/' });
+    });
+      
+    // Force session regeneration on next request
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    
+    console.log('[LOGOUT] Logout completed successfully');
+    res.json({ message: "Logged out successfully" });
+  }
 
   // Legacy logout endpoint for compatibility
   app.post("/api/logout", (req, res) => {
