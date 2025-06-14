@@ -6,7 +6,18 @@ export function setupFeaturedRequestsRoutes(app: Express) {
   app.get("/api/featured-requests/user/:userId", async (req: any, res) => {
     try {
       const { userId } = req.params;
-      const currentUserId = req.user?.id || req.session?.userId;
+      
+      // Check if user is authenticated
+      if (!req.isAuthenticated || !req.isAuthenticated()) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+      
+      const currentUser = req.user;
+      if (!currentUser || !currentUser.claims) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+      
+      const currentUserId = currentUser.claims.sub;
       
       // Users can only view their own featured requests, admins can view any
       if (currentUserId !== userId) {
@@ -27,10 +38,16 @@ export function setupFeaturedRequestsRoutes(app: Express) {
   // Create a new featured request
   app.post("/api/featured-requests", async (req: any, res) => {
     try {
-      const userId = req.user?.id || req.session?.userId;
-      if (!userId) {
+      if (!req.isAuthenticated || !req.isAuthenticated()) {
         return res.status(401).json({ message: "Authentication required" });
       }
+      
+      const currentUser = req.user;
+      if (!currentUser || !currentUser.claims) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+      
+      const userId = currentUser.claims.sub;
 
       const { businessId, message } = req.body;
       

@@ -27,8 +27,8 @@ interface FeaturedRequest {
 
 interface Business {
   placeid: string;
-  title: string;
-  city?: string;
+  title: string | null;
+  city?: string | null;
   featured: boolean;
 }
 
@@ -93,7 +93,7 @@ export function FeaturedRequestsSection({ userId, userBusinesses }: FeaturedRequ
 
   const eligibleBusinesses = userBusinesses.filter(business => 
     !business.featured && 
-    !featuredRequests.some(req => req.businessId === business.placeid && req.status === 'pending')
+    !featuredRequests.some((req: any) => req.businessId === business.placeid && req.status === 'pending')
   );
 
   const handleSubmitRequest = () => {
