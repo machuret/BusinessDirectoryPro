@@ -59,7 +59,10 @@ export class FeaturedRequestsStorage {
       })
       .returning();
 
-    return request;
+    return {
+      ...request,
+      status: request.status as 'pending' | 'approved' | 'rejected'
+    };
   }
 
   /**
@@ -88,6 +91,9 @@ export class FeaturedRequestsStorage {
 
     return requests.map(request => ({
       ...request,
+      status: request.status as 'pending' | 'approved' | 'rejected',
+      businessTitle: request.businessTitle || undefined,
+      businessCity: request.businessCity || undefined,
       createdAt: new Date(request.createdAt),
       reviewedAt: request.reviewedAt ? new Date(request.reviewedAt) : undefined,
       updatedAt: request.updatedAt ? new Date(request.updatedAt) : undefined

@@ -24,6 +24,7 @@ export class ComprehensiveStorage implements IStorage {
   private categoryStorage = new CategoryStorage();
   private servicesStorage = new ServicesStorage();
   private ownershipClaimsStorage = new OwnershipClaimsStorage();
+  private featuredRequestsStorage = new FeaturedRequestsStorage();
 
   // User operations - delegate to UserStorage
   async getUser(id: string): Promise<User | undefined> {
@@ -667,5 +668,26 @@ export class ComprehensiveStorage implements IStorage {
 
   async removeServiceFromBusiness(businessId: string, serviceId: number): Promise<boolean> {
     return this.servicesStorage.removeServiceFromBusiness(businessId, serviceId);
+  }
+
+  // Featured Requests operations - delegate to FeaturedRequestsStorage
+  async createFeaturedRequest(data: any): Promise<any> {
+    return FeaturedRequestsStorage.createFeaturedRequest(data);
+  }
+
+  async getFeaturedRequestsByUser(userId: string): Promise<any[]> {
+    return FeaturedRequestsStorage.getFeaturedRequestsByUser(userId);
+  }
+
+  async getAllFeaturedRequests(): Promise<any[]> {
+    return FeaturedRequestsStorage.getAllFeaturedRequests();
+  }
+
+  async updateFeaturedRequestStatus(id: number, status: 'approved' | 'rejected', adminMessage?: string, reviewedBy?: string): Promise<any> {
+    return FeaturedRequestsStorage.updateFeaturedRequestStatus(id, status, adminMessage, reviewedBy);
+  }
+
+  async isBusinessEligibleForFeatured(businessId: string, userId: string): Promise<boolean> {
+    return FeaturedRequestsStorage.isBusinessEligibleForFeatured(businessId, userId);
   }
 }
