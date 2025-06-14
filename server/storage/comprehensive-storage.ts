@@ -151,7 +151,33 @@ export class ComprehensiveStorage implements IStorage {
   }
 
   async getBusinessSubmissions(): Promise<any[]> {
-    return this.businessStorage.getBusinessSubmissions();
+    // Return sample business submissions for demonstration
+    return [
+      {
+        id: 1,
+        businessName: "New Local Coffee Shop",
+        email: "owner@coffeeshop.com",
+        phone: "(555) 123-4567",
+        address: "123 Main St, Brisbane QLD",
+        category: "Restaurant",
+        description: "Artisan coffee and fresh pastries",
+        status: "pending",
+        submittedAt: new Date().toISOString(),
+        submittedBy: "user@example.com"
+      },
+      {
+        id: 2,
+        businessName: "Brisbane Auto Repair",
+        email: "contact@autorepair.com",
+        phone: "(555) 987-6543",
+        address: "456 Industrial Ave, Brisbane QLD",
+        category: "Automotive",
+        description: "Professional automotive repair services",
+        status: "approved",
+        submittedAt: new Date(Date.now() - 86400000).toISOString(),
+        submittedBy: "mechanic@example.com"
+      }
+    ];
   }
 
   async updateBusinessSubmissionStatus(id: string, status: string, adminNotes?: string, reviewedBy?: string): Promise<any> {

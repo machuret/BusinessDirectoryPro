@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Search, UserCheck, Eye, CheckCircle, XCircle, Clock, Building2, User, Mail, Phone } from "lucide-react";
+import { Search, UserCheck, Eye, CheckCircle, XCircle, Clock, Building2, User, Mail, Phone, Trash2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 interface OwnershipClaim {
@@ -67,6 +67,29 @@ export function OwnershipManagement() {
     onError: (error: Error) => {
       toast({
         title: "Update Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delete claim mutation
+  const deleteClaimMutation = useMutation({
+    mutationFn: async (claimId: number) => {
+      const response = await apiRequest('DELETE', `/api/admin/ownership-claims/${claimId}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/ownership-claims'] });
+      setSelectedClaim(null);
+      toast({
+        title: "Claim Deleted",
+        description: "Ownership claim has been permanently deleted",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Delete Failed",
         description: error.message,
         variant: "destructive",
       });
@@ -228,17 +251,18 @@ export function OwnershipManagement() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => setSelectedClaim(claim)}
-                          >
-                            <Eye className="h-4 w-4 mr-1" />
-                            Review
-                          </Button>
-                        </DialogTrigger>
+                      <div className="flex gap-2">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => setSelectedClaim(claim)}
+                            >
+                              <Eye className="h-4 w-4 mr-1" />
+                              Review
+                            </Button>
+                          </DialogTrigger>
                         <DialogContent className="max-w-2xl">
                           <DialogHeader>
                             <DialogTitle>Review Ownership Claim</DialogTitle>

@@ -615,6 +615,20 @@ Respond with JSON format: {"services": [array of service objects]}. Make service
     }
   });
 
+  app.delete("/api/admin/ownership-claims/:id", async (req, res) => {
+    try {
+      const claimId = parseInt(req.params.id);
+      
+      await storage.deleteOwnershipClaim(claimId);
+      res.json({ success: true, message: "Ownership claim deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting ownership claim:", error);
+      res.status(500).json({ 
+        message: error instanceof Error ? error.message : "Failed to delete ownership claim"
+      });
+    }
+  });
+
   // Business Submissions Management
   app.get("/api/admin/business-submissions", async (req, res) => {
     try {
