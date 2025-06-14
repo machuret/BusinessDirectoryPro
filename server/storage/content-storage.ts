@@ -1,212 +1,244 @@
-import { eq, desc, asc } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { db } from "../db";
-import { 
-  siteSettings, menuItems, pages, websiteFaq, contactMessages,
-  type SiteSetting, type InsertSiteSetting,
-  type MenuItem, type InsertMenuItem, type Page, type InsertPage,
-  type WebsiteFaq, type InsertWebsiteFaq,
-  type ContactMessage, type InsertContactMessage
-} from "@shared/schema";
+import { contentStrings, type ContentString, type InsertContentString } from "@shared/schema";
 
+/**
+ * Content storage implementation for content management system
+ * Handles CRUD operations for content strings with translation support
+ */
 export class ContentStorage {
-  // Site Settings
-  async getSiteSettings(): Promise<SiteSetting[]> {
-    return await db.select().from(siteSettings).orderBy(asc(siteSettings.key));
-  }
-
-  async getSiteSetting(key: string): Promise<SiteSetting | undefined> {
-    const [setting] = await db.select().from(siteSettings).where(eq(siteSettings.key, key));
-    return setting;
-  }
-
-  async updateSiteSetting(key: string, value: any, description?: string, category?: string): Promise<SiteSetting> {
-    const existingSetting = await this.getSiteSetting(key);
+  /**
+   * Get content strings for frontend consumption
+   * Returns a flat key-value object with translated strings
+   */
+  async getContentStrings(options: { language?: string; category?: string } = {}): Promise<Record<string, string>> {
+    const { language = "en", category } = options;
     
-    if (existingSetting) {
-      const [updated] = await db
-        .update(siteSettings)
-        .set({
-          value: JSON.stringify(value),
-          description: description || existingSetting.description,
-          category: category || existingSetting.category,
+    try {
+      const query = db.select().from(contentStrings);
+      
+      // Apply category filter if specified
+      const results = category 
+        ? await query.where(eq(contentStrings.category, category))
+        : await query;
+      
+      // Transform to key-value pairs with language preference
+      const contentMap: Record<string, string> = {};
+      
+      for (const content of results) {
+        const translations = content.translations as Record<string, string> || {};
+        
+        // Use translation if available, otherwise fall back to default value
+        contentMap[content.stringKey] = translations[language] || content.defaultValue;
+      }
+      
+      return contentMap;
+    } catch (error) {
+      console.error("Error fetching content strings:", error);
+      throw new Error("Failed to fetch content strings");
+    }
+  }
+
+  /**
+   * Get all content strings with full metadata for admin interface
+   */
+  async getAllContentStrings(category?: string): Promise<ContentString[]> {
+    try {
+      if (category) {
+        return await db.select().from(contentStrings)
+          .where(eq(contentStrings.category, category))
+          .orderBy(contentStrings.category, contentStrings.stringKey);
+      }
+      
+      return await db.select().from(contentStrings)
+        .orderBy(contentStrings.category, contentStrings.stringKey);
+    } catch (error) {
+      console.error("Error fetching all content strings:", error);
+      throw new Error("Failed to fetch content strings");
+    }
+  }
+
+  /**
+   * Get a single content string by key
+   */
+  async getContentString(stringKey: string): Promise<ContentString | undefined> {
+    try {
+      const [result] = await db.select().from(contentStrings)
+        .where(eq(contentStrings.stringKey, stringKey));
+      
+      return result;
+    } catch (error) {
+      console.error("Error fetching content string:", error);
+      throw new Error("Failed to fetch content string");
+    }
+  }
+
+  /**
+   * Create a new content string
+   */
+  async createContentString(contentString: InsertContentString): Promise<ContentString> {
+    try {
+      const [result] = await db.insert(contentStrings)
+        .values({
+          ...contentString,
+          createdAt: new Date(),
           updatedAt: new Date()
         })
-        .where(eq(siteSettings.key, key))
         .returning();
-      return updated;
-    } else {
-      const [created] = await db
-        .insert(siteSettings)
-        .values({
-          key,
-          value: JSON.stringify(value),
-          description: description || '',
-          category: category || 'general'
+      
+      return result;
+    } catch (error) {
+      console.error("Error creating content string:", error);
+      if (error instanceof Error && error.message.includes("unique")) {
+        throw new Error("Content string key already exists");
+      }
+      throw new Error("Failed to create content string");
+    }
+  }
+
+  /**
+   * Update an existing content string
+   */
+  async updateContentString(stringKey: string, updates: Partial<ContentString>): Promise<ContentString | undefined> {
+    try {
+      const [result] = await db.update(contentStrings)
+        .set({
+          ...updates,
+          updatedAt: new Date()
         })
+        .where(eq(contentStrings.stringKey, stringKey))
         .returning();
-      return created;
+      
+      return result;
+    } catch (error) {
+      console.error("Error updating content string:", error);
+      throw new Error("Failed to update content string");
     }
   }
 
-  // Menu Items
-  async getMenuItems(position?: string): Promise<MenuItem[]> {
-    const query = db.select().from(menuItems);
-    
-    if (position) {
-      return await query.where(eq(menuItems.position, position)).orderBy(asc(menuItems.order));
+  /**
+   * Delete a content string
+   */
+  async deleteContentString(stringKey: string): Promise<boolean> {
+    try {
+      const result = await db.delete(contentStrings)
+        .where(eq(contentStrings.stringKey, stringKey));
+      
+      return result.rowCount > 0;
+    } catch (error) {
+      console.error("Error deleting content string:", error);
+      throw new Error("Failed to delete content string");
     }
-    
-    return await query.orderBy(asc(menuItems.position), asc(menuItems.order));
   }
 
-  async getMenuItem(id: number): Promise<MenuItem | undefined> {
-    const [item] = await db.select().from(menuItems).where(eq(menuItems.id, id));
-    return item;
-  }
-
-  async createMenuItem(menuItem: InsertMenuItem): Promise<MenuItem> {
-    const [created] = await db.insert(menuItems).values(menuItem).returning();
-    return created;
-  }
-
-  async updateMenuItem(id: number, menuItem: Partial<InsertMenuItem>): Promise<MenuItem | undefined> {
-    const [updated] = await db
-      .update(menuItems)
-      .set({ ...menuItem, updatedAt: new Date() })
-      .where(eq(menuItems.id, id))
-      .returning();
-    return updated;
-  }
-
-  async deleteMenuItem(id: number): Promise<void> {
-    await db.delete(menuItems).where(eq(menuItems.id, id));
-  }
-
-  // Pages
-  async getPages(status?: string): Promise<Page[]> {
-    const query = db.select().from(pages);
-    
-    if (status) {
-      return await query.where(eq(pages.status, status)).orderBy(desc(pages.createdAt));
+  /**
+   * Bulk upsert content strings
+   */
+  async bulkUpsertContentStrings(contentStringList: InsertContentString[]): Promise<ContentString[]> {
+    try {
+      const results: ContentString[] = [];
+      
+      for (const contentString of contentStringList) {
+        const [result] = await db.insert(contentStrings)
+          .values({
+            ...contentString,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          })
+          .onConflictDoUpdate({
+            target: contentStrings.stringKey,
+            set: {
+              defaultValue: contentString.defaultValue,
+              translations: contentString.translations,
+              category: contentString.category,
+              description: contentString.description,
+              isHtml: contentString.isHtml,
+              updatedAt: new Date()
+            }
+          })
+          .returning();
+        
+        results.push(result);
+      }
+      
+      return results;
+    } catch (error) {
+      console.error("Error bulk upserting content strings:", error);
+      throw new Error("Failed to bulk upsert content strings");
     }
-    
-    return await query.orderBy(desc(pages.createdAt));
   }
 
-  async getPage(id: number): Promise<Page | undefined> {
-    const [page] = await db.select().from(pages).where(eq(pages.id, id));
-    return page;
+  /**
+   * Get all categories used in content strings
+   */
+  async getContentStringCategories(): Promise<string[]> {
+    try {
+      const results = await db.selectDistinct({ category: contentStrings.category })
+        .from(contentStrings)
+        .orderBy(contentStrings.category);
+      
+      return results.map(r => r.category);
+    } catch (error) {
+      console.error("Error fetching content categories:", error);
+      throw new Error("Failed to fetch content categories");
+    }
   }
 
-  async getPageBySlug(slug: string): Promise<Page | undefined> {
-    const [page] = await db.select().from(pages).where(eq(pages.slug, slug));
-    return page;
-  }
-
-  async createPage(page: InsertPage): Promise<Page> {
-    const [created] = await db.insert(pages).values(page).returning();
-    return created;
-  }
-
-  async updatePage(id: number, page: Partial<InsertPage>): Promise<Page | undefined> {
-    const [updated] = await db
-      .update(pages)
-      .set({ ...page, updatedAt: new Date() })
-      .where(eq(pages.id, id))
-      .returning();
-    return updated;
-  }
-
-  async deletePage(id: number): Promise<void> {
-    await db.delete(pages).where(eq(pages.id, id));
-  }
-
-  async publishPage(id: number, authorId: string): Promise<Page | undefined> {
-    const [published] = await db
-      .update(pages)
-      .set({
-        status: 'published',
-        publishedAt: new Date(),
-        authorId,
-        updatedAt: new Date()
+  /**
+   * Get statistics about content strings
+   */
+  async getContentStringStats(): Promise<{
+    totalStrings: number;
+    categoryCounts: Record<string, number>;
+    languageCounts: Record<string, number>;
+    lastUpdated: Date | null;
+  }> {
+    try {
+      // Get total count
+      const [totalResult] = await db.select({ 
+        count: sql<number>`count(*)` 
+      }).from(contentStrings);
+      
+      // Get category counts
+      const categoryResults = await db.select({
+        category: contentStrings.category,
+        count: sql<number>`count(*)`
       })
-      .where(eq(pages.id, id))
-      .returning();
-    return published;
-  }
-
-  // Website FAQ
-  async getWebsiteFaqs(category?: string): Promise<WebsiteFaq[]> {
-    const query = db.select().from(websiteFaq);
-    
-    if (category) {
-      return await query.where(eq(websiteFaq.category, category)).orderBy(asc(websiteFaq.order));
+      .from(contentStrings)
+      .groupBy(contentStrings.category);
+      
+      const categoryCounts: Record<string, number> = {};
+      categoryResults.forEach(r => {
+        categoryCounts[r.category] = r.count;
+      });
+      
+      // Get language counts by analyzing translations
+      const allStrings = await db.select({
+        translations: contentStrings.translations
+      }).from(contentStrings);
+      
+      const languageCounts: Record<string, number> = {};
+      allStrings.forEach(s => {
+        const translations = s.translations as Record<string, string> || {};
+        Object.keys(translations).forEach(lang => {
+          languageCounts[lang] = (languageCounts[lang] || 0) + 1;
+        });
+      });
+      
+      // Get last updated
+      const [lastUpdatedResult] = await db.select({
+        lastUpdated: sql<Date>`max(updated_at)`
+      }).from(contentStrings);
+      
+      return {
+        totalStrings: totalResult.count,
+        categoryCounts,
+        languageCounts,
+        lastUpdated: lastUpdatedResult.lastUpdated
+      };
+    } catch (error) {
+      console.error("Error fetching content stats:", error);
+      throw new Error("Failed to fetch content statistics");
     }
-    
-    return await query.orderBy(asc(websiteFaq.order));
-  }
-
-  async getWebsiteFaq(id: number): Promise<WebsiteFaq | undefined> {
-    const [faq] = await db.select().from(websiteFaq).where(eq(websiteFaq.id, id));
-    return faq;
-  }
-
-  async createWebsiteFaq(faq: InsertWebsiteFaq): Promise<WebsiteFaq> {
-    const [created] = await db.insert(websiteFaq).values(faq).returning();
-    return created;
-  }
-
-  async updateWebsiteFaq(id: number, faq: Partial<InsertWebsiteFaq>): Promise<WebsiteFaq | undefined> {
-    const [updated] = await db
-      .update(websiteFaq)
-      .set({ ...faq, updatedAt: new Date() })
-      .where(eq(websiteFaq.id, id))
-      .returning();
-    return updated;
-  }
-
-  async deleteWebsiteFaq(id: number): Promise<void> {
-    await db.delete(websiteFaq).where(eq(websiteFaq.id, id));
-  }
-
-  async reorderWebsiteFaqs(faqIds: number[]): Promise<void> {
-    for (let i = 0; i < faqIds.length; i++) {
-      await db
-        .update(websiteFaq)
-        .set({ order: i + 1, updatedAt: new Date() })
-        .where(eq(websiteFaq.id, faqIds[i]));
-    }
-  }
-
-  // Contact Messages
-  async getContactMessages(): Promise<ContactMessage[]> {
-    return await db.select().from(contactMessages).orderBy(desc(contactMessages.createdAt));
-  }
-
-  async getContactMessage(id: number): Promise<ContactMessage | undefined> {
-    const [message] = await db.select().from(contactMessages).where(eq(contactMessages.id, id));
-    return message;
-  }
-
-  async createContactMessage(message: InsertContactMessage): Promise<ContactMessage> {
-    const [created] = await db.insert(contactMessages).values(message).returning();
-    return created;
-  }
-
-  async updateContactMessageStatus(id: number, status: string, adminNotes?: string): Promise<ContactMessage | undefined> {
-    const [updated] = await db
-      .update(contactMessages)
-      .set({
-        status,
-        adminNotes,
-        updatedAt: new Date()
-      })
-      .where(eq(contactMessages.id, id))
-      .returning();
-    return updated;
-  }
-
-  async deleteContactMessage(id: number): Promise<void> {
-    await db.delete(contactMessages).where(eq(contactMessages.id, id));
   }
 }

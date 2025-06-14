@@ -182,19 +182,19 @@ export async function seedInitialContentStrings() {
       }
     ];
 
-    // Insert initial strings
+    // Insert initial strings using Drizzle ORM
     for (const stringData of initialStrings) {
-      await db.execute(`
-        INSERT INTO content_strings (string_key, default_value, category, description, translations)
-        VALUES ($1, $2, $3, $4, $5)
-        ON CONFLICT (string_key) DO NOTHING
-      `, [
-        stringData.stringKey,
-        stringData.defaultValue,
-        stringData.category,
-        stringData.description,
-        JSON.stringify(stringData.translations)
-      ]);
+      await db.insert(contentStrings)
+        .values({
+          stringKey: stringData.stringKey,
+          defaultValue: stringData.defaultValue,
+          category: stringData.category,
+          description: stringData.description,
+          translations: stringData.translations,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        })
+        .onConflictDoNothing();
     }
 
     console.log(`Successfully seeded ${initialStrings.length} initial content strings`);

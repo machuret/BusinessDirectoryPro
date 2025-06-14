@@ -14,13 +14,17 @@ import { csvImportService } from "./csv-import";
 import { createOwnershipClaimsTable } from "./create-ownership-table";
 import { setupFeaturedRequestsRoutes } from "./routes/featured-requests";
 import { createFeaturedRequestsTable } from "./create-featured-requests-table";
+import { contentRouter } from "./routes/content";
+import { createContentStringsTable, seedInitialContentStrings } from "../migrations/create-content-strings-table";
 
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Initialize database tables - ensure ownership_claims and featured_requests tables exist
+  // Initialize database tables - ensure ownership_claims, featured_requests, and content_strings tables exist
   try {
     await createOwnershipClaimsTable();
     await createFeaturedRequestsTable();
+    await createContentStringsTable();
+    await seedInitialContentStrings();
     console.log('Database tables initialized successfully');
   } catch (error) {
     console.error('Error initializing database tables:', error);
@@ -760,6 +764,9 @@ Respond with JSON format: {"services": [array of service objects]}. Make service
 
   // Setup featured requests routes
   setupFeaturedRequestsRoutes(app);
+
+  // Setup content management routes
+  app.use(contentRouter);
 
   const httpServer = createServer(app);
   return httpServer;

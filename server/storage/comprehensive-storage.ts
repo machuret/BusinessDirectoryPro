@@ -15,7 +15,8 @@ import {
   type Review, type InsertReview, type SiteSetting, type InsertSiteSetting,
   type MenuItem, type InsertMenuItem, type Page, type InsertPage,
   type WebsiteFaq, type InsertWebsiteFaq, type Lead, type InsertLead,
-  type ContactMessage, type InsertContactMessage, type LeadWithBusiness
+  type ContactMessage, type InsertContactMessage, type LeadWithBusiness,
+  type ContentString, type InsertContentString
 } from "@shared/schema";
 
 /**
@@ -436,5 +437,47 @@ export class ComprehensiveStorage implements IStorage {
 
   async isBusinessEligibleForFeatured(businessId: string, userId: string): Promise<boolean> {
     return FeaturedRequestsStorage.isBusinessEligibleForFeatured(businessId, userId);
+  }
+
+  // ===== CONTENT STRING OPERATIONS =====
+  async getContentStrings(options: { language?: string; category?: string }): Promise<Record<string, string>> {
+    return this.content.getContentStrings(options);
+  }
+
+  async getAllContentStrings(category?: string): Promise<ContentString[]> {
+    return this.content.getAllContentStrings(category);
+  }
+
+  async getContentString(stringKey: string): Promise<ContentString | undefined> {
+    return this.content.getContentString(stringKey);
+  }
+
+  async createContentString(contentString: InsertContentString): Promise<ContentString> {
+    return this.content.createContentString(contentString);
+  }
+
+  async updateContentString(stringKey: string, updates: Partial<ContentString>): Promise<ContentString | undefined> {
+    return this.content.updateContentString(stringKey, updates);
+  }
+
+  async deleteContentString(stringKey: string): Promise<boolean> {
+    return this.content.deleteContentString(stringKey);
+  }
+
+  async bulkUpsertContentStrings(contentStrings: InsertContentString[]): Promise<ContentString[]> {
+    return this.content.bulkUpsertContentStrings(contentStrings);
+  }
+
+  async getContentStringCategories(): Promise<string[]> {
+    return this.content.getContentStringCategories();
+  }
+
+  async getContentStringStats(): Promise<{
+    totalStrings: number;
+    categoryCounts: Record<string, number>;
+    languageCounts: Record<string, number>;
+    lastUpdated: Date | null;
+  }> {
+    return this.content.getContentStringStats();
   }
 }
