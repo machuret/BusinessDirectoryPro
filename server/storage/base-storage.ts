@@ -13,6 +13,7 @@ import {
   contactMessages,
   services,
   businessServices,
+  contentStrings,
   type User,
   type UpsertUser,
   type Category,
@@ -40,6 +41,8 @@ import {
   type InsertService,
   type BusinessService,
   type InsertBusinessService,
+  type ContentString,
+  type InsertContentString,
 } from "@shared/schema";
 
 // Re-export types for storage modules
@@ -71,6 +74,8 @@ export type {
   InsertService,
   BusinessService,
   InsertBusinessService,
+  ContentString,
+  InsertContentString,
 };
 
 // Re-export database utilities and tables for storage modules
@@ -192,6 +197,22 @@ interface IStorage {
   // Business submission management operations
   getBusinessSubmissions(): Promise<any[]>;
   updateBusinessSubmissionStatus(id: string, status: string, adminNotes?: string, reviewedBy?: string): Promise<any>;
+  
+  // Content string management operations
+  getContentStrings(options: { language?: string; category?: string }): Promise<Record<string, string>>;
+  getAllContentStrings(category?: string): Promise<ContentString[]>;
+  getContentString(stringKey: string): Promise<ContentString | undefined>;
+  createContentString(contentString: InsertContentString): Promise<ContentString>;
+  updateContentString(stringKey: string, updates: Partial<ContentString>): Promise<ContentString | undefined>;
+  deleteContentString(stringKey: string): Promise<boolean>;
+  bulkUpsertContentStrings(contentStrings: InsertContentString[]): Promise<ContentString[]>;
+  getContentStringCategories(): Promise<string[]>;
+  getContentStringStats(): Promise<{
+    totalStrings: number;
+    categoryCounts: Record<string, number>;
+    languageCounts: Record<string, number>;
+    lastUpdated: Date | null;
+  }>;
 }
 
 

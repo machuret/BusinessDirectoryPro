@@ -1,4 +1,4 @@
-import { pgTable, varchar, text, timestamp, serial, integer, boolean, numeric, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, varchar, text, timestamp, serial, integer, boolean, numeric, jsonb, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -437,6 +437,31 @@ export type BusinessWithCategory = Business & {
 export type CategoryWithCount = Category & {
   businessCount: number;
 };
+
+// Content Strings table for centralized text management
+export const contentStrings = pgTable("content_strings", {
+  id: serial("id").primaryKey(),
+  stringKey: varchar("string_key", { length: 255 }).notNull().unique(),
+  defaultValue: text("default_value").notNull(),
+  translations: jsonb("translations").default({}),
+  category: varchar("category", { length: 100 }).notNull(),
+  description: text("description"),
+  isHtml: boolean("is_html").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  stringKeyIdx: index("idx_content_strings_key").on(table.stringKey),
+  categoryIdx: index("idx_content_strings_category").on(table.category),
+}));
+
+export const insertContentStringSchema = createInsertSchema(contentStrings).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type ContentString = typeof contentStrings.$inferSelect;
+export type InsertContentString = z.infer<typeof insertContentStringSchema>;
 
 
 
