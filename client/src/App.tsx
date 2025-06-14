@@ -50,6 +50,7 @@ import AdminExportPage from "@/pages/admin/export";
 import AdminFeaturedPage from "@/pages/admin/featured";
 import AdminServicesPage from "@/pages/admin/services";
 import AdminSettingsPage from "@/pages/admin/settings";
+import GetFeaturedPage from "@/pages/get-featured";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -78,6 +79,7 @@ function Router() {
       {isAuthenticated && (
         <>
           <Route path="/dashboard" component={Dashboard} />
+          <Route path="/get-featured" component={GetFeaturedPage} />
           <Route path="/admin" component={AdminLayout} />
           <Route path="/admin/businesses" component={AdminBusinessesPage} />
           <Route path="/admin/users" component={AdminUsersPage} />
