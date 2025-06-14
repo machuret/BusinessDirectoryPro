@@ -377,7 +377,50 @@ export function OwnershipManagement() {
                             </div>
                           )}
                         </DialogContent>
-                      </Dialog>
+                        </Dialog>
+                        
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4 mr-1" />
+                              Delete
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Delete Ownership Claim</DialogTitle>
+                              <DialogDescription>
+                                Are you sure you want to permanently delete this ownership claim? This action cannot be undone.
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4">
+                              <div className="bg-muted p-3 rounded-lg">
+                                <div className="text-sm">
+                                  <div><strong>Business:</strong> {claim.businessTitle}</div>
+                                  <div><strong>Claimant:</strong> {claim.userFirstName} {claim.userLastName} ({claim.userEmail})</div>
+                                  <div><strong>Status:</strong> {claim.status}</div>
+                                </div>
+                              </div>
+                              <div className="flex justify-end gap-2">
+                                <DialogTrigger asChild>
+                                  <Button variant="outline">Cancel</Button>
+                                </DialogTrigger>
+                                <Button 
+                                  variant="destructive"
+                                  onClick={() => deleteClaimMutation.mutate(claim.id)}
+                                  disabled={deleteClaimMutation.isPending}
+                                >
+                                  {deleteClaimMutation.isPending ? "Deleting..." : "Delete Permanently"}
+                                </Button>
+                              </div>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
