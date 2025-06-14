@@ -12,7 +12,7 @@ import { useBusinessMutations } from "@/hooks/useBusinessData";
 import { useFormManagement, useModalState } from "@/hooks/useFormManagement";
 import { LoadingState } from "@/components/loading/LoadingState";
 import { ErrorState } from "@/components/error/ErrorState";
-import { Building2, Edit, Star, MapPin, Phone, Clock, Globe, Mail, Plus, Trash2, HelpCircle } from "lucide-react";
+import { Building2, Edit, Star, MapPin, Phone, Clock, Globe, Mail, Plus, Trash2, HelpCircle, Image, Upload, X } from "lucide-react";
 import type { BusinessWithCategory } from "@shared/schema";
 
 interface BusinessesSectionProps {
@@ -23,6 +23,8 @@ interface BusinessesSectionProps {
 export function BusinessesSection({ businesses, isLoading }: BusinessesSectionProps) {
   const [editingBusiness, setEditingBusiness] = useState<BusinessWithCategory | null>(null);
   const [faqs, setFaqs] = useState<Array<{ question: string; answer: string }>>([]);
+  const [businessImages, setBusinessImages] = useState<string[]>([]);
+  const [uploadingImages, setUploadingImages] = useState(false);
   const { updateBusiness } = useBusinessMutations();
   const editModal = useModalState();
 
@@ -37,10 +39,11 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
     onSubmit: async (values) => {
       if (!editingBusiness) return;
       
-      // Combine form data with FAQs
+      // Combine form data with FAQs and images
       const updateData = {
         ...values,
-        faq: JSON.stringify(faqs.filter(faq => faq.question && faq.answer))
+        faq: JSON.stringify(faqs.filter(faq => faq.question && faq.answer)),
+        imageurls: JSON.stringify(businessImages)
       };
       
       await updateBusiness.mutateAsync({
@@ -65,17 +68,34 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
     
     // Parse existing FAQs from the 'faq' field
     try {
-      let existingFaqs = [];
+      let existingFaqs: any[] = [];
       if (business.faq) {
         if (typeof business.faq === 'string') {
           existingFaqs = JSON.parse(business.faq);
-        } else {
+        } else if (Array.isArray(business.faq)) {
           existingFaqs = business.faq;
         }
       }
       setFaqs(Array.isArray(existingFaqs) ? existingFaqs : []);
     } catch {
       setFaqs([]);
+    }
+    
+    // Parse existing images from the business data
+    try {
+      let images: string[] = [];
+      if (business.imageurls) {
+        if (typeof business.imageurls === 'string') {
+          images = JSON.parse(business.imageurls);
+        } else if (Array.isArray(business.imageurls)) {
+          images = business.imageurls;
+        }
+      } else if (business.imageurl) {
+        images = [business.imageurl];
+      }
+      setBusinessImages(Array.isArray(images) ? images : []);
+    } catch {
+      setBusinessImages([]);
     }
     
     editModal.open();
@@ -93,6 +113,35 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
 
   const removeFaq = (index: number) => {
     setFaqs(faqs.filter((_, i) => i !== index));
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || !editingBusiness) return;
+
+    setUploadingImages(true);
+    
+    try {
+      // Placeholder for future Azure integration
+      // For now, we'll show a message that upload will be implemented
+      console.log('Files selected for upload:', files.length);
+      
+      // TODO: Implement Azure Blob Storage upload
+      // const uploadedUrls = await uploadToAzure(files);
+      // setBusinessImages([...businessImages, ...uploadedUrls]);
+      
+      // Temporary placeholder - in production this will upload to Azure
+      alert('Photo upload feature will be available soon with Azure integration!');
+      
+    } catch (error) {
+      console.error('Upload error:', error);
+    } finally {
+      setUploadingImages(false);
+    }
+  };
+
+  const removeImage = (imageUrl: string) => {
+    setBusinessImages(businessImages.filter(url => url !== imageUrl));
   };
 
   if (isLoading) {
@@ -176,9 +225,10 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
                         </DialogHeader>
                         
                         <Tabs defaultValue="basic" className="w-full">
-                          <TabsList className="grid w-full grid-cols-3">
+                          <TabsList className="grid w-full grid-cols-4">
                             <TabsTrigger value="basic">Basic Info</TabsTrigger>
                             <TabsTrigger value="contact">Contact & Hours</TabsTrigger>
+                            <TabsTrigger value="photos">Photos</TabsTrigger>
                             <TabsTrigger value="faqs">FAQs</TabsTrigger>
                           </TabsList>
                           
@@ -265,6 +315,96 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
                                   </p>
                                 </div>
                               </div>
+                            </TabsContent>
+
+                            <TabsContent value="photos" className="space-y-4 mt-4">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <h3 className="text-lg font-medium flex items-center gap-2">
+                                    <Image className="h-5 w-5" />
+                                    Photo Gallery
+                                  </h3>
+                                  <p className="text-sm text-muted-foreground">Manage your business photos to showcase your services and location.</p>
+                                </div>
+                                <div className="flex gap-2">
+                                  <input
+                                    type="file"
+                                    id="photo-upload"
+                                    multiple
+                                    accept="image/*"
+                                    onChange={handleFileUpload}
+                                    className="hidden"
+                                  />
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => document.getElementById('photo-upload')?.click()}
+                                    disabled={uploadingImages}
+                                  >
+                                    <Upload className="h-4 w-4 mr-1" />
+                                    {uploadingImages ? "Uploading..." : "Upload Photos"}
+                                  </Button>
+                                </div>
+                              </div>
+                              
+                              {businessImages.length === 0 ? (
+                                <div className="text-center py-12 border-2 border-dashed border-muted rounded-lg">
+                                  <Image className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+                                  <h4 className="text-lg font-medium mb-2">No photos yet</h4>
+                                  <p className="text-muted-foreground mb-4">Upload photos to showcase your business</p>
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => document.getElementById('photo-upload')?.click()}
+                                    disabled={uploadingImages}
+                                  >
+                                    <Upload className="h-4 w-4 mr-2" />
+                                    Upload Your First Photo
+                                  </Button>
+                                </div>
+                              ) : (
+                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                  {businessImages.map((imageUrl, index) => (
+                                    <div key={index} className="relative group">
+                                      <div className="aspect-square overflow-hidden rounded-lg border bg-muted">
+                                        <img
+                                          src={imageUrl}
+                                          alt={`Business photo ${index + 1}`}
+                                          className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                                          onError={(e) => {
+                                            e.currentTarget.src = '/placeholder-image.png';
+                                          }}
+                                        />
+                                      </div>
+                                      <Button
+                                        type="button"
+                                        variant="destructive"
+                                        size="sm"
+                                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0"
+                                        onClick={() => removeImage(imageUrl)}
+                                      >
+                                        <X className="h-4 w-4" />
+                                      </Button>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                              
+                              {businessImages.length > 0 && (
+                                <div className="p-4 bg-muted/50 rounded-lg">
+                                  <h4 className="font-medium mb-2 flex items-center gap-2">
+                                    <Upload className="h-4 w-4" />
+                                    Photo Management Tips
+                                  </h4>
+                                  <ul className="text-sm text-muted-foreground space-y-1">
+                                    <li>• High-quality photos help attract more customers</li>
+                                    <li>• Show your business interior, exterior, products, and services</li>
+                                    <li>• Keep photos recent and representative of your current business</li>
+                                    <li>• Remove any photos that are outdated or low quality</li>
+                                  </ul>
+                                </div>
+                              )}
                             </TabsContent>
 
                             <TabsContent value="faqs" className="space-y-4 mt-4">
