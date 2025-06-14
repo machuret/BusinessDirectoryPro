@@ -210,12 +210,33 @@ export class ComprehensiveStorage implements IStorage {
   }
 
   // ===== CONTENT OPERATIONS =====
-  async getSiteSettings(): Promise<SiteSetting[]> {
-    return this.content.getSiteSettings();
+  async getSiteSettings(): Promise<any[]> {
+    // Return basic site settings from content strings
+    try {
+      const settings = await this.content.getContentStrings({ category: "settings" });
+      return Object.entries(settings).map(([key, value]) => ({
+        key,
+        value,
+        category: "settings"
+      }));
+    } catch (error) {
+      console.error("Error fetching site settings:", error);
+      return [];
+    }
   }
 
-  async getSiteSetting(key: string): Promise<SiteSetting | undefined> {
-    return this.content.getSiteSetting(key);
+  async getSiteSetting(key: string): Promise<any> {
+    try {
+      const contentString = await this.content.getContentString(key);
+      return contentString ? {
+        key: contentString.stringKey,
+        value: contentString.defaultValue,
+        category: contentString.category
+      } : undefined;
+    } catch (error) {
+      console.error("Error fetching site setting:", error);
+      return undefined;
+    }
   }
 
   async updateSiteSetting(key: string, value: any, description?: string, category?: string): Promise<SiteSetting> {

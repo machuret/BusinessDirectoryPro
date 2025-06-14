@@ -185,6 +185,15 @@ export class ContentStorage {
   }
 
   /**
+   * Get pages (placeholder implementation for admin interface)
+   */
+  async getPages(status?: string): Promise<any[]> {
+    // This is a placeholder method to prevent server errors
+    // In a full CMS implementation, this would fetch actual pages
+    return [];
+  }
+
+  /**
    * Get statistics about content strings
    */
   async getContentStringStats(): Promise<{
