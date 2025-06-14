@@ -176,17 +176,34 @@ export function setupAuth(app: Express) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
-      // Set session
-      (req.session as any).userId = user.id;
-      (req.session as any).user = user;
+      // Force session regeneration to prevent session fixation attacks
+      req.session.regenerate((err) => {
+        if (err) {
+          console.error("Session regeneration error:", err);
+          return res.status(500).json({ message: "Login failed" });
+        }
 
-      // Debug logging for session setting
-      console.log('[LOGIN] Setting session for user:', user.id, 'role:', user.role);
-      console.log('[LOGIN] Session user after setting:', JSON.stringify((req.session as any).user, null, 2));
+        // Set session data after regeneration
+        (req.session as any).userId = user.id;
+        (req.session as any).user = user;
 
-      // Remove password from response
-      const { password: _, ...userWithoutPassword } = user;
-      res.json(userWithoutPassword);
+        // Debug logging for session setting
+        console.log('[LOGIN] Session regenerated for user:', user.id, 'role:', user.role);
+        console.log('[LOGIN] New session ID:', req.sessionID);
+        console.log('[LOGIN] Session user after setting:', JSON.stringify((req.session as any).user, null, 2));
+
+        // Save session to ensure persistence
+        req.session.save((saveErr) => {
+          if (saveErr) {
+            console.error("Session save error:", saveErr);
+            return res.status(500).json({ message: "Login failed" });
+          }
+
+          // Remove password from response
+          const { password: _, ...userWithoutPassword } = user;
+          res.json(userWithoutPassword);
+        });
+      });
     } catch (error: any) {
       console.error("Login error:", error);
       res.status(500).json({ message: "Login failed" });
@@ -194,9 +211,14 @@ export function setupAuth(app: Express) {
   });
 
   app.post("/api/auth/logout", (req, res) => {
+    console.log('[LOGOUT] Starting logout process for session:', req.sessionID);
+    
+    // Get session ID before destroying
+    const sessionId = req.sessionID;
+    
     // Clear session data first
-    req.session.userId = null;
-    req.session.user = null;
+    (req.session as any).userId = null;
+    (req.session as any).user = null;
     
     req.session.destroy((err) => {
       if (err) {
@@ -204,18 +226,35 @@ export function setupAuth(app: Express) {
         return res.status(500).json({ message: "Logout failed" });
       }
       
-      // Clear all possible session cookies
-      res.clearCookie('connect.sid', {
+      console.log('[LOGOUT] Session destroyed:', sessionId);
+      
+      // Clear all possible session cookies with multiple configurations
+      res.clearCookie('connect.sid');
+      res.clearCookie('connect.sid', { path: '/' });
+      res.clearCookie('connect.sid', { 
         path: '/',
         httpOnly: true,
-        secure: false, // Set to true in production with HTTPS
+        secure: false,
         sameSite: 'lax'
+      });
+      res.clearCookie('connect.sid', { 
+        path: '/',
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict'
       });
       
       // Clear any other potential session cookies
       res.clearCookie('session');
       res.clearCookie('sessionId');
+      res.clearCookie('express.sid');
       
+      // Force session regeneration on next request
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+      
+      console.log('[LOGOUT] Logout completed successfully');
       res.json({ message: "Logged out successfully" });
     });
   });
