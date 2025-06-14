@@ -138,8 +138,9 @@ export function BusinessInteractions({
       {/* Claim Business Modal */}
       <ClaimBusinessModal
         business={business}
-        isOpen={showClaimModal}
-        onClose={() => setShowClaimModal(false)}
+        user={user}
+        open={showClaimModal}
+        onOpenChange={setShowClaimModal}
       />
     </div>
   );
