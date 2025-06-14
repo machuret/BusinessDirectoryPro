@@ -1,10 +1,13 @@
 import { UserManagement } from "@/components/admin/sections";
-import { AdminPageLayout } from "@/components/admin/AdminPageLayout";
 
 export default function AdminUsersPage() {
   return (
-    <AdminPageLayout title="User Management" description="Manage user accounts and permissions">
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
+        <p className="text-gray-600 mt-2">Manage user accounts and permissions</p>
+      </div>
       <UserManagement />
-    </AdminPageLayout>
+    </div>
   );
 }
