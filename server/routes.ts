@@ -596,6 +596,20 @@ Respond with JSON format: {"services": [array of service objects]}. Make service
     }
   });
 
+  app.get("/api/ownership-claims/user/:userId", async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const claims = await storage.getOwnershipClaimsByUser(userId);
+      res.json(claims);
+    } catch (error) {
+      console.error("Error fetching user ownership claims:", error);
+      res.status(500).json({ 
+        message: "Failed to fetch user ownership claims",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   app.put("/api/admin/ownership-claims/:id", async (req, res) => {
     try {
       const claimId = parseInt(req.params.id);

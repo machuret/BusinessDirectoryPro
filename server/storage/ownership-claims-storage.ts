@@ -198,6 +198,17 @@ export class OwnershipClaimsStorage {
     reviewedBy?: string
   ): Promise<OwnershipClaim | undefined> {
     try {
+      // Get the claim details before updating
+      const [existingClaim] = await db
+        .select()
+        .from(ownershipClaims)
+        .where(eq(ownershipClaims.id, id));
+
+      if (!existingClaim) {
+        throw new Error(`Ownership claim with ID ${id} not found`);
+      }
+
+      // Update the claim status
       const [updated] = await db
         .update(ownershipClaims)
         .set({
@@ -210,8 +221,15 @@ export class OwnershipClaimsStorage {
         .where(eq(ownershipClaims.id, id))
         .returning();
 
-      if (!updated) {
-        throw new Error(`Ownership claim with ID ${id} not found`);
+      // If claim is approved, transfer business ownership
+      if (status === 'approved' && existingClaim.businessId && existingClaim.userId) {
+        await db.execute(sql`
+          UPDATE businesses 
+          SET owner_id = ${existingClaim.userId}
+          WHERE placeid = ${existingClaim.businessId}
+        `);
+        
+        console.log(`Business ownership transferred: ${existingClaim.businessId} -> ${existingClaim.userId}`);
       }
 
       console.log(`Ownership claim ${id} updated to status: ${status} by admin ${reviewedBy}`);
