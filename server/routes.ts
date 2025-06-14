@@ -548,6 +548,40 @@ Respond with JSON format: {"services": [array of service objects]}. Make service
   });
 
   // Ownership Claims Management
+  app.post("/api/ownership-claims", async (req: any, res) => {
+    try {
+      const userId = req.user?.id || req.body.userId;
+      const { businessId, message } = req.body;
+
+      if (!userId || !businessId || !message) {
+        return res.status(400).json({ 
+          message: "User ID, business ID, and message are required" 
+        });
+      }
+
+      if (message.trim().length < 50) {
+        return res.status(400).json({ 
+          message: "Message must be at least 50 characters long" 
+        });
+      }
+
+      const claimData = {
+        userId,
+        businessId,
+        message: message.trim(),
+        status: 'pending'
+      };
+
+      const newClaim = await storage.createOwnershipClaim(claimData);
+      res.status(201).json(newClaim);
+    } catch (error) {
+      console.error("Error creating ownership claim:", error);
+      res.status(500).json({ 
+        message: error instanceof Error ? error.message : "Failed to create ownership claim"
+      });
+    }
+  });
+
   app.get("/api/admin/ownership-claims", async (req, res) => {
     try {
       const claims = await storage.getOwnershipClaims();
@@ -564,19 +598,16 @@ Respond with JSON format: {"services": [array of service objects]}. Make service
   app.put("/api/admin/ownership-claims/:id", async (req, res) => {
     try {
       const claimId = parseInt(req.params.id);
-      const { status, adminNotes } = req.body;
+      const { status, adminMessage } = req.body;
+      const reviewedBy = req.user?.id || 'admin';
       
-      // In a real implementation, this would update the ownership_claims table
-      // For now, we'll just return a success response
-      res.json({ 
-        message: "Ownership claim updated successfully",
-        claimId,
-        status,
-        adminNotes
-      });
+      const updatedClaim = await storage.updateOwnershipClaim(claimId, status, adminMessage, reviewedBy);
+      res.json(updatedClaim);
     } catch (error) {
       console.error("Error updating ownership claim:", error);
-      res.status(500).json({ message: "Failed to update ownership claim" });
+      res.status(500).json({ 
+        message: error instanceof Error ? error.message : "Failed to update ownership claim"
+      });
     }
   });
 

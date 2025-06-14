@@ -51,7 +51,7 @@ export function OwnershipManagement() {
     mutationFn: async ({ claimId, status, notes }: { claimId: number; status: string; notes: string }) => {
       const response = await apiRequest('PUT', `/api/admin/ownership-claims/${claimId}`, {
         status,
-        adminNotes: notes,
+        adminMessage: notes,
       });
       return response.json();
     },

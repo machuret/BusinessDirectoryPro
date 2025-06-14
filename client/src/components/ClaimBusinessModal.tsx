@@ -44,8 +44,17 @@ export default function ClaimBusinessModal({ business, user, open, onOpenChange 
   const handleClaimSubmit = () => {
     if (!claimMessage.trim()) {
       toast({
-        title: "Error",
-        description: "Please provide a reason for your ownership claim",
+        title: "Message Required",
+        description: "Please explain your relationship to this business to support your claim",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (claimMessage.trim().length < 50) {
+      toast({
+        title: "Message Too Short",
+        description: "Please provide more details (at least 50 characters) to support your ownership claim",
         variant: "destructive",
       });
       return;
@@ -53,8 +62,8 @@ export default function ClaimBusinessModal({ business, user, open, onOpenChange 
 
     claimOwnershipMutation.mutate({
       businessId: business.placeid,
-      message: claimMessage,
-      userEmail: user?.email,
+      message: claimMessage.trim(),
+      userId: user?.id,
     });
   };
 
@@ -78,14 +87,26 @@ export default function ClaimBusinessModal({ business, user, open, onOpenChange 
         </DialogHeader>
         <div className="space-y-4">
           <div>
-            <Label htmlFor="claim-message">Why should you be granted ownership?</Label>
+            <Label htmlFor="claim-message">Why should you be granted ownership? *</Label>
             <Textarea
               id="claim-message"
-              placeholder="Please explain your relationship to this business..."
+              placeholder="Please explain your relationship to this business and provide details that support your ownership claim..."
               value={claimMessage}
               onChange={(e) => setClaimMessage(e.target.value)}
-              className="mt-1"
+              className="mt-1 min-h-[100px]"
+              maxLength={1000}
             />
+            <p className="text-xs text-muted-foreground mt-1">
+              {claimMessage.length}/1000 characters
+            </p>
+            <div className="text-xs text-muted-foreground mt-2">
+              <p className="font-medium mb-1">Please include:</p>
+              <ul className="list-disc list-inside space-y-1">
+                <li>Your role at the business (owner, manager, etc.)</li>
+                <li>How long you've been associated with the business</li>
+                <li>Any supporting details that verify your connection</li>
+              </ul>
+            </div>
           </div>
           <div className="flex space-x-2">
             <Button
