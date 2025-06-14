@@ -2,11 +2,11 @@ import { db } from "./db";
 import { pageContent } from "@shared/schema";
 import { eq } from "drizzle-orm";
 
-export async function createPageContentTable() {
+export async function initializePageContent() {
   try {
-    console.log("Creating page_content table...");
+    console.log("Initializing page content...");
     
-    // Create the table using raw SQL since Drizzle push isn't working
+    // Create the table using raw SQL
     await db.execute(`
       CREATE TABLE IF NOT EXISTS page_content (
         id SERIAL PRIMARY KEY,
@@ -18,8 +18,6 @@ export async function createPageContentTable() {
         updated_at TIMESTAMP DEFAULT NOW() NOT NULL
       )
     `);
-
-    console.log("Successfully created page_content table");
 
     // Insert default content for Get Featured page
     const existingContent = await db.select().from(pageContent).where(eq(pageContent.pageKey, 'get-featured'));
@@ -47,9 +45,10 @@ Submit your request below and our team will review it within 24-48 hours.`,
       console.log("Added default Get Featured page content");
     }
 
+    console.log("Page content initialization completed");
     return true;
   } catch (error) {
-    console.error("Error creating page content table:", error);
+    console.error("Error initializing page content:", error);
     return false;
   }
 }

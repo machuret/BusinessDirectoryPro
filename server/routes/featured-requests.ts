@@ -1,8 +1,63 @@
 import { Express } from "express";
 import { storage } from "../storage";
 import { isAuthenticated } from "../auth";
+import { db } from "../db";
+import { pageContent } from "@shared/schema";
+import { eq } from "drizzle-orm";
 
 export function setupFeaturedRequestsRoutes(app: Express) {
+  // Page content routes for admin-editable pages
+  app.get("/api/page-content/:pageKey", async (req, res) => {
+    try {
+      const { pageKey } = req.params;
+      const content = await db.select().from(pageContent).where(eq(pageContent.pageKey, pageKey));
+      
+      if (content.length === 0) {
+        return res.status(404).json({ message: "Page content not found" });
+      }
+      
+      res.json(content[0]);
+    } catch (error) {
+      console.error("Error fetching page content:", error);
+      res.status(500).json({ message: "Failed to fetch page content" });
+    }
+  });
+
+  app.put("/api/page-content/:pageKey", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = req.user;
+      if (!currentUser || !currentUser.claims) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      const user = await storage.getUser(currentUser.claims.sub);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { pageKey } = req.params;
+      const { title, content } = req.body;
+      
+      const [updated] = await db.update(pageContent)
+        .set({ 
+          title, 
+          content, 
+          updatedAt: new Date() 
+        })
+        .where(eq(pageContent.pageKey, pageKey))
+        .returning();
+      
+      if (!updated) {
+        return res.status(404).json({ message: "Page content not found" });
+      }
+      
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating page content:", error);
+      res.status(500).json({ message: "Failed to update page content" });
+    }
+  });
+
   // Get all featured requests for admin review with business details
   app.get("/api/admin/featured-requests", isAuthenticated, async (req: any, res) => {
     try {
