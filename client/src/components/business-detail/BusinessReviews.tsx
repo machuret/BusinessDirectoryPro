@@ -12,14 +12,9 @@ interface BusinessReviewsProps {
 
 export function BusinessReviews({ business, allReviews }: BusinessReviewsProps) {
   const [showReviewForm, setShowReviewForm] = useState(false);
-  
-  // Debug: log the actual review data structure
-  console.log('Business reviews data:', business.reviews);
-  console.log('All reviews prop:', allReviews);
 
   const renderStars = (rating: any) => {
     const numericRating = typeof rating === 'number' ? rating : parseFloat(rating) || 0;
-    console.log('Rendering stars for rating:', numericRating, 'from raw:', rating);
     return Array.from({ length: 5 }, (_, i) => (
       <Star
         key={i}

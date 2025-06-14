@@ -599,7 +599,11 @@ Respond with JSON format: {"services": [array of service objects]}. Make service
     try {
       const claimId = parseInt(req.params.id);
       const { status, adminMessage } = req.body;
-      const reviewedBy = req.user?.id || 'admin';
+      const reviewedBy = req.user?.id;
+      
+      if (!reviewedBy) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
       
       const updatedClaim = await storage.updateOwnershipClaim(claimId, status, adminMessage, reviewedBy);
       res.json(updatedClaim);
