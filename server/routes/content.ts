@@ -172,8 +172,19 @@ contentRouter.put("/api/admin/content/strings", isAuthenticated, async (req: Req
     
     // Convert the updates object to an array of content string updates
     const updatePromises = Object.entries(updates).map(async ([key, value]) => {
+      // Update both defaultValue and translations to ensure persistence
+      const currentString = await storage.getContentString(key);
+      const currentTranslations = (currentString?.translations as Record<string, string>) || {};
+      
+      // Update the English translation to match the new value
+      const updatedTranslations = {
+        ...currentTranslations,
+        en: value as string
+      };
+      
       return await storage.updateContentString(key, { 
         defaultValue: value as string,
+        translations: updatedTranslations,
         updatedAt: new Date()
       });
     });
