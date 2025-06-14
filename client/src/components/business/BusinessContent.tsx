@@ -21,40 +21,48 @@ export function BusinessContent({ business }: BusinessContentProps) {
     });
   };
 
-  const getImageUrls = (imageurls: unknown): string[] => {
-    if (!imageurls) return [];
+  const getImageUrls = (business: BusinessWithCategory): string[] => {
+    // First try imageurls array
+    if (business.imageurls) {
+      try {
+        // If it's already an array, return it
+        if (Array.isArray(business.imageurls)) {
+          return business.imageurls.filter(Boolean);
+        }
+        
+        // If it's a string, try to parse it
+        if (typeof business.imageurls === 'string') {
+          const parsed = JSON.parse(business.imageurls);
+          return Array.isArray(parsed) ? parsed.filter(Boolean) : [];
+        }
+        
+        // If it's an object with array properties, check common field names
+        if (typeof business.imageurls === 'object' && business.imageurls !== null) {
+          const obj = business.imageurls as any;
+          if (Array.isArray(obj.urls)) return obj.urls.filter(Boolean);
+          if (Array.isArray(obj.images)) return obj.images.filter(Boolean);
+        }
+      } catch (error) {
+        console.warn('Failed to parse image URLs:', error, business.imageurls);
+      }
+    }
     
-    try {
-      // If it's already an array, return it
-      if (Array.isArray(imageurls)) {
-        return imageurls.filter(Boolean);
-      }
-      
-      // If it's a string, try to parse it
-      if (typeof imageurls === 'string') {
-        const parsed = JSON.parse(imageurls);
-        return Array.isArray(parsed) ? parsed.filter(Boolean) : [];
-      }
-      
-      // If it's an object with array properties, check common field names
-      if (typeof imageurls === 'object' && imageurls !== null) {
-        const obj = imageurls as any;
-        if (Array.isArray(obj.urls)) return obj.urls.filter(Boolean);
-        if (Array.isArray(obj.images)) return obj.images.filter(Boolean);
-      }
-    } catch (error) {
-      console.warn('Failed to parse image URLs:', error, imageurls);
+    // Fallback to single imageurl if available
+    if (business.imageurl) {
+      return [business.imageurl];
     }
     
     return [];
   };
 
-  const images = getImageUrls(business.imageurls);
+  const images = getImageUrls(business);
   const formattedHours = formatOpeningHours(business.openinghours);
   
   // Debug logging
-  console.log('Business imageurls:', business.imageurls);
-  console.log('Parsed images:', images);
+  console.log('BusinessContent - Business data:', business.title);
+  console.log('BusinessContent - imageurls:', business.imageurls);
+  console.log('BusinessContent - imageurl:', business.imageurl);
+  console.log('BusinessContent - Parsed images:', images);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
