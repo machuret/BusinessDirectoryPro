@@ -314,6 +314,269 @@ export function FeaturedManagement() {
         </DialogContent>
       </Dialog>
 
+      {/* Featured Requests Review Section */}
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MessageSquare className="h-5 w-5" />
+            Featured Requests Review
+          </CardTitle>
+          <CardDescription>
+            Review and approve business featured requests with comprehensive business information
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex gap-2">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Requests</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="approved">Approved</SelectItem>
+                  <SelectItem value="rejected">Rejected</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {requestsLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Clock className="h-6 w-6 animate-spin mr-2" />
+                Loading requests...
+              </div>
+            ) : featuredRequests.filter(req => statusFilter === 'all' || req.status === statusFilter).length > 0 ? (
+              <div className="space-y-4">
+                {featuredRequests.filter(req => statusFilter === 'all' || req.status === statusFilter).map((request) => (
+                  <Card key={request.id} className="border-l-4 border-l-blue-500">
+                    <CardContent className="p-6">
+                      <div className="grid md:grid-cols-2 gap-6">
+                        {/* Request Information */}
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between">
+                            <Badge 
+                              variant={
+                                request.status === 'pending' ? 'default' :
+                                request.status === 'approved' ? 'default' : 'destructive'
+                              }
+                              className={
+                                request.status === 'approved' ? 'bg-green-100 text-green-800 border-green-300' : ''
+                              }
+                            >
+                              {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                            </Badge>
+                            <div className="text-sm text-muted-foreground">
+                              {format(new Date(request.createdAt), 'MMM dd, yyyy')}
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <div className="font-medium">User Message:</div>
+                            <div className="text-sm bg-muted p-3 rounded">
+                              {request.message || 'No message provided'}
+                            </div>
+                          </div>
+
+                          {request.adminMessage && (
+                            <div className="space-y-2">
+                              <div className="font-medium">Admin Response:</div>
+                              <div className="text-sm bg-blue-50 p-3 rounded border-l-4 border-l-blue-500">
+                                {request.adminMessage}
+                              </div>
+                            </div>
+                          )}
+
+                          {request.status === 'pending' && (
+                            <div className="flex gap-2 pt-4">
+                              <Button
+                                size="sm"
+                                onClick={() => setSelectedRequest(request)}
+                                className="bg-green-600 hover:bg-green-700"
+                              >
+                                <Check className="h-4 w-4 mr-1" />
+                                Approve
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => {
+                                  setSelectedRequest(request);
+                                  setAdminMessage("Request rejected");
+                                }}
+                              >
+                                <X className="h-4 w-4 mr-1" />
+                                Reject
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Business Information */}
+                        <div className="border rounded-lg p-4 bg-muted/30">
+                          <div className="space-y-4">
+                            <div className="flex items-start justify-between">
+                              <div>
+                                <h3 className="font-semibold text-lg">{request.businessTitle}</h3>
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                  <MapPin className="h-4 w-4" />
+                                  {request.businessCity}
+                                </div>
+                              </div>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                asChild
+                              >
+                                <a 
+                                  href={`/business/${request.businessId}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-1"
+                                >
+                                  <ExternalLink className="h-4 w-4" />
+                                  View Page
+                                </a>
+                              </Button>
+                            </div>
+
+                            {request.businessDescription && (
+                              <div className="text-sm">
+                                <div className="font-medium mb-1">Description:</div>
+                                <p className="text-muted-foreground line-clamp-3">
+                                  {request.businessDescription}
+                                </p>
+                              </div>
+                            )}
+
+                            <div className="grid grid-cols-2 gap-4 text-sm">
+                              <div>
+                                <div className="font-medium">Category:</div>
+                                <Badge variant="outline" className="mt-1">
+                                  {request.businessCategoryName}
+                                </Badge>
+                              </div>
+                              <div>
+                                <div className="font-medium">Rating:</div>
+                                <div className="flex items-center gap-1 mt-1">
+                                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                                  <span className="font-medium">
+                                    {request.businessRating ? request.businessRating.toFixed(1) : 'No rating'}
+                                  </span>
+                                  <span className="text-muted-foreground">
+                                    ({request.businessReviewCount || 0} reviews)
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {(request.businessPhone || request.businessWebsite) && (
+                              <div className="space-y-2 pt-2 border-t">
+                                {request.businessPhone && (
+                                  <div className="flex items-center gap-2 text-sm">
+                                    <Phone className="h-4 w-4" />
+                                    <span>{request.businessPhone}</span>
+                                  </div>
+                                )}
+                                {request.businessWebsite && (
+                                  <div className="flex items-center gap-2 text-sm">
+                                    <Globe className="h-4 w-4" />
+                                    <a 
+                                      href={request.businessWebsite}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-blue-600 hover:underline"
+                                    >
+                                      {request.businessWebsite}
+                                    </a>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            {request.businessAddress && (
+                              <div className="text-sm pt-2 border-t">
+                                <div className="font-medium">Address:</div>
+                                <div className="text-muted-foreground">{request.businessAddress}</div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                {statusFilter === 'all' ? 'No featured requests found' : `No ${statusFilter} requests found`}
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Review Request Dialog */}
+      <Dialog open={!!selectedRequest} onOpenChange={() => setSelectedRequest(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Review Featured Request</DialogTitle>
+            <DialogDescription>
+              {selectedRequest && `Review request for ${selectedRequest.businessTitle}`}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="admin-message">Admin Message (Optional)</Label>
+              <Textarea
+                id="admin-message"
+                placeholder="Add a message for the business owner..."
+                value={adminMessage}
+                onChange={(e) => setAdminMessage(e.target.value)}
+                rows={3}
+              />
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setSelectedRequest(null);
+                setAdminMessage("");
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => selectedRequest && reviewRequestMutation.mutate({
+                id: selectedRequest.id,
+                status: 'rejected',
+                adminMessage: adminMessage || undefined
+              })}
+              disabled={reviewRequestMutation.isPending}
+            >
+              <X className="h-4 w-4 mr-1" />
+              Reject
+            </Button>
+            <Button
+              onClick={() => selectedRequest && reviewRequestMutation.mutate({
+                id: selectedRequest.id,
+                status: 'approved',
+                adminMessage: adminMessage || undefined
+              })}
+              disabled={reviewRequestMutation.isPending}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              <Check className="h-4 w-4 mr-1" />
+              Approve
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Remove Confirmation Dialog */}
       <Dialog open={!!removeConfirmId} onOpenChange={() => setRemoveConfirmId(null)}>
         <DialogContent>
