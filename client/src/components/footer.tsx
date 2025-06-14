@@ -1,8 +1,11 @@
 import { Building } from "lucide-react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
+import { useContent } from "@/contexts/ContentContext";
 
 export default function Footer() {
+  const { t } = useContent();
+  
   // Fetch footer menu items from database
   const { data: footer1Items } = useQuery({
     queryKey: ["/api/menu-items/footer1"],
@@ -29,37 +32,37 @@ export default function Footer() {
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center mb-4">
               <Building className="text-accent text-2xl mr-3" />
-              <h3 className="text-2xl font-bold">BusinessHub</h3>
+              <h3 className="text-2xl font-bold">{t('footer.company.name')}</h3>
             </div>
             <p className="text-gray-300 mb-6 max-w-md">
-              Your trusted local business directory connecting customers with quality service providers across the nation.
+              {t('footer.company.description')}
             </p>
             <div className="flex space-x-4">
               <a 
                 href="#" 
                 className="text-gray-300 hover:text-accent transition-colors"
-                aria-label="Facebook"
+                aria-label={t('footer.social.facebook')}
               >
                 <i className="fab fa-facebook-f text-xl"></i>
               </a>
               <a 
                 href="#" 
                 className="text-gray-300 hover:text-accent transition-colors"
-                aria-label="Twitter"
+                aria-label={t('footer.social.twitter')}
               >
                 <i className="fab fa-twitter text-xl"></i>
               </a>
               <a 
                 href="#" 
                 className="text-gray-300 hover:text-accent transition-colors"
-                aria-label="Instagram"
+                aria-label={t('footer.social.instagram')}
               >
                 <i className="fab fa-instagram text-xl"></i>
               </a>
               <a 
                 href="#" 
                 className="text-gray-300 hover:text-accent transition-colors"
-                aria-label="LinkedIn"
+                aria-label={t('footer.social.linkedin')}
               >
                 <i className="fab fa-linkedin-in text-xl"></i>
               </a>
@@ -68,7 +71,7 @@ export default function Footer() {
           
           <div>
             <h4 className="text-lg font-semibold mb-4">
-              {footer1Items && footer1Items.length > 0 ? "Quick Links" : "For Businesses"}
+              {footer1Items && footer1Items.length > 0 ? t('footer.sections.quickLinks') : t('footer.sections.forBusinesses')}
             </h4>
             <ul className="space-y-2">
               {footer1Items && footer1Items.length > 0 ? (
@@ -83,22 +86,22 @@ export default function Footer() {
                 <>
                   <li>
                     <Link href="/add-business" className="text-gray-300 hover:text-white transition-colors">
-                      List Your Business
+                      {t('footer.links.listBusiness')}
                     </Link>
                   </li>
                   <li>
                     <Link href="/dashboard" className="text-gray-300 hover:text-white transition-colors">
-                      Business Dashboard
+                      {t('footer.links.businessDashboard')}
                     </Link>
                   </li>
                   <li>
                     <Link href="/featured" className="text-gray-300 hover:text-white transition-colors">
-                      Featured Businesses
+                      {t('footer.links.featuredBusinesses')}
                     </Link>
                   </li>
                   <li>
                     <Link href="/categories" className="text-gray-300 hover:text-white transition-colors">
-                      All Categories
+                      {t('footer.links.allCategories')}
                     </Link>
                   </li>
                 </>
@@ -108,7 +111,7 @@ export default function Footer() {
           
           <div>
             <h4 className="text-lg font-semibold mb-4">
-              {footer2Items && footer2Items.length > 0 ? "Resources" : "Support"}
+              {footer2Items && footer2Items.length > 0 ? t('footer.sections.resources') : t('footer.sections.support')}
             </h4>
             <ul className="space-y-2">
               {footer2Items && footer2Items.length > 0 ? (
