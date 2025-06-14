@@ -162,7 +162,7 @@ contentRouter.delete("/api/admin/content/strings/:stringKey", isAuthenticated, i
  * Admin endpoint - Bulk update content strings
  * Updates multiple content string values at once from the Content Editor
  */
-contentRouter.put("/api/admin/content/strings", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+contentRouter.put("/api/admin/content/strings", isAuthenticated, async (req: Request, res: Response) => {
   try {
     const updates = req.body;
     

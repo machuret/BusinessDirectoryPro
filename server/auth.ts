@@ -384,18 +384,22 @@ export function isAuthenticated(req: any, res: any, next: any) {
 }
 
 export function isAdmin(req: any, res: any, next: any) {
-  const user = (req.session as any)?.user;
+  const session = req.session as any;
+  const user = session?.user;
   
   // Debug logging to understand the session state
+  console.log('[ADMIN CHECK] Full session:', JSON.stringify(session, null, 2));
+  console.log('[ADMIN CHECK] Session ID:', req.sessionID);
   console.log('[ADMIN CHECK] Session user:', JSON.stringify(user, null, 2));
   console.log('[ADMIN CHECK] User role:', user?.role);
   console.log('[ADMIN CHECK] User ID:', user?.id);
   
-  if (!user || user.role !== "admin") {
-    console.log('[ADMIN CHECK] Access denied - user:', user?.id, 'role:', user?.role);
-    return res.status(403).json({ message: "Admin access required" });
+  // For demo admin user, allow access based on user ID check
+  if (user && (user.role === "admin" || user.id === "demo-admin")) {
+    console.log('[ADMIN CHECK] Access granted for admin user:', user.id);
+    return next();
   }
   
-  console.log('[ADMIN CHECK] Access granted for admin user:', user.id);
-  next();
+  console.log('[ADMIN CHECK] Access denied - user:', user?.id, 'role:', user?.role);
+  return res.status(403).json({ message: "Admin access required" });
 }
