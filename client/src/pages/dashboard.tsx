@@ -88,6 +88,14 @@ export default function Dashboard() {
               isLoading={claimsLoading} 
             />
           </TabsContent>
+
+          {/* Featured Requests Tab */}
+          <TabsContent value="featured" className="space-y-6">
+            <FeaturedRequestsSection 
+              userId={user.id} 
+              userBusinesses={ownedBusinesses || []} 
+            />
+          </TabsContent>
         </Tabs>
       </div>
       <Footer />
