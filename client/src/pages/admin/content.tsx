@@ -91,7 +91,7 @@ export default function ContentEditorPage() {
   };
 
   const getCurrentValue = (key: string) => {
-    return editedValues[key] ?? contentStrings[key] ?? "";
+    return editedValues[key] ?? (contentStrings as Record<string, string>)[key] ?? "";
   };
 
   const hasChanges = Object.keys(editedValues).length > 0;

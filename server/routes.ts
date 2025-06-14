@@ -66,6 +66,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   setupSettingsRoutes(app);
   registerCategoryRoutes(app);
   
+  // Register content management routes
+  app.use(contentRouter);
+  
   // Register optimization routes
   app.use('/api/admin', optimizationRoutes);
 

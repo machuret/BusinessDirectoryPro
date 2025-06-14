@@ -159,6 +159,43 @@ contentRouter.delete("/api/admin/content/strings/:stringKey", isAuthenticated, i
 });
 
 /**
+ * Admin endpoint - Bulk update content strings
+ * Updates multiple content string values at once from the Content Editor
+ */
+contentRouter.put("/api/admin/content/strings", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+  try {
+    const updates = req.body;
+    
+    if (!updates || typeof updates !== 'object') {
+      return res.status(400).json({ error: "Invalid request body" });
+    }
+    
+    // Convert the updates object to an array of content string updates
+    const updatePromises = Object.entries(updates).map(async ([key, value]) => {
+      return await storage.updateContentString(key, { 
+        defaultValue: value as string,
+        updatedAt: new Date()
+      });
+    });
+    
+    const results = await Promise.all(updatePromises);
+    const successCount = results.filter(r => r !== undefined).length;
+    
+    res.json({ 
+      success: true, 
+      updated: successCount,
+      message: `Successfully updated ${successCount} content strings`
+    });
+  } catch (error) {
+    console.error("Error bulk updating content strings:", error);
+    res.status(500).json({ 
+      error: "Failed to update content strings",
+      message: error instanceof Error ? error.message : "Unknown error"
+    });
+  }
+});
+
+/**
  * Admin endpoint - Bulk upsert content strings
  * Useful for importing content strings or batch updates
  */
