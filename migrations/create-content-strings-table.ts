@@ -1,5 +1,5 @@
 import { db } from "../server/db";
-import { contentStrings } from "@shared/schema";
+import { contentStrings } from "../shared/schema";
 
 /**
  * Creates the content_strings table for centralized text management
