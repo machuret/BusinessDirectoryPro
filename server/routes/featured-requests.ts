@@ -1,7 +1,62 @@
 import { Express } from "express";
 import { storage } from "../storage";
+import { isAuthenticated } from "../auth";
 
 export function setupFeaturedRequestsRoutes(app: Express) {
+  // Get all featured requests for admin review with business details
+  app.get("/api/admin/featured-requests", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = req.user;
+      if (!currentUser || !currentUser.claims) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      const user = await storage.getUser(currentUser.claims.sub);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const requests = await storage.getAllFeaturedRequestsWithBusinessDetails();
+      res.json(requests);
+    } catch (error) {
+      console.error("Error fetching admin featured requests:", error);
+      res.status(500).json({ message: "Failed to fetch featured requests" });
+    }
+  });
+
+  // Approve or reject featured request (admin only)
+  app.patch("/api/admin/featured-requests/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = req.user;
+      if (!currentUser || !currentUser.claims) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      const user = await storage.getUser(currentUser.claims.sub);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { id } = req.params;
+      const { status, adminMessage } = req.body;
+
+      if (!['approved', 'rejected'].includes(status)) {
+        return res.status(400).json({ message: "Invalid status. Must be 'approved' or 'rejected'" });
+      }
+
+      const updatedRequest = await storage.updateFeaturedRequestStatus(
+        parseInt(id), 
+        status, 
+        user.id, 
+        adminMessage
+      );
+
+      res.json(updatedRequest);
+    } catch (error) {
+      console.error("Error updating featured request:", error);
+      res.status(500).json({ message: "Failed to update featured request" });
+    }
+  });
   // Get featured requests for a specific user
   app.get("/api/featured-requests/user/:userId", async (req: any, res) => {
     try {

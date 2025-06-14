@@ -1,6 +1,6 @@
 import { db } from "../db";
-import { featuredRequests, businesses } from "@shared/schema";
-import { eq, and, desc } from "drizzle-orm";
+import { featuredRequests, businesses, reviews } from "@shared/schema";
+import { eq, and, desc, sql } from "drizzle-orm";
 
 export interface FeaturedRequest {
   id: number;
@@ -15,41 +15,32 @@ export interface FeaturedRequest {
   updatedAt?: Date;
 }
 
-export interface InsertFeaturedRequest {
-  businessId: string;
-  userId: string;
-  message?: string;
-}
-
 export interface FeaturedRequestWithBusiness extends FeaturedRequest {
   businessTitle?: string;
   businessCity?: string;
-  userEmail?: string;
-  userFirstName?: string;
-  userLastName?: string;
+}
+
+export interface FeaturedRequestWithBusinessDetails extends FeaturedRequest {
+  businessTitle?: string;
+  businessCity?: string;
+  businessDescription?: string;
+  businessRating?: number;
+  businessCategoryName?: string;
+  businessPhone?: string;
+  businessWebsite?: string;
+  businessAddress?: string;
+  businessReviewCount?: number;
 }
 
 export class FeaturedRequestsStorage {
   /**
    * Create a new featured request
    */
-  static async createFeaturedRequest(data: InsertFeaturedRequest): Promise<FeaturedRequest> {
-    // Check if user already has a pending request for this business
-    const existing = await db
-      .select()
-      .from(featuredRequests)
-      .where(
-        and(
-          eq(featuredRequests.businessId, data.businessId),
-          eq(featuredRequests.userId, data.userId),
-          eq(featuredRequests.status, 'pending')
-        )
-      );
-
-    if (existing.length > 0) {
-      throw new Error('You already have a pending featured request for this business');
-    }
-
+  static async createFeaturedRequest(data: {
+    businessId: string;
+    userId: string;
+    message?: string;
+  }): Promise<FeaturedRequest> {
     const [request] = await db
       .insert(featuredRequests)
       .values({
@@ -61,7 +52,13 @@ export class FeaturedRequestsStorage {
 
     return {
       ...request,
-      status: request.status as 'pending' | 'approved' | 'rejected'
+      status: request.status as 'pending' | 'approved' | 'rejected',
+      message: request.message || undefined,
+      adminMessage: request.adminMessage || undefined,
+      reviewedBy: request.reviewedBy || undefined,
+      createdAt: new Date(request.createdAt),
+      reviewedAt: request.reviewedAt ? new Date(request.reviewedAt) : undefined,
+      updatedAt: request.updatedAt ? new Date(request.updatedAt) : undefined
     };
   }
 
@@ -94,6 +91,9 @@ export class FeaturedRequestsStorage {
       status: request.status as 'pending' | 'approved' | 'rejected',
       businessTitle: request.businessTitle || undefined,
       businessCity: request.businessCity || undefined,
+      message: request.message || undefined,
+      adminMessage: request.adminMessage || undefined,
+      reviewedBy: request.reviewedBy || undefined,
       createdAt: new Date(request.createdAt),
       reviewedAt: request.reviewedAt ? new Date(request.reviewedAt) : undefined,
       updatedAt: request.updatedAt ? new Date(request.updatedAt) : undefined
@@ -101,9 +101,9 @@ export class FeaturedRequestsStorage {
   }
 
   /**
-   * Get all featured requests for admin review
+   * Get all featured requests with comprehensive business details for admin review
    */
-  static async getAllFeaturedRequests(): Promise<FeaturedRequestWithBusiness[]> {
+  static async getAllFeaturedRequestsWithBusinessDetails(): Promise<FeaturedRequestWithBusinessDetails[]> {
     const requests = await db
       .select({
         id: featuredRequests.id,
@@ -117,14 +117,56 @@ export class FeaturedRequestsStorage {
         createdAt: featuredRequests.createdAt,
         updatedAt: featuredRequests.updatedAt,
         businessTitle: businesses.title,
-        businessCity: businesses.city
+        businessCity: businesses.city,
+        businessDescription: businesses.description,
+        businessCategoryName: businesses.categoryname,
+        businessPhone: businesses.phone,
+        businessWebsite: businesses.website,
+        businessAddress: businesses.address
       })
       .from(featuredRequests)
       .leftJoin(businesses, eq(featuredRequests.businessId, businesses.placeid))
       .orderBy(desc(featuredRequests.createdAt));
 
+    // Get review counts for each business
+    const businessIds = requests.map(r => r.businessId).filter(Boolean);
+    
+    const reviewCounts = await Promise.all(
+      businessIds.map(async (businessId) => {
+        const [countResult] = await db
+          .select({ count: sql<number>`count(*)` })
+          .from(reviews)
+          .where(eq(reviews.businessId, businessId));
+        return { businessId, reviewCount: countResult?.count || 0 };
+      })
+    );
+
+    // Get average ratings for each business
+    const ratings = await Promise.all(
+      businessIds.map(async (businessId) => {
+        const [ratingResult] = await db
+          .select({ avgRating: sql<number>`avg(rating)` })
+          .from(reviews)
+          .where(eq(reviews.businessId, businessId));
+        return { businessId, avgRating: ratingResult?.avgRating || 0 };
+      })
+    );
+
     return requests.map(request => ({
       ...request,
+      status: request.status as 'pending' | 'approved' | 'rejected',
+      businessTitle: request.businessTitle || undefined,
+      businessCity: request.businessCity || undefined,
+      businessDescription: request.businessDescription || undefined,
+      businessRating: ratings.find(r => r.businessId === request.businessId)?.avgRating || 0,
+      businessCategoryName: request.businessCategoryName || undefined,
+      businessPhone: request.businessPhone || undefined,
+      businessWebsite: request.businessWebsite || undefined,
+      businessAddress: request.businessAddress || undefined,
+      businessReviewCount: reviewCounts.find(rc => rc.businessId === request.businessId)?.reviewCount || 0,
+      message: request.message || undefined,
+      adminMessage: request.adminMessage || undefined,
+      reviewedBy: request.reviewedBy || undefined,
       createdAt: new Date(request.createdAt),
       reviewedAt: request.reviewedAt ? new Date(request.reviewedAt) : undefined,
       updatedAt: request.updatedAt ? new Date(request.updatedAt) : undefined
@@ -132,13 +174,13 @@ export class FeaturedRequestsStorage {
   }
 
   /**
-   * Update featured request status (admin action)
+   * Update featured request status (approve/reject)
    */
   static async updateFeaturedRequestStatus(
     id: number,
     status: 'approved' | 'rejected',
-    adminMessage?: string,
-    reviewedBy?: string
+    reviewedBy: string,
+    adminMessage?: string
   ): Promise<FeaturedRequest | null> {
     const [updated] = await db
       .update(featuredRequests)
@@ -154,7 +196,7 @@ export class FeaturedRequestsStorage {
 
     if (!updated) return null;
 
-    // If approved, update the business featured status
+    // If approved, also update the business to be featured
     if (status === 'approved') {
       await db
         .update(businesses)
@@ -164,28 +206,13 @@ export class FeaturedRequestsStorage {
 
     return {
       ...updated,
+      status: updated.status as 'pending' | 'approved' | 'rejected',
+      message: updated.message || undefined,
+      adminMessage: updated.adminMessage || undefined,
+      reviewedBy: updated.reviewedBy || undefined,
       createdAt: new Date(updated.createdAt),
       reviewedAt: updated.reviewedAt ? new Date(updated.reviewedAt) : undefined,
       updatedAt: updated.updatedAt ? new Date(updated.updatedAt) : undefined
-    };
-  }
-
-  /**
-   * Get featured request by ID
-   */
-  static async getFeaturedRequestById(id: number): Promise<FeaturedRequest | null> {
-    const [request] = await db
-      .select()
-      .from(featuredRequests)
-      .where(eq(featuredRequests.id, id));
-
-    if (!request) return null;
-
-    return {
-      ...request,
-      createdAt: new Date(request.createdAt),
-      reviewedAt: request.reviewedAt ? new Date(request.reviewedAt) : undefined,
-      updatedAt: request.updatedAt ? new Date(request.updatedAt) : undefined
     };
   }
 
