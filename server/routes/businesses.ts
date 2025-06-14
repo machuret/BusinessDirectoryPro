@@ -186,7 +186,20 @@ export function setupBusinessRoutes(app: Express) {
   app.patch("/api/businesses/:id", async (req: any, res) => {
     try {
       const { id } = req.params;
-      const userId = req.session.userId;
+      const userId = req.user?.id || req.session?.userId;
+      
+      console.log(`[DEBUG] Business update request:`, {
+        businessId: id,
+        sessionUserId: req.session?.userId,
+        userObjectId: req.user?.id,
+        finalUserId: userId,
+        sessionExists: !!req.session,
+        userExists: !!req.user
+      });
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
       
       // Check if user owns the business or is admin
       const business = await storage.getBusinessById(id);
@@ -194,10 +207,22 @@ export function setupBusinessRoutes(app: Express) {
         return res.status(404).json({ message: "Business not found" });
       }
 
+      console.log(`[DEBUG] Business ownership check:`, {
+        businessOwnerId: business.ownerid,
+        currentUserId: userId,
+        ownershipMatch: business.ownerid === userId
+      });
+
       if (business.ownerid !== userId) {
         const user = await storage.getUser(userId);
+        console.log(`[DEBUG] User role check:`, {
+          userId,
+          userFound: !!user,
+          userRole: user?.role
+        });
+        
         if (!user || user.role !== 'admin') {
-          return res.status(403).json({ message: "Access denied" });
+          return res.status(403).json({ message: "Access denied - you don't own this business" });
         }
       }
 
