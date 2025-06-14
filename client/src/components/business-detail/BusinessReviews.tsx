@@ -12,15 +12,23 @@ interface BusinessReviewsProps {
 
 export function BusinessReviews({ business, allReviews }: BusinessReviewsProps) {
   const [showReviewForm, setShowReviewForm] = useState(false);
+  
+  // Debug: log the actual review data structure
+  console.log('Business reviews data:', business.reviews);
+  console.log('All reviews prop:', allReviews);
 
   const renderStars = (rating: any) => {
     const numericRating = typeof rating === 'number' ? rating : parseFloat(rating) || 0;
+    console.log('Rendering stars for rating:', numericRating, 'from raw:', rating);
     return Array.from({ length: 5 }, (_, i) => (
       <Star
         key={i}
         className={`w-4 h-4 ${
-          i < Math.floor(numericRating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+          i < Math.floor(numericRating) 
+            ? "fill-yellow-500 text-yellow-500 !text-yellow-500 !fill-yellow-500" 
+            : "text-gray-300 fill-gray-300"
         }`}
+        style={i < Math.floor(numericRating) ? { color: '#eab308', fill: '#eab308' } : {}}
       />
     ));
   };
@@ -76,9 +84,9 @@ export function BusinessReviews({ business, allReviews }: BusinessReviewsProps) 
                     </div>
                   </div>
                   <div className="flex items-center space-x-1">
-                    {renderStars(review.rating || 0)}
+                    {renderStars(review.stars || review.rating || review.score || 5)}
                     <span className="text-sm text-gray-600 ml-1">
-                      {review.rating}/5
+                      {review.stars || review.rating || review.score || 5}/5
                     </span>
                   </div>
                 </div>

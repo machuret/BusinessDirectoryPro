@@ -46,9 +46,10 @@ export default function BusinessReviews({
         key={i}
         className={`h-4 w-4 ${
           i < Math.floor(numericRating)
-            ? "fill-yellow-400 text-yellow-400"
-            : "text-gray-300"
+            ? "fill-yellow-500 text-yellow-500 !text-yellow-500 !fill-yellow-500"
+            : "text-gray-300 fill-gray-300"
         }`}
+        style={i < Math.floor(numericRating) ? { color: '#eab308', fill: '#eab308' } : {}}
       />
     ));
   };
