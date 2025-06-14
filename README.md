@@ -56,11 +56,11 @@ npm install
 ```
 
 3. Set up environment variables:
-Create a `.env` file with:
-```env
-DATABASE_URL=your_postgresql_connection_string
-SESSION_SECRET=your_session_secret_key
+Copy the example environment file and configure your local settings:
+```bash
+cp .env.example .env
 ```
+Then edit `.env` with your actual database connection and session secret.
 
 4. Initialize the database:
 ```bash
@@ -74,10 +74,14 @@ npm run dev
 
 The application will be available at `http://localhost:5000`
 
-## Default Admin Account
+## Initial Setup
 
-- **Email**: admin@businesshub.com
-- **Password**: admin123
+After starting the application for the first time, you'll need to:
+1. Register your first admin account through the application interface
+2. Configure your database connection in the `.env` file
+3. Set up any additional environment variables as needed
+
+For production deployments, ensure all sensitive credentials are properly secured and never committed to version control.
 
 ## Project Structure
 

@@ -25,19 +25,28 @@ async function comparePasswords(supplied: string, stored: string): Promise<boole
 export function setupAuth(app: Express) {
   const PostgresSessionStore = connectPg(session);
   
+  // Validate required environment variables
+  if (!process.env.SESSION_SECRET) {
+    throw new Error("SESSION_SECRET environment variable is required for security");
+  }
+  
+  if (!process.env.DATABASE_URL) {
+    throw new Error("DATABASE_URL environment variable is required");
+  }
+
   const sessionSettings: session.SessionOptions = {
-    secret: process.env.SESSION_SECRET || "dev-secret-key",
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     store: new PostgresSessionStore({ 
-      conString: "postgresql://repplit_owner:npg_qtLveA26UxGP@ep-proud-mountain-a85015ts-pooler.eastus2.azure.neon.tech/repplit?sslmode=require",
+      conString: process.env.DATABASE_URL,
       createTableIfMissing: true 
     }),
     cookie: {
-      secure: false, // Set to false for Replit environment
+      secure: process.env.NODE_ENV === 'production', // Enable secure cookies in production
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      sameSite: 'lax', // Allow cross-site cookies for Replit
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
       domain: process.env.NODE_ENV === 'production' ? '.replit.app' : undefined,
     },
   };
