@@ -52,6 +52,7 @@ import AdminExportPage from "@/pages/admin/export";
 import AdminFeaturedPage from "@/pages/admin/featured";
 import AdminServicesPage from "@/pages/admin/services";
 import AdminSettingsPage from "@/pages/admin/settings";
+import AdminContentPage from "@/pages/admin/content";
 import GetFeaturedPage from "@/pages/get-featured";
 
 function Router() {
@@ -102,6 +103,7 @@ function Router() {
           <Route path="/admin/export" component={AdminExportPage} />
           <Route path="/admin/featured" component={AdminFeaturedPage} />
           <Route path="/admin/services" component={AdminServicesPage} />
+          <Route path="/admin/content" component={AdminContentPage} />
           <Route path="/admin/settings" component={AdminSettingsPage} />
           <Route path="/admin/menu/:id" component={MenuEdit} />
         </>

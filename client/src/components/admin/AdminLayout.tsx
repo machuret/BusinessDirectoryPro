@@ -8,7 +8,7 @@ import Header from "@/components/header";
 import { 
   Building2, Users, Star, Settings, FileText, HelpCircle, Mail, MapPin,
   Download, Upload, Key, CheckCircle, Globe, UserCheck, Home, Menu, BookOpen,
-  ChevronLeft, ChevronRight, Search, Inbox, Tag
+  ChevronLeft, ChevronRight, Search, Inbox, Tag, Type
 } from "lucide-react";
 
 interface AdminLayoutProps {
@@ -119,6 +119,11 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       title: "SEO Management",
       icon: Search,
       path: "/admin/seo"
+    },
+    {
+      title: "Content Editor",
+      icon: Type,
+      path: "/admin/content"
     },
     {
       title: "Contact Messages",
