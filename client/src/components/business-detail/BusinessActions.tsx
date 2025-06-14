@@ -1,7 +1,10 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Globe, Heart, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import type { BusinessWithCategory } from "@shared/schema";
+import ClaimBusinessModal from "@/components/ClaimBusinessModal";
 
 interface BusinessActionsProps {
   business: BusinessWithCategory;
@@ -9,13 +12,19 @@ interface BusinessActionsProps {
 
 export function BusinessActions({ business }: BusinessActionsProps) {
   const { toast } = useToast();
+  const { user } = useAuth();
+  const [showClaimModal, setShowClaimModal] = useState(false);
 
   const handleClaimBusiness = () => {
-    toast({
-      title: "Claim Business Request",
-      description: "Your claim request has been submitted. We'll review it and get back to you soon.",
-      duration: 5000,
-    });
+    if (!user) {
+      toast({
+        title: "Login Required",
+        description: "Please log in to claim this business.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setShowClaimModal(true);
   };
 
   const handleShare = () => {
@@ -61,6 +70,14 @@ export function BusinessActions({ business }: BusinessActionsProps) {
         <Share2 className="w-4 h-4 mr-2" />
         Share
       </Button>
+      
+      {/* Claim Business Modal */}
+      <ClaimBusinessModal
+        business={business}
+        user={user}
+        open={showClaimModal}
+        onOpenChange={setShowClaimModal}
+      />
     </div>
   );
 }

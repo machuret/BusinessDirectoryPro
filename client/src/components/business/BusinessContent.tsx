@@ -46,35 +46,39 @@ export function BusinessContent({ business }: BusinessContentProps) {
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Main Content */}
       <div className="lg:col-span-2 space-y-6">
-        {/* Description with Photo Gallery */}
+        {/* Description */}
         {business.description && (
           <Card>
             <CardHeader>
               <CardTitle>About This Business</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent>
               <p className="text-gray-700 leading-relaxed">
                 {business.description}
               </p>
-              
-              {/* Photo Gallery at end of About Us */}
-              {images.length > 0 && (
-                <div>
-                  <h4 className="text-lg font-semibold mb-3">Photo Gallery</h4>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                    {images.map((image, index) => (
-                      <div key={index} className="relative aspect-square rounded-lg overflow-hidden bg-gray-100">
-                        <img
-                          src={image}
-                          alt={`${business.title} - Photo ${index + 1}`}
-                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300 cursor-pointer"
-                          loading="lazy"
-                        />
-                      </div>
-                    ))}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Photo Gallery */}
+        {images.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Photo Gallery</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {images.map((image, index) => (
+                  <div key={index} className="relative aspect-square rounded-lg overflow-hidden bg-gray-100">
+                    <img
+                      src={image}
+                      alt={`${business.title} - Photo ${index + 1}`}
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300 cursor-pointer"
+                      loading="lazy"
+                    />
                   </div>
-                </div>
-              )}
+                ))}
+              </div>
             </CardContent>
           </Card>
         )}
