@@ -80,11 +80,12 @@ function Router() {
       <Route path="/forms-demo" component={FormsDemo} />
       <Route path="/accessibility-demo" component={AccessibilityDemo} />
       <Route path="/content-test" component={() => <div className="container mx-auto py-8"><ContentTest /></div>} />
+      
+      {/* Admin routes - must come before slug router */}
       {isAuthenticated && (
         <>
-          <Route path="/dashboard" component={Dashboard} />
-          <Route path="/get-featured" component={GetFeaturedPage} />
-          <Route path="/admin/*" component={AdminLayout} />
+          <Route path="/admin" component={() => <AdminLayout />} />
+          <Route path="/admin/*" component={() => <AdminLayout />} />
           <Route path="/admin/businesses" component={AdminBusinessesPage} />
           <Route path="/admin/users" component={AdminUsersPage} />
           <Route path="/admin/categories" component={AdminCategoriesPage} />
@@ -106,8 +107,12 @@ function Router() {
           <Route path="/admin/content" component={AdminContentPage} />
           <Route path="/admin/settings" component={AdminSettingsPage} />
           <Route path="/admin/menu/:id" component={MenuEdit} />
+          <Route path="/dashboard" component={Dashboard} />
+          <Route path="/get-featured" component={GetFeaturedPage} />
         </>
       )}
+      
+      {/* Slug router - must come after all specific routes */}
       <Route path="/:slug" component={SlugRouter} />
       <Route component={NotFound} />
     </Switch>
