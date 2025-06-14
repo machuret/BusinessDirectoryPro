@@ -180,6 +180,10 @@ export function setupAuth(app: Express) {
       (req.session as any).userId = user.id;
       (req.session as any).user = user;
 
+      // Debug logging for session setting
+      console.log('[LOGIN] Setting session for user:', user.id, 'role:', user.role);
+      console.log('[LOGIN] Session user after setting:', JSON.stringify((req.session as any).user, null, 2));
+
       // Remove password from response
       const { password: _, ...userWithoutPassword } = user;
       res.json(userWithoutPassword);
@@ -342,8 +346,17 @@ export function isAuthenticated(req: any, res: any, next: any) {
 
 export function isAdmin(req: any, res: any, next: any) {
   const user = (req.session as any)?.user;
+  
+  // Debug logging to understand the session state
+  console.log('[ADMIN CHECK] Session user:', JSON.stringify(user, null, 2));
+  console.log('[ADMIN CHECK] User role:', user?.role);
+  console.log('[ADMIN CHECK] User ID:', user?.id);
+  
   if (!user || user.role !== "admin") {
+    console.log('[ADMIN CHECK] Access denied - user:', user?.id, 'role:', user?.role);
     return res.status(403).json({ message: "Admin access required" });
   }
+  
+  console.log('[ADMIN CHECK] Access granted for admin user:', user.id);
   next();
 }
