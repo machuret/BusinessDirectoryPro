@@ -13,12 +13,13 @@ interface BusinessReviewsProps {
 export function BusinessReviews({ business, allReviews }: BusinessReviewsProps) {
   const [showReviewForm, setShowReviewForm] = useState(false);
 
-  const renderStars = (rating: number) => {
+  const renderStars = (rating: any) => {
+    const numericRating = typeof rating === 'number' ? rating : parseFloat(rating) || 0;
     return Array.from({ length: 5 }, (_, i) => (
       <Star
         key={i}
         className={`w-4 h-4 ${
-          i < Math.floor(rating) ? "fill-yellow-500 text-yellow-500" : "text-gray-300"
+          i < Math.floor(numericRating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
         }`}
       />
     ));
