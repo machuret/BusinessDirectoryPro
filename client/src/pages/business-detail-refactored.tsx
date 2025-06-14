@@ -231,7 +231,7 @@ export default function BusinessDetailRefactored() {
             
             {/* Description */}
             <SectionErrorBoundary fallbackTitle="Unable to load business description">
-              <BusinessDescription business={business} />
+              <BusinessDescription business={business} images={getBusinessImages()} />
             </SectionErrorBoundary>
             
             {/* Reviews */}
