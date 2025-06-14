@@ -12,12 +12,15 @@ import optimizationRoutes from "./routes/optimization";
 import { registerCategoryRoutes } from "./routes/categories";
 import { csvImportService } from "./csv-import";
 import { createOwnershipClaimsTable } from "./create-ownership-table";
+import { setupFeaturedRequestsRoutes } from "./routes/featured-requests";
+import { createFeaturedRequestsTable } from "./create-featured-requests-table";
 
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Initialize database tables - ensure ownership_claims table exists
+  // Initialize database tables - ensure ownership_claims and featured_requests tables exist
   try {
     await createOwnershipClaimsTable();
+    await createFeaturedRequestsTable();
     console.log('Database tables initialized successfully');
   } catch (error) {
     console.error('Error initializing database tables:', error);
@@ -754,6 +757,9 @@ Respond with JSON format: {"services": [array of service objects]}. Make service
       res.status(500).json({ message: "Failed to update business submission" });
     }
   });
+
+  // Setup featured requests routes
+  setupFeaturedRequestsRoutes(app);
 
   const httpServer = createServer(app);
   return httpServer;

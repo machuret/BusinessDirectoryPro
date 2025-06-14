@@ -3,12 +3,13 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building2, FileText } from "lucide-react";
+import { Building2, FileText, Star } from "lucide-react";
 import type { BusinessWithCategory } from "@shared/schema";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import BusinessesSection from "@/components/dashboard/BusinessesSection";
 import ClaimsSection from "@/components/dashboard/ClaimsSection";
+import { FeaturedRequestsSection } from "@/components/dashboard/FeaturedRequestsSection";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -57,7 +58,7 @@ export default function Dashboard() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="businesses" className="flex items-center space-x-2">
               <Building2 className="h-4 w-4" />
               <span>My Businesses</span>
@@ -65,6 +66,10 @@ export default function Dashboard() {
             <TabsTrigger value="claims" className="flex items-center space-x-2">
               <FileText className="h-4 w-4" />
               <span>Ownership Claims</span>
+            </TabsTrigger>
+            <TabsTrigger value="featured" className="flex items-center space-x-2">
+              <Star className="h-4 w-4" />
+              <span>Featured Requests</span>
             </TabsTrigger>
           </TabsList>
 
