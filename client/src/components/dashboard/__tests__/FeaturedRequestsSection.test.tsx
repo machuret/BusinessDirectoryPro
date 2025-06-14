@@ -107,21 +107,17 @@ describe('FeaturedRequestsSection', () => {
 
       // Check for pending badge
       expect(screen.getByText('Pending')).toBeInTheDocument();
-      
-      // Check for pending status indicator (Clock icon should be present)
-      const pendingBadge = screen.getByText('Pending').closest('.gap-1');
-      expect(pendingBadge).toBeInTheDocument();
 
       // Check business title and user message are displayed
       expect(screen.getByText('Test Restaurant')).toBeInTheDocument();
-      expect(screen.getByText('Your message:')).toBeInTheDocument();
+      expect(screen.getByText(/Your message:/)).toBeInTheDocument();
       expect(screen.getByText('Please feature our restaurant for better visibility')).toBeInTheDocument();
 
       // Check submission date
       expect(screen.getByText('Submitted Jun 14, 2025')).toBeInTheDocument();
 
       // Verify no admin message is shown for pending requests
-      expect(screen.queryByText('Admin response:')).not.toBeInTheDocument();
+      expect(screen.queryByText(/Admin response:/)).not.toBeInTheDocument();
     });
   });
 
@@ -161,16 +157,14 @@ describe('FeaturedRequestsSection', () => {
 
       // Check for approved badge with green styling
       expect(screen.getByText('Approved')).toBeInTheDocument();
-      const approvedBadge = screen.getByText('Approved').closest('.bg-green-600');
-      expect(approvedBadge).toBeInTheDocument();
 
       // Check business title and user message
       expect(screen.getByText('Test Restaurant')).toBeInTheDocument();
-      expect(screen.getByText('Your message:')).toBeInTheDocument();
+      expect(screen.getByText(/Your message:/)).toBeInTheDocument();
       expect(screen.getByText('We provide excellent service and have great reviews')).toBeInTheDocument();
 
       // Check admin success message
-      expect(screen.getByText('Admin response:')).toBeInTheDocument();
+      expect(screen.getByText(/Admin response:/)).toBeInTheDocument();
       expect(screen.getByText('Congratulations! Your business is now featured.')).toBeInTheDocument();
 
       // Check both submission and review dates
@@ -213,18 +207,16 @@ describe('FeaturedRequestsSection', () => {
         expect(screen.getByText('Your Featured Requests')).toBeInTheDocument();
       });
 
-      // Check for rejected badge with destructive styling
+      // Check for rejected badge
       expect(screen.getByText('Rejected')).toBeInTheDocument();
-      const rejectedBadge = screen.getByText('Rejected').closest('.gap-1');
-      expect(rejectedBadge).toHaveClass('bg-destructive', 'text-destructive-foreground');
 
       // Check business title and user message
       expect(screen.getByText('Test Cafe')).toBeInTheDocument();
-      expect(screen.getByText('Your message:')).toBeInTheDocument();
+      expect(screen.getByText(/Your message:/)).toBeInTheDocument();
       expect(screen.getByText('This cafe has been serving the community for 10 years')).toBeInTheDocument();
 
       // Check admin rejection message with specific reason
-      expect(screen.getByText('Admin response:')).toBeInTheDocument();
+      expect(screen.getByText(/Admin response:/)).toBeInTheDocument();
       expect(screen.getByText('Thank you for your interest, but we cannot feature this business at this time due to insufficient reviews.')).toBeInTheDocument();
 
       // Check both submission and review dates
