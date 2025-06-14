@@ -126,22 +126,22 @@ export default function Footer() {
                 <>
                   <li>
                     <Link href="/pages/contact-us" className="text-gray-300 hover:text-white transition-colors">
-                      Contact Us
+                      {t('footer.links.contactUs')}
                     </Link>
                   </li>
                   <li>
                     <Link href="/pages/about-us" className="text-gray-300 hover:text-white transition-colors">
-                      About Us
+                      {t('footer.links.aboutUs')}
                     </Link>
                   </li>
                   <li>
                     <Link href="/pages/privacy-policy" className="text-gray-300 hover:text-white transition-colors">
-                      Privacy Policy
+                      {t('footer.links.privacyPolicy')}
                     </Link>
                   </li>
                   <li>
                     <Link href="/pages/terms-of-service" className="text-gray-300 hover:text-white transition-colors">
-                      Terms of Service
+                      {t('footer.links.termsOfService')}
                     </Link>
                   </li>
                 </>
@@ -151,7 +151,7 @@ export default function Footer() {
         </div>
         
         <div className="border-t border-gray-600 mt-8 pt-8 text-center">
-          <p className="text-gray-300">&copy; 2024 BusinessHub. All rights reserved.</p>
+          <p className="text-gray-300">{t('footer.copyright')}</p>
         </div>
       </div>
     </footer>
