@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import { UIProvider } from "@/contexts/UIContext";
+import { ContentProvider } from "@/contexts/ContentContext";
 import { ErrorBoundary } from "@/components/error/ErrorBoundary";
 import { LoadingState } from "@/components/loading/LoadingState";
 import { NetworkStatusBanner } from "@/components/NetworkStatusBanner";
@@ -28,6 +29,7 @@ import SlugRouter from "@/components/SlugRouter";
 import BusinessDebug from "@/pages/business-debug";
 import FormsDemo from "@/pages/forms-demo";
 import AccessibilityDemo from "@/pages/accessibility-demo";
+import { ContentTest } from "@/components/ContentTest";
 import NotFound from "@/pages/not-found";
 
 // Admin Pages
@@ -76,6 +78,7 @@ function Router() {
       <Route path="/debug/:slug" component={BusinessDebug} />
       <Route path="/forms-demo" component={FormsDemo} />
       <Route path="/accessibility-demo" component={AccessibilityDemo} />
+      <Route path="/content-test" component={() => <div className="container mx-auto py-8"><ContentTest /></div>} />
       {isAuthenticated && (
         <>
           <Route path="/dashboard" component={Dashboard} />
@@ -119,13 +122,15 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ErrorBoundary>
-        <TooltipProvider>
-          <NetworkStatusBanner />
-          <Toaster />
-          <Router />
-        </TooltipProvider>
-      </ErrorBoundary>
+      <ContentProvider>
+        <ErrorBoundary>
+          <TooltipProvider>
+            <NetworkStatusBanner />
+            <Toaster />
+            <Router />
+          </TooltipProvider>
+        </ErrorBoundary>
+      </ContentProvider>
     </QueryClientProvider>
   );
 }
