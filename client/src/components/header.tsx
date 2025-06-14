@@ -55,9 +55,19 @@ export default function Header() {
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   };
 
-  const handleSignOut = () => {
-    // For now, just redirect to login page
-    window.location.href = "/login";
+  const handleSignOut = async () => {
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+      // Force page reload to clear any cached state
+      window.location.href = "/login";
+    } catch (error) {
+      console.error("Logout error:", error);
+      // Still redirect even if logout fails
+      window.location.href = "/login";
+    }
   };
 
   return (

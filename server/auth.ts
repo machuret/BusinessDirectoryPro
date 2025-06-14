@@ -195,17 +195,21 @@ export function setupAuth(app: Express) {
         console.error("Logout error:", err);
         return res.status(500).json({ message: "Logout failed" });
       }
+      // Clear the session cookie
+      res.clearCookie('connect.sid');
       res.json({ message: "Logged out successfully" });
     });
   });
 
-  // Logout endpoint
+  // Legacy logout endpoint for compatibility
   app.post("/api/logout", (req, res) => {
     req.session.destroy((err) => {
       if (err) {
         console.error("Logout error:", err);
         return res.status(500).json({ message: "Logout failed" });
       }
+      // Clear the session cookie
+      res.clearCookie('connect.sid');
       res.json({ message: "Logged out successfully" });
     });
   });
