@@ -610,6 +610,22 @@ Respond with JSON format: {"services": [array of service objects]}. Make service
     }
   });
 
+  app.get("/api/user/businesses", async (req, res) => {
+    try {
+      const session = req.session as any;
+      const userId = session?.userId || 'demo-user-1'; // Fallback for testing
+      
+      const businesses = await storage.getBusinessesByOwner(userId);
+      res.json(businesses);
+    } catch (error) {
+      console.error("Error fetching user businesses:", error);
+      res.status(500).json({ 
+        message: "Failed to fetch user businesses",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   app.put("/api/admin/ownership-claims/:id", async (req, res) => {
     try {
       const claimId = parseInt(req.params.id);
