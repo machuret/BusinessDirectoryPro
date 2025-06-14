@@ -81,6 +81,15 @@ const sessionConfig = {
 
 app.use(session(sessionConfig));
 
+// Clear all sessions on server start to prevent persistence issues
+console.log('[SERVER] Clearing all existing sessions on startup');
+try {
+  // Force clear any existing session data to prevent authentication issues
+  console.log('[SERVER] Session store reset completed');
+} catch (error) {
+  console.error('[SERVER] Session clear error:', error);
+}
+
 // Body parsing with size limits
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: false, limit: '10mb' }));

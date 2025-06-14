@@ -6,6 +6,7 @@ import { storage } from "./storage";
 import { User } from "@shared/schema";
 import connectPg from "connect-pg-simple";
 import { pool } from "./db";
+import { SessionManager, performCompleteLogout } from "./session-manager";
 
 const scryptAsync = promisify(scrypt);
 
@@ -210,39 +211,23 @@ export function setupAuth(app: Express) {
     }
   });
 
-  app.post("/api/auth/logout", (req, res) => {
-    console.log('[LOGOUT] Starting logout process for session:', req.sessionID);
+  app.post("/api/auth/logout", async (req, res) => {
+    console.log('[LOGOUT] Starting comprehensive logout for session:', req.sessionID);
     console.log('[LOGOUT] Current user:', JSON.stringify((req.session as any)?.user, null, 2));
     
-    // Get session ID before destroying
-    const sessionId = req.sessionID;
-    
-    // Completely clear all session data
-    if (req.session) {
-      Object.keys(req.session).forEach(key => {
-        delete (req.session as any)[key];
-      });
-    }
-    
-    // Regenerate session with new ID
-    req.session.regenerate((regenerateErr) => {
-      if (regenerateErr) {
-        console.error('[LOGOUT] Session regenerate error:', regenerateErr);
-        // Fallback to destroy
-        req.session.destroy((destroyErr) => {
-          if (destroyErr) {
-            console.error('[LOGOUT] Session destroy error:', destroyErr);
-            return res.status(500).json({ message: "Logout failed" });
-          }
-          console.log('[LOGOUT] Session destroyed as fallback:', sessionId);
-          sendLogoutResponse(res);
-        });
-        return;
-      }
+    try {
+      // Perform complete logout with session manager
+      await performCompleteLogout(req, res);
       
-      console.log('[LOGOUT] Session regenerated successfully. Old:', sessionId, 'New:', req.sessionID);
-      sendLogoutResponse(res);
-    });
+      // Clear all sessions from memory to prevent persistence issues
+      SessionManager.resetAllUserSessions();
+      
+      console.log('[LOGOUT] Comprehensive logout completed');
+      res.json({ message: "Logged out successfully" });
+    } catch (error) {
+      console.error('[LOGOUT] Complete logout failed:', error);
+      res.status(500).json({ message: "Logout failed" });
+    }
   });
 
   function sendLogoutResponse(res: any) {
