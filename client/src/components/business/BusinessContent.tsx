@@ -25,15 +25,25 @@ export function BusinessContent({ business }: BusinessContentProps) {
     if (!imageurls) return [];
     
     try {
+      // If it's already an array, return it
+      if (Array.isArray(imageurls)) {
+        return imageurls.filter(Boolean);
+      }
+      
+      // If it's a string, try to parse it
       if (typeof imageurls === 'string') {
         const parsed = JSON.parse(imageurls);
         return Array.isArray(parsed) ? parsed.filter(Boolean) : [];
       }
-      if (Array.isArray(imageurls)) {
-        return imageurls.filter(Boolean);
+      
+      // If it's an object with array properties, check common field names
+      if (typeof imageurls === 'object' && imageurls !== null) {
+        const obj = imageurls as any;
+        if (Array.isArray(obj.urls)) return obj.urls.filter(Boolean);
+        if (Array.isArray(obj.images)) return obj.images.filter(Boolean);
       }
     } catch (error) {
-      console.warn('Failed to parse image URLs:', error);
+      console.warn('Failed to parse image URLs:', error, imageurls);
     }
     
     return [];
@@ -41,6 +51,10 @@ export function BusinessContent({ business }: BusinessContentProps) {
 
   const images = getImageUrls(business.imageurls);
   const formattedHours = formatOpeningHours(business.openinghours);
+  
+  // Debug logging
+  console.log('Business imageurls:', business.imageurls);
+  console.log('Parsed images:', images);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
