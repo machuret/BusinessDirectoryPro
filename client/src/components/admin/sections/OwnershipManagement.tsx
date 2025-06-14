@@ -19,16 +19,15 @@ interface OwnershipClaim {
   businessTitle?: string;
   userId: string;
   userEmail?: string;
+  userFirstName?: string;
+  userLastName?: string;
   status: 'pending' | 'approved' | 'rejected';
-  claimDate: string;
-  verificationNotes?: string;
-  adminNotes?: string;
-  submittedDocuments?: string[];
-  contactInfo?: {
-    phone?: string;
-    email?: string;
-    name?: string;
-  };
+  message?: string; // User's claim message
+  adminMessage?: string; // Admin's response message
+  reviewedBy?: string;
+  reviewedAt?: string;
+  createdAt: string;
+  updatedAt?: string;
 }
 
 export function OwnershipManagement() {
@@ -213,7 +212,11 @@ export function OwnershipManagement() {
                       <div className="flex items-center gap-2">
                         <User className="h-4 w-4 text-muted-foreground" />
                         <div>
-                          <div className="font-medium">{claim.contactInfo?.name || 'Unknown'}</div>
+                          <div className="font-medium">
+                            {claim.userFirstName && claim.userLastName 
+                              ? `${claim.userFirstName} ${claim.userLastName}` 
+                              : 'Unknown'}
+                          </div>
                           <div className="text-sm text-muted-foreground">{claim.userEmail}</div>
                         </div>
                       </div>
@@ -221,7 +224,7 @@ export function OwnershipManagement() {
                     <TableCell>{getStatusBadge(claim.status)}</TableCell>
                     <TableCell>
                       <div className="text-sm">
-                        {formatDistanceToNow(new Date(claim.claimDate), { addSuffix: true })}
+                        {formatDistanceToNow(new Date(claim.createdAt), { addSuffix: true })}
                       </div>
                     </TableCell>
                     <TableCell>
@@ -274,28 +277,28 @@ export function OwnershipManagement() {
                                   <div className="grid grid-cols-2 gap-4 text-sm">
                                     <div className="flex items-center gap-2">
                                       <User className="h-3 w-3" />
-                                      <span className="font-medium">Name:</span> {selectedClaim.contactInfo?.name || 'Not provided'}
+                                      <span className="font-medium">Name:</span> 
+                                      {selectedClaim.userFirstName && selectedClaim.userLastName 
+                                        ? `${selectedClaim.userFirstName} ${selectedClaim.userLastName}` 
+                                        : 'Not provided'}
                                     </div>
                                     <div className="flex items-center gap-2">
                                       <Mail className="h-3 w-3" />
                                       <span className="font-medium">Email:</span> {selectedClaim.userEmail}
                                     </div>
-                                    {selectedClaim.contactInfo?.phone && (
-                                      <div className="flex items-center gap-2">
-                                        <Phone className="h-3 w-3" />
-                                        <span className="font-medium">Phone:</span> {selectedClaim.contactInfo.phone}
-                                      </div>
-                                    )}
+                                    <div className="col-span-2 text-xs text-muted-foreground">
+                                      <span className="font-medium">User ID:</span> {selectedClaim.userId}
+                                    </div>
                                   </div>
                                 </div>
                               </div>
 
-                              {/* Verification Notes */}
-                              {selectedClaim.verificationNotes && (
+                              {/* User's Claim Message */}
+                              {selectedClaim.message && (
                                 <div className="space-y-2">
-                                  <h4 className="font-semibold">Verification Notes</h4>
-                                  <div className="bg-muted p-3 rounded-lg text-sm">
-                                    {selectedClaim.verificationNotes}
+                                  <h4 className="font-semibold text-orange-600">User's Claim Message</h4>
+                                  <div className="bg-orange-50 border border-orange-200 p-4 rounded-lg">
+                                    <p className="text-sm leading-relaxed">{selectedClaim.message}</p>
                                   </div>
                                 </div>
                               )}
@@ -337,12 +340,12 @@ export function OwnershipManagement() {
                                   <div className="flex items-center gap-2">
                                     {getStatusBadge(selectedClaim.status)}
                                     <span className="text-sm text-muted-foreground">
-                                      on {new Date(selectedClaim.claimDate).toLocaleDateString()}
+                                      on {new Date(selectedClaim.reviewedAt || selectedClaim.createdAt).toLocaleDateString()}
                                     </span>
                                   </div>
-                                  {selectedClaim.adminNotes && (
+                                  {selectedClaim.adminMessage && (
                                     <div className="mt-2 text-sm">
-                                      <span className="font-medium">Admin Notes:</span> {selectedClaim.adminNotes}
+                                      <span className="font-medium">Admin Response:</span> {selectedClaim.adminMessage}
                                     </div>
                                   )}
                                 </div>
