@@ -240,6 +240,20 @@ export const businessServices = pgTable("business_services", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Featured requests table
+export const featuredRequests = pgTable("featured_requests", {
+  id: serial("id").primaryKey(),
+  businessId: text("business_id").notNull().references(() => businesses.placeid, { onDelete: "cascade" }),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  status: varchar("status").notNull().default("pending"), // pending, approved, rejected
+  message: text("message"), // User's request message
+  adminMessage: text("admin_message"), // Admin's response message
+  reviewedBy: varchar("reviewed_by").references(() => users.id),
+  reviewedAt: timestamp("reviewed_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Schema definitions for validation
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
