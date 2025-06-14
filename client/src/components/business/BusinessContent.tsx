@@ -46,43 +46,34 @@ export function BusinessContent({ business }: BusinessContentProps) {
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Main Content */}
       <div className="lg:col-span-2 space-y-6">
-        {/* Description */}
+        {/* Description with Photo Gallery */}
         {business.description && (
           <Card>
             <CardHeader>
               <CardTitle>About This Business</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-6">
               <p className="text-gray-700 leading-relaxed">
                 {business.description}
               </p>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Photo Gallery */}
-        {images.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Photos</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-3 gap-2">
-                {images.slice(0, 3).map((image, index) => (
-                  <div key={index} className="relative">
-                    <img
-                      src={image}
-                      alt={`${business.name} - Photo ${index + 1}`}
-                      className="w-full h-20 object-cover rounded-md shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-                      loading="lazy"
-                    />
+              
+              {/* Photo Gallery at end of About Us */}
+              {images.length > 0 && (
+                <div>
+                  <h4 className="text-lg font-semibold mb-3">Photo Gallery</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                    {images.map((image, index) => (
+                      <div key={index} className="relative aspect-square rounded-lg overflow-hidden bg-gray-100">
+                        <img
+                          src={image}
+                          alt={`${business.title} - Photo ${index + 1}`}
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300 cursor-pointer"
+                          loading="lazy"
+                        />
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-              {images.length > 3 && (
-                <p className="text-sm text-gray-500 mt-2">
-                  +{images.length - 3} more photos
-                </p>
+                </div>
               )}
             </CardContent>
           </Card>

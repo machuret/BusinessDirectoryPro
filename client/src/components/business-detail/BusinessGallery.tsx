@@ -44,37 +44,6 @@ export function BusinessGallery({ images, businessTitle }: BusinessGalleryProps)
     );
   }
 
-  return (
-    <div className="container mx-auto px-4 py-3">
-      <div className="grid grid-cols-3 gap-2">
-        {imageStates.slice(0, 3).map((state, index) => {
-          if (state.error) return null;
-          
-          return (
-            <div key={index} className="relative aspect-[4/3] rounded-md overflow-hidden bg-gray-100 max-h-20">
-              {state.loading && (
-                <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-                  <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
-                </div>
-              )}
-              <img
-                src={state.src}
-                alt={`${businessTitle} - Photo ${index + 1}`}
-                className={`w-full h-full object-cover transition-opacity duration-300 cursor-pointer hover:opacity-90 ${
-                  state.loading ? 'opacity-0' : 'opacity-100'
-                }`}
-                onLoad={() => handleImageLoad(index)}
-                onError={() => handleImageError(index)}
-              />
-            </div>
-          );
-        })}
-      </div>
-      {images.length > 3 && (
-        <p className="text-xs text-gray-500 mt-2 text-center">
-          +{images.length - 3} more photos
-        </p>
-      )}
-    </div>
-  );
+  // Don't render the gallery here - it will be shown at the end of About Us section
+  return null;
 }
