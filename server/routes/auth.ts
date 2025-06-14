@@ -2,6 +2,7 @@ import { Express } from "express";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { storage } from "../storage";
+import { SessionManager, performCompleteLogout } from "../session-manager";
 
 const scryptAsync = promisify(scrypt);
 

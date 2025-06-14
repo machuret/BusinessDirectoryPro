@@ -294,15 +294,8 @@ export function setupAuth(app: Express) {
     try {
       const userId = (req.session as any)?.userId;
       if (!userId) {
-        // Temporary fix: provide demo user for business page viewing
-        const demoUser = {
-          id: "demo-user-1",
-          email: "maria.garcia@email.com",
-          firstName: "Maria",
-          lastName: "Garcia",
-          role: "user"
-        };
-        return res.json(demoUser);
+        // No authenticated user
+        return res.status(401).json({ message: "Not authenticated" });
       }
       
       const user = await storage.getUser(userId);
