@@ -61,13 +61,18 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
       phone: business.phone || "",
       website: business.website || "",
       address: business.address || "",
-      hours: business.hours || "",
-      email: business.email || "",
     });
     
-    // Parse existing FAQs
+    // Parse existing FAQs from the 'faq' field
     try {
-      const existingFaqs = business.faqs ? JSON.parse(business.faqs) : [];
+      let existingFaqs = [];
+      if (business.faq) {
+        if (typeof business.faq === 'string') {
+          existingFaqs = JSON.parse(business.faq);
+        } else {
+          existingFaqs = business.faq;
+        }
+      }
       setFaqs(Array.isArray(existingFaqs) ? existingFaqs : []);
     } catch {
       setFaqs([]);
@@ -221,7 +226,7 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
                             </TabsContent>
 
                             <TabsContent value="contact" className="space-y-4 mt-4">
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div className="grid grid-cols-1 gap-4">
                                 <div>
                                   <Label htmlFor="phone" className="flex items-center gap-2">
                                     <Phone className="h-4 w-4" />
@@ -236,46 +241,29 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
                                 </div>
                                 
                                 <div>
-                                  <Label htmlFor="email" className="flex items-center gap-2">
-                                    <Mail className="h-4 w-4" />
-                                    Email Address
+                                  <Label htmlFor="website" className="flex items-center gap-2">
+                                    <Globe className="h-4 w-4" />
+                                    Website URL
                                   </Label>
                                   <Input
-                                    id="email"
-                                    type="email"
-                                    value={editForm.values.email}
-                                    onChange={(e) => editForm.updateField("email", e.target.value)}
-                                    placeholder="business@example.com"
+                                    id="website"
+                                    type="url"
+                                    value={editForm.values.website}
+                                    onChange={(e) => editForm.updateField("website", e.target.value)}
+                                    placeholder="https://yourwebsite.com"
                                   />
                                 </div>
-                              </div>
-                              
-                              <div>
-                                <Label htmlFor="website" className="flex items-center gap-2">
-                                  <Globe className="h-4 w-4" />
-                                  Website URL
-                                </Label>
-                                <Input
-                                  id="website"
-                                  type="url"
-                                  value={editForm.values.website}
-                                  onChange={(e) => editForm.updateField("website", e.target.value)}
-                                  placeholder="https://yourwebsite.com"
-                                />
-                              </div>
-                              
-                              <div>
-                                <Label htmlFor="hours" className="flex items-center gap-2">
-                                  <Clock className="h-4 w-4" />
-                                  Business Hours
-                                </Label>
-                                <Textarea
-                                  id="hours"
-                                  value={editForm.values.hours}
-                                  onChange={(e) => editForm.updateField("hours", e.target.value)}
-                                  placeholder="Monday-Friday: 9:00 AM - 6:00 PM&#10;Saturday: 10:00 AM - 4:00 PM&#10;Sunday: Closed"
-                                  rows={3}
-                                />
+                                
+                                <div className="p-4 bg-muted/50 rounded-lg">
+                                  <h4 className="font-medium mb-2 flex items-center gap-2">
+                                    <Clock className="h-4 w-4" />
+                                    Business Hours & Contact Info
+                                  </h4>
+                                  <p className="text-sm text-muted-foreground">
+                                    To update your business hours, contact information, and other detailed information, 
+                                    please contact our support team. Basic business details can be edited here.
+                                  </p>
+                                </div>
                               </div>
                             </TabsContent>
 
