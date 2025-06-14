@@ -136,21 +136,21 @@ export default function Header() {
                     <DropdownMenuItem asChild>
                       <Link href="/dashboard">
                         <BarChart3 className="mr-2 h-4 w-4" />
-                        <span>Dashboard</span>
+                        <span>{t('header.userMenu.dashboard')}</span>
                       </Link>
                     </DropdownMenuItem>
                     {(user as any).role === 'admin' && (
                       <DropdownMenuItem asChild>
                         <Link href="/admin">
                           <Settings className="mr-2 h-4 w-4" />
-                          <span>Admin Panel</span>
+                          <span>{t('header.userMenu.adminPanel')}</span>
                         </Link>
                       </DropdownMenuItem>
                     )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleSignOut}>
                       <LogOut className="mr-2 h-4 w-4" />
-                      <span>Sign out</span>
+                      <span>{t('header.userMenu.signOut')}</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -220,7 +220,7 @@ export default function Header() {
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
                           <BarChart3 className="w-4 h-4" />
-                          <span>Dashboard</span>
+                          <span>{t('header.userMenu.dashboard')}</span>
                         </Link>
                         
                         {(user as any).role === 'admin' && (
@@ -230,7 +230,7 @@ export default function Header() {
                             onClick={() => setIsMobileMenuOpen(false)}
                           >
                             <Settings className="w-4 h-4" />
-                            <span>Admin Panel</span>
+                            <span>{t('header.userMenu.adminPanel')}</span>
                           </Link>
                         )}
                         
@@ -243,7 +243,7 @@ export default function Header() {
                           }}
                         >
                           <LogOut className="mr-2 h-4 w-4" />
-                          Sign out
+                          {t('header.userMenu.signOut')}
                         </Button>
                       </div>
                     ) : (
