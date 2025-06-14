@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
+import { useContent } from "@/contexts/ContentContext";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -11,6 +12,7 @@ import { Building, Menu, User, LogOut, Settings, BarChart3 } from "lucide-react"
 export default function Header() {
   const [location] = useLocation();
   const { user, isAuthenticated, isLoading } = useAuth();
+  const { t } = useContent();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Fetch website logo from database
@@ -35,9 +37,9 @@ export default function Header() {
         label: item.name
       }))
     : [
-        { href: "/", label: "Home" },
-        { href: "/categories", label: "Categories" },
-        { href: "/featured", label: "Featured" },
+        { href: "/", label: t('header.navigation.home') },
+        { href: "/categories", label: t('header.navigation.categories') },
+        { href: "/featured", label: t('header.navigation.featured') },
       ];
 
   const isActiveLink = (href: string) => {
@@ -74,7 +76,7 @@ export default function Header() {
               ) : (
                 <Building className="text-primary text-2xl mr-3" />
               )}
-              <h1 className="text-2xl font-bold text-gray-900">BusinessHub</h1>
+              <h1 className="text-2xl font-bold text-gray-900">{t('header.siteTitle')}</h1>
             </Link>
             
             {/* Desktop Navigation */}
@@ -157,12 +159,12 @@ export default function Header() {
               <>
                 <Link href="/login">
                   <Button variant="ghost">
-                    Sign In
+                    {t('header.auth.signIn')}
                   </Button>
                 </Link>
                 <Link href="/add-business">
                   <Button className="bg-primary text-white hover:bg-blue-700">
-                    Add Your Business
+                    {t('header.auth.addBusiness')}
                   </Button>
                 </Link>
               </>
