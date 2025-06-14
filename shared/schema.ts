@@ -240,6 +240,17 @@ export const businessServices = pgTable("business_services", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Page content table for admin-editable content
+export const pageContent = pgTable("page_content", {
+  id: serial("id").primaryKey(),
+  pageKey: varchar("page_key").notNull().unique(), // e.g., "get-featured", "contact-us"
+  title: varchar("title").notNull(),
+  content: text("content").notNull(),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // Featured requests table
 export const featuredRequests = pgTable("featured_requests", {
   id: serial("id").primaryKey(),
@@ -301,6 +312,12 @@ export const publicReviewSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters").max(100, "Title must be less than 100 characters"),
   rating: z.number().min(1).max(5),
   comment: z.string().min(10, "Review must be at least 10 characters"),
+});
+
+export const insertPageContentSchema = createInsertSchema(pageContent).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
 });
 
 export const insertSiteSettingSchema = createInsertSchema(siteSettings).omit({
@@ -370,6 +387,8 @@ export type InsertService = z.infer<typeof insertServiceSchema>;
 export type Service = typeof services.$inferSelect;
 export type InsertBusinessService = z.infer<typeof insertBusinessServiceSchema>;
 export type BusinessService = typeof businessServices.$inferSelect;
+export type InsertPageContent = z.infer<typeof insertPageContentSchema>;
+export type PageContent = typeof pageContent.$inferSelect;
 
 // Leads table for business inquiries
 export const leads = pgTable("leads", {
