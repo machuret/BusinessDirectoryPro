@@ -25,7 +25,9 @@ export function BusinessDescription({ business, images = [] }: BusinessDescripti
     return allImages.filter((img, index, arr) => arr.indexOf(img) === index); // Remove duplicates
   };
 
-  const displayImages = getBusinessImages();
+  // Get all images and skip the first one (used as hero), then limit to 4
+  const allImages = getBusinessImages();
+  const displayImages = allImages.slice(1, 5); // Skip first image, show next 4
 
   return (
     <Card className="border-gray-200">
