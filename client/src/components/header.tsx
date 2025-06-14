@@ -57,16 +57,32 @@ export default function Header() {
 
   const handleSignOut = async () => {
     try {
+      // Call logout API
       await fetch("/api/auth/logout", {
         method: "POST",
         credentials: "include",
       });
-      // Force page reload to clear any cached state
-      window.location.href = "/login";
+      
+      // Clear all local storage and session storage
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // Clear any cached data
+      if (window.caches) {
+        const cacheNames = await window.caches.keys();
+        await Promise.all(
+          cacheNames.map(name => window.caches.delete(name))
+        );
+      }
+      
+      // Force complete page reload to clear all state
+      window.location.replace("/login");
     } catch (error) {
       console.error("Logout error:", error);
-      // Still redirect even if logout fails
-      window.location.href = "/login";
+      // Clear storage even if logout API fails
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.replace("/login");
     }
   };
 

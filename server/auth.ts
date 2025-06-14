@@ -190,26 +190,56 @@ export function setupAuth(app: Express) {
   });
 
   app.post("/api/auth/logout", (req, res) => {
+    // Clear session data first
+    req.session.userId = null;
+    req.session.user = null;
+    
     req.session.destroy((err) => {
       if (err) {
         console.error("Logout error:", err);
         return res.status(500).json({ message: "Logout failed" });
       }
-      // Clear the session cookie
-      res.clearCookie('connect.sid');
+      
+      // Clear all possible session cookies
+      res.clearCookie('connect.sid', {
+        path: '/',
+        httpOnly: true,
+        secure: false, // Set to true in production with HTTPS
+        sameSite: 'lax'
+      });
+      
+      // Clear any other potential session cookies
+      res.clearCookie('session');
+      res.clearCookie('sessionId');
+      
       res.json({ message: "Logged out successfully" });
     });
   });
 
   // Legacy logout endpoint for compatibility
   app.post("/api/logout", (req, res) => {
+    // Clear session data first
+    req.session.userId = null;
+    req.session.user = null;
+    
     req.session.destroy((err) => {
       if (err) {
         console.error("Logout error:", err);
         return res.status(500).json({ message: "Logout failed" });
       }
-      // Clear the session cookie
-      res.clearCookie('connect.sid');
+      
+      // Clear all possible session cookies
+      res.clearCookie('connect.sid', {
+        path: '/',
+        httpOnly: true,
+        secure: false, // Set to true in production with HTTPS
+        sameSite: 'lax'
+      });
+      
+      // Clear any other potential session cookies
+      res.clearCookie('session');
+      res.clearCookie('sessionId');
+      
       res.json({ message: "Logged out successfully" });
     });
   });
