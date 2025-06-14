@@ -22,7 +22,7 @@ import {
  * Refactored comprehensive storage using composition pattern
  * Each domain area is handled by a specialized storage class
  */
-export class ComprehensiveStorage implements IStorage {
+export class RefactoredComprehensiveStorage implements IStorage {
   // Domain-specific storage instances
   private users = new UserStorage();
   private businesses = new BusinessStorage();
@@ -144,29 +144,6 @@ export class ComprehensiveStorage implements IStorage {
     return this.businesses.getUniqueCities();
   }
 
-  // Legacy business methods for backward compatibility
-  async updateBusinessRating(businessId: string, rating: number): Promise<void> {
-    // Delegate to business storage - this might need to be implemented there
-    return this.businesses.updateBusiness(businessId, { averageRating: rating });
-  }
-
-  async updateCityName(oldName: string, newName: string): Promise<void> {
-    // This would need to be implemented in business storage
-    throw new Error("updateCityName not implemented in modular storage");
-  }
-
-  async importBusinessFromCSV(csvData: any): Promise<Business> {
-    throw new Error("importBusinessFromCSV not implemented in modular storage");
-  }
-
-  async bulkImportBusinesses(businesses: any[]): Promise<Business[]> {
-    throw new Error("bulkImportBusinesses not implemented in modular storage");
-  }
-
-  async updateBusinessSubmissionStatus(id: string, status: string): Promise<Business | undefined> {
-    return this.businesses.updateBusiness(id, { submissionStatus: status });
-  }
-
   // ===== REVIEW OPERATIONS =====
   async getReviewsByBusiness(businessId: string): Promise<(Review & { user: Pick<User, 'firstName' | 'lastName'> })[]> {
     return this.reviews.getReviewsByBusiness(businessId);
@@ -239,11 +216,6 @@ export class ComprehensiveStorage implements IStorage {
 
   async deleteMenuItem(id: number): Promise<void> {
     return this.content.deleteMenuItem(id);
-  }
-
-  // Legacy method for backward compatibility
-  async reorderMenuItem(id: number, newOrder: number): Promise<void> {
-    await this.content.updateMenuItem(id, { order: newOrder });
   }
 
   async getPages(status?: string): Promise<Page[]> {
@@ -345,7 +317,7 @@ export class ComprehensiveStorage implements IStorage {
 
   // ===== OWNERSHIP CLAIMS OPERATIONS =====
   async getOwnershipClaims(): Promise<OwnershipClaimWithDetails[]> {
-    return this.ownershipClaims.getAllOwnershipClaims();
+    return this.ownershipClaims.getOwnershipClaims();
   }
 
   async getOwnershipClaimsByUser(userId: string): Promise<OwnershipClaimWithDetails[]> {
@@ -361,7 +333,7 @@ export class ComprehensiveStorage implements IStorage {
   }
 
   async updateOwnershipClaim(id: number, status: string, adminMessage?: string, reviewedBy?: string): Promise<any> {
-    return this.ownershipClaims.updateOwnershipClaimStatus(id, status as any, adminMessage, reviewedBy);
+    return this.ownershipClaims.updateOwnershipClaim(id, status, adminMessage, reviewedBy);
   }
 
   async deleteOwnershipClaim(id: number): Promise<void> {
@@ -415,26 +387,26 @@ export class ComprehensiveStorage implements IStorage {
 
   // ===== FEATURED REQUESTS OPERATIONS =====
   async createFeaturedRequest(data: any): Promise<any> {
-    return FeaturedRequestsStorage.createFeaturedRequest(data);
+    return this.featuredRequests.createFeaturedRequest(data);
   }
 
   async getFeaturedRequestsByUser(userId: string): Promise<any[]> {
-    return FeaturedRequestsStorage.getFeaturedRequestsByUser(userId);
+    return this.featuredRequests.getFeaturedRequestsByUser(userId);
   }
 
   async getAllFeaturedRequests(): Promise<any[]> {
-    return FeaturedRequestsStorage.getAllFeaturedRequests();
+    return this.featuredRequests.getAllFeaturedRequests();
   }
 
   async getAllFeaturedRequestsWithBusinessDetails(): Promise<any[]> {
-    return FeaturedRequestsStorage.getAllFeaturedRequestsWithBusinessDetails();
+    return this.featuredRequests.getAllFeaturedRequestsWithBusinessDetails();
   }
 
   async updateFeaturedRequestStatus(id: number, status: 'approved' | 'rejected', reviewedBy: string, adminMessage?: string): Promise<any> {
-    return FeaturedRequestsStorage.updateFeaturedRequestStatus(id, status, reviewedBy, adminMessage);
+    return this.featuredRequests.updateFeaturedRequestStatus(id, status, reviewedBy, adminMessage);
   }
 
   async isBusinessEligibleForFeatured(businessId: string, userId: string): Promise<boolean> {
-    return FeaturedRequestsStorage.isBusinessEligibleForFeatured(businessId, userId);
+    return this.featuredRequests.isBusinessEligibleForFeatured(businessId, userId);
   }
 }
