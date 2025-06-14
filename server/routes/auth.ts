@@ -114,22 +114,18 @@ export function setupAuthRoutes(app: Express) {
     try {
       const userId = req.session?.userId;
       if (!userId) {
-        // Provide demo user for business page viewing
-        const demoUser = {
-          id: "demo-user-1",
-          email: "maria.garcia@email.com",
-          firstName: "Maria",
-          lastName: "Garcia",
-          role: "user"
-        };
-        return res.json(demoUser);
+        // No authenticated user
+        return res.status(401).json({ message: "Not authenticated" });
       }
       
       const user = await storage.getUser(userId);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
-      res.json(user);
+      
+      // Remove password from response
+      const { password: _, ...userWithoutPassword } = user;
+      res.json(userWithoutPassword);
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
