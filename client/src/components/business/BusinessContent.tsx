@@ -67,21 +67,21 @@ export function BusinessContent({ business }: BusinessContentProps) {
               <CardTitle>Photos</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {images.slice(0, 6).map((image, index) => (
+              <div className="grid grid-cols-3 gap-2">
+                {images.slice(0, 3).map((image, index) => (
                   <div key={index} className="relative">
                     <img
                       src={image}
                       alt={`${business.name} - Photo ${index + 1}`}
-                      className="w-full h-32 object-cover rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                      className="w-full h-20 object-cover rounded-md shadow-sm hover:shadow-md transition-shadow cursor-pointer"
                       loading="lazy"
                     />
                   </div>
                 ))}
               </div>
-              {images.length > 6 && (
+              {images.length > 3 && (
                 <p className="text-sm text-gray-500 mt-2">
-                  +{images.length - 6} more photos
+                  +{images.length - 3} more photos
                 </p>
               )}
             </CardContent>
