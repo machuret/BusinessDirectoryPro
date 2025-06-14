@@ -28,11 +28,8 @@ import BusinessesPage from "@/pages/businesses";
 import SlugRouter from "@/components/SlugRouter";
 import BusinessDebug from "@/pages/business-debug";
 import FormsDemo from "@/pages/forms-demo";
-import AccessibilityDemo from "@/pages/accessibility-demo";
-import { ContentTest } from "@/components/ContentTest";
-import NotFound from "@/pages/not-found";
 
-// Admin Pages
+// Admin page imports
 import AdminBusinessesPage from "@/pages/admin/businesses";
 import AdminUsersPage from "@/pages/admin/users";
 import AdminCategoriesPage from "@/pages/admin/categories";
@@ -51,8 +48,12 @@ import AdminImportPage from "@/pages/admin/import";
 import AdminExportPage from "@/pages/admin/export";
 import AdminFeaturedPage from "@/pages/admin/featured";
 import AdminServicesPage from "@/pages/admin/services";
-import AdminSettingsPage from "@/pages/admin/settings";
 import AdminContentPage from "@/pages/admin/content";
+import AdminSettingsPage from "@/pages/admin/settings";
+import AccessibilityDemo from "@/pages/accessibility-demo";
+import { ContentTest } from "@/components/ContentTest";
+import NotFound from "@/pages/not-found";
+
 import GetFeaturedPage from "@/pages/get-featured";
 
 function Router() {
@@ -85,28 +86,27 @@ function Router() {
       {isAuthenticated && (
         <>
           <Route path="/admin" component={() => <AdminLayout />} />
-          <Route path="/admin/*" component={() => <AdminLayout />} />
-          <Route path="/admin/businesses" component={AdminBusinessesPage} />
-          <Route path="/admin/users" component={AdminUsersPage} />
-          <Route path="/admin/categories" component={AdminCategoriesPage} />
-          <Route path="/admin/reviews" component={AdminReviewsPage} />
-          <Route path="/admin/cities" component={AdminCitiesPage} />
-          <Route path="/admin/menus" component={AdminMenusPage} />
-          <Route path="/admin/pages" component={AdminPagesPage} />
-          <Route path="/admin/seo" component={AdminSEOPage} />
-          <Route path="/admin/inbox" component={AdminInboxPage} />
-          <Route path="/admin/homepage" component={AdminHomepagePage} />
-          <Route path="/admin/ownership" component={AdminOwnershipPage} />
-          <Route path="/admin/submissions" component={AdminSubmissionsPage} />
-          <Route path="/admin/api" component={AdminAPIPage} />
-          <Route path="/admin/leads" component={AdminLeadsPage} />
-          <Route path="/admin/import" component={AdminImportPage} />
-          <Route path="/admin/export" component={AdminExportPage} />
-          <Route path="/admin/featured" component={AdminFeaturedPage} />
-          <Route path="/admin/services" component={AdminServicesPage} />
-          <Route path="/admin/content" component={AdminContentPage} />
-          <Route path="/admin/settings" component={AdminSettingsPage} />
-          <Route path="/admin/menu/:id" component={MenuEdit} />
+          <Route path="/admin/businesses" component={() => <AdminLayout><AdminBusinessesPage /></AdminLayout>} />
+          <Route path="/admin/users" component={() => <AdminLayout><AdminUsersPage /></AdminLayout>} />
+          <Route path="/admin/categories" component={() => <AdminLayout><AdminCategoriesPage /></AdminLayout>} />
+          <Route path="/admin/reviews" component={() => <AdminLayout><AdminReviewsPage /></AdminLayout>} />
+          <Route path="/admin/cities" component={() => <AdminLayout><AdminCitiesPage /></AdminLayout>} />
+          <Route path="/admin/menus" component={() => <AdminLayout><AdminMenusPage /></AdminLayout>} />
+          <Route path="/admin/pages" component={() => <AdminLayout><AdminPagesPage /></AdminLayout>} />
+          <Route path="/admin/seo" component={() => <AdminLayout><AdminSEOPage /></AdminLayout>} />
+          <Route path="/admin/inbox" component={() => <AdminLayout><AdminInboxPage /></AdminLayout>} />
+          <Route path="/admin/homepage" component={() => <AdminLayout><AdminHomepagePage /></AdminLayout>} />
+          <Route path="/admin/ownership" component={() => <AdminLayout><AdminOwnershipPage /></AdminLayout>} />
+          <Route path="/admin/submissions" component={() => <AdminLayout><AdminSubmissionsPage /></AdminLayout>} />
+          <Route path="/admin/api" component={() => <AdminLayout><AdminAPIPage /></AdminLayout>} />
+          <Route path="/admin/leads" component={() => <AdminLayout><AdminLeadsPage /></AdminLayout>} />
+          <Route path="/admin/import" component={() => <AdminLayout><AdminImportPage /></AdminLayout>} />
+          <Route path="/admin/export" component={() => <AdminLayout><AdminExportPage /></AdminLayout>} />
+          <Route path="/admin/featured" component={() => <AdminLayout><AdminFeaturedPage /></AdminLayout>} />
+          <Route path="/admin/services" component={() => <AdminLayout><AdminServicesPage /></AdminLayout>} />
+          <Route path="/admin/content" component={() => <AdminLayout><AdminContentPage /></AdminLayout>} />
+          <Route path="/admin/settings" component={() => <AdminLayout><AdminSettingsPage /></AdminLayout>} />
+          <Route path="/admin/menu/:id" component={() => <AdminLayout><MenuEdit /></AdminLayout>} />
           <Route path="/dashboard" component={Dashboard} />
           <Route path="/get-featured" component={GetFeaturedPage} />
         </>
