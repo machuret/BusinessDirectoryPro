@@ -88,7 +88,7 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
         if (typeof business.imageurls === 'string') {
           images = JSON.parse(business.imageurls);
         } else if (Array.isArray(business.imageurls)) {
-          images = business.imageurls;
+          images = business.imageurls as string[];
         }
       } else if (business.imageurl) {
         images = [business.imageurl];
@@ -122,21 +122,23 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
     setUploadingImages(true);
     
     try {
-      // Placeholder for future Azure integration
-      // For now, we'll show a message that upload will be implemented
-      console.log('Files selected for upload:', files.length);
+      console.log('Files selected for upload:', files.length, 'files');
       
-      // TODO: Implement Azure Blob Storage upload
-      // const uploadedUrls = await uploadToAzure(files);
-      // setBusinessImages([...businessImages, ...uploadedUrls]);
+      // Future Azure integration placeholder
+      // import { uploadToAzure } from '@/lib/azure-storage';
+      // const uploadResults = await uploadToAzure(files);
+      // const newImageUrls = uploadResults.map(result => result.url);
+      // setBusinessImages([...businessImages, ...newImageUrls]);
       
-      // Temporary placeholder - in production this will upload to Azure
-      alert('Photo upload feature will be available soon with Azure integration!');
+      alert(`Ready to upload ${files.length} photos. Azure Blob Storage integration will be configured next.`);
       
     } catch (error) {
       console.error('Upload error:', error);
+      alert('Upload error: ' + (error as Error).message);
     } finally {
       setUploadingImages(false);
+      // Reset file input
+      event.target.value = '';
     }
   };
 
