@@ -33,18 +33,17 @@ export class LeadsStorage {
       .select({
         id: leads.id,
         businessId: leads.businessId,
-        customerName: leads.customerName,
-        customerEmail: leads.customerEmail,
-        customerPhone: leads.customerPhone,
+        senderName: leads.senderName,
+        senderEmail: leads.senderEmail,
+        senderPhone: leads.senderPhone,
         message: leads.message,
         status: leads.status,
-        source: leads.source,
         createdAt: leads.createdAt,
         updatedAt: leads.updatedAt,
-        businessTitle: businesses.title,
-        businessCity: businesses.city,
-        businessPhone: businesses.phone,
-        businessEmail: businesses.email
+        business: {
+          title: businesses.title,
+          placeid: businesses.placeid
+        }
       })
       .from(leads)
       .leftJoin(businesses, eq(leads.businessId, businesses.placeid))
@@ -75,18 +74,17 @@ export class LeadsStorage {
       .select({
         id: leads.id,
         businessId: leads.businessId,
-        customerName: leads.customerName,
-        customerEmail: leads.customerEmail,
-        customerPhone: leads.customerPhone,
+        senderName: leads.senderName,
+        senderEmail: leads.senderEmail,
+        senderPhone: leads.senderPhone,
         message: leads.message,
         status: leads.status,
-        source: leads.source,
         createdAt: leads.createdAt,
         updatedAt: leads.updatedAt,
-        businessTitle: businesses.title,
-        businessCity: businesses.city,
-        businessPhone: businesses.phone,
-        businessEmail: businesses.email
+        business: {
+          title: businesses.title,
+          placeid: businesses.placeid
+        }
       })
       .from(leads)
       .leftJoin(businesses, eq(leads.businessId, businesses.placeid))
