@@ -241,4 +241,46 @@ export class ContentStorage {
       throw new Error("Failed to fetch content statistics");
     }
   }
+
+  /**
+   * Upsert a content string (insert if not exists, update if exists)
+   */
+  async upsertContentString(
+    stringKey: string, 
+    defaultValue: string, 
+    description?: string, 
+    category: string = 'general'
+  ): Promise<ContentString> {
+    try {
+      const [result] = await db.insert(contentStrings)
+        .values({
+          stringKey,
+          defaultValue,
+          description: description || '',
+          category,
+          translations: {},
+          isHtml: false,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        })
+        .onConflictDoUpdate({
+          target: contentStrings.stringKey,
+          set: {
+            defaultValue,
+            description: description || contentStrings.description,
+            category,
+            updatedAt: new Date()
+          }
+        })
+        .returning();
+      
+      return result;
+    } catch (error) {
+      console.error("Error upserting content string:", error);
+      throw new Error("Failed to upsert content string");
+    }
+  }
 }
+
+// Export singleton instance
+export const contentStorage = new ContentStorage();
