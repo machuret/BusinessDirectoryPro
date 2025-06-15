@@ -8,6 +8,7 @@ import { FeaturedRequestsStorage } from "./featured-requests-storage";
 import { ContentStorage } from "./content-storage";
 import { LeadsStorage } from "./leads-storage";
 import { ReviewsStorage } from "./reviews-storage";
+import { SocialMediaStorage } from "./social-media-storage";
 import { 
   type User, type UpsertUser, type Category, type InsertCategory,
   type Business, type InsertBusiness, type BusinessWithCategory, type CategoryWithCount,
@@ -16,7 +17,7 @@ import {
   type MenuItem, type InsertMenuItem, type Page, type InsertPage,
   type WebsiteFaq, type InsertWebsiteFaq, type Lead, type InsertLead,
   type ContactMessage, type InsertContactMessage, type LeadWithBusiness,
-  type ContentString, type InsertContentString
+  type ContentString, type InsertContentString, type SocialMediaLink, type InsertSocialMediaLink
 } from "@shared/schema";
 
 /**
@@ -34,6 +35,7 @@ export class ComprehensiveStorage implements IStorage {
   private content = new ContentStorage();
   private leads = new LeadsStorage();
   private reviews = new ReviewsStorage();
+  private socialMedia = new SocialMediaStorage();
 
   // ===== USER OPERATIONS =====
   async getUser(id: string): Promise<User | undefined> {

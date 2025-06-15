@@ -14,6 +14,7 @@ import {
   services,
   businessServices,
   contentStrings,
+  socialMediaLinks,
   type User,
   type UpsertUser,
   type Category,
@@ -43,6 +44,8 @@ import {
   type InsertBusinessService,
   type ContentString,
   type InsertContentString,
+  type SocialMediaLink,
+  type InsertSocialMediaLink,
 } from "@shared/schema";
 
 // Re-export types for storage modules
@@ -76,6 +79,8 @@ export type {
   InsertBusinessService,
   ContentString,
   InsertContentString,
+  SocialMediaLink,
+  InsertSocialMediaLink,
 };
 
 // Re-export database utilities and tables for storage modules
