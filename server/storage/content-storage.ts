@@ -212,4 +212,69 @@ export class ContentStorage {
   async getMenuItems(): Promise<any[]> {
     return [];
   }
+
+  /**
+   * Get all site settings
+   */
+  async getSiteSettings(): Promise<SiteSetting[]> {
+    try {
+      return await db.select().from(siteSettings);
+    } catch (error) {
+      console.error("Error fetching site settings:", error);
+      throw new Error("Failed to fetch site settings");
+    }
+  }
+
+  /**
+   * Get single site setting
+   */
+  async getSiteSetting(key: string): Promise<SiteSetting | undefined> {
+    try {
+      const [setting] = await db.select()
+        .from(siteSettings)
+        .where(eq(siteSettings.key, key));
+      
+      return setting;
+    } catch (error) {
+      console.error("Error fetching site setting:", error);
+      throw new Error("Failed to fetch site setting");
+    }
+  }
+
+  /**
+   * Update site setting
+   */
+  async updateSiteSetting(
+    key: string,
+    value: any,
+    description?: string,
+    category?: string
+  ): Promise<SiteSetting> {
+    try {
+      const [setting] = await db.insert(siteSettings)
+        .values({
+          key,
+          value,
+          description,
+          category,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        })
+        .onConflictDoUpdate({
+          target: siteSettings.key,
+          set: {
+            value,
+            description,
+            category,
+            updatedAt: new Date()
+          }
+        })
+        .returning();
+      
+      return setting;
+    } catch (error) {
+      console.error("Error updating site setting:", error);
+      throw new Error("Failed to update site setting");
+    }
+  }
 }
