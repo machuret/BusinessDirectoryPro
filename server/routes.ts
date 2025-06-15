@@ -504,6 +504,99 @@ Respond with JSON format: {"services": [array of service objects]}. Make service
     }
   });
 
+  // Social Media Management APIs
+  app.get("/api/social-media", async (req, res) => {
+    try {
+      const activeOnly = req.query.active === 'true';
+      const links = await storage.getSocialMediaLinks(activeOnly);
+      res.json(links);
+    } catch (error) {
+      console.error("Error fetching social media links:", error);
+      res.status(500).json({ message: "Failed to fetch social media links" });
+    }
+  });
+
+  app.get("/api/admin/social-media", async (req, res) => {
+    try {
+      const links = await storage.getSocialMediaLinks();
+      res.json(links);
+    } catch (error) {
+      console.error("Error fetching all social media links:", error);
+      res.status(500).json({ message: "Failed to fetch social media links" });
+    }
+  });
+
+  app.post("/api/admin/social-media", async (req, res) => {
+    try {
+      const link = await storage.createSocialMediaLink(req.body);
+      res.status(201).json(link);
+    } catch (error) {
+      console.error("Error creating social media link:", error);
+      res.status(500).json({ message: "Failed to create social media link" });
+    }
+  });
+
+  app.put("/api/admin/social-media/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const link = await storage.updateSocialMediaLink(id, req.body);
+      if (!link) {
+        return res.status(404).json({ message: "Social media link not found" });
+      }
+      res.json(link);
+    } catch (error) {
+      console.error("Error updating social media link:", error);
+      res.status(500).json({ message: "Failed to update social media link" });
+    }
+  });
+
+  app.delete("/api/admin/social-media/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteSocialMediaLink(id);
+      res.sendStatus(204);
+    } catch (error) {
+      console.error("Error deleting social media link:", error);
+      res.status(500).json({ message: "Failed to delete social media link" });
+    }
+  });
+
+  app.patch("/api/admin/social-media/:id/toggle", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const link = await storage.toggleSocialMediaLink(id);
+      if (!link) {
+        return res.status(404).json({ message: "Social media link not found" });
+      }
+      res.json(link);
+    } catch (error) {
+      console.error("Error toggling social media link:", error);
+      res.status(500).json({ message: "Failed to toggle social media link" });
+    }
+  });
+
+  app.post("/api/admin/social-media/reorder", async (req, res) => {
+    try {
+      const { reorderData } = req.body;
+      await storage.reorderSocialMediaLinks(reorderData);
+      res.json({ message: "Social media links reordered successfully" });
+    } catch (error) {
+      console.error("Error reordering social media links:", error);
+      res.status(500).json({ message: "Failed to reorder social media links" });
+    }
+  });
+
+  app.post("/api/admin/social-media/bulk-update", async (req, res) => {
+    try {
+      const { updates } = req.body;
+      const updatedLinks = await storage.bulkUpdateSocialMediaLinks(updates);
+      res.json(updatedLinks);
+    } catch (error) {
+      console.error("Error bulk updating social media links:", error);
+      res.status(500).json({ message: "Failed to bulk update social media links" });
+    }
+  });
+
   // Menu Management APIs
   app.post("/api/admin/menu-items", async (req, res) => {
     try {

@@ -503,4 +503,45 @@ export class ComprehensiveStorage implements IStorage {
   }> {
     return this.content.getContentStringStats();
   }
+
+  // ===== SOCIAL MEDIA OPERATIONS =====
+  async getSocialMediaLinks(activeOnly: boolean = false): Promise<SocialMediaLink[]> {
+    return this.socialMedia.getSocialMediaLinks(activeOnly);
+  }
+
+  async getActiveSocialMediaLinks(): Promise<SocialMediaLink[]> {
+    return this.socialMedia.getActiveSocialMediaLinks();
+  }
+
+  async getSocialMediaLinkById(id: number): Promise<SocialMediaLink | undefined> {
+    return this.socialMedia.getSocialMediaLinkById(id);
+  }
+
+  async getSocialMediaLinkByPlatform(platform: string): Promise<SocialMediaLink | undefined> {
+    return this.socialMedia.getSocialMediaLinkByPlatform(platform);
+  }
+
+  async createSocialMediaLink(linkData: InsertSocialMediaLink): Promise<SocialMediaLink> {
+    return this.socialMedia.createSocialMediaLink(linkData);
+  }
+
+  async updateSocialMediaLink(id: number, updates: Partial<InsertSocialMediaLink>): Promise<SocialMediaLink | undefined> {
+    return this.socialMedia.updateSocialMediaLink(id, updates);
+  }
+
+  async deleteSocialMediaLink(id: number): Promise<void> {
+    return this.socialMedia.deleteSocialMediaLink(id);
+  }
+
+  async toggleSocialMediaLink(id: number): Promise<SocialMediaLink | undefined> {
+    return this.socialMedia.toggleSocialMediaLink(id);
+  }
+
+  async reorderSocialMediaLinks(reorderData: { id: number; sortOrder: number }[]): Promise<void> {
+    return this.socialMedia.reorderSocialMediaLinks(reorderData);
+  }
+
+  async bulkUpdateSocialMediaLinks(updates: { id: number; url: string; isActive: boolean }[]): Promise<SocialMediaLink[]> {
+    return this.socialMedia.bulkUpdateSocialMediaLinks(updates);
+  }
 }

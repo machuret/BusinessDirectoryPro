@@ -48,6 +48,7 @@ import AdminImportPage from "@/pages/admin/import";
 import AdminExportPage from "@/pages/admin/export";
 import AdminFeaturedPage from "@/pages/admin/featured";
 import AdminServicesPage from "@/pages/admin/services";
+import AdminSocialMediaPage from "@/pages/admin-social-media";
 import AdminContentPage from "@/pages/admin/content";
 import AdminSettingsPage from "@/pages/admin/settings";
 import AccessibilityDemo from "@/pages/accessibility-demo";
@@ -104,6 +105,7 @@ function Router() {
           <Route path="/admin/export" component={() => <AdminLayout><AdminExportPage /></AdminLayout>} />
           <Route path="/admin/featured" component={() => <AdminLayout><AdminFeaturedPage /></AdminLayout>} />
           <Route path="/admin/services" component={() => <AdminLayout><AdminServicesPage /></AdminLayout>} />
+          <Route path="/admin/social-media" component={() => <AdminLayout><AdminSocialMediaPage /></AdminLayout>} />
           <Route path="/admin/content" component={() => <AdminLayout><AdminContentPage /></AdminLayout>} />
           <Route path="/admin/settings" component={() => <AdminLayout><AdminSettingsPage /></AdminLayout>} />
           <Route path="/admin/menu/:id" component={() => <AdminLayout><MenuEdit /></AdminLayout>} />
