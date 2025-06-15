@@ -3,14 +3,22 @@ import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { storage } from "../storage";
 import { SessionManager, performCompleteLogout } from "../session-manager";
-import DOMPurify from "isomorphic-dompurify";
 
 const scryptAsync = promisify(scrypt);
 
 // Input sanitization helper
 function sanitizeInput(input: string): string {
   if (typeof input !== 'string') return '';
-  return DOMPurify.sanitize(input.trim(), { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
+  
+  // Remove HTML tags and script content
+  return input
+    .trim()
+    .replace(/<[^>]*>/g, '') // Remove all HTML tags
+    .replace(/javascript:/gi, '') // Remove javascript: protocols
+    .replace(/on\w+\s*=/gi, '') // Remove event handlers like onclick=
+    .replace(/&lt;script[^&]*&gt;.*?&lt;\/script&gt;/gi, '') // Remove encoded scripts
+    .replace(/script/gi, '') // Remove any remaining 'script' text
+    .replace(/[<>"']/g, ''); // Remove dangerous characters
 }
 
 // Email validation helper
@@ -42,12 +50,26 @@ export function setupAuthRoutes(app: Express) {
         return res.status(400).json({ message: "All fields are required" });
       }
       
+      // Sanitize and validate inputs
+      const sanitizedEmail = sanitizeInput(email).toLowerCase();
+      const sanitizedFirstName = sanitizeInput(firstName);
+      const sanitizedLastName = sanitizeInput(lastName);
+      
+      // Additional validation
+      if (!isValidEmail(sanitizedEmail)) {
+        return res.status(400).json({ message: "Please enter a valid email address" });
+      }
+      
+      if (sanitizedFirstName.length < 1 || sanitizedLastName.length < 1) {
+        return res.status(400).json({ message: "First name and last name are required" });
+      }
+      
       if (password.length < 6) {
         return res.status(400).json({ message: "Password must be at least 6 characters long" });
       }
       
       // Check if user already exists
-      const existingUser = await storage.getUserByEmail(email);
+      const existingUser = await storage.getUserByEmail(sanitizedEmail);
       if (existingUser) {
         return res.status(400).json({ message: "User with this email already exists" });
       }
@@ -56,10 +78,10 @@ export function setupAuthRoutes(app: Express) {
       const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       const user = await storage.createUser({
         id: userId,
-        email,
+        email: sanitizedEmail,
         password: hashedPassword,
-        firstName,
-        lastName,
+        firstName: sanitizedFirstName,
+        lastName: sanitizedLastName,
         role: "user"
       });
       
@@ -84,7 +106,15 @@ export function setupAuthRoutes(app: Express) {
         return res.status(400).json({ message: "Email and password are required" });
       }
       
-      const user = await storage.getUserByEmail(email);
+      // Sanitize email input
+      const sanitizedEmail = sanitizeInput(email).toLowerCase();
+      
+      // Validate email format
+      if (!isValidEmail(sanitizedEmail)) {
+        return res.status(401).json({ message: "Invalid email or password" });
+      }
+      
+      const user = await storage.getUserByEmail(sanitizedEmail);
       if (!user || !user.password) {
         return res.status(401).json({ message: "Invalid email or password" });
       }
