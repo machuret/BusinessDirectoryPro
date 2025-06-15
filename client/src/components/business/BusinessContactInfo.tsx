@@ -85,7 +85,7 @@ export default function BusinessContactInfo({ business }: BusinessContactInfoPro
                 {...getWebsiteLinkProps()}
                 className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-7 px-2 text-xs"
               >
-                Visit Website
+                {t('business.contact.visitWebsite')}
               </a>
             </div>
           </div>
@@ -95,7 +95,7 @@ export default function BusinessContactInfo({ business }: BusinessContactInfoPro
           <div className="flex items-start space-x-3">
             <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
             <div>
-              <p className="font-medium">Address</p>
+              <p className="font-medium">{t('business.contact.address')}</p>
               <p className="text-sm text-muted-foreground">{business.address}</p>
             </div>
           </div>
