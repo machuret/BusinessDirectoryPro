@@ -105,9 +105,9 @@ export default function Cities() {
             <div className="mb-8">
               <nav className="text-sm breadcrumbs mb-4">
                 <ol className="flex items-center space-x-2 text-gray-600">
-                  <li><Link href="/" className="hover:text-primary">Home</Link></li>
+                  <li><Link href="/" className="hover:text-primary">{t('cities.breadcrumbs.home')}</Link></li>
                   <li>/</li>
-                  <li><Link href="/cities" className="hover:text-primary">Cities</Link></li>
+                  <li><Link href="/cities" className="hover:text-primary">{t('cities.breadcrumbs.cities')}</Link></li>
                   <li>/</li>
                   <li className="text-gray-900 font-medium">{decodedCity}</li>
                 </ol>
@@ -116,12 +116,12 @@ export default function Cities() {
               <div className="flex items-center space-x-3 mb-4">
                 <MapPin className="h-8 w-8 text-primary" />
                 <h1 className="text-3xl font-bold text-gray-900">
-                  Businesses in {decodedCity}
+                  {t('cities.cityPage.title', { cityName: decodedCity })}
                 </h1>
               </div>
               
               <p className="text-lg text-gray-600">
-                Discover local businesses and services in {decodedCity}
+                {t('cities.cityPage.description', { cityName: decodedCity })}
               </p>
             </div>
 
@@ -142,13 +142,13 @@ export default function Cities() {
               <div className="text-center py-12">
                 <Building2 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  No businesses found in {decodedCity}
+                  {t('cities.cityEmpty.title', { cityName: decodedCity })}
                 </h3>
                 <p className="text-gray-600">
-                  We don't have any businesses listed for this city yet.
+                  {t('cities.cityEmpty.description')}
                 </p>
                 <Link href="/cities" className="inline-block mt-4 text-primary hover:underline">
-                  Browse other cities
+                  {t('cities.cityEmpty.browseLink')}
                 </Link>
               </div>
             )}
