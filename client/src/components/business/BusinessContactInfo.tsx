@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Phone, Globe, MapPin, Building2, Tag } from "lucide-react";
 import { Link } from "wouter";
+import { useContent } from "@/contexts/ContentContext";
 import type { BusinessWithCategory } from "@shared/schema";
 
 interface BusinessContactInfoProps {
@@ -11,6 +12,8 @@ interface BusinessContactInfoProps {
 }
 
 export default function BusinessContactInfo({ business }: BusinessContactInfoProps) {
+  const { t } = useContent();
+
   const handleCallClick = () => {
     if (business.phone) {
       window.open(`tel:${business.phone}`);
@@ -35,7 +38,7 @@ export default function BusinessContactInfo({ business }: BusinessContactInfoPro
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
           <Building2 className="h-5 w-5" />
-          <span>Contact Information</span>
+          <span>{t('business.contact.title')}</span>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -43,7 +46,7 @@ export default function BusinessContactInfo({ business }: BusinessContactInfoPro
           <div className="flex items-start space-x-3">
             <Tag className="h-5 w-5 text-muted-foreground mt-0.5" />
             <div className="flex-1">
-              <p className="font-medium">Category</p>
+              <p className="font-medium">{t('business.contact.category')}</p>
               <Link href={`/categories/${business.category?.slug || business.categoryname?.toLowerCase().replace(/\s+/g, '-')}`}>
                 <Badge variant="secondary" className="cursor-pointer hover:bg-secondary/80">
                   {business.categoryname}
@@ -57,7 +60,7 @@ export default function BusinessContactInfo({ business }: BusinessContactInfoPro
           <div className="flex items-start space-x-3">
             <Phone className="h-5 w-5 text-muted-foreground mt-0.5" />
             <div className="flex-1">
-              <p className="font-medium">Phone</p>
+              <p className="font-medium">{t('business.contact.phone')}</p>
               <div className="flex items-center space-x-2">
                 <span className="text-sm">{business.phone}</span>
                 <Button 
@@ -66,7 +69,7 @@ export default function BusinessContactInfo({ business }: BusinessContactInfoPro
                   onClick={handleCallClick}
                   className="h-7 px-2 text-xs"
                 >
-                  Call
+                  {t('business.contact.call')}
                 </Button>
               </div>
             </div>
@@ -77,7 +80,7 @@ export default function BusinessContactInfo({ business }: BusinessContactInfoPro
           <div className="flex items-start space-x-3">
             <Globe className="h-5 w-5 text-muted-foreground mt-0.5" />
             <div className="flex-1">
-              <p className="font-medium">Website</p>
+              <p className="font-medium">{t('business.contact.website')}</p>
               <a 
                 {...getWebsiteLinkProps()}
                 className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-7 px-2 text-xs"
