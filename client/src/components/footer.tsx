@@ -2,6 +2,8 @@ import { Building } from "lucide-react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useContent } from "@/contexts/ContentContext";
+import { SocialIcon } from "@/components/SocialIcon";
+import type { SocialMediaLink } from "@shared/schema";
 
 export default function Footer() {
   const { t } = useContent();
@@ -25,6 +27,16 @@ export default function Footer() {
     }
   });
 
+  // Fetch active social media links
+  const { data: socialMediaLinks = [] } = useQuery<SocialMediaLink[]>({
+    queryKey: ['/api/social-media'],
+    queryFn: async () => {
+      const response = await fetch('/api/social-media?active=true');
+      if (!response.ok) return [];
+      return response.json();
+    }
+  });
+
   return (
     <footer className="bg-secondary text-white py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -37,121 +49,83 @@ export default function Footer() {
             <p className="text-gray-300 mb-6 max-w-md">
               {t('footer.company.description')}
             </p>
-            <div className="flex space-x-4">
-              <a 
-                href="#" 
-                className="text-gray-300 hover:text-accent transition-colors"
-                aria-label={t('footer.social.facebook')}
-              >
-                <i className="fab fa-facebook-f text-xl"></i>
-              </a>
-              <a 
-                href="#" 
-                className="text-gray-300 hover:text-accent transition-colors"
-                aria-label={t('footer.social.twitter')}
-              >
-                <i className="fab fa-twitter text-xl"></i>
-              </a>
-              <a 
-                href="#" 
-                className="text-gray-300 hover:text-accent transition-colors"
-                aria-label={t('footer.social.instagram')}
-              >
-                <i className="fab fa-instagram text-xl"></i>
-              </a>
-              <a 
-                href="#" 
-                className="text-gray-300 hover:text-accent transition-colors"
-                aria-label={t('footer.social.linkedin')}
-              >
-                <i className="fab fa-linkedin-in text-xl"></i>
-              </a>
-            </div>
+            {socialMediaLinks.length > 0 && (
+              <div className="flex space-x-4">
+                {socialMediaLinks
+                  .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
+                  .map((link) => (
+                    <a 
+                      key={link.id}
+                      href={link.url} 
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-gray-300 hover:text-accent transition-colors"
+                      aria-label={`Follow us on ${link.platform}`}
+                    >
+                      <SocialIcon platform={link.platform} />
+                    </a>
+                  ))}
+              </div>
+            )}
           </div>
           
           <div>
             <h4 className="text-lg font-semibold mb-4">
-              {footer1Items && footer1Items.length > 0 ? t('footer.sections.quickLinks') : t('footer.sections.forBusinesses')}
+              {t('footer.quickLinks.title')}
             </h4>
             <ul className="space-y-2">
-              {footer1Items && footer1Items.length > 0 ? (
-                footer1Items.map((item: any) => (
-                  <li key={item.id}>
-                    <Link href={item.url} className="text-gray-300 hover:text-white transition-colors">
-                      {item.name}
+              {footer1Items?.map((item: any) => (
+                <li key={item.id}>
+                  {item.url.startsWith('/') ? (
+                    <Link href={item.url} className="text-gray-300 hover:text-accent transition-colors">
+                      {item.label}
                     </Link>
-                  </li>
-                ))
-              ) : (
-                <>
-                  <li>
-                    <Link href="/add-business" className="text-gray-300 hover:text-white transition-colors">
-                      {t('footer.links.listBusiness')}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/dashboard" className="text-gray-300 hover:text-white transition-colors">
-                      {t('footer.links.businessDashboard')}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/featured" className="text-gray-300 hover:text-white transition-colors">
-                      {t('footer.links.featuredBusinesses')}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/categories" className="text-gray-300 hover:text-white transition-colors">
-                      {t('footer.links.allCategories')}
-                    </Link>
-                  </li>
-                </>
-              )}
+                  ) : (
+                    <a 
+                      href={item.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-gray-300 hover:text-accent transition-colors"
+                    >
+                      {item.label}
+                    </a>
+                  )}
+                </li>
+              ))}
             </ul>
           </div>
           
           <div>
             <h4 className="text-lg font-semibold mb-4">
-              {footer2Items && footer2Items.length > 0 ? t('footer.sections.resources') : t('footer.sections.support')}
+              {t('footer.support.title')}
             </h4>
             <ul className="space-y-2">
-              {footer2Items && footer2Items.length > 0 ? (
-                footer2Items.map((item: any) => (
-                  <li key={item.id}>
-                    <Link href={item.url} className="text-gray-300 hover:text-white transition-colors">
-                      {item.name}
+              {footer2Items?.map((item: any) => (
+                <li key={item.id}>
+                  {item.url.startsWith('/') ? (
+                    <Link href={item.url} className="text-gray-300 hover:text-accent transition-colors">
+                      {item.label}
                     </Link>
-                  </li>
-                ))
-              ) : (
-                <>
-                  <li>
-                    <Link href="/pages/contact-us" className="text-gray-300 hover:text-white transition-colors">
-                      {t('footer.links.contactUs')}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/pages/about-us" className="text-gray-300 hover:text-white transition-colors">
-                      {t('footer.links.aboutUs')}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/pages/privacy-policy" className="text-gray-300 hover:text-white transition-colors">
-                      {t('footer.links.privacyPolicy')}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/pages/terms-of-service" className="text-gray-300 hover:text-white transition-colors">
-                      {t('footer.links.termsOfService')}
-                    </Link>
-                  </li>
-                </>
-              )}
+                  ) : (
+                    <a 
+                      href={item.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-gray-300 hover:text-accent transition-colors"
+                    >
+                      {item.label}
+                    </a>
+                  )}
+                </li>
+              ))}
             </ul>
           </div>
         </div>
         
-        <div className="border-t border-gray-600 mt-8 pt-8 text-center">
-          <p className="text-gray-300">{t('footer.copyright')}</p>
+        <div className="border-t border-gray-700 mt-8 pt-8 text-center">
+          <p className="text-gray-400">
+            {t('footer.copyright')}
+          </p>
         </div>
       </div>
     </footer>
