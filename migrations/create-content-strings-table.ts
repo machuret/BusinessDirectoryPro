@@ -158,6 +158,484 @@ export async function seedInitialContentStrings() {
         translations: { en: "Please check your internet connection", es: "Por favor verifica tu conexión a internet" }
       },
 
+      // Dashboard Content
+      {
+        stringKey: "dashboard.page.title",
+        defaultValue: "Business Dashboard",
+        category: "dashboard",
+        description: "Main dashboard page title",
+        translations: { en: "Business Dashboard", es: "Panel de Negocios" }
+      },
+      {
+        stringKey: "dashboard.page.subtitle",
+        defaultValue: "Manage your businesses and ownership claims",
+        category: "dashboard",
+        description: "Main dashboard page subtitle",
+        translations: { en: "Manage your businesses and ownership claims", es: "Gestiona tus negocios y reclamos de propiedad" }
+      },
+      {
+        stringKey: "dashboard.access.denied.title",
+        defaultValue: "Access Denied",
+        category: "dashboard",
+        description: "Access denied card title",
+        translations: { en: "Access Denied", es: "Acceso Denegado" }
+      },
+      {
+        stringKey: "dashboard.access.denied.message",
+        defaultValue: "Please log in to access your dashboard.",
+        category: "dashboard",
+        description: "Access denied message",
+        translations: { en: "Please log in to access your dashboard.", es: "Por favor inicia sesión para acceder a tu panel." }
+      },
+      {
+        stringKey: "dashboard.tabs.businesses",
+        defaultValue: "My Businesses",
+        category: "dashboard",
+        description: "Businesses tab label",
+        translations: { en: "My Businesses", es: "Mis Negocios" }
+      },
+      {
+        stringKey: "dashboard.tabs.claims",
+        defaultValue: "Ownership Claims",
+        category: "dashboard",
+        description: "Claims tab label",
+        translations: { en: "Ownership Claims", es: "Reclamos de Propiedad" }
+      },
+      {
+        stringKey: "dashboard.tabs.featured",
+        defaultValue: "Featured Requests",
+        category: "dashboard",
+        description: "Featured requests tab label",
+        translations: { en: "Featured Requests", es: "Solicitudes Destacadas" }
+      },
+      {
+        stringKey: "dashboard.businesses.title",
+        defaultValue: "Your Businesses",
+        category: "dashboard",
+        description: "Businesses section title",
+        translations: { en: "Your Businesses", es: "Tus Negocios" }
+      },
+      {
+        stringKey: "dashboard.businesses.description",
+        defaultValue: "Manage your business listings",
+        category: "dashboard",
+        description: "Businesses section description",
+        translations: { en: "Manage your business listings", es: "Gestiona tus listados de negocios" }
+      },
+      {
+        stringKey: "dashboard.businesses.loading",
+        defaultValue: "Loading your businesses...",
+        category: "dashboard",
+        description: "Businesses loading message",
+        translations: { en: "Loading your businesses...", es: "Cargando tus negocios..." }
+      },
+      {
+        stringKey: "dashboard.businesses.table.name",
+        defaultValue: "Business Name",
+        category: "dashboard",
+        description: "Business table name column",
+        translations: { en: "Business Name", es: "Nombre del Negocio" }
+      },
+      {
+        stringKey: "dashboard.businesses.table.location",
+        defaultValue: "Location",
+        category: "dashboard",
+        description: "Business table location column",
+        translations: { en: "Location", es: "Ubicación" }
+      },
+      {
+        stringKey: "dashboard.businesses.table.rating",
+        defaultValue: "Rating",
+        category: "dashboard",
+        description: "Business table rating column",
+        translations: { en: "Rating", es: "Calificación" }
+      },
+      {
+        stringKey: "dashboard.businesses.table.status",
+        defaultValue: "Status",
+        category: "dashboard",
+        description: "Business table status column",
+        translations: { en: "Status", es: "Estado" }
+      },
+      {
+        stringKey: "dashboard.businesses.table.actions",
+        defaultValue: "Actions",
+        category: "dashboard",
+        description: "Business table actions column",
+        translations: { en: "Actions", es: "Acciones" }
+      },
+      {
+        stringKey: "dashboard.businesses.rating.none",
+        defaultValue: "No ratings",
+        category: "dashboard",
+        description: "No ratings available text",
+        translations: { en: "No ratings", es: "Sin calificaciones" }
+      },
+      {
+        stringKey: "dashboard.businesses.status.featured",
+        defaultValue: "Featured",
+        category: "dashboard",
+        description: "Featured business status",
+        translations: { en: "Featured", es: "Destacado" }
+      },
+      {
+        stringKey: "dashboard.businesses.status.standard",
+        defaultValue: "Standard",
+        category: "dashboard",
+        description: "Standard business status",
+        translations: { en: "Standard", es: "Estándar" }
+      },
+      {
+        stringKey: "dashboard.businesses.action.edit",
+        defaultValue: "Edit",
+        category: "dashboard",
+        description: "Edit business button",
+        translations: { en: "Edit", es: "Editar" }
+      },
+      {
+        stringKey: "dashboard.businesses.edit.title",
+        defaultValue: "Edit Business",
+        category: "dashboard",
+        description: "Edit business dialog title prefix",
+        translations: { en: "Edit Business", es: "Editar Negocio" }
+      },
+      {
+        stringKey: "dashboard.businesses.tabs.basic",
+        defaultValue: "Basic Info",
+        category: "dashboard",
+        description: "Basic info tab",
+        translations: { en: "Basic Info", es: "Información Básica" }
+      },
+      {
+        stringKey: "dashboard.businesses.tabs.contact",
+        defaultValue: "Contact & Hours",
+        category: "dashboard",
+        description: "Contact and hours tab",
+        translations: { en: "Contact & Hours", es: "Contacto y Horarios" }
+      },
+      {
+        stringKey: "dashboard.businesses.tabs.photos",
+        defaultValue: "Photos",
+        category: "dashboard",
+        description: "Photos tab",
+        translations: { en: "Photos", es: "Fotos" }
+      },
+      {
+        stringKey: "dashboard.businesses.tabs.faqs",
+        defaultValue: "FAQs",
+        category: "dashboard",
+        description: "FAQs tab",
+        translations: { en: "FAQs", es: "Preguntas Frecuentes" }
+      },
+      {
+        stringKey: "dashboard.businesses.form.name.label",
+        defaultValue: "Business Name",
+        category: "dashboard",
+        description: "Business name form label",
+        translations: { en: "Business Name", es: "Nombre del Negocio" }
+      },
+      {
+        stringKey: "dashboard.businesses.form.name.placeholder",
+        defaultValue: "Enter your business name",
+        category: "dashboard",
+        description: "Business name form placeholder",
+        translations: { en: "Enter your business name", es: "Ingresa el nombre de tu negocio" }
+      },
+      {
+        stringKey: "dashboard.businesses.form.description.label",
+        defaultValue: "Business Description",
+        category: "dashboard",
+        description: "Business description form label",
+        translations: { en: "Business Description", es: "Descripción del Negocio" }
+      },
+      {
+        stringKey: "dashboard.businesses.form.description.placeholder",
+        defaultValue: "Describe your business, services, and what makes you unique...",
+        category: "dashboard",
+        description: "Business description form placeholder",
+        translations: { en: "Describe your business, services, and what makes you unique...", es: "Describe tu negocio, servicios y lo que te hace único..." }
+      },
+      {
+        stringKey: "dashboard.businesses.form.address.label",
+        defaultValue: "Business Address",
+        category: "dashboard",
+        description: "Business address form label",
+        translations: { en: "Business Address", es: "Dirección del Negocio" }
+      },
+      {
+        stringKey: "dashboard.businesses.form.address.placeholder",
+        defaultValue: "123 Main Street, City, State ZIP",
+        category: "dashboard",
+        description: "Business address form placeholder",
+        translations: { en: "123 Main Street, City, State ZIP", es: "Calle Principal 123, Ciudad, Estado, CP" }
+      },
+      {
+        stringKey: "dashboard.businesses.form.phone.label",
+        defaultValue: "Phone Number",
+        category: "dashboard",
+        description: "Phone number form label",
+        translations: { en: "Phone Number", es: "Número de Teléfono" }
+      },
+      {
+        stringKey: "dashboard.businesses.form.phone.placeholder",
+        defaultValue: "(555) 123-4567",
+        category: "dashboard",
+        description: "Phone number form placeholder",
+        translations: { en: "(555) 123-4567", es: "(555) 123-4567" }
+      },
+      {
+        stringKey: "dashboard.businesses.form.website.label",
+        defaultValue: "Website URL",
+        category: "dashboard",
+        description: "Website URL form label",
+        translations: { en: "Website URL", es: "URL del Sitio Web" }
+      },
+      {
+        stringKey: "dashboard.businesses.form.website.placeholder",
+        defaultValue: "https://yourwebsite.com",
+        category: "dashboard",
+        description: "Website URL form placeholder",
+        translations: { en: "https://yourwebsite.com", es: "https://tusitio.com" }
+      },
+      {
+        stringKey: "dashboard.businesses.hours.title",
+        defaultValue: "Business Hours & Contact Info",
+        category: "dashboard",
+        description: "Business hours section title",
+        translations: { en: "Business Hours & Contact Info", es: "Horarios y Contacto del Negocio" }
+      },
+      {
+        stringKey: "dashboard.businesses.hours.description",
+        defaultValue: "To update your business hours, contact information, and other detailed information, please contact our support team. Basic business details can be edited here.",
+        category: "dashboard",
+        description: "Business hours section description",
+        translations: { en: "To update your business hours, contact information, and other detailed information, please contact our support team. Basic business details can be edited here.", es: "Para actualizar los horarios, información de contacto y otros detalles, por favor contacta a nuestro equipo de soporte. Los detalles básicos se pueden editar aquí." }
+      },
+      {
+        stringKey: "dashboard.businesses.photos.title",
+        defaultValue: "Photo Gallery",
+        category: "dashboard",
+        description: "Photo gallery title",
+        translations: { en: "Photo Gallery", es: "Galería de Fotos" }
+      },
+      {
+        stringKey: "dashboard.businesses.photos.description",
+        defaultValue: "Manage your business photos to showcase your services and location.",
+        category: "dashboard",
+        description: "Photo gallery description",
+        translations: { en: "Manage your business photos to showcase your services and location.", es: "Gestiona las fotos de tu negocio para mostrar tus servicios y ubicación." }
+      },
+      {
+        stringKey: "dashboard.businesses.photos.upload",
+        defaultValue: "Upload Photos",
+        category: "dashboard",
+        description: "Upload photos button",
+        translations: { en: "Upload Photos", es: "Subir Fotos" }
+      },
+      {
+        stringKey: "dashboard.businesses.photos.uploading",
+        defaultValue: "Uploading...",
+        category: "dashboard",
+        description: "Uploading photos status",
+        translations: { en: "Uploading...", es: "Subiendo..." }
+      },
+      {
+        stringKey: "dashboard.businesses.photos.empty.title",
+        defaultValue: "No photos yet",
+        category: "dashboard",
+        description: "Empty photos state title",
+        translations: { en: "No photos yet", es: "Sin fotos aún" }
+      },
+      {
+        stringKey: "dashboard.businesses.photos.empty.description",
+        defaultValue: "Upload photos to showcase your business",
+        category: "dashboard",
+        description: "Empty photos state description",
+        translations: { en: "Upload photos to showcase your business", es: "Sube fotos para mostrar tu negocio" }
+      },
+      {
+        stringKey: "dashboard.businesses.photos.first",
+        defaultValue: "Upload Your First Photo",
+        category: "dashboard",
+        description: "Upload first photo button",
+        translations: { en: "Upload Your First Photo", es: "Sube Tu Primera Foto" }
+      },
+      {
+        stringKey: "dashboard.businesses.photos.alt",
+        defaultValue: "Business photo",
+        category: "dashboard",
+        description: "Business photo alt text prefix",
+        translations: { en: "Business photo", es: "Foto del negocio" }
+      },
+      {
+        stringKey: "dashboard.businesses.photos.tips.title",
+        defaultValue: "Photo Management Tips",
+        category: "dashboard",
+        description: "Photo tips section title",
+        translations: { en: "Photo Management Tips", es: "Consejos para Gestión de Fotos" }
+      },
+      {
+        stringKey: "dashboard.businesses.photos.tips.quality",
+        defaultValue: "High-quality photos help attract more customers",
+        category: "dashboard",
+        description: "Photo tip 1",
+        translations: { en: "High-quality photos help attract more customers", es: "Las fotos de alta calidad ayudan a atraer más clientes" }
+      },
+      {
+        stringKey: "dashboard.businesses.photos.tips.showcase",
+        defaultValue: "Show your business interior, exterior, products, and services",
+        category: "dashboard",
+        description: "Photo tip 2",
+        translations: { en: "Show your business interior, exterior, products, and services", es: "Muestra el interior, exterior, productos y servicios de tu negocio" }
+      },
+      {
+        stringKey: "dashboard.businesses.photos.tips.recent",
+        defaultValue: "Keep photos recent and representative of your current business",
+        category: "dashboard",
+        description: "Photo tip 3",
+        translations: { en: "Keep photos recent and representative of your current business", es: "Mantén las fotos recientes y representativas de tu negocio actual" }
+      },
+      {
+        stringKey: "dashboard.businesses.photos.tips.quality_control",
+        defaultValue: "Remove any photos that are outdated or low quality",
+        category: "dashboard",
+        description: "Photo tip 4",
+        translations: { en: "Remove any photos that are outdated or low quality", es: "Elimina las fotos desactualizadas o de baja calidad" }
+      },
+      {
+        stringKey: "dashboard.businesses.faqs.title",
+        defaultValue: "Frequently Asked Questions",
+        category: "dashboard",
+        description: "FAQs section title",
+        translations: { en: "Frequently Asked Questions", es: "Preguntas Frecuentes" }
+      },
+      {
+        stringKey: "dashboard.businesses.faqs.description",
+        defaultValue: "Help customers by answering common questions about your business.",
+        category: "dashboard",
+        description: "FAQs section description",
+        translations: { en: "Help customers by answering common questions about your business.", es: "Ayuda a los clientes respondiendo preguntas comunes sobre tu negocio." }
+      },
+      {
+        stringKey: "dashboard.businesses.faqs.add",
+        defaultValue: "Add FAQ",
+        category: "dashboard",
+        description: "Add FAQ button",
+        translations: { en: "Add FAQ", es: "Agregar Pregunta" }
+      },
+      {
+        stringKey: "dashboard.businesses.faqs.empty.title",
+        defaultValue: "No FAQs added yet",
+        category: "dashboard",
+        description: "Empty FAQs state title",
+        translations: { en: "No FAQs added yet", es: "Sin preguntas frecuentes aún" }
+      },
+      {
+        stringKey: "dashboard.businesses.faqs.empty.description",
+        defaultValue: "Click \"Add FAQ\" to create your first question and answer",
+        category: "dashboard",
+        description: "Empty FAQs state description",
+        translations: { en: "Click \"Add FAQ\" to create your first question and answer", es: "Haz clic en \"Agregar Pregunta\" para crear tu primera pregunta y respuesta" }
+      },
+      {
+        stringKey: "dashboard.businesses.faqs.question.label",
+        defaultValue: "Question",
+        category: "dashboard",
+        description: "FAQ question label",
+        translations: { en: "Question", es: "Pregunta" }
+      },
+      {
+        stringKey: "dashboard.businesses.faqs.question.placeholder",
+        defaultValue: "Enter your question (e.g., What are your business hours?)",
+        category: "dashboard",
+        description: "FAQ question placeholder",
+        translations: { en: "Enter your question (e.g., What are your business hours?)", es: "Ingresa tu pregunta (ej: ¿Cuáles son los horarios del negocio?)" }
+      },
+      {
+        stringKey: "dashboard.businesses.faqs.answer.label",
+        defaultValue: "Answer",
+        category: "dashboard",
+        description: "FAQ answer label",
+        translations: { en: "Answer", es: "Respuesta" }
+      },
+      {
+        stringKey: "dashboard.businesses.faqs.answer.placeholder",
+        defaultValue: "Provide a helpful answer to this question...",
+        category: "dashboard",
+        description: "FAQ answer placeholder",
+        translations: { en: "Provide a helpful answer to this question...", es: "Proporciona una respuesta útil a esta pregunta..." }
+      },
+      {
+        stringKey: "dashboard.businesses.actions.cancel",
+        defaultValue: "Cancel",
+        category: "dashboard",
+        description: "Cancel button",
+        translations: { en: "Cancel", es: "Cancelar" }
+      },
+      {
+        stringKey: "dashboard.businesses.actions.update",
+        defaultValue: "Update Business",
+        category: "dashboard",
+        description: "Update business button",
+        translations: { en: "Update Business", es: "Actualizar Negocio" }
+      },
+      {
+        stringKey: "dashboard.businesses.actions.updating",
+        defaultValue: "Updating...",
+        category: "dashboard",
+        description: "Updating business status",
+        translations: { en: "Updating...", es: "Actualizando..." }
+      },
+      {
+        stringKey: "dashboard.businesses.empty.title",
+        defaultValue: "No businesses found",
+        category: "dashboard",
+        description: "Empty businesses state title",
+        translations: { en: "No businesses found", es: "No se encontraron negocios" }
+      },
+      {
+        stringKey: "dashboard.businesses.empty.description",
+        defaultValue: "You don't own any business listings yet.",
+        category: "dashboard",
+        description: "Empty businesses state description",
+        translations: { en: "You don't own any business listings yet.", es: "Aún no tienes listados de negocios." }
+      },
+      {
+        stringKey: "dashboard.claims.title",
+        defaultValue: "Ownership Claims",
+        category: "dashboard",
+        description: "Claims section title",
+        translations: { en: "Ownership Claims", es: "Reclamos de Propiedad" }
+      },
+      {
+        stringKey: "dashboard.claims.description",
+        defaultValue: "Track your business ownership claim requests",
+        category: "dashboard",
+        description: "Claims section description",
+        translations: { en: "Track your business ownership claim requests", es: "Rastrea tus solicitudes de reclamo de propiedad" }
+      },
+      {
+        stringKey: "dashboard.claims.status.pending",
+        defaultValue: "Pending",
+        category: "dashboard",
+        description: "Pending claim status",
+        translations: { en: "Pending", es: "Pendiente" }
+      },
+      {
+        stringKey: "dashboard.claims.status.approved",
+        defaultValue: "Approved",
+        category: "dashboard",
+        description: "Approved claim status",
+        translations: { en: "Approved", es: "Aprobado" }
+      },
+      {
+        stringKey: "dashboard.claims.status.rejected",
+        defaultValue: "Rejected",
+        category: "dashboard",
+        description: "Rejected claim status",
+        translations: { en: "Rejected", es: "Rechazado" }
+      },
+
       // Business Cards
       {
         stringKey: "business.contact.phone",
