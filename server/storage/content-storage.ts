@@ -277,4 +277,45 @@ export class ContentStorage {
       throw new Error("Failed to update site setting");
     }
   }
+
+  /**
+   * Get contact messages (placeholder for inbox functionality)
+   */
+  async getContactMessages(): Promise<any[]> {
+    // Return empty array to prevent 500 errors
+    // In a full implementation, this would fetch from contact_messages table
+    return [];
+  }
+
+  /**
+   * Get single contact message (placeholder)
+   */
+  async getContactMessage(id: number): Promise<any | undefined> {
+    // Return undefined to prevent 500 errors
+    return undefined;
+  }
+
+  /**
+   * Create contact message (placeholder)
+   */
+  async createContactMessage(message: any): Promise<any> {
+    // Placeholder implementation
+    return { id: 1, ...message, createdAt: new Date() };
+  }
+
+  /**
+   * Update contact message status (placeholder)
+   */
+  async updateContactMessageStatus(id: number, status: string, adminNotes?: string): Promise<any | undefined> {
+    // Placeholder implementation
+    return undefined;
+  }
+
+  /**
+   * Delete contact message (placeholder)
+   */
+  async deleteContactMessage(id: number): Promise<void> {
+    // Placeholder implementation
+    return;
+  }
 }
