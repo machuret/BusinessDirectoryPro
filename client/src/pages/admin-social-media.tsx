@@ -27,7 +27,7 @@ const SOCIAL_PLATFORMS = [
 export default function AdminSocialMedia() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [formData, setFormData] = useState({
     platform: '',
@@ -50,7 +50,7 @@ export default function AdminSocialMedia() {
 
   // Create mutation
   const createMutation = useMutation({
-    mutationFn: async (data: Omit<SocialMediaLink, 'id'>) => {
+    mutationFn: async (data: Omit<SocialMediaLink, 'id' | 'createdAt' | 'updatedAt'>) => {
       const response = await apiRequest('POST', '/api/social-media', data);
       return response.json();
     },
@@ -58,7 +58,7 @@ export default function AdminSocialMedia() {
       queryClient.invalidateQueries({ queryKey: ['/api/social-media/all'] });
       queryClient.invalidateQueries({ queryKey: ['/api/social-media'] });
       setShowAddForm(false);
-      setFormData({ platform: '', url: '', isActive: true, sortOrder: 0 });
+      setFormData({ platform: '', url: '', iconClass: '', displayName: '', isActive: true, sortOrder: 0 });
       toast({
         title: "Success",
         description: "Social media link created successfully"
@@ -75,7 +75,7 @@ export default function AdminSocialMedia() {
 
   // Update mutation
   const updateMutation = useMutation({
-    mutationFn: async ({ id, ...data }: SocialMediaLink) => {
+    mutationFn: async ({ id, ...data }: { id: number } & Omit<SocialMediaLink, 'id' | 'createdAt' | 'updatedAt'>) => {
       const response = await apiRequest('PUT', `/api/social-media/${id}`, data);
       return response.json();
     },
@@ -99,7 +99,7 @@ export default function AdminSocialMedia() {
 
   // Delete mutation
   const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
+    mutationFn: async (id: number) => {
       await apiRequest('DELETE', `/api/social-media/${id}`);
     },
     onSuccess: () => {
