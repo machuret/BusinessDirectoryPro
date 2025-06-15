@@ -40,9 +40,9 @@ export default function AdminSocialMedia() {
 
   // Fetch social media links
   const { data: socialLinks = [], isLoading } = useQuery<SocialMediaLink[]>({
-    queryKey: ['/api/social-media/all'],
+    queryKey: ['/api/admin/social-media'],
     queryFn: async () => {
-      const response = await fetch('/api/social-media/all');
+      const response = await fetch('/api/admin/social-media');
       if (!response.ok) throw new Error('Failed to fetch social media links');
       return response.json();
     }
@@ -138,6 +138,8 @@ export default function AdminSocialMedia() {
     setFormData({
       platform: link.platform,
       url: link.url,
+      iconClass: link.iconClass,
+      displayName: link.displayName,
       isActive: link.isActive,
       sortOrder: link.sortOrder || 0
     });
@@ -153,14 +155,14 @@ export default function AdminSocialMedia() {
     } as SocialMediaLink);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (id: number) => {
     if (confirm('Are you sure you want to delete this social media link?')) {
       deleteMutation.mutate(id);
     }
   };
 
   const resetForm = () => {
-    setFormData({ platform: '', url: '', isActive: true, sortOrder: 0 });
+    setFormData({ platform: '', url: '', iconClass: '', displayName: '', isActive: true, sortOrder: 0 });
     setEditingId(null);
     setShowAddForm(false);
   };
@@ -228,6 +230,28 @@ export default function AdminSocialMedia() {
                       value={formData.url}
                       onChange={(e) => setFormData({...formData, url: e.target.value})}
                       placeholder="https://..."
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="displayName">Display Name</Label>
+                    <Input
+                      id="displayName"
+                      value={formData.displayName}
+                      onChange={(e) => setFormData({...formData, displayName: e.target.value})}
+                      placeholder="Facebook"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="iconClass">Icon Class</Label>
+                    <Input
+                      id="iconClass"
+                      value={formData.iconClass}
+                      onChange={(e) => setFormData({...formData, iconClass: e.target.value})}
+                      placeholder="fab fa-facebook-f"
                       required
                     />
                   </div>
@@ -305,6 +329,26 @@ export default function AdminSocialMedia() {
                           type="url"
                           value={formData.url}
                           onChange={(e) => setFormData({...formData, url: e.target.value})}
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="edit-displayName">Display Name</Label>
+                        <Input
+                          id="edit-displayName"
+                          value={formData.displayName}
+                          onChange={(e) => setFormData({...formData, displayName: e.target.value})}
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="edit-iconClass">Icon Class</Label>
+                        <Input
+                          id="edit-iconClass"
+                          value={formData.iconClass}
+                          onChange={(e) => setFormData({...formData, iconClass: e.target.value})}
                           required
                         />
                       </div>
