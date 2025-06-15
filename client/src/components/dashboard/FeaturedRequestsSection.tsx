@@ -249,7 +249,7 @@ export function FeaturedRequestsSection({ userId, userBusinesses }: FeaturedRequ
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
                           <h4 className="font-semibold">
-                            {request.businessTitle || 'Business'}
+                            {request.businessTitle || t("dashboard.featured.requests.business")}
                           </h4>
                           {getStatusBadge(request.status)}
                         </div>
@@ -258,19 +258,19 @@ export function FeaturedRequestsSection({ userId, userBusinesses }: FeaturedRequ
                         )}
                         {request.message && (
                           <p className="text-sm text-gray-700">
-                            <strong>Your message:</strong> {request.message}
+                            <strong>{t("dashboard.featured.requests.yourmessage")}:</strong> {request.message}
                           </p>
                         )}
                         {request.adminMessage && (
                           <p className="text-sm text-gray-700">
-                            <strong>Admin response:</strong> {request.adminMessage}
+                            <strong>{t("dashboard.featured.requests.adminresponse")}:</strong> {request.adminMessage}
                           </p>
                         )}
                       </div>
                       <div className="text-right text-sm text-gray-500">
-                        <p>Submitted {format(new Date(request.createdAt), 'MMM d, yyyy')}</p>
+                        <p>{t("dashboard.featured.requests.submitted")} {format(new Date(request.createdAt), 'MMM d, yyyy')}</p>
                         {request.reviewedAt && (
-                          <p>Reviewed {format(new Date(request.reviewedAt), 'MMM d, yyyy')}</p>
+                          <p>{t("dashboard.featured.requests.reviewed")} {format(new Date(request.reviewedAt), 'MMM d, yyyy')}</p>
                         )}
                       </div>
                     </div>
@@ -285,9 +285,9 @@ export function FeaturedRequestsSection({ userId, userBusinesses }: FeaturedRequ
         {featuredRequests.length === 0 && eligibleBusinesses.length > 0 && (
           <div className="text-center py-8">
             <Star className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No Featured Requests</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">{t("dashboard.featured.empty.norequests.title")}</h3>
             <p className="text-gray-600 mb-4">
-              You haven't submitted any featured requests yet.
+              {t("dashboard.featured.empty.norequests.description")}
             </p>
           </div>
         )}
