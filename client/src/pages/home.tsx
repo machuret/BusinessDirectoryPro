@@ -139,16 +139,16 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              {siteSettings?.homepage_featured_title || "Featured Businesses"}
+              {t("homepage.featured.title")}
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              {siteSettings?.homepage_featured_subtitle || "Discover top-rated businesses handpicked for their exceptional service and quality."}
+              {t("homepage.featured.subtitle")}
             </p>
           </div>
           
           <SectionErrorBoundary 
-            fallbackTitle="Unable to load featured businesses"
-            fallbackMessage="We're having trouble loading featured businesses. Please try again."
+            fallbackTitle={t("homepage.featured.error.title")}
+            fallbackMessage={t("homepage.featured.error.message")}
           >
             {featuredLoading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -160,10 +160,10 @@ export default function Home() {
               </div>
             ) : featuredError ? (
               <div className="text-center py-8">
-                <p className="text-gray-500 mb-4">Unable to load featured businesses</p>
+                <p className="text-gray-500 mb-4">{t("homepage.featured.error.unable")}</p>
                 <Button onClick={retryFeatured} variant="outline">
                   <RefreshCw className="h-4 w-4 mr-2" />
-                  Try Again
+                  {t("homepage.featured.error.retry")}
                 </Button>
               </div>
             ) : featuredBusinesses && featuredBusinesses.length > 0 ? (
@@ -174,7 +174,7 @@ export default function Home() {
               </div>
             ) : (
               <div className="text-center py-8">
-                <p className="text-gray-500">No featured businesses available</p>
+                <p className="text-gray-500">{t("homepage.featured.empty")}</p>
               </div>
             )}
           </SectionErrorBoundary>
@@ -186,10 +186,10 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              {siteSettings?.homepage_random_title || "Random Businesses"}
+              {t("homepage.latest.title")}
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              {siteSettings?.homepage_random_subtitle || "Discover amazing businesses from our directory with excellent reviews and service."}
+              {t("homepage.latest.subtitle")}
             </p>
           </div>
           
@@ -215,7 +215,7 @@ export default function Home() {
               size="lg"
               onClick={() => window.location.href = siteSettings?.homepage_random_button_url || "/businesses"}
             >
-              {siteSettings?.homepage_random_button_text || "View All Businesses"}
+              {t("homepage.latest.button")}
             </Button>
           </div>
         </div>
@@ -226,10 +226,10 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-3xl font-bold text-white mb-6">
-              {siteSettings?.homepage_cta_title || "Are You a Business Owner?"}
+              {t("homepage.cta.title")}
             </h2>
             <p className="text-xl text-blue-100 mb-8">
-              {siteSettings?.homepage_cta_subtitle || "Join thousands of businesses already listed on BusinessHub. Increase your visibility and connect with more customers today."}
+              {t("homepage.cta.subtitle")}
             </p>
             <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6">
               <Button
@@ -238,7 +238,7 @@ export default function Home() {
                 onClick={() => window.location.href = siteSettings?.homepage_cta_primary_url || "/api/login"}
               >
                 <Building className="w-5 h-5 mr-2" />
-                {siteSettings?.homepage_cta_primary_text || "List Your Business"}
+                {t("homepage.cta.primaryButton")}
               </Button>
               <Button
                 variant="outline"
@@ -246,7 +246,7 @@ export default function Home() {
                 className="border-white text-white hover:bg-white hover:text-primary"
                 onClick={() => window.location.href = siteSettings?.homepage_cta_secondary_url || "/about"}
               >
-                {siteSettings?.homepage_cta_secondary_text || "Learn More"}
+                {t("homepage.cta.secondaryButton")}
               </Button>
             </div>
           </div>
@@ -259,19 +259,19 @@ export default function Home() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div>
               <div className="text-3xl font-bold text-primary mb-2">{stats.businesses.toLocaleString()}</div>
-              <div className="text-gray-600">Local Businesses</div>
+              <div className="text-gray-600">{t("homepage.stats.businesses.label")}</div>
             </div>
             <div>
               <div className="text-3xl font-bold text-primary mb-2">{stats.reviews}</div>
-              <div className="text-gray-600">Customer Reviews</div>
+              <div className="text-gray-600">{t("homepage.stats.reviews.label")}</div>
             </div>
             <div>
               <div className="text-3xl font-bold text-primary mb-2">{stats.categories}+</div>
-              <div className="text-gray-600">Business Categories</div>
+              <div className="text-gray-600">{t("homepage.stats.categories.label")}</div>
             </div>
             <div>
               <div className="text-3xl font-bold text-primary mb-2">{stats.cities}</div>
-              <div className="text-gray-600">Cities Covered</div>
+              <div className="text-gray-600">{t("homepage.stats.cities.label")}</div>
             </div>
           </div>
         </div>
