@@ -230,10 +230,10 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
                         
                         <Tabs defaultValue="basic" className="w-full">
                           <TabsList className="grid w-full grid-cols-4">
-                            <TabsTrigger value="basic">Basic Info</TabsTrigger>
-                            <TabsTrigger value="contact">Contact & Hours</TabsTrigger>
-                            <TabsTrigger value="photos">Photos</TabsTrigger>
-                            <TabsTrigger value="faqs">FAQs</TabsTrigger>
+                            <TabsTrigger value="basic">{t("dashboard.businesses.tabs.basic")}</TabsTrigger>
+                            <TabsTrigger value="contact">{t("dashboard.businesses.tabs.contact")}</TabsTrigger>
+                            <TabsTrigger value="photos">{t("dashboard.businesses.tabs.photos")}</TabsTrigger>
+                            <TabsTrigger value="faqs">{t("dashboard.businesses.tabs.faqs")}</TabsTrigger>
                           </TabsList>
                           
                           <form onSubmit={editForm.handleSubmit}>
@@ -242,24 +242,24 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
                                 <div>
                                   <Label htmlFor="title" className="flex items-center gap-2">
                                     <Building2 className="h-4 w-4" />
-                                    Business Name *
+                                    {t("dashboard.businesses.form.name.label")} *
                                   </Label>
                                   <Input
                                     id="title"
                                     value={editForm.values.title}
                                     onChange={(e) => editForm.updateField("title", e.target.value)}
-                                    placeholder="Enter your business name"
+                                    placeholder={t("dashboard.businesses.form.name.placeholder")}
                                     required
                                   />
                                 </div>
                                 
                                 <div>
-                                  <Label htmlFor="description">Business Description</Label>
+                                  <Label htmlFor="description">{t("dashboard.businesses.form.description.label")}</Label>
                                   <Textarea
                                     id="description"
                                     value={editForm.values.description}
                                     onChange={(e) => editForm.updateField("description", e.target.value)}
-                                    placeholder="Describe your business, services, and what makes you unique..."
+                                    placeholder={t("dashboard.businesses.form.description.placeholder")}
                                     rows={4}
                                   />
                                 </div>
@@ -267,13 +267,13 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
                                 <div>
                                   <Label htmlFor="address" className="flex items-center gap-2">
                                     <MapPin className="h-4 w-4" />
-                                    Business Address
+                                    {t("dashboard.businesses.form.address.label")}
                                   </Label>
                                   <Input
                                     id="address"
                                     value={editForm.values.address}
                                     onChange={(e) => editForm.updateField("address", e.target.value)}
-                                    placeholder="123 Main Street, City, State ZIP"
+                                    placeholder={t("dashboard.businesses.form.address.placeholder")}
                                   />
                                 </div>
                               </div>
@@ -284,38 +284,37 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
                                 <div>
                                   <Label htmlFor="phone" className="flex items-center gap-2">
                                     <Phone className="h-4 w-4" />
-                                    Phone Number
+                                    {t("dashboard.businesses.form.phone.label")}
                                   </Label>
                                   <Input
                                     id="phone"
                                     value={editForm.values.phone}
                                     onChange={(e) => editForm.updateField("phone", e.target.value)}
-                                    placeholder="(555) 123-4567"
+                                    placeholder={t("dashboard.businesses.form.phone.placeholder")}
                                   />
                                 </div>
                                 
                                 <div>
                                   <Label htmlFor="website" className="flex items-center gap-2">
                                     <Globe className="h-4 w-4" />
-                                    Website URL
+                                    {t("dashboard.businesses.form.website.label")}
                                   </Label>
                                   <Input
                                     id="website"
                                     type="url"
                                     value={editForm.values.website}
                                     onChange={(e) => editForm.updateField("website", e.target.value)}
-                                    placeholder="https://yourwebsite.com"
+                                    placeholder={t("dashboard.businesses.form.website.placeholder")}
                                   />
                                 </div>
                                 
                                 <div className="p-4 bg-muted/50 rounded-lg">
                                   <h4 className="font-medium mb-2 flex items-center gap-2">
                                     <Clock className="h-4 w-4" />
-                                    Business Hours & Contact Info
+                                    {t("dashboard.businesses.form.hours.title")}
                                   </h4>
                                   <p className="text-sm text-muted-foreground">
-                                    To update your business hours, contact information, and other detailed information, 
-                                    please contact our support team. Basic business details can be edited here.
+                                    {t("dashboard.businesses.form.hours.description")}
                                   </p>
                                 </div>
                               </div>
@@ -326,9 +325,9 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
                                 <div>
                                   <h3 className="text-lg font-medium flex items-center gap-2">
                                     <Image className="h-5 w-5" />
-                                    Photo Gallery
+                                    {t("dashboard.businesses.photos.title")}
                                   </h3>
-                                  <p className="text-sm text-muted-foreground">Manage your business photos to showcase your services and location.</p>
+                                  <p className="text-sm text-muted-foreground">{t("dashboard.businesses.photos.description")}</p>
                                 </div>
                                 <div className="flex gap-2">
                                   <input
@@ -347,7 +346,7 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
                                     disabled={uploadingImages}
                                   >
                                     <Upload className="h-4 w-4 mr-1" />
-                                    {uploadingImages ? "Uploading..." : "Upload Photos"}
+                                    {uploadingImages ? t("dashboard.businesses.photos.uploading") : t("dashboard.businesses.photos.upload")}
                                   </Button>
                                 </div>
                               </div>
@@ -355,8 +354,8 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
                               {businessImages.length === 0 ? (
                                 <div className="text-center py-12 border-2 border-dashed border-muted rounded-lg">
                                   <Image className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-                                  <h4 className="text-lg font-medium mb-2">No photos yet</h4>
-                                  <p className="text-muted-foreground mb-4">Upload photos to showcase your business</p>
+                                  <h4 className="text-lg font-medium mb-2">{t("dashboard.businesses.photos.empty.title")}</h4>
+                                  <p className="text-muted-foreground mb-4">{t("dashboard.businesses.photos.empty.description")}</p>
                                   <Button
                                     type="button"
                                     variant="outline"
@@ -364,7 +363,7 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
                                     disabled={uploadingImages}
                                   >
                                     <Upload className="h-4 w-4 mr-2" />
-                                    Upload Your First Photo
+                                    {t("dashboard.businesses.photos.empty.action")}
                                   </Button>
                                 </div>
                               ) : (
