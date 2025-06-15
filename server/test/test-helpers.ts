@@ -1,7 +1,7 @@
 import { db } from '../db';
-import { users, businesses, categories, featuredRequests } from '@shared/schema';
+import { users, businesses, categories, featuredRequests, ownershipClaims } from '@shared/schema';
 import { eq } from 'drizzle-orm';
-import type { User, Business, Category } from '@shared/schema';
+import type { User, Business, Category, FeaturedRequest, OwnershipClaim } from '@shared/schema';
 
 /**
  * Test data generation helpers for integration tests
@@ -188,6 +188,129 @@ export async function cleanupTestData(data: {
     console.error('Cleanup error:', error);
     // Don't throw - cleanup should be best-effort
   }
+}
+
+/**
+ * Creates a test ownership claim for a business
+ * Requires valid userId and businessId (both must exist in database)
+ */
+export async function createTestOwnershipClaim(
+  userId: string,
+  businessId: string,
+  overrides: Partial<{
+    status: string;
+    message: string;
+    adminMessage: string;
+    reviewedBy: string;
+  }> = {}
+): Promise<OwnershipClaim> {
+  const timestamp = Date.now();
+  
+  const claimData = {
+    userId,
+    businessId,
+    status: overrides.status || 'pending',
+    message: overrides.message || `Test ownership claim created at ${new Date().toISOString()}`,
+    adminMessage: overrides.adminMessage || null,
+    reviewedBy: overrides.reviewedBy || null,
+  };
+
+  const [createdClaim] = await db.insert(ownershipClaims).values(claimData).returning();
+  
+  return createdClaim;
+}
+
+/**
+ * Creates a test featured request for a business
+ * Requires valid userId and businessId (both must exist in database)
+ */
+export async function createTestFeaturedRequest(
+  userId: string,
+  businessId: string,
+  overrides: Partial<{
+    status: string;
+    message: string;
+    adminMessage: string;
+    reviewedBy: string;
+  }> = {}
+): Promise<FeaturedRequest> {
+  const timestamp = Date.now();
+  
+  const requestData = {
+    userId,
+    businessId,
+    status: overrides.status || 'pending',
+    message: overrides.message || `Test featured request created at ${new Date().toISOString()}`,
+    adminMessage: overrides.adminMessage || null,
+    reviewedBy: overrides.reviewedBy || null,
+  };
+
+  const [createdRequest] = await db.insert(featuredRequests).values(requestData).returning();
+  
+  return createdRequest;
+}
+
+/**
+ * Creates a complete dashboard test setup with user, businesses, claims, and requests
+ * Returns all created objects for use in dashboard tests
+ */
+export async function createDashboardTestSetup(): Promise<{
+  user: TestUser;
+  businessA: TestBusiness;
+  businessB: TestBusiness;
+  categoryA: TestCategory;
+  categoryB: TestCategory;
+  ownershipClaim: OwnershipClaim;
+  featuredRequest: FeaturedRequest;
+}> {
+  // Create test user
+  const user = await createTestUser({
+    firstName: 'Dashboard',
+    lastName: 'Tester',
+    email: `dashboard-test-${Date.now()}@example.com`
+  });
+
+  // Create two categories
+  const categoryA = await createTestCategory({
+    name: 'Test Category A',
+    slug: `test-category-a-${Date.now()}`
+  });
+  
+  const categoryB = await createTestCategory({
+    name: 'Test Category B',
+    slug: `test-category-b-${Date.now()}`
+  });
+
+  // Create two businesses owned by the user
+  const businessA = await createTestBusiness(user.id, categoryA.id, {
+    title: 'Business A',
+    slug: `business-a-${Date.now()}`
+  });
+  
+  const businessB = await createTestBusiness(user.id, categoryB.id, {
+    title: 'Business B',
+    slug: `business-b-${Date.now()}`
+  });
+
+  // Create ownership claim for Business A
+  const ownershipClaim = await createTestOwnershipClaim(user.id, businessA.placeid, {
+    message: 'I am the owner of Business A and need to claim it.'
+  });
+
+  // Create featured request for Business B
+  const featuredRequest = await createTestFeaturedRequest(user.id, businessB.placeid, {
+    message: 'Please feature Business B as it provides excellent service.'
+  });
+
+  return {
+    user,
+    businessA,
+    businessB,
+    categoryA,
+    categoryB,
+    ownershipClaim,
+    featuredRequest
+  };
 }
 
 /**

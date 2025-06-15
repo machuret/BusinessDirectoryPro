@@ -375,8 +375,7 @@ export type InsertReview = z.infer<typeof insertReviewSchema>;
 export type Review = typeof reviews.$inferSelect;
 export type InsertSiteSetting = z.infer<typeof insertSiteSettingSchema>;
 export type SiteSetting = typeof siteSettings.$inferSelect;
-export type InsertOwnershipClaim = z.infer<typeof insertOwnershipClaimSchema>;
-export type OwnershipClaim = typeof ownershipClaims.$inferSelect;
+
 export type InsertMenuItem = z.infer<typeof insertMenuItemSchema>;
 export type MenuItem = typeof menuItems.$inferSelect;
 export type InsertPage = z.infer<typeof insertPageSchema>;
@@ -462,6 +461,12 @@ export const insertContentStringSchema = createInsertSchema(contentStrings).omit
 
 export type ContentString = typeof contentStrings.$inferSelect;
 export type InsertContentString = z.infer<typeof insertContentStringSchema>;
+
+// Add missing type exports for schema consistency
+export type FeaturedRequest = typeof featuredRequests.$inferSelect;
+export type InsertFeaturedRequest = typeof featuredRequests.$inferInsert;
+export type OwnershipClaim = typeof ownershipClaims.$inferSelect;
+export type InsertOwnershipClaimFull = typeof ownershipClaims.$inferInsert;
 
 
 
