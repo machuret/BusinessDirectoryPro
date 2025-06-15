@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Star, MapPin, Heart, Share2, Navigation } from "lucide-react";
 import type { BusinessWithCategory } from "@shared/schema";
+import { useContent } from "@/contexts/ContentContext";
 
 interface BusinessHeaderProps {
   business: BusinessWithCategory;
@@ -16,6 +17,7 @@ export function BusinessHeader({
   onShare, 
   onGetDirections 
 }: BusinessHeaderProps) {
+  const { t } = useContent();
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
       <Star
@@ -35,7 +37,7 @@ export function BusinessHeader({
             <h1 className="text-3xl font-bold text-gray-900">{business.title}</h1>
             {business.featured && (
               <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
-                Featured
+                {t('business.header.featured')}
               </Badge>
             )}
           </div>
@@ -50,7 +52,7 @@ export function BusinessHeader({
             <div className="flex items-center gap-1">
               {renderStars(parseFloat(business.totalscore || '0'))}
               <span className="text-sm text-gray-600 ml-1">
-                ({business.totalscore ? parseFloat(business.totalscore).toFixed(1) : 'No rating'})
+                ({business.totalscore ? parseFloat(business.totalscore).toFixed(1) : t('business.header.noRating')})
               </span>
             </div>
           </div>
@@ -64,18 +66,18 @@ export function BusinessHeader({
         <div className="flex flex-col sm:flex-row gap-2">
           <Button variant="outline" size="sm" onClick={onGetDirections}>
             <Navigation className="w-4 h-4 mr-2" />
-            Directions
+            {t('business.header.directions')}
           </Button>
           <Button variant="outline" size="sm" onClick={onShare}>
             <Share2 className="w-4 h-4 mr-2" />
-            Share
+            {t('business.header.share')}
           </Button>
           <Button variant="outline" size="sm">
             <Heart className="w-4 h-4 mr-2" />
-            Save
+            {t('business.header.save')}
           </Button>
           <Button onClick={onClaimBusiness} className="bg-blue-600 hover:bg-blue-700">
-            Claim Business
+            {t('business.header.claimBusiness')}
           </Button>
         </div>
       </div>
