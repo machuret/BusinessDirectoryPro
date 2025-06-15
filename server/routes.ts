@@ -14,15 +14,17 @@ import { csvImportService } from "./csv-import";
 import { createOwnershipClaimsTable } from "./create-ownership-table";
 import { setupFeaturedRequestsRoutes } from "./routes/featured-requests";
 import { createFeaturedRequestsTable } from "./create-featured-requests-table";
+import { createLeadsTable } from "./create-leads-table";
 import { contentRouter } from "./routes/content";
 import { createContentStringsTable, seedInitialContentStrings } from "../migrations/create-content-strings-table";
 
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Initialize database tables - ensure ownership_claims, featured_requests, and content_strings tables exist
+  // Initialize database tables - ensure ownership_claims, featured_requests, leads, and content_strings tables exist
   try {
     await createOwnershipClaimsTable();
     await createFeaturedRequestsTable();
+    await createLeadsTable();
     await createContentStringsTable();
     await seedInitialContentStrings();
     console.log('Database tables initialized successfully');

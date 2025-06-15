@@ -91,6 +91,76 @@ async function testLeadRouting() {
       console.log(`   Business ${business.placeid}: ${isClaimed ? `Claimed by ${ownerId}` : 'Unclaimed (admin owned)'}`);
     }
 
+    // 6. Create test leads to verify routing logic
+    console.log('\n6. Creating test leads...');
+    
+    // Get some businesses for testing
+    const businessesForTest = await db.execute(sql`SELECT placeid FROM businesses LIMIT 5`);
+    
+    if (businessesForTest.rows.length > 0) {
+      // Create leads for different businesses
+      for (let i = 0; i < Math.min(3, businessesForTest.rows.length); i++) {
+        const business = businessesForTest.rows[i];
+        await db.execute(sql`
+          INSERT INTO leads (business_id, sender_name, sender_email, sender_phone, message, status)
+          VALUES (
+            ${business.placeid},
+            ${'Test User ' + (i + 1)},
+            ${'test' + (i + 1) + '@example.com'},
+            ${'+1234567890' + i},
+            ${'Test inquiry message for business ' + (i + 1)},
+            'new'
+          )
+        `);
+      }
+      console.log(`   Created ${Math.min(3, businessesForTest.rows.length)} test leads`);
+      
+      // 7. Test routing after creating leads
+      console.log('\n7. Testing lead routing after creating test data...');
+      
+      // Admin leads (unclaimed businesses)
+      const adminLeadsAfter = await db.execute(sql`
+        SELECT 
+          l.id,
+          l.business_id,
+          l.sender_name,
+          b.title as business_title
+        FROM leads l
+        LEFT JOIN businesses b ON l.business_id = b.placeid
+        WHERE l.business_id NOT IN (
+          SELECT DISTINCT business_id 
+          FROM ownership_claims 
+          WHERE status = 'approved'
+        )
+        ORDER BY l.created_at DESC
+      `);
+      console.log(`   Admin should see ${adminLeadsAfter.rows.length} leads from unclaimed businesses:`);
+      adminLeadsAfter.rows.forEach(lead => {
+        console.log(`   - Lead #${lead.id}: ${lead.sender_name} → ${lead.business_title || 'Unknown Business'}`);
+      });
+      
+      // Owner leads (claimed businesses) 
+      if (claimsResult.rows.length > 0) {
+        const testOwnerId = claimsResult.rows[0].user_id;
+        const ownerLeadsAfter = await db.execute(sql`
+          SELECT 
+            l.id,
+            l.business_id,
+            l.sender_name,
+            b.title as business_title
+          FROM leads l
+          LEFT JOIN businesses b ON l.business_id = b.placeid
+          INNER JOIN ownership_claims oc ON l.business_id = oc.business_id
+          WHERE oc.user_id = ${testOwnerId} AND oc.status = 'approved'
+          ORDER BY l.created_at DESC
+        `);
+        console.log(`   Owner ${testOwnerId} should see ${ownerLeadsAfter.rows.length} leads from their claimed businesses:`);
+        ownerLeadsAfter.rows.forEach(lead => {
+          console.log(`   - Lead #${lead.id}: ${lead.sender_name} → ${lead.business_title || 'Unknown Business'}`);
+        });
+      }
+    }
+
     console.log('\n✅ Lead routing system test completed successfully!');
 
   } catch (error) {
