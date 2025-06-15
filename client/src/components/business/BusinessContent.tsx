@@ -3,12 +3,14 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Clock, Phone, Globe, Mail } from "lucide-react";
 import type { BusinessWithCategory } from "@shared/schema";
+import { useContent } from "@/contexts/ContentContext";
 
 interface BusinessContentProps {
   business: BusinessWithCategory;
 }
 
 export function BusinessContent({ business }: BusinessContentProps) {
+  const { t } = useContent();
   const formatOpeningHours = (hours: unknown) => {
     if (!hours || typeof hours !== 'object') return null;
     
@@ -17,7 +19,7 @@ export function BusinessContent({ business }: BusinessContentProps) {
     
     return days.map(day => {
       const dayHours = hoursObj[day.toLowerCase()] || hoursObj[day];
-      return dayHours ? `${day}: ${dayHours}` : `${day}: Closed`;
+      return dayHours ? `${day}: ${dayHours}` : `${day}: ${t('business.content.closed')}`;
     });
   };
 
@@ -72,7 +74,7 @@ export function BusinessContent({ business }: BusinessContentProps) {
         {business.description && (
           <Card>
             <CardHeader>
-              <CardTitle>About This Business</CardTitle>
+              <CardTitle>{t('business.content.aboutBusiness')}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-gray-700 leading-relaxed">
@@ -86,7 +88,7 @@ export function BusinessContent({ business }: BusinessContentProps) {
         {images.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle>Photo Gallery</CardTitle>
+              <CardTitle>{t('business.content.photoGallery')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -109,7 +111,7 @@ export function BusinessContent({ business }: BusinessContentProps) {
         {business.amenities && (
           <Card>
             <CardHeader>
-              <CardTitle>Amenities & Features</CardTitle>
+              <CardTitle>{t('business.content.amenitiesFeatures')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
