@@ -147,7 +147,7 @@ describe('Full User Lifecycle - Registration to Featured Business', () => {
     });
     
     // Verify logout
-    cy.url().should('eq', Cypress.config().baseUrl + '/');
+    cy.url().should('eq', 'http://localhost:5000/');
 
     // Step 5: Admin Login and Approval
     cy.log('Step 5: Logging in as admin');
@@ -209,7 +209,7 @@ describe('Full User Lifecycle - Registration to Featured Business', () => {
     });
     
     // Verify logout
-    cy.url().should('eq', Cypress.config().baseUrl + '/');
+    cy.url().should('eq', 'http://localhost:5000/');
 
     // Step 8: Final Verification as Public Visitor
     cy.log('Step 8: Verifying featured business appears publicly');
