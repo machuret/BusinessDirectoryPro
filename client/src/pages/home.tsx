@@ -1,4 +1,5 @@
 import { useApiQuery } from "@/hooks/useApiQuery";
+import { useContent } from "@/contexts/ContentContext";
 import { PageWrapper, Grid, FlexContainer } from "@/components/layout";
 import SearchBar from "@/components/search-bar";
 import CategoryGrid from "@/components/category-grid";
@@ -13,6 +14,8 @@ import { Building, Users, Star, MapPin, RefreshCw } from "lucide-react";
 import type { BusinessWithCategory, CategoryWithCount } from "@shared/schema";
 
 export default function Home() {
+  const { t } = useContent();
+  
   const { data: featuredBusinesses, isLoading: featuredLoading, error: featuredError, refetch: retryFeatured } = useApiQuery<BusinessWithCategory[]>({
     queryKey: ["/api/businesses/featured"],
   });
@@ -33,15 +36,15 @@ export default function Home() {
 
   const stats = {
     businesses: categories?.reduce((sum, cat) => sum + cat.businessCount, 0) || 0,
-    reviews: "89,234",
+    reviews: t("homepage.stats.reviews.value"),
     categories: categories?.length || 0,
-    cities: "150+",
+    cities: t("homepage.stats.cities.value"),
   };
 
   return (
     <PageWrapper 
-      title="Business Directory - Find Local Businesses"
-      description="Discover and connect with local businesses in your area. Browse categories, read reviews, and find exactly what you're looking for."
+      title={t("homepage.seo.title")}
+      description={t("homepage.seo.description")}
       className="bg-gray-50"
     >
       <SEOHead 
@@ -53,10 +56,10 @@ export default function Home() {
       <section className="bg-gradient-to-br from-primary to-blue-700 text-white py-20">
         <div className="container-responsive text-center">
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            {siteSettings?.homepage_hero_title || "Find Local Businesses"}
+            {t("homepage.hero.title")}
           </h1>
           <p className="text-xl md:text-2xl mb-12 text-blue-100 max-w-3xl mx-auto">
-            {siteSettings?.homepage_hero_subtitle || "Discover and connect with trusted local businesses in your area. From restaurants to services, we've got you covered."}
+            {t("homepage.hero.subtitle")}
           </p>
           <SearchBar />
         </div>
@@ -70,16 +73,16 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              {siteSettings?.homepage_categories_title || "Browse by Category"}
+              {t("homepage.categories.title")}
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              {siteSettings?.homepage_categories_subtitle || "Explore businesses across different industries and find exactly what you need."}
+              {t("homepage.categories.subtitle")}
             </p>
           </div>
           
           <SectionErrorBoundary 
-            fallbackTitle="Unable to load categories"
-            fallbackMessage="We're having trouble loading business categories. Please try again."
+            fallbackTitle={t("homepage.categories.error.title")}
+            fallbackMessage={t("homepage.categories.error.message")}
           >
             {categoriesLoading ? (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
@@ -89,10 +92,10 @@ export default function Home() {
               </div>
             ) : categoriesError ? (
               <div className="text-center py-8">
-                <p className="text-gray-500 mb-4">Unable to load categories</p>
+                <p className="text-gray-500 mb-4">{t("homepage.categories.error.unable")}</p>
                 <Button onClick={retryCategories} variant="outline">
                   <RefreshCw className="h-4 w-4 mr-2" />
-                  Try Again
+                  {t("homepage.categories.error.retry")}
                 </Button>
               </div>
             ) : (
@@ -107,7 +110,7 @@ export default function Home() {
         <div className="container-responsive">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              {siteSettings?.homepage_features_title || "Why Choose BusinessHub?"}
+              {t("homepage.features.title")}
             </h2>
           </div>
           
@@ -120,10 +123,10 @@ export default function Home() {
                   {num === 3 && <Star className="w-8 h-8 text-primary" />}
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                  {siteSettings?.[`homepage_feature_${num}_title`] || `Feature ${num}`}
+                  {t(`homepage.features.feature${num}.title`)}
                 </h3>
                 <p className="text-gray-600 leading-relaxed">
-                  {siteSettings?.[`homepage_feature_${num}_description`] || `Feature ${num} description`}
+                  {t(`homepage.features.feature${num}.description`)}
                 </p>
               </div>
             ))}
