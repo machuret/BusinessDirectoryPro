@@ -3,8 +3,21 @@ import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { storage } from "../storage";
 import { SessionManager, performCompleteLogout } from "../session-manager";
+import DOMPurify from "isomorphic-dompurify";
 
 const scryptAsync = promisify(scrypt);
+
+// Input sanitization helper
+function sanitizeInput(input: string): string {
+  if (typeof input !== 'string') return '';
+  return DOMPurify.sanitize(input.trim(), { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
+}
+
+// Email validation helper
+function isValidEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
 
 async function hashPassword(password: string): Promise<string> {
   const salt = randomBytes(16).toString("hex");
