@@ -31,7 +31,7 @@ export default function Cities() {
     enabled: !!city,
   });
 
-  const decodedCity = city ? decodeURIComponent(city) : null;
+  const decodedCity = city ? decodeURIComponent(city) : 'Unknown City';
 
   if (citiesLoading || businessesLoading) {
     return (
