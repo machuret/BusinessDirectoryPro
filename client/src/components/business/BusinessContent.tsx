@@ -142,7 +142,7 @@ export function BusinessContent({ business }: BusinessContentProps) {
           <CardHeader>
             <CardTitle className="flex items-center">
               <Phone className="w-5 h-5 mr-2" />
-              Contact Information
+              {t('business.content.contactInformation')}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -179,7 +179,7 @@ export function BusinessContent({ business }: BusinessContentProps) {
                   rel="noopener noreferrer"
                   className="text-blue-600 hover:underline"
                 >
-                  Visit Website
+                  {t('business.content.visitWebsite')}
                 </a>
               </div>
             )}

@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Star, User, MessageSquare } from "lucide-react";
 import type { BusinessWithCategory, Review } from "@shared/schema";
 import { useAuth } from "@/hooks/useAuth";
+import { useContent } from "@/contexts/ContentContext";
 import BusinessReviewForm from "@/components/BusinessReviewForm";
 import ClaimBusinessModal from "@/components/ClaimBusinessModal";
 import BusinessFAQ from "@/components/BusinessFAQ";
@@ -23,6 +24,7 @@ export function BusinessInteractions({
   setShowClaimModal 
 }: BusinessInteractionsProps) {
   const { user } = useAuth();
+  const { t } = useContent();
   const [showReviewForm, setShowReviewForm] = useState(false);
 
   const renderStars = (rating: number) => {
@@ -41,7 +43,7 @@ export function BusinessInteractions({
       const date = new Date(dateString);
       return date.toLocaleDateString();
     } catch {
-      return "Unknown date";
+      return t('business.interactions.unknownDate');
     }
   };
 
@@ -53,7 +55,7 @@ export function BusinessInteractions({
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center">
               <MessageSquare className="w-5 h-5 mr-2" />
-              Customer Reviews ({reviews.length})
+              {t('business.interactions.customerReviews')} ({reviews.length})
             </CardTitle>
             {user && (
               <Button 
@@ -61,7 +63,7 @@ export function BusinessInteractions({
                 variant="outline"
                 size="sm"
               >
-                Write Review
+                {t('business.interactions.writeReview')}
               </Button>
             )}
           </div>
@@ -89,7 +91,7 @@ export function BusinessInteractions({
                         <p className="font-medium text-gray-900">
                           {review.user?.firstName && review.user?.lastName
                             ? `${review.user.firstName} ${review.user.lastName}`
-                            : review.reviewerName || "Anonymous"}
+                            : review.reviewerName || t('business.interactions.anonymous')}
                         </p>
                         <p className="text-sm text-gray-500">
                           {formatDate(review.createdAt || "")}
@@ -117,14 +119,14 @@ export function BusinessInteractions({
           ) : (
             <div className="text-center py-8">
               <MessageSquare className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-4 text-lg font-semibold">No reviews yet</h3>
-              <p className="text-gray-600">Be the first to review this business!</p>
+              <h3 className="mt-4 text-lg font-semibold">{t('business.interactions.noReviewsYet')}</h3>
+              <p className="text-gray-600">{t('business.interactions.beFirstToReview')}</p>
               {user && (
                 <Button 
                   onClick={() => setShowReviewForm(true)}
                   className="mt-4"
                 >
-                  Write First Review
+                  {t('business.interactions.writeFirstReview')}
                 </Button>
               )}
             </div>
