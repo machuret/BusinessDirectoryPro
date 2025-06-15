@@ -105,7 +105,7 @@ function Router() {
           <Route path="/admin/export" component={() => <AdminLayout><AdminExportPage /></AdminLayout>} />
           <Route path="/admin/featured" component={() => <AdminLayout><AdminFeaturedPage /></AdminLayout>} />
           <Route path="/admin/services" component={() => <AdminLayout><AdminServicesPage /></AdminLayout>} />
-          <Route path="/admin/social-media" component={() => <AdminSocialMedia />} />
+          <Route path="/admin/social-media" component={() => <AdminLayout><AdminSocialMedia /></AdminLayout>} />
           <Route path="/admin/content" component={() => <AdminLayout><AdminContentPage /></AdminLayout>} />
           <Route path="/admin/settings" component={() => <AdminLayout><AdminSettingsPage /></AdminLayout>} />
           <Route path="/admin/menu/:id" component={() => <AdminLayout><MenuEdit /></AdminLayout>} />

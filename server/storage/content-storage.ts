@@ -289,6 +289,23 @@ export class ContentStorage {
       throw new Error("Failed to upsert content string");
     }
   }
+
+  /**
+   * Get contact messages (placeholder implementation)
+   */
+  async getContactMessages(): Promise<any[]> {
+    // This is a placeholder - contact messages would typically be stored in a separate table
+    // For now, return empty array to prevent errors
+    return [];
+  }
+
+  /**
+   * Get contact message by ID (placeholder implementation)
+   */
+  async getContactMessage(id: number): Promise<any | undefined> {
+    // This is a placeholder - contact messages would typically be stored in a separate table
+    return undefined;
+  }
 }
 
 // Export singleton instance

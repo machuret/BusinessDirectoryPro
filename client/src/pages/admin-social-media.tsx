@@ -51,11 +51,11 @@ export default function AdminSocialMedia() {
   // Create mutation
   const createMutation = useMutation({
     mutationFn: async (data: Omit<SocialMediaLink, 'id' | 'createdAt' | 'updatedAt'>) => {
-      const response = await apiRequest('POST', '/api/social-media', data);
+      const response = await apiRequest('POST', '/api/admin/social-media', data);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/social-media/all'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/social-media'] });
       queryClient.invalidateQueries({ queryKey: ['/api/social-media'] });
       setShowAddForm(false);
       setFormData({ platform: '', url: '', iconClass: '', displayName: '', isActive: true, sortOrder: 0 });
