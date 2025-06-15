@@ -240,6 +240,19 @@ export const businessServices = pgTable("business_services", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Social media links table
+export const socialMediaLinks = pgTable("social_media_links", {
+  id: serial("id").primaryKey(),
+  platform: varchar("platform").notNull().unique(), // facebook, twitter, instagram, linkedin, youtube, tiktok
+  url: text("url").notNull(),
+  iconClass: varchar("icon_class").notNull(), // Font Awesome class name
+  displayName: varchar("display_name").notNull(),
+  isActive: boolean("is_active").notNull().default(true),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // Page content table for admin-editable content
 export const pageContent = pgTable("page_content", {
   id: serial("id").primaryKey(),
@@ -326,6 +339,12 @@ export const insertSiteSettingSchema = createInsertSchema(siteSettings).omit({
   updatedAt: true,
 });
 
+export const insertSocialMediaLinkSchema = createInsertSchema(socialMediaLinks).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export const insertOwnershipClaimSchema = createInsertSchema(ownershipClaims).omit({
   id: true,
   createdAt: true,
@@ -388,6 +407,8 @@ export type InsertBusinessService = z.infer<typeof insertBusinessServiceSchema>;
 export type BusinessService = typeof businessServices.$inferSelect;
 export type InsertPageContent = z.infer<typeof insertPageContentSchema>;
 export type PageContent = typeof pageContent.$inferSelect;
+export type InsertSocialMediaLink = z.infer<typeof insertSocialMediaLinkSchema>;
+export type SocialMediaLink = typeof socialMediaLinks.$inferSelect;
 
 // Leads table for business inquiries
 export const leads = pgTable("leads", {
