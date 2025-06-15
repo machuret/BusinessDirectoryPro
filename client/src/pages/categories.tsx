@@ -167,10 +167,10 @@ export default function Categories() {
         <section>
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl font-bold text-gray-900">
-              {slug && category ? `${category.name} Businesses` : "All Businesses"}
+              {slug && category ? t('categories.businesses.categoryTitle', { categoryName: category.name }) : t('categories.businesses.allTitle')}
               {currentBusinesses && (
                 <span className="text-lg font-normal text-gray-600 ml-2">
-                  ({currentBusinesses.length} {currentBusinesses.length === 1 ? 'business' : 'businesses'})
+                  ({currentBusinesses.length} {currentBusinesses.length === 1 ? t('categories.businesses.businessSingular') : t('categories.businesses.businessPlural')})
                 </span>
               )}
             </h2>
@@ -193,15 +193,15 @@ export default function Categories() {
           ) : (
             <div className="text-center py-16">
               <div className="text-gray-400 text-6xl mb-4">🏢</div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No businesses found</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('categories.empty.title')}</h3>
               <p className="text-gray-600 mb-8">
                 {slug && category 
-                  ? `No businesses are currently listed in the ${category.name} category.`
-                  : "No businesses are currently listed."
+                  ? t('categories.empty.categoryDescription', { categoryName: category.name })
+                  : t('categories.empty.generalDescription')
                 }
               </p>
               <Button onClick={() => window.location.href = "/api/login"}>
-                List Your Business
+                {t('categories.empty.listButton')}
               </Button>
             </div>
           )}

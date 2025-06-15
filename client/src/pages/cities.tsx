@@ -7,6 +7,7 @@ import Header from "@/components/header";
 import Footer from "@/components/footer";
 import BusinessCard from "@/components/business-card";
 import BusinessCardSkeleton from "@/components/business-card-skeleton";
+import { useContent } from "@/contexts/ContentContext";
 import type { BusinessWithCategory } from "@shared/schema";
 
 interface City {
@@ -16,6 +17,7 @@ interface City {
 
 export default function Cities() {
   const { city } = useParams();
+  const { t } = useContent();
 
   // If no city specified, show all cities
   const { data: cities, isLoading: citiesLoading } = useQuery<City[]>({
@@ -38,7 +40,7 @@ export default function Cities() {
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-            <p className="mt-4">Loading...</p>
+            <p className="mt-4">{t('cities.loading')}</p>
           </div>
         </div>
         <Footer />
@@ -56,10 +58,10 @@ export default function Cities() {
           <>
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold text-gray-900 mb-4">
-                Browse by City
+                {t('cities.browsing.title')}
               </h1>
               <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                Discover local businesses in cities across our directory
+                {t('cities.browsing.description')}
               </p>
             </div>
 
@@ -77,7 +79,7 @@ export default function Cities() {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2 text-sm text-gray-600">
                           <Building2 className="h-4 w-4" />
-                          <span>{cityData.count} businesses</span>
+                          <span>{cityData.count} {cityData.count === 1 ? t('cities.businesses.singular') : t('cities.businesses.plural')}</span>
                         </div>
                         <Badge variant="outline">
                           {cityData.count}
@@ -92,8 +94,8 @@ export default function Cities() {
             {cities?.length === 0 && (
               <div className="text-center py-12">
                 <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No cities found</h3>
-                <p className="text-gray-600">No businesses with city information are available.</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">{t('cities.empty.title')}</h3>
+                <p className="text-gray-600">{t('cities.empty.description')}</p>
               </div>
             )}
           </>
