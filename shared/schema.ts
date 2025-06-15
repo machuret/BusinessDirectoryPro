@@ -483,6 +483,8 @@ export const insertContentStringSchema = createInsertSchema(contentStrings).omit
 export type ContentString = typeof contentStrings.$inferSelect;
 export type InsertContentString = z.infer<typeof insertContentStringSchema>;
 
+
+
 // Add missing type exports for schema consistency
 export type FeaturedRequest = typeof featuredRequests.$inferSelect;
 export type InsertFeaturedRequest = typeof featuredRequests.$inferInsert;

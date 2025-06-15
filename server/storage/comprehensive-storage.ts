@@ -245,6 +245,14 @@ export class ComprehensiveStorage implements IStorage {
     return this.content.updateSiteSetting(key, value, description, category);
   }
 
+  async getSiteSettings(): Promise<SiteSetting[]> {
+    return this.content.getSiteSettings();
+  }
+
+  async getSiteSetting(key: string): Promise<SiteSetting | undefined> {
+    return this.content.getSiteSetting(key);
+  }
+
   async getMenuItems(position?: string): Promise<MenuItem[]> {
     return this.content.getMenuItems(position);
   }

@@ -1,6 +1,13 @@
 import { eq, sql } from "drizzle-orm";
 import { db } from "../db";
-import { contentStrings, type ContentString, type InsertContentString } from "@shared/schema";
+import { 
+  contentStrings, 
+  siteSettings,
+  type ContentString, 
+  type InsertContentString,
+  type SiteSetting,
+  type InsertSiteSetting 
+} from "@shared/schema";
 
 /**
  * Content storage implementation for content management system
@@ -305,6 +312,76 @@ export class ContentStorage {
   async getContactMessage(id: number): Promise<any | undefined> {
     // This is a placeholder - contact messages would typically be stored in a separate table
     return undefined;
+  }
+
+  /**
+   * Update site setting using database storage
+   */
+  async updateSiteSetting(key: string, value: any, description?: string, category?: string): Promise<SiteSetting> {
+    try {
+      const [setting] = await db
+        .insert(siteSettings)
+        .values({
+          key,
+          value: String(value),
+          description: description || '',
+          category: category || 'general',
+          createdAt: new Date(),
+          updatedAt: new Date()
+        })
+        .onConflictDoUpdate({
+          target: siteSettings.key,
+          set: {
+            value: String(value),
+            description: description || siteSettings.description,
+            category: category || siteSettings.category,
+            updatedAt: new Date()
+          }
+        })
+        .returning();
+
+      return setting;
+    } catch (error) {
+      console.error("Error updating site setting:", error);
+      throw new Error("Failed to update site setting");
+    }
+  }
+
+  /**
+   * Get site settings from database
+   */
+  async getSiteSettings(): Promise<SiteSetting[]> {
+    try {
+      return await db.select().from(siteSettings);
+    } catch (error) {
+      console.error("Error fetching site settings:", error);
+      throw new Error("Failed to fetch site settings");
+    }
+  }
+
+  /**
+   * Get site setting by key
+   */
+  async getSiteSetting(key: string): Promise<SiteSetting | undefined> {
+    try {
+      const [setting] = await db
+        .select()
+        .from(siteSettings)
+        .where(eq(siteSettings.key, key));
+      
+      return setting;
+    } catch (error) {
+      console.error("Error fetching site setting:", error);
+      throw new Error("Failed to fetch site setting");
+    }
+  }
+
+  /**
+   * Get menu items (placeholder implementation)
+   */
+  async getMenuItems(position?: string): Promise<any[]> {
+    // This is a placeholder - menu items would typically be stored in a separate table
+    return [];
   }
 }
 
