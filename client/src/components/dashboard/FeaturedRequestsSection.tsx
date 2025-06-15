@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Star, Clock, CheckCircle, XCircle, Plus } from "lucide-react";
 import { format } from "date-fns";
+import { useContent } from "@/contexts/ContentContext";
 
 interface FeaturedRequest {
   id: number;
@@ -38,6 +39,7 @@ interface FeaturedRequestsSectionProps {
 }
 
 export function FeaturedRequestsSection({ userId, userBusinesses }: FeaturedRequestsSectionProps) {
+  const { t } = useContent();
   const { toast } = useToast();
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
   const [message, setMessage] = useState("");
@@ -65,13 +67,13 @@ export function FeaturedRequestsSection({ userId, userBusinesses }: FeaturedRequ
       setSelectedBusiness(null);
       setMessage("");
       toast({
-        title: "Request Submitted",
-        description: "Your featured request has been submitted for review.",
+        title: t("dashboard.featured.request.success.title"),
+        description: t("dashboard.featured.request.success.description"),
       });
     },
     onError: (error: Error) => {
       toast({
-        title: "Request Failed",
+        title: t("dashboard.featured.request.error.title"),
         description: error.message,
         variant: "destructive",
       });
@@ -81,11 +83,11 @@ export function FeaturedRequestsSection({ userId, userBusinesses }: FeaturedRequ
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary" className="gap-1"><Clock className="h-3 w-3" />Pending</Badge>;
+        return <Badge variant="secondary" className="gap-1"><Clock className="h-3 w-3" />{t("dashboard.featured.status.pending")}</Badge>;
       case 'approved':
-        return <Badge variant="default" className="gap-1 bg-green-600"><CheckCircle className="h-3 w-3" />Approved</Badge>;
+        return <Badge variant="default" className="gap-1 bg-green-600"><CheckCircle className="h-3 w-3" />{t("dashboard.featured.status.approved")}</Badge>;
       case 'rejected':
-        return <Badge variant="destructive" className="gap-1"><XCircle className="h-3 w-3" />Rejected</Badge>;
+        return <Badge variant="destructive" className="gap-1"><XCircle className="h-3 w-3" />{t("dashboard.featured.status.rejected")}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -111,7 +113,7 @@ export function FeaturedRequestsSection({ userId, userBusinesses }: FeaturedRequ
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Star className="h-5 w-5" />
-            Featured Requests
+            {t("dashboard.featured.title")}
           </CardTitle>
         </CardHeader>
         <CardContent>

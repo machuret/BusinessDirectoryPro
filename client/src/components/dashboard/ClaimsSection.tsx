@@ -54,38 +54,38 @@ export function ClaimsSection({ claims, isLoading }: ClaimsSectionProps) {
       <CardHeader>
         <CardTitle className="flex items-center">
           <FileText className="mr-2 h-5 w-5" />
-          Ownership Claims
+          {t("dashboard.claims.title")}
         </CardTitle>
-        <CardDescription>Track your business ownership claim requests</CardDescription>
+        <CardDescription>{t("dashboard.claims.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         {claims && claims.length > 0 ? (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Business Name</TableHead>
-                <TableHead>Submitted Date</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Message</TableHead>
+                <TableHead>{t("dashboard.claims.table.business")}</TableHead>
+                <TableHead>{t("dashboard.claims.table.date")}</TableHead>
+                <TableHead>{t("dashboard.claims.table.status")}</TableHead>
+                <TableHead>{t("dashboard.claims.table.message")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {claims.map((claim) => (
                 <TableRow key={claim.id}>
                   <TableCell className="font-medium">
-                    {claim.businessTitle || claim.business?.title || "Unknown Business"}
+                    {claim.businessTitle || claim.business?.title || t("dashboard.claims.table.unknown")}
                   </TableCell>
                   <TableCell>
                     {claim.createdAt 
                       ? new Date(claim.createdAt).toLocaleDateString()
-                      : "Unknown"
+                      : t("dashboard.claims.table.unknown")
                     }
                   </TableCell>
                   <TableCell>
                     {getStatusBadge(claim.status)}
                   </TableCell>
                   <TableCell className="max-w-xs truncate">
-                    {claim.message || claim.adminMessage || "No message"}
+                    {claim.message || claim.adminMessage || t("dashboard.claims.table.nomessage")}
                   </TableCell>
                 </TableRow>
               ))}
@@ -94,8 +94,8 @@ export function ClaimsSection({ claims, isLoading }: ClaimsSectionProps) {
         ) : (
           <div className="text-center py-8">
             <FileText className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-4 text-lg font-semibold">No ownership claims</h3>
-            <p className="text-gray-600">You haven't submitted any business ownership claims yet.</p>
+            <h3 className="mt-4 text-lg font-semibold">{t("dashboard.claims.empty.title")}</h3>
+            <p className="text-gray-600">{t("dashboard.claims.empty.description")}</p>
           </div>
         )}
       </CardContent>
