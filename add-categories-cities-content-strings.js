@@ -3,8 +3,8 @@
  * This ensures all the new CMS strings for categories.tsx and cities.tsx work properly
  */
 
-import { db } from './server/db.js';
-import { contentStrings } from './shared/schema.js';
+import { db } from './server/db.ts';
+import { contentStrings } from './shared/schema.ts';
 import { eq } from 'drizzle-orm';
 
 async function addCategoriesCitiesContentStrings() {
@@ -146,7 +146,7 @@ async function addCategoriesCitiesContentStrings() {
         const existing = await db
           .select()
           .from(contentStrings)
-          .where(eq(contentStrings.key, contentString.key))
+          .where(eq(contentStrings.stringKey, contentString.key))
           .limit(1);
 
         if (existing.length > 0) {
@@ -157,8 +157,8 @@ async function addCategoriesCitiesContentStrings() {
 
         // Insert the content string
         await db.insert(contentStrings).values({
-          key: contentString.key,
-          value: contentString.value,
+          stringKey: contentString.key,
+          defaultValue: contentString.value,
           description: contentString.description,
           category: 'page_content',
           createdAt: new Date(),

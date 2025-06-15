@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 type ContentStrings = Record<string, string>;
 
 interface ContentContextType {
-  t: (key: string) => string;
+  t: (key: string, params?: Record<string, string | number>) => string;
   isLoading: boolean;
   error: string | null;
   refreshContent: () => Promise<void>;
@@ -58,13 +58,26 @@ export function ContentProvider({ children }: ContentProviderProps) {
 
   /**
    * Translation function that looks up content strings by key
+   * Supports parameter interpolation for dynamic text replacement
    * Returns fallback text if key is not found to help identify missing strings
    */
-  const t = (key: string): string => {
+  const t = (key: string, params?: Record<string, string | number>): string => {
     const value = contentStrings[key];
     
     if (value !== undefined && value !== null && value !== "") {
-      return value;
+      // If no parameters provided, return the value as-is
+      if (!params) {
+        return value;
+      }
+      
+      // Replace placeholders with parameter values
+      let result = value;
+      for (const [paramKey, paramValue] of Object.entries(params)) {
+        const placeholder = `{${paramKey}}`;
+        result = result.replace(new RegExp(placeholder.replace(/[{}]/g, '\\$&'), 'g'), String(paramValue));
+      }
+      
+      return result;
     }
 
     // Return visible fallback for missing keys to aid development
