@@ -63,15 +63,15 @@ export default function Dashboard() {
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="businesses" className="flex items-center space-x-2">
               <Building2 className="h-4 w-4" />
-              <span>My Businesses</span>
+              <span>{t("dashboard.tabs.businesses")}</span>
             </TabsTrigger>
             <TabsTrigger value="claims" className="flex items-center space-x-2">
               <FileText className="h-4 w-4" />
-              <span>Ownership Claims</span>
+              <span>{t("dashboard.tabs.claims")}</span>
             </TabsTrigger>
             <TabsTrigger value="featured" className="flex items-center space-x-2">
               <Star className="h-4 w-4" />
-              <span>Featured Requests</span>
+              <span>{t("dashboard.tabs.featured")}</span>
             </TabsTrigger>
           </TabsList>
 

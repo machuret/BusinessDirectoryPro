@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useBusinessMutations } from "@/hooks/useBusinessData";
 import { useFormManagement, useModalState } from "@/hooks/useFormManagement";
+import { useContent } from "@/contexts/ContentContext";
 import { LoadingState } from "@/components/loading/LoadingState";
 import { ErrorState } from "@/components/error/ErrorState";
 import { Building2, Edit, Star, MapPin, Phone, Clock, Globe, Mail, Plus, Trash2, HelpCircle, Image, Upload, X } from "lucide-react";
@@ -21,6 +22,7 @@ interface BusinessesSectionProps {
 }
 
 export function BusinessesSection({ businesses, isLoading }: BusinessesSectionProps) {
+  const { t } = useContent();
   const [editingBusiness, setEditingBusiness] = useState<BusinessWithCategory | null>(null);
   const [faqs, setFaqs] = useState<Array<{ question: string; answer: string }>>([]);
   const [businessImages, setBusinessImages] = useState<string[]>([]);
@@ -152,12 +154,12 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
         <CardHeader>
           <CardTitle className="flex items-center">
             <Building2 className="mr-2 h-5 w-5" />
-            Your Businesses
+            {t("dashboard.businesses.title")}
           </CardTitle>
-          <CardDescription>Manage your business listings</CardDescription>
+          <CardDescription>{t("dashboard.businesses.description")}</CardDescription>
         </CardHeader>
         <CardContent>
-          <LoadingState message="Loading your businesses..." />
+          <LoadingState message={t("dashboard.businesses.loading")} />
         </CardContent>
       </Card>
     );
@@ -168,20 +170,20 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
       <CardHeader>
         <CardTitle className="flex items-center">
           <Building2 className="mr-2 h-5 w-5" />
-          Your Businesses
+          {t("dashboard.businesses.title")}
         </CardTitle>
-        <CardDescription>Manage your business listings</CardDescription>
+        <CardDescription>{t("dashboard.businesses.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         {businesses && businesses.length > 0 ? (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Business Name</TableHead>
-                <TableHead>Location</TableHead>
-                <TableHead>Rating</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>{t("dashboard.businesses.table.name")}</TableHead>
+                <TableHead>{t("dashboard.businesses.table.location")}</TableHead>
+                <TableHead>{t("dashboard.businesses.table.rating")}</TableHead>
+                <TableHead>{t("dashboard.businesses.table.status")}</TableHead>
+                <TableHead>{t("dashboard.businesses.table.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -197,12 +199,12 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
                   <TableCell>
                     <div className="flex items-center">
                       <Star className="mr-1 h-4 w-4 text-yellow-500" />
-                      {(business as any).averagerating || "No ratings"}
+                      {(business as any).averagerating || t("dashboard.businesses.rating.none")}
                     </div>
                   </TableCell>
                   <TableCell>
                     <Badge variant={business.featured ? "default" : "secondary"}>
-                      {business.featured ? "Featured" : "Standard"}
+                      {business.featured ? t("dashboard.businesses.status.featured") : t("dashboard.businesses.status.standard")}
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -212,17 +214,17 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
                           variant="outline"
                           size="sm"
                           onClick={() => handleEditBusiness(business)}
-                          aria-label={`Edit business ${business.title}`}
+                          aria-label={`${t("dashboard.businesses.action.edit")} ${business.title}`}
                         >
                           <Edit className="mr-1 h-4 w-4" />
-                          Edit
+                          {t("dashboard.businesses.action.edit")}
                         </Button>
                       </DialogTrigger>
                       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                         <DialogHeader>
                           <DialogTitle className="flex items-center gap-2">
                             <Building2 className="h-5 w-5" />
-                            Edit Business: {business.title}
+                            {t("dashboard.businesses.edit.title")}: {business.title}
                           </DialogTitle>
                         </DialogHeader>
                         
