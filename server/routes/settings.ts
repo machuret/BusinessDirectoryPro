@@ -327,15 +327,7 @@ export function setupSettingsRoutes(app: Express) {
     }
   });
 
-  app.post("/api/leads", async (req, res) => {
-    try {
-      const lead = await storage.createLead(req.body);
-      res.status(201).json(lead);
-    } catch (error) {
-      console.error("Error creating lead:", error);
-      res.status(500).json({ message: "Failed to create lead" });
-    }
-  });
+  // Lead submission endpoint moved to server/routes/leads.ts for better organization and validation
 
   app.patch("/api/admin/leads/:id", async (req, res) => {
     try {
