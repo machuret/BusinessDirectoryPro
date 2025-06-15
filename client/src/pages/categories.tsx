@@ -11,11 +11,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { ArrowLeft } from "lucide-react";
+import { useContent } from "@/contexts/ContentContext";
 import type { BusinessWithCategory, CategoryWithCount, Category } from "@shared/schema";
 
 export default function Categories() {
   const { slug } = useParams();
   const [location] = useLocation();
+  const { t } = useContent();
   
   // Extract category from query parameter
   const urlParams = new URLSearchParams(location.split('?')[1] || '');
@@ -65,11 +67,11 @@ export default function Categories() {
       <div className="min-h-screen bg-gray-50">
         <Header />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Category Not Found</h1>
-          <p className="text-gray-600 mb-8">The category you're looking for doesn't exist.</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">{t('categories.notFound.title')}</h1>
+          <p className="text-gray-600 mb-8">{t('categories.notFound.description')}</p>
           <Button onClick={() => window.location.href = "/categories"}>
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Categories
+            {t('categories.notFound.backButton')}
           </Button>
         </div>
         <Footer />
@@ -127,8 +129,8 @@ export default function Categories() {
               </div>
             ) : (
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Business Directory</h1>
-                <p className="text-gray-600 mt-2">Discover local businesses across all categories</p>
+                <h1 className="text-3xl font-bold text-gray-900">{t('categories.directory.title')}</h1>
+                <p className="text-gray-600 mt-2">{t('categories.directory.description')}</p>
               </div>
             )}
           </div>
@@ -147,7 +149,7 @@ export default function Categories() {
           <>
             {/* All Categories Grid */}
             <section className="mb-16">
-              <h2 className="text-2xl font-bold text-gray-900 mb-8">Browse by Category</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-8">{t('categories.browsing.title')}</h2>
               {categoriesLoading ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
                   {Array.from({ length: 12 }).map((_, i) => (

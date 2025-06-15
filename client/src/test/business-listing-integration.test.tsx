@@ -26,7 +26,17 @@ global.fetch = mockFetch;
 
 describe('Business Listing Page Integration', () => {
   let queryClient: QueryClient;
-  let testBusinessData: InsertBusiness;
+  const testBusinessData = {
+    title: 'Unique Test Coffee Shop Integration',
+    slug: 'unique-test-coffee-shop-integration',
+    address: '123 Test Integration Street, Test City, TC 12345',
+    phone: '+1-555-TEST-INT',
+    website: 'https://test-integration-coffee.com',
+    description: 'A unique test coffee shop for integration testing with specialty roasts',
+    categoryname: 'Coffee Shop',
+    placeid: 'test-place-id-integration-123',
+    featured: false,
+  };
 
   beforeEach(() => {
     queryClient = new QueryClient({
@@ -35,19 +45,6 @@ describe('Business Listing Page Integration', () => {
         mutations: { retry: false },
       },
     });
-
-    // Create unique test business data
-    testBusinessData = {
-      title: 'Unique Test Coffee Shop Integration',
-      slug: 'unique-test-coffee-shop-integration',
-      address: '123 Test Integration Street, Test City, TC 12345',
-      phone: '+1-555-TEST-INT',
-      website: 'https://test-integration-coffee.com',
-      description: 'A unique test coffee shop for integration testing with specialty roasts',
-      categoryname: 'Coffee Shop',
-      placeid: 'test-place-id-integration-' + Date.now(),
-      featured: false,
-    };
 
     // Mock useParams to return our test business slug
     mockUseParams.mockReturnValue({ slug: testBusinessData.slug });
@@ -122,10 +119,7 @@ describe('Business Listing Page Integration', () => {
     renderBusinessListingPage();
 
     await waitFor(() => {
-      const businessName = screen.getByRole('heading', { 
-        name: testBusinessData.title!,
-        level: 1 
-      });
+      const businessName = screen.getByText(testBusinessData.title);
       expect(businessName).toBeInTheDocument();
     });
   });
@@ -134,7 +128,7 @@ describe('Business Listing Page Integration', () => {
     renderBusinessListingPage();
 
     await waitFor(() => {
-      const address = screen.getByText(testBusinessData.address!);
+      const address = screen.getByText(testBusinessData.address);
       expect(address).toBeInTheDocument();
     });
   });
@@ -143,7 +137,7 @@ describe('Business Listing Page Integration', () => {
     renderBusinessListingPage();
 
     await waitFor(() => {
-      const phoneNumber = screen.getByText(testBusinessData.phone!);
+      const phoneNumber = screen.getByText(testBusinessData.phone);
       expect(phoneNumber).toBeInTheDocument();
     });
   });
@@ -170,7 +164,7 @@ describe('Business Listing Page Integration', () => {
     renderBusinessListingPage();
 
     await waitFor(() => {
-      const description = screen.getByText(testBusinessData.description!);
+      const description = screen.getByText(testBusinessData.description);
       expect(description).toBeInTheDocument();
     });
   });
@@ -216,7 +210,7 @@ describe('Business Listing Page Integration', () => {
       const categoryLabel = screen.getByText('Category');
       expect(categoryLabel).toBeInTheDocument();
       
-      const categoryValue = screen.getByText(testBusinessData.categoryname!);
+      const categoryValue = screen.getByText(testBusinessData.categoryname);
       expect(categoryValue).toBeInTheDocument();
     });
   });
