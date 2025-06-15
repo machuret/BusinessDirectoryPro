@@ -398,13 +398,13 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
                                 <div className="p-4 bg-muted/50 rounded-lg">
                                   <h4 className="font-medium mb-2 flex items-center gap-2">
                                     <Upload className="h-4 w-4" />
-                                    Photo Management Tips
+                                    {t("dashboard.businesses.photos.tips.title")}
                                   </h4>
                                   <ul className="text-sm text-muted-foreground space-y-1">
-                                    <li>• High-quality photos help attract more customers</li>
-                                    <li>• Show your business interior, exterior, products, and services</li>
-                                    <li>• Keep photos recent and representative of your current business</li>
-                                    <li>• Remove any photos that are outdated or low quality</li>
+                                    <li>{t("dashboard.businesses.photos.tips.quality")}</li>
+                                    <li>{t("dashboard.businesses.photos.tips.variety")}</li>
+                                    <li>{t("dashboard.businesses.photos.tips.recent")}</li>
+                                    <li>{t("dashboard.businesses.photos.tips.remove")}</li>
                                   </ul>
                                 </div>
                               )}
@@ -415,21 +415,21 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
                                 <div>
                                   <h3 className="text-lg font-medium flex items-center gap-2">
                                     <HelpCircle className="h-5 w-5" />
-                                    Frequently Asked Questions
+                                    {t("dashboard.businesses.faqs.title")}
                                   </h3>
-                                  <p className="text-sm text-muted-foreground">Help customers by answering common questions about your business.</p>
+                                  <p className="text-sm text-muted-foreground">{t("dashboard.businesses.faqs.description")}</p>
                                 </div>
                                 <Button type="button" variant="outline" size="sm" onClick={addFaq}>
                                   <Plus className="h-4 w-4 mr-1" />
-                                  Add FAQ
+                                  {t("dashboard.businesses.faqs.add")}
                                 </Button>
                               </div>
                               
                               {faqs.length === 0 ? (
                                 <div className="text-center py-8 border-2 border-dashed border-muted rounded-lg">
                                   <HelpCircle className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
-                                  <p className="text-muted-foreground">No FAQs added yet</p>
-                                  <p className="text-sm text-muted-foreground">Click "Add FAQ" to create your first question and answer</p>
+                                  <p className="text-muted-foreground">{t("dashboard.businesses.faqs.empty.title")}</p>
+                                  <p className="text-sm text-muted-foreground">{t("dashboard.businesses.faqs.empty.description")}</p>
                                 </div>
                               ) : (
                                 <div className="space-y-4">
@@ -438,7 +438,7 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
                                       <div className="space-y-3">
                                         <div className="flex items-start justify-between">
                                           <Label htmlFor={`question-${index}`} className="text-sm font-medium">
-                                            Question {index + 1}
+                                            {t("dashboard.businesses.faqs.question")} {index + 1}
                                           </Label>
                                           <Button
                                             type="button"
@@ -454,15 +454,15 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
                                           id={`question-${index}`}
                                           value={faq.question}
                                           onChange={(e) => updateFaq(index, 'question', e.target.value)}
-                                          placeholder="Enter your question (e.g., What are your business hours?)"
+                                          placeholder={t("dashboard.businesses.faqs.question.placeholder")}
                                         />
                                         <div>
-                                          <Label htmlFor={`answer-${index}`} className="text-sm font-medium">Answer</Label>
+                                          <Label htmlFor={`answer-${index}`} className="text-sm font-medium">{t("dashboard.businesses.faqs.answer")}</Label>
                                           <Textarea
                                             id={`answer-${index}`}
                                             value={faq.answer}
                                             onChange={(e) => updateFaq(index, 'answer', e.target.value)}
-                                            placeholder="Provide a helpful answer to this question..."
+                                            placeholder={t("dashboard.businesses.faqs.answer.placeholder")}
                                             rows={2}
                                           />
                                         </div>
@@ -479,10 +479,10 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
                                 variant="outline" 
                                 onClick={editModal.close}
                               >
-                                Cancel
+                                {t("dashboard.businesses.form.cancel")}
                               </Button>
                               <Button type="submit" disabled={editForm.isSubmitting}>
-                                {editForm.isSubmitting ? "Updating..." : "Update Business"}
+                                {editForm.isSubmitting ? t("dashboard.businesses.form.updating") : t("dashboard.businesses.form.update")}
                               </Button>
                             </div>
                           </form>
@@ -497,8 +497,8 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
         ) : (
           <div className="text-center py-8">
             <Building2 className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-4 text-lg font-semibold">No businesses found</h3>
-            <p className="text-gray-600">You don't own any business listings yet.</p>
+            <h3 className="mt-4 text-lg font-semibold">{t("dashboard.businesses.empty.title")}</h3>
+            <p className="text-gray-600">{t("dashboard.businesses.empty.description")}</p>
           </div>
         )}
       </CardContent>

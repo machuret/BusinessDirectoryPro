@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { FileText, Clock, CheckCircle, XCircle } from "lucide-react";
+import { useContent } from "@/contexts/ContentContext";
 
 interface ClaimsSectionProps {
   claims: any[];
@@ -9,11 +10,13 @@ interface ClaimsSectionProps {
 }
 
 export function ClaimsSection({ claims, isLoading }: ClaimsSectionProps) {
+  const { t } = useContent();
+  
   const getStatusBadge = (status: string) => {
     const statusMap = {
-      pending: { variant: "outline" as const, icon: Clock, text: "Pending" },
-      approved: { variant: "default" as const, icon: CheckCircle, text: "Approved" },
-      rejected: { variant: "destructive" as const, icon: XCircle, text: "Rejected" },
+      pending: { variant: "outline" as const, icon: Clock, text: t("dashboard.claims.status.pending") },
+      approved: { variant: "default" as const, icon: CheckCircle, text: t("dashboard.claims.status.approved") },
+      rejected: { variant: "destructive" as const, icon: XCircle, text: t("dashboard.claims.status.rejected") },
     };
 
     const config = statusMap[status as keyof typeof statusMap] || statusMap.pending;
@@ -33,9 +36,9 @@ export function ClaimsSection({ claims, isLoading }: ClaimsSectionProps) {
         <CardHeader>
           <CardTitle className="flex items-center">
             <FileText className="mr-2 h-5 w-5" />
-            Ownership Claims
+            {t("dashboard.claims.title")}
           </CardTitle>
-          <CardDescription>Track your business ownership claim requests</CardDescription>
+          <CardDescription>{t("dashboard.claims.description")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center py-8">
