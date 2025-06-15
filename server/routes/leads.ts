@@ -15,6 +15,14 @@ export function setupLeadRoutes(app: Express) {
         });
       }
 
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(senderEmail)) {
+        return res.status(400).json({ 
+          message: 'Invalid email format' 
+        });
+      }
+
       // Create the lead
       const lead = await storage.createLead({
         businessId,

@@ -15,6 +15,7 @@ import { createOwnershipClaimsTable } from "./create-ownership-table";
 import { setupFeaturedRequestsRoutes } from "./routes/featured-requests";
 import { createFeaturedRequestsTable } from "./create-featured-requests-table";
 import { createLeadsTable } from "./create-leads-table";
+import { setupLeadRoutes } from "./routes/leads";
 import { contentRouter } from "./routes/content";
 import { createContentStringsTable, seedInitialContentStrings } from "../migrations/create-content-strings-table";
 
@@ -67,6 +68,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   setupReviewRoutes(app);
   setupSettingsRoutes(app);
   registerCategoryRoutes(app);
+  setupLeadRoutes(app);
   
   // Register content management routes
   app.use(contentRouter);
