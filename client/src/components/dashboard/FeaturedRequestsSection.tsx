@@ -131,10 +131,10 @@ export function FeaturedRequestsSection({ userId, userBusinesses }: FeaturedRequ
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Star className="h-5 w-5" />
-          Featured Requests
+          {t("dashboard.featured.title")}
         </CardTitle>
         <CardDescription>
-          Request to have your businesses featured in our directory for increased visibility.
+          {t("dashboard.featured.description")}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -142,24 +142,24 @@ export function FeaturedRequestsSection({ userId, userBusinesses }: FeaturedRequ
         {eligibleBusinesses.length > 0 && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">Request Featured Status</h3>
+              <h3 className="text-lg font-semibold">{t("dashboard.featured.request.title")}</h3>
               <Dialog open={showRequestDialog} onOpenChange={setShowRequestDialog}>
                 <DialogTrigger asChild>
                   <Button className="gap-2">
                     <Plus className="h-4 w-4" />
-                    New Request
+                    {t("dashboard.featured.request.new")}
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Request Featured Status</DialogTitle>
+                    <DialogTitle>{t("dashboard.featured.request.title")}</DialogTitle>
                     <DialogDescription>
-                      Select a business and provide a message explaining why it should be featured.
+                      {t("dashboard.featured.request.description")}
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="business">Select Business</Label>
+                      <Label htmlFor="business">{t("dashboard.featured.form.business")}</Label>
                       <select
                         id="business"
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -169,7 +169,7 @@ export function FeaturedRequestsSection({ userId, userBusinesses }: FeaturedRequ
                           setSelectedBusiness(business || null);
                         }}
                       >
-                        <option value="">Choose a business...</option>
+                        <option value="">{t("dashboard.featured.form.choose")}</option>
                         {eligibleBusinesses.map((business) => (
                           <option key={business.placeid} value={business.placeid}>
                             {business.title} {business.city && `- ${business.city}`}
@@ -178,10 +178,10 @@ export function FeaturedRequestsSection({ userId, userBusinesses }: FeaturedRequ
                       </select>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="message">Message (Optional)</Label>
+                      <Label htmlFor="message">{t("dashboard.featured.form.message")}</Label>
                       <Textarea
                         id="message"
-                        placeholder="Explain why this business should be featured..."
+                        placeholder={t("dashboard.featured.form.placeholder")}
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
                         rows={4}
@@ -196,13 +196,13 @@ export function FeaturedRequestsSection({ userId, userBusinesses }: FeaturedRequ
                           setMessage("");
                         }}
                       >
-                        Cancel
+                        {t("common.cancel")}
                       </Button>
                       <Button
                         onClick={handleSubmitRequest}
                         disabled={!selectedBusiness || createRequestMutation.isPending}
                       >
-                        {createRequestMutation.isPending ? "Submitting..." : "Submit Request"}
+                        {createRequestMutation.isPending ? t("dashboard.featured.form.submitting") : t("dashboard.featured.form.submit")}
                       </Button>
                     </div>
                   </div>
@@ -210,7 +210,7 @@ export function FeaturedRequestsSection({ userId, userBusinesses }: FeaturedRequ
               </Dialog>
             </div>
             <p className="text-sm text-gray-600">
-              You have {eligibleBusinesses.length} business{eligibleBusinesses.length !== 1 ? 'es' : ''} eligible for featured status.
+              {t("dashboard.featured.eligible", { count: eligibleBusinesses.length })}
             </p>
           </div>
         )}
@@ -219,9 +219,9 @@ export function FeaturedRequestsSection({ userId, userBusinesses }: FeaturedRequ
         {eligibleBusinesses.length === 0 && userBusinesses.length > 0 && (
           <div className="text-center py-8">
             <Star className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No Eligible Businesses</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">{t("dashboard.featured.empty.noeligible.title")}</h3>
             <p className="text-gray-600">
-              All your businesses are either already featured or have pending requests.
+              {t("dashboard.featured.empty.noeligible.description")}
             </p>
           </div>
         )}
@@ -230,9 +230,9 @@ export function FeaturedRequestsSection({ userId, userBusinesses }: FeaturedRequ
         {userBusinesses.length === 0 && (
           <div className="text-center py-8">
             <Star className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No Businesses Found</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">{t("dashboard.featured.empty.nobusinesses.title")}</h3>
             <p className="text-gray-600">
-              You need to own businesses before you can request featured status.
+              {t("dashboard.featured.empty.nobusinesses.description")}
             </p>
           </div>
         )}
@@ -240,7 +240,7 @@ export function FeaturedRequestsSection({ userId, userBusinesses }: FeaturedRequ
         {/* Existing Featured Requests */}
         {featuredRequests.length > 0 && (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Your Featured Requests</h3>
+            <h3 className="text-lg font-semibold">{t("dashboard.featured.requests.title")}</h3>
             <div className="space-y-4">
               {featuredRequests.map((request: FeaturedRequest) => (
                 <Card key={request.id} className="border-l-4 border-l-blue-500">
