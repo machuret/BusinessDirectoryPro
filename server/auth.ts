@@ -371,9 +371,16 @@ export function setupAuth(app: Express) {
 }
 
 export function isAuthenticated(req: any, res: any, next: any) {
-  // Complete bypass for production business viewing
-  console.log("[AUTH BYPASS] Production override - allowing all requests");
-  return next();
+  console.log('[AUTH CHECK] Session ID:', req.sessionID);
+  console.log('[AUTH CHECK] User ID in session:', (req.session as any)?.userId);
+  
+  if ((req.session as any)?.userId) {
+    console.log('[AUTH CHECK] User authenticated');
+    return next();
+  }
+  
+  console.log('[AUTH CHECK] User not authenticated');
+  return res.status(401).json({ message: "Authentication required" });
 }
 
 export function isAdmin(req: any, res: any, next: any) {
