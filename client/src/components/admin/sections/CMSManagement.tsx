@@ -1,15 +1,11 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Plus, Edit, Trash2, Search, Eye, FileText } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCreatePage, useUpdatePage, useDeletePage } from "@/hooks/usePageMutations";
 import PageForm, { type PageFormData } from "@/components/admin/forms/PageForm";
+import PagesTable from "@/components/admin/tables/PagesTable";
 
 interface Page {
   id: number;
@@ -25,9 +21,6 @@ interface Page {
 }
 
 export default function CMSManagement() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [typeFilter, setTypeFilter] = useState<string>("all");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isPreviewDialogOpen, setIsPreviewDialogOpen] = useState(false);
@@ -74,19 +67,9 @@ export default function CMSManagement() {
     }
   };
 
-  // Filter and search pages
-  const filteredPages = useMemo(() => {
-    return pages.filter((page) => {
-      const matchesSearch = page.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           page.slug.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesStatus = statusFilter === "all" || page.status === statusFilter;
-      const matchesType = typeFilter === "all" || page.type === typeFilter;
-      return matchesSearch && matchesStatus && matchesType;
-    });
-  }, [pages, searchTerm, statusFilter, typeFilter]);
-
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Pages Management</h2>
@@ -115,140 +98,14 @@ export default function CMSManagement() {
         </Dialog>
       </div>
 
-      {/* Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Search className="h-5 w-5" />
-            Filter Pages
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-4 items-end">
-            <div className="flex-1">
-              <label className="text-sm font-medium">Search</label>
-              <Input
-                placeholder="Search by title or slug..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Status</label>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="published">Published</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="text-sm font-medium">Type</label>
-              <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="page">Pages</SelectItem>
-                  <SelectItem value="blog">Blog</SelectItem>
-                  <SelectItem value="help">Help</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Pages Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5" />
-            Pages ({filteredPages.length})
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="text-center py-8">Loading pages...</div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Slug</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredPages.map((page) => (
-                  <TableRow key={page.id}>
-                    <TableCell className="font-medium">{page.title}</TableCell>
-                    <TableCell>
-                      <code className="text-sm bg-muted px-1 py-0.5 rounded">
-                        /{page.slug}
-                      </code>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{page.type}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge 
-                        variant={page.status === "published" ? "default" : "secondary"}
-                      >
-                        {page.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {new Date(page.createdAt).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handlePreview(page)}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleEdit(page)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => deleteMutation.mutate(page.id)}
-                          disabled={deleteMutation.isPending}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {filteredPages.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                      No pages found matching your criteria
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
+      {/* Pages Table with integrated filtering */}
+      <PagesTable
+        pages={pages}
+        isLoading={isLoading}
+        onEdit={handleEdit}
+        onDelete={(pageId) => deleteMutation.mutate(pageId)}
+        onPreview={handlePreview}
+      />
 
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
@@ -283,38 +140,41 @@ export default function CMSManagement() {
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Preview: {selectedPage?.title}</DialogTitle>
-            <DialogDescription>
-              Type: {selectedPage?.type} | Status: {selectedPage?.status}
-            </DialogDescription>
+            <DialogDescription>Page preview</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <h3 className="font-semibold text-sm text-muted-foreground">URL Slug</h3>
-              <code className="text-sm bg-muted px-2 py-1 rounded">
-                /{selectedPage?.slug}
-              </code>
-            </div>
-            
-            {selectedPage?.metaDescription && (
+          {selectedPage && (
+            <div className="space-y-4">
               <div>
-                <h3 className="font-semibold text-sm text-muted-foreground">Meta Description</h3>
-                <p className="text-sm">{selectedPage.metaDescription}</p>
+                <h3 className="font-semibold">Title:</h3>
+                <p>{selectedPage.title}</p>
               </div>
-            )}
-            
-            <div>
-              <h3 className="font-semibold text-sm text-muted-foreground">Content Preview</h3>
-              <div 
-                className="prose max-w-none border rounded p-4 bg-background"
-                dangerouslySetInnerHTML={{ __html: selectedPage?.content || "" }}
-              />
+              <div>
+                <h3 className="font-semibold">Slug:</h3>
+                <p>/{selectedPage.slug}</p>
+              </div>
+              <div>
+                <h3 className="font-semibold">Type:</h3>
+                <p className="capitalize">{selectedPage.type}</p>
+              </div>
+              <div>
+                <h3 className="font-semibold">Status:</h3>
+                <p className="capitalize">{selectedPage.status}</p>
+              </div>
+              {selectedPage.metaDescription && (
+                <div>
+                  <h3 className="font-semibold">Meta Description:</h3>
+                  <p>{selectedPage.metaDescription}</p>
+                </div>
+              )}
+              <div>
+                <h3 className="font-semibold">Content:</h3>
+                <div 
+                  className="prose max-w-none"
+                  dangerouslySetInnerHTML={{ __html: selectedPage.content }}
+                />
+              </div>
             </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsPreviewDialogOpen(false)}>
-              Close
-            </Button>
-          </DialogFooter>
+          )}
         </DialogContent>
       </Dialog>
     </div>
