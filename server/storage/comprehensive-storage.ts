@@ -139,6 +139,10 @@ export class ComprehensiveStorage implements IStorage {
     return this.businesses.getFeaturedBusinesses(limit);
   }
 
+  async getBusinessReviews(businessId: string): Promise<Review[]> {
+    return this.reviews.getBusinessReviews(businessId);
+  }
+
   async getRandomBusinesses(limit?: number): Promise<BusinessWithCategory[]> {
     return this.businesses.getRandomBusinesses(limit);
   }
