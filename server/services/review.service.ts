@@ -107,7 +107,9 @@ export async function createPublicReview(businessId: string, reviewData: any) {
     const review = await storage.createPublicReview(businessId, reviewData);
 
     // Recalculate and update business rating
-    await updateBusinessRating(businessId);
+    if (businessId) {
+      await updateBusinessRating(businessId);
+    }
 
     return review;
   } catch (error) {
@@ -141,7 +143,9 @@ export async function createUserReview(reviewData: any) {
     const review = await storage.createReview(reviewData);
 
     // Recalculate and update business rating
-    await updateBusinessRating(reviewData.businessId);
+    if (reviewData.businessId) {
+      await updateBusinessRating(reviewData.businessId);
+    }
 
     return review;
   } catch (error) {
@@ -171,7 +175,9 @@ export async function deleteReview(reviewId: number) {
     await storage.deleteReview(reviewId);
 
     // Recalculate and update business rating
-    await updateBusinessRating(businessId);
+    if (businessId) {
+      await updateBusinessRating(businessId);
+    }
 
     return { success: true };
   } catch (error) {
@@ -193,7 +199,9 @@ export async function approveReview(reviewId: number, adminId: string, notes?: s
     const review = await storage.approveReview(reviewId, adminId, notes);
 
     // Recalculate and update business rating (approval affects visible ratings)
-    await updateBusinessRating(review.businessId);
+    if (review.businessId) {
+      await updateBusinessRating(review.businessId);
+    }
 
     return review;
   } catch (error) {
@@ -215,7 +223,9 @@ export async function rejectReview(reviewId: number, adminId: string, notes?: st
     const review = await storage.rejectReview(reviewId, adminId, notes);
 
     // Recalculate and update business rating (rejection affects visible ratings)
-    await updateBusinessRating(review.businessId);
+    if (review.businessId) {
+      await updateBusinessRating(review.businessId);
+    }
 
     return review;
   } catch (error) {
