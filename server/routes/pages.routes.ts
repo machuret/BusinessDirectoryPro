@@ -31,6 +31,18 @@ router.get("/pages/:slug", async (req, res) => {
 });
 
 // Page Management APIs - Admin endpoints
+router.get("/admin/pages", async (req, res) => {
+  try {
+    const { status } = req.query;
+    const pages = await pageService.getPages(status as string);
+    res.json(pages);
+  } catch (error) {
+    console.error("Error in admin pages route:", error);
+    const message = error instanceof Error ? error.message : "Failed to fetch pages";
+    res.status(500).json({ message });
+  }
+});
+
 router.post("/admin/pages", async (req, res) => {
   try {
     const page = await pageService.createPage(req.body);
