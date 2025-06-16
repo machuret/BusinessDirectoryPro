@@ -102,7 +102,7 @@ export default function CMSManagement() {
         seoTitle: data.title, // Use title as SEO title
         seoDescription: data.metaDescription || "",
         status: data.status,
-        authorId: user?.id || "admin-user" // Use actual user ID or fallback
+        authorId: (user as any)?.id || "admin-user" // Use actual user ID or fallback
       };
       const res = await apiRequest("POST", "/api/admin/pages", pageData);
       return await res.json();
