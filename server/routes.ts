@@ -406,6 +406,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin: Update business featured status
+  app.patch('/api/admin/businesses/:businessId', async (req, res) => {
+    try {
+      const { businessId } = req.params;
+      const { featured } = req.body;
+      
+      if (typeof featured !== 'boolean') {
+        return res.status(400).json({ message: "Featured status must be a boolean value" });
+      }
+      
+      const updatedBusiness = await storage.updateBusiness(businessId, { featured });
+      
+      if (!updatedBusiness) {
+        return res.status(404).json({ message: "Business not found" });
+      }
+      
+      res.json(updatedBusiness);
+    } catch (error) {
+      console.error("Error updating business featured status:", error);
+      res.status(500).json({ message: "Failed to update business" });
+    }
+  });
+
   // Business submission management endpoints
   app.get('/api/admin/business-submissions', async (req, res) => {
     try {

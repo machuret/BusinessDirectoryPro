@@ -14,7 +14,15 @@ export class UserStorage {
   }
 
   async createUser(userData: UpsertUser): Promise<User> {
-    const [user] = await db.insert(users).values(userData).returning();
+    // Generate unique ID if not provided
+    const userId = userData.id || `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    const [user] = await db.insert(users).values({
+      ...userData,
+      id: userId,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }).returning();
     return user;
   }
 
