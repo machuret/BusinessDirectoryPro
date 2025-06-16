@@ -160,6 +160,18 @@ function MenuItemForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Form submission with data:", formData);
+    
+    // Basic validation
+    if (!formData.name.trim()) {
+      alert("Menu name is required");
+      return;
+    }
+    if (!formData.url.trim()) {
+      alert("URL is required");
+      return;
+    }
+    
     onSubmit(formData);
   };
 
@@ -293,18 +305,30 @@ export default function MenuEditor() {
   // Create menu item mutation
   const createMutation = useMutation({
     mutationFn: async (data: any) => {
+      console.log("Creating menu item with data:", data);
       const response = await apiRequest("POST", "/api/admin/menu-items", data);
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || `HTTP ${response.status}`);
+      }
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
+      console.log("Menu item created successfully:", result);
+      // Add the new item to cache immediately
+      queryClient.setQueryData(["/api/admin/menu-items"], (oldData: MenuItem[] | undefined) => {
+        return oldData ? [...oldData, result] : [result];
+      });
+      // Also invalidate to ensure consistency
       queryClient.invalidateQueries({ queryKey: ["/api/admin/menu-items"] });
       setIsCreateDialogOpen(false);
       toast({ title: "Menu item created successfully" });
     },
     onError: (error: any) => {
+      console.error("Failed to create menu item:", error);
       toast({
         title: "Failed to create menu item",
-        description: error.message,
+        description: error.message || "Unknown error occurred",
         variant: "destructive"
       });
     }
@@ -403,7 +427,17 @@ export default function MenuEditor() {
 
   // Handle create
   const handleCreate = (data: any) => {
-    createMutation.mutate(data);
+    console.log("handleCreate called with:", data);
+    // Ensure the data has all required fields
+    const menuData = {
+      name: data.name.trim(),
+      url: data.url.trim(),
+      position: data.position || selectedPosition,
+      target: data.target || "_self",
+      isActive: data.isActive !== undefined ? data.isActive : true
+    };
+    console.log("Submitting menu data:", menuData);
+    createMutation.mutate(menuData);
   };
 
   // Handle edit
