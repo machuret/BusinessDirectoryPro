@@ -76,8 +76,10 @@ async function auditPagesManagement() {
       return;
     }
     
+    const adminUser = JSON.parse(registerResponse.data);
+    const adminUserId = adminUser.id;
     adminCookie = registerResponse.cookies.find(c => c.startsWith('connect.sid=')).split(';')[0];
-    console.log('✅ Admin user created\n');
+    console.log(`✅ Admin user created with ID: ${adminUserId}\n`);
 
     // Test 1: Admin Access to Pages (3 times)
     console.log('🔸 TEST 1: Admin Access to Pages Management');
@@ -139,9 +141,10 @@ async function auditPagesManagement() {
         title: `Audit Test Page ${i}`,
         slug: `audit-test-${i}-${Date.now()}`,
         content: `<h1>Test Content ${i}</h1><p>This is a test page for audit purposes.</p>`,
+        seoTitle: `Audit Test Page ${i} - Meta`,
+        seoDescription: `Meta description for audit test page ${i}`,
         status: 'published',
-        metaTitle: `Audit Test Page ${i} - Meta`,
-        metaDescription: `Meta description for audit test page ${i}`
+        authorId: adminUserId
       };
       
       console.log(`    Creating page: ${pageData.title}`);
@@ -224,7 +227,10 @@ async function auditPagesManagement() {
         title: `Cache Test ${i}`,
         slug: `cache-test-${i}-${Date.now()}`,
         content: `<p>Cache test content ${i}</p>`,
-        status: 'published'
+        seoTitle: `Cache Test ${i}`,
+        seoDescription: `Cache test description ${i}`,
+        status: 'published',
+        authorId: adminUserId
       };
       
       const createResponse = await makeRequest('POST', '/api/admin/pages', cacheTestData, adminCookie);

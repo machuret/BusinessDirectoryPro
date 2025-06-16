@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/hooks/useAuth";
 import { Plus, Edit, Trash2, Search, Eye, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,6 +54,7 @@ export default function CMSManagement() {
   const [isPreviewDialogOpen, setIsPreviewDialogOpen] = useState(false);
   const [selectedPage, setSelectedPage] = useState<Page | null>(null);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const form = useForm<PageFormData>({
     resolver: zodResolver(pageSchema),
@@ -101,7 +102,7 @@ export default function CMSManagement() {
         seoTitle: data.title, // Use title as SEO title
         seoDescription: data.metaDescription || "",
         status: data.status,
-        authorId: "demo-admin" // Valid admin user ID
+        authorId: user?.id || "admin-user" // Use actual user ID or fallback
       };
       const res = await apiRequest("POST", "/api/admin/pages", pageData);
       return await res.json();
