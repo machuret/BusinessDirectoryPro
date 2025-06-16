@@ -35,7 +35,7 @@ import AdminUsersPage from "@/pages/admin/users";
 import AdminCategoriesPage from "@/pages/admin/categories";
 import AdminReviewsPage from "@/pages/admin/reviews";
 import AdminCitiesPage from "@/pages/admin/cities";
-import AdminMenusPage from "@/pages/admin/menus";
+import MenuEditor from "@/pages/admin/menu-editor";
 import AdminPagesPage from "@/pages/admin/pages";
 import AdminSEOPage from "@/pages/admin/seo";
 import AdminInboxPage from "@/pages/admin/inbox";
@@ -48,7 +48,7 @@ import AdminImportPage from "@/pages/admin/import";
 import AdminExportPage from "@/pages/admin/export";
 import AdminFeaturedPage from "@/pages/admin/featured";
 import AdminServicesPage from "@/pages/admin/services";
-import AdminSocialMedia from "@/pages/admin-social-media";
+import SocialMediaEditor from "@/pages/admin/social-media-editor";
 import AdminContentPage from "@/pages/admin/content";
 import AdminSettingsPage from "@/pages/admin/settings";
 import AccessibilityDemo from "@/pages/accessibility-demo";
@@ -93,7 +93,7 @@ function Router() {
       <Route path="/admin/categories" component={() => <ProtectedRoute><AdminLayout><AdminCategoriesPage /></AdminLayout></ProtectedRoute>} />
       <Route path="/admin/reviews" component={() => <ProtectedRoute><AdminLayout><AdminReviewsPage /></AdminLayout></ProtectedRoute>} />
       <Route path="/admin/cities" component={() => <ProtectedRoute><AdminLayout><AdminCitiesPage /></AdminLayout></ProtectedRoute>} />
-      <Route path="/admin/menus" component={() => <ProtectedRoute><AdminLayout><AdminMenusPage /></AdminLayout></ProtectedRoute>} />
+      <Route path="/admin/menus" component={() => <ProtectedRoute><AdminLayout><MenuEditor /></AdminLayout></ProtectedRoute>} />
       <Route path="/admin/pages" component={() => <ProtectedRoute><AdminLayout><AdminPagesPage /></AdminLayout></ProtectedRoute>} />
       <Route path="/admin/seo" component={() => <ProtectedRoute><AdminLayout><AdminSEOPage /></AdminLayout></ProtectedRoute>} />
       <Route path="/admin/inbox" component={() => <ProtectedRoute><AdminLayout><AdminInboxPage /></AdminLayout></ProtectedRoute>} />
@@ -106,7 +106,7 @@ function Router() {
       <Route path="/admin/export" component={() => <ProtectedRoute><AdminLayout><AdminExportPage /></AdminLayout></ProtectedRoute>} />
       <Route path="/admin/featured" component={() => <ProtectedRoute><AdminLayout><AdminFeaturedPage /></AdminLayout></ProtectedRoute>} />
       <Route path="/admin/services" component={() => <ProtectedRoute><AdminLayout><AdminServicesPage /></AdminLayout></ProtectedRoute>} />
-      <Route path="/admin/social-media" component={() => <ProtectedRoute><AdminLayout><AdminSocialMedia /></AdminLayout></ProtectedRoute>} />
+      <Route path="/admin/social-media" component={() => <ProtectedRoute><AdminLayout><SocialMediaEditor /></AdminLayout></ProtectedRoute>} />
       <Route path="/admin/content" component={() => <ProtectedRoute><AdminLayout><AdminContentPage /></AdminLayout></ProtectedRoute>} />
       <Route path="/admin/settings" component={() => <ProtectedRoute><AdminLayout><AdminSettingsPage /></AdminLayout></ProtectedRoute>} />
       <Route path="/admin/menu/:id" component={() => <ProtectedRoute><AdminLayout><MenuEdit /></AdminLayout></ProtectedRoute>} />
