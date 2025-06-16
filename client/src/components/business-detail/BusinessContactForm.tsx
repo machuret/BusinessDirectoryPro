@@ -39,10 +39,11 @@ export function BusinessContactForm({ business }: BusinessContactFormProps) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          ...formData,
           businessId: business.placeid,
-          businessName: business.title,
-          type: "contact_form"
+          senderName: formData.name,
+          senderEmail: formData.email,
+          senderPhone: formData.phone,
+          message: `Subject: ${formData.subject}\n\n${formData.message}`
         }),
       });
 
