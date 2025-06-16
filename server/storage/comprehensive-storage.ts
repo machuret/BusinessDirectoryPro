@@ -124,6 +124,10 @@ export class ComprehensiveStorage implements IStorage {
     return this.businesses.getBusinessesByOwner(ownerId);
   }
 
+  async getUserBusinesses(userId: string): Promise<BusinessWithCategory[]> {
+    return this.businesses.getBusinessesByOwner(userId);
+  }
+
   async createBusiness(business: InsertBusiness): Promise<Business> {
     return this.businesses.createBusiness(business);
   }
