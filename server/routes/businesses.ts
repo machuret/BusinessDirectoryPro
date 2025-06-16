@@ -296,4 +296,58 @@ export function setupBusinessRoutes(app: Express) {
       res.status(500).json({ message: "Failed to delete business" });
     }
   });
+
+  // Admin: Get all businesses
+  app.get("/api/admin/businesses", async (req: any, res) => {
+    try {
+      const sessionUser = req.session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      // Allow admin access for users with admin emails or admin role
+      const isAdminUser = sessionUser.role === 'admin' || 
+                         sessionUser.email?.includes('admin');
+      
+      if (!isAdminUser) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const businesses = await storage.getAllBusinesses();
+      res.json(businesses);
+    } catch (error) {
+      console.error("Error fetching admin businesses:", error);
+      res.status(500).json({ message: "Failed to fetch businesses" });
+    }
+  });
+
+  // Admin: Update business
+  app.patch("/api/admin/businesses/:businessId", async (req: any, res) => {
+    try {
+      const sessionUser = req.session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      // Allow admin access for users with admin emails or admin role
+      const isAdminUser = sessionUser.role === 'admin' || 
+                         sessionUser.email?.includes('admin');
+      
+      if (!isAdminUser) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { businessId } = req.params;
+      const updatedBusiness = await storage.updateBusiness(businessId, req.body);
+      
+      if (!updatedBusiness) {
+        return res.status(404).json({ message: "Business not found" });
+      }
+      
+      res.json(updatedBusiness);
+    } catch (error) {
+      console.error("Error updating business:", error);
+      res.status(500).json({ message: "Failed to update business" });
+    }
+  });
 }

@@ -76,31 +76,60 @@ export function FeaturedManagement() {
   const addFeaturedMutation = useMutation({
     mutationFn: async (businessId: string) => {
       const res = await apiRequest("PATCH", `/api/admin/businesses/${businessId}`, { featured: true });
+      if (!res.ok) {
+        throw new Error(`Failed to add featured status: ${res.status}`);
+      }
       return res.json();
     },
-    onSuccess: () => {
+    onSuccess: (data, businessId) => {
+      // Invalidate and refetch both businesses and featured requests
       queryClient.invalidateQueries({ queryKey: ["/api/admin/businesses"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/businesses/featured"] });
+      
+      // Force refetch to ensure UI updates immediately
+      queryClient.refetchQueries({ queryKey: ["/api/admin/businesses"] });
+      
       toast({ title: "Success", description: "Business added to featured listings" });
       setShowAddDialog(false);
       setSelectedBusiness("");
     },
     onError: (error: Error) => {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      console.error("Add featured mutation error:", error);
+      toast({ 
+        title: "Error", 
+        description: error.message || "Failed to add business to featured listings", 
+        variant: "destructive" 
+      });
     }
   });
 
   const removeFeaturedMutation = useMutation({
     mutationFn: async (businessId: string) => {
       const res = await apiRequest("PATCH", `/api/admin/businesses/${businessId}`, { featured: false });
+      if (!res.ok) {
+        throw new Error(`Failed to remove featured status: ${res.status}`);
+      }
       return res.json();
     },
-    onSuccess: () => {
+    onSuccess: (data, businessId) => {
+      // Invalidate and refetch both businesses and featured requests
       queryClient.invalidateQueries({ queryKey: ["/api/admin/businesses"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/businesses/featured"] });
+      
+      // Force refetch to ensure UI updates immediately
+      queryClient.refetchQueries({ queryKey: ["/api/admin/businesses"] });
+      
       toast({ title: "Success", description: "Business removed from featured listings" });
       setRemoveConfirmId(null);
     },
     onError: (error: Error) => {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      console.error("Remove featured mutation error:", error);
+      toast({ 
+        title: "Error", 
+        description: error.message || "Failed to remove business from featured listings", 
+        variant: "destructive" 
+      });
+      setRemoveConfirmId(null);
     }
   });
 
@@ -200,10 +229,18 @@ export function FeaturedManagement() {
                           <Button 
                             size="sm" 
                             variant="destructive"
-                            onClick={() => setRemoveConfirmId(business.placeid)}
+                            onClick={() => {
+                              console.log('Remove button clicked for business:', business.placeid);
+                              setRemoveConfirmId(business.placeid);
+                            }}
                             disabled={removeFeaturedMutation.isPending}
+                            aria-label={`Remove ${business.title} from featured listings`}
                           >
-                            <XCircle className="h-4 w-4" />
+                            {removeFeaturedMutation.isPending && removeConfirmId === business.placeid ? (
+                              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                            ) : (
+                              <XCircle className="h-4 w-4" />
+                            )}
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -592,10 +629,15 @@ export function FeaturedManagement() {
             </Button>
             <Button 
               variant="destructive" 
-              onClick={() => removeConfirmId && removeFeaturedMutation.mutate(removeConfirmId)}
+              onClick={() => {
+                if (removeConfirmId) {
+                  console.log('Executing remove mutation for business:', removeConfirmId);
+                  removeFeaturedMutation.mutate(removeConfirmId);
+                }
+              }}
               disabled={removeFeaturedMutation.isPending}
             >
-              Remove Featured
+              {removeFeaturedMutation.isPending ? 'Removing...' : 'Remove Featured'}
             </Button>
           </DialogFooter>
         </DialogContent>
