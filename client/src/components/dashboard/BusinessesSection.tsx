@@ -229,10 +229,11 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
                         </DialogHeader>
                         
                         <Tabs defaultValue="basic" className="w-full">
-                          <TabsList className="grid w-full grid-cols-4">
+                          <TabsList className="grid w-full grid-cols-5">
                             <TabsTrigger value="basic">{t("dashboard.businesses.tabs.basic")}</TabsTrigger>
                             <TabsTrigger value="contact">{t("dashboard.businesses.tabs.contact")}</TabsTrigger>
                             <TabsTrigger value="photos">{t("dashboard.businesses.tabs.photos")}</TabsTrigger>
+                            <TabsTrigger value="reviews">Reviews</TabsTrigger>
                             <TabsTrigger value="faqs">{t("dashboard.businesses.tabs.faqs")}</TabsTrigger>
                           </TabsList>
                           
@@ -408,6 +409,29 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
                                   </ul>
                                 </div>
                               )}
+                            </TabsContent>
+
+                            <TabsContent value="reviews" className="space-y-4 mt-4">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <h3 className="text-lg font-medium flex items-center gap-2">
+                                    <Star className="h-5 w-5" />
+                                    Customer Reviews
+                                  </h3>
+                                  <p className="text-sm text-muted-foreground">Manage customer reviews and ratings</p>
+                                </div>
+                              </div>
+                              
+                              <div className="text-center py-12 border-2 border-dashed border-muted rounded-lg">
+                                <Star className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+                                <h4 className="text-lg font-medium mb-2">No Reviews Yet</h4>
+                                <p className="text-muted-foreground mb-4">This business hasn't received any customer reviews yet. Reviews will appear here once customers start leaving feedback.</p>
+                                <div className="text-sm text-muted-foreground space-y-1">
+                                  <p>• Encourage customers to leave reviews after their visit</p>
+                                  <p>• Respond to reviews to build customer relationships</p>
+                                  <p>• Use feedback to improve your business services</p>
+                                </div>
+                              </div>
                             </TabsContent>
 
                             <TabsContent value="faqs" className="space-y-4 mt-4">

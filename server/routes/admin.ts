@@ -49,6 +49,18 @@ export function setupAdminRoutes(app: Express) {
     }
   });
 
+  // Delete single business
+  app.delete('/api/admin/businesses/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteBusiness(id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting business:", error);
+      res.status(500).json({ message: "Failed to delete business" });
+    }
+  });
+
   // Bulk delete businesses
   app.post('/api/admin/businesses/bulk-delete', async (req, res) => {
     try {
