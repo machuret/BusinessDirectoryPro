@@ -151,6 +151,10 @@ export class ComprehensiveStorage implements IStorage {
     return this.businesses.getUniqueCities();
   }
 
+  async getCities(): Promise<{ city: string; count: number }[]> {
+    return this.businesses.getUniqueCities();
+  }
+
   // Legacy business methods for backward compatibility
   async updateBusinessRating(businessId: string, rating: number): Promise<void> {
     // Delegate to business storage - this might need to be implemented there
@@ -209,6 +213,14 @@ export class ComprehensiveStorage implements IStorage {
 
   async getAllReviewsForAdmin(): Promise<Review[]> {
     return this.reviews.getAllReviewsForAdmin();
+  }
+
+  async getAllReviews(): Promise<Review[]> {
+    return this.reviews.getAllReviews();
+  }
+
+  async updateReview(id: number, updates: Partial<InsertReview>): Promise<Review | undefined> {
+    return this.reviews.updateReview(id, updates);
   }
 
   async deleteReview(reviewId: number): Promise<void> {

@@ -101,6 +101,43 @@ export class FeaturedRequestsStorage {
   }
 
   /**
+   * Get all featured requests for admin review
+   */
+  static async getAllFeaturedRequests(): Promise<FeaturedRequestWithBusiness[]> {
+    const requests = await db
+      .select({
+        id: featuredRequests.id,
+        businessId: featuredRequests.businessId,
+        userId: featuredRequests.userId,
+        status: featuredRequests.status,
+        message: featuredRequests.message,
+        adminMessage: featuredRequests.adminMessage,
+        reviewedBy: featuredRequests.reviewedBy,
+        reviewedAt: featuredRequests.reviewedAt,
+        createdAt: featuredRequests.createdAt,
+        updatedAt: featuredRequests.updatedAt,
+        businessTitle: businesses.title,
+        businessCity: businesses.city
+      })
+      .from(featuredRequests)
+      .leftJoin(businesses, eq(featuredRequests.businessId, businesses.placeid))
+      .orderBy(desc(featuredRequests.createdAt));
+
+    return requests.map(request => ({
+      ...request,
+      status: request.status as 'pending' | 'approved' | 'rejected',
+      businessTitle: request.businessTitle || undefined,
+      businessCity: request.businessCity || undefined,
+      message: request.message || undefined,
+      adminMessage: request.adminMessage || undefined,
+      reviewedBy: request.reviewedBy || undefined,
+      createdAt: new Date(request.createdAt),
+      reviewedAt: request.reviewedAt ? new Date(request.reviewedAt) : undefined,
+      updatedAt: request.updatedAt ? new Date(request.updatedAt) : undefined
+    }));
+  }
+
+  /**
    * Get all featured requests with comprehensive business details for admin review
    */
   static async getAllFeaturedRequestsWithBusinessDetails(): Promise<FeaturedRequestWithBusinessDetails[]> {

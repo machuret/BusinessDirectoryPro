@@ -123,7 +123,7 @@ export function setupAdminRoutes(app: Express) {
   // Get featured requests (admin view)
   app.get('/api/admin/featured-requests', async (req, res) => {
     try {
-      const requests = await storage.getFeaturedRequests();
+      const requests = await storage.getAllFeaturedRequests();
       res.json(requests);
     } catch (error) {
       console.error("Error fetching featured requests:", error);
@@ -170,7 +170,7 @@ export function setupAdminRoutes(app: Express) {
         return res.status(400).json({ message: "Invalid status" });
       }
 
-      await storage.updateOwnershipClaim(claimId, { status });
+      await storage.updateOwnershipClaim(claimId, status);
       res.json({ message: "Ownership claim status updated successfully" });
     } catch (error) {
       console.error("Error updating ownership claim status:", error);
