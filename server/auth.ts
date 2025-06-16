@@ -383,16 +383,29 @@ export function isAuthenticated(req: any, res: any, next: any) {
   return res.status(401).json({ message: "Authentication required" });
 }
 
-export function isAdmin(req: any, res: any, next: any) {
+export async function isAdmin(req: any, res: any, next: any) {
   const session = req.session as any;
-  const user = session?.user;
+  const userId = session?.userId;
+  let user = session?.user;
   
   // Debug logging to understand the session state
-  console.log('[ADMIN CHECK] Full session:', JSON.stringify(session, null, 2));
   console.log('[ADMIN CHECK] Session ID:', req.sessionID);
-  console.log('[ADMIN CHECK] Session user:', JSON.stringify(user, null, 2));
-  console.log('[ADMIN CHECK] User role:', user?.role);
-  console.log('[ADMIN CHECK] User ID:', user?.id);
+  console.log('[ADMIN CHECK] User ID from session:', userId);
+  console.log('[ADMIN CHECK] User object from session:', JSON.stringify(user, null, 2));
+  
+  // If we have userId but no user object, load it from storage
+  if (userId && !user) {
+    try {
+      user = await storage.getUser(userId);
+      if (user) {
+        // Update session with user object for future requests
+        session.user = user;
+        console.log('[ADMIN CHECK] Loaded user from storage:', user.id, 'role:', user.role);
+      }
+    } catch (error) {
+      console.error('[ADMIN CHECK] Error loading user from storage:', error);
+    }
+  }
   
   // For demo admin user, allow access based on user ID check
   if (user && (user.role === "admin" || user.id === "demo-admin")) {
