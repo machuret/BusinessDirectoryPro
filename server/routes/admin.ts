@@ -1,17 +1,22 @@
 import { Express } from "express";
-import { scrypt, randomBytes, timingSafeEqual } from "crypto";
-import { promisify } from "util";
 import { storage } from "../storage";
 
-const scryptAsync = promisify(scrypt);
-
-async function hashPassword(password: string): Promise<string> {
-  const salt = randomBytes(16).toString("hex");
-  const buf = (await scryptAsync(password, salt, 64)) as Buffer;
-  return `${buf.toString("hex")}.${salt}`;
-}
+// Import modular sub-routers
+import businessesRouter from "./admin/businesses.routes";
+import usersRouter from "./admin/users.routes";
+import categoriesRouter from "./admin/categories.routes";
+import citiesRouter from "./admin/cities.routes";
+import leadsRouter from "./admin/leads.routes";
+import reviewsRouter from "./admin/reviews.routes";
 
 export function setupAdminRoutes(app: Express) {
+  // Register modular sub-routers with their respective base paths
+  app.use('/api/admin/businesses', businessesRouter);
+  app.use('/api/admin/users', usersRouter);
+  app.use('/api/admin/categories', categoriesRouter);
+  app.use('/api/admin/cities', citiesRouter);
+  app.use('/api/admin/leads', leadsRouter);
+  app.use('/api/admin/reviews', reviewsRouter);
   // Get all businesses for admin
   app.get('/api/admin/businesses', async (req, res) => {
     try {
