@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { storage } from "../storage";
 import { isAuthenticated, isAdmin } from "../auth";
+import { canUserAccessLead, getLeadsForUser, validateLeadData, isValidLeadStatus } from "../services/lead.service";
 
 export function setupLeadRoutes(app: Express) {
   // Public endpoint for submitting leads (contact form submissions)
@@ -8,19 +9,10 @@ export function setupLeadRoutes(app: Express) {
     try {
       const { businessId, senderName, senderEmail, senderPhone, message } = req.body;
 
-      // Validate required fields
-      if (!businessId || !senderName || !senderEmail || !message) {
-        return res.status(400).json({ 
-          message: 'Missing required fields: businessId, senderName, senderEmail, message' 
-        });
-      }
-
-      // Validate email format
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(senderEmail)) {
-        return res.status(400).json({ 
-          message: 'Invalid email format' 
-        });
+      // Validate lead data using service
+      const validation = validateLeadData(req.body);
+      if (!validation.isValid) {
+        return res.status(400).json({ message: validation.error });
       }
 
       // Create the lead
@@ -60,35 +52,13 @@ export function setupLeadRoutes(app: Express) {
     try {
       const session = req.session as any;
       const userId = session?.userId;
-      let user = session?.user;
-      
-      // If we have userId but no user object or no role, load it from storage
-      if (userId && (!user || !user.role)) {
-        try {
-          user = await storage.getUser(userId);
-          if (user) {
-            // Update session with user object for future requests
-            session.user = user;
-          }
-        } catch (error) {
-          console.error('Error loading user from storage:', error);
-        }
+
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
       }
 
-      if (!user) {
-        return res.status(401).json({ message: 'User not found' });
-      }
-
-      let leads;
-
-      if (user.role === 'admin') {
-        // Admin sees leads from unclaimed businesses
-        leads = await storage.getAdminLeads();
-      } else {
-        // Business owners see leads from their claimed businesses
-        leads = await storage.getOwnerLeads(user.id);
-      }
-
+      // Use service to get leads based on user role and permissions
+      const leads = await getLeadsForUser(userId);
       res.json(leads);
     } catch (error) {
       console.error('Error fetching leads:', error);
