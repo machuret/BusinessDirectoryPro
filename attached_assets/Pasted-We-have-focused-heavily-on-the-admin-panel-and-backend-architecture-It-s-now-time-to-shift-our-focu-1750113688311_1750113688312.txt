@@ -1,0 +1,20 @@
+We have focused heavily on the admin panel and backend architecture. It's now time to shift our focus entirely to the logged-in, non-admin user experience.
+
+I want you to act as a Senior Product Manager and Senior Frontend Developer performing a joint audit. Your goal is to evaluate the entire journey for a registered user, assessing both the user-facing experience (UX) and the underlying code quality that powers it.
+
+Please analyze the application and generate a "User Experience & Code Quality Report". The report should be divided into the following two sections:
+
+Section 1: User Experience (UX) Audit
+Account Management: How intuitive is the process for a user to manage their account? Can they easily change their password or update their profile information? Is there a "Forgot Password" flow implemented?
+Dashboard Clarity: Evaluate the main user dashboard at /dashboard. Is the information clear and well-organized? Does it prioritize the most important actions a user would want to take? What key metrics or information are missing?
+Core User Workflows: Analyze the user's experience for these key flows:
+Claiming a new business.
+Requesting to have a business "Featured."
+Submitting a review for another business. Are these processes intuitive? Does the user receive clear feedback (loading states, success messages, error handling)?
+Identify Feature Gaps: Based on the current functionality, what are the top 2-3 most obvious features or improvements a registered user would expect that are currently missing?
+Section 2: Frontend Code Quality Audit
+Component Architecture: Analyze the React components specifically related to the user dashboard (e.g., in the /dashboard directory). Are they well-structured and reusable? Are there any overly large "God components" that are doing too much and should be broken down?
+State Management: Review how local and shared state is managed within the dashboard. Is it efficient? Are there potential performance bottlenecks or signs of unnecessary re-renders?
+Data Fetching: Are the data-fetching patterns for the user dashboard consistent and efficient? Is data being re-fetched more often than necessary?
+Conclusion & Recommendations
+Conclude the report with a single, prioritized list of the Top 5 Recommendations. This list should combine the most impactful UX improvements and critical code quality fixes that will provide the biggest enhancement to the registered user's experience.

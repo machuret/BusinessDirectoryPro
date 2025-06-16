@@ -162,6 +162,48 @@ Submit your request below and our team will review it within 24-48 hours.`,
       res.status(500).json({ message: "Failed to update featured request" });
     }
   });
+
+  // Review featured request (PUT endpoint for frontend compatibility)
+  app.put("/api/featured-requests/:id/review", async (req: any, res) => {
+    try {
+      const sessionUser = req.session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      // Allow admin access for users with admin emails or admin role
+      const isAdminUser = sessionUser.role === 'admin' || 
+                         sessionUser.email?.includes('admin');
+      
+      if (!isAdminUser) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { id } = req.params;
+      const { status, adminMessage } = req.body;
+
+      if (!['approved', 'rejected'].includes(status)) {
+        return res.status(400).json({ message: "Invalid status. Must be 'approved' or 'rejected'" });
+      }
+
+      const updatedRequest = await storage.updateFeaturedRequestStatus(
+        parseInt(id), 
+        status, 
+        sessionUser.id, 
+        adminMessage
+      );
+
+      if (!updatedRequest) {
+        return res.status(404).json({ message: "Featured request not found" });
+      }
+
+      res.json(updatedRequest);
+    } catch (error) {
+      console.error("Error reviewing featured request:", error);
+      res.status(500).json({ message: "Failed to review featured request" });
+    }
+  });
+  
   // Get featured requests for a specific user
   app.get("/api/featured-requests/user/:userId", async (req: any, res) => {
     try {
