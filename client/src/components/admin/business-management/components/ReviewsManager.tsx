@@ -27,15 +27,11 @@ export default function ReviewsManager({ businessId, business }: ReviewsManagerP
   const reviews = Array.isArray(reviewsData) ? reviewsData : [];
 
   // Debug logging
-  console.log('ReviewsManager Debug:', {
-    businessId,
-    reviewsData,
-    reviews,
-    reviewsLength: reviews.length,
-    isLoading,
-    error,
-    enabled: !!businessId
-  });
+  console.log('ReviewsManager Debug - BusinessID:', businessId);
+  console.log('ReviewsManager Debug - Reviews Data:', reviewsData);
+  console.log('ReviewsManager Debug - Reviews Length:', reviews.length);
+  console.log('ReviewsManager Debug - Is Loading:', isLoading);
+  console.log('ReviewsManager Debug - Error:', error);
 
   const deleteReviewMutation = useMutation({
     mutationFn: async (reviewId: number) => {
