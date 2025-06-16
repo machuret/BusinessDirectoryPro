@@ -103,7 +103,7 @@ export class FeaturedRequestsStorage {
   /**
    * Get all featured requests for admin review
    */
-  static async getAllFeaturedRequests(): Promise<FeaturedRequestWithBusiness[]> {
+  async getAllFeaturedRequests(): Promise<FeaturedRequestWithBusiness[]> {
     const requests = await db
       .select({
         id: featuredRequests.id,
@@ -140,7 +140,7 @@ export class FeaturedRequestsStorage {
   /**
    * Get all featured requests with comprehensive business details for admin review
    */
-  static async getAllFeaturedRequestsWithBusinessDetails(): Promise<FeaturedRequestWithBusinessDetails[]> {
+  async getAllFeaturedRequestsWithBusinessDetails(): Promise<FeaturedRequestWithBusinessDetails[]> {
     const requests = await db
       .select({
         id: featuredRequests.id,
@@ -213,7 +213,7 @@ export class FeaturedRequestsStorage {
   /**
    * Update featured request status (approve/reject)
    */
-  static async updateFeaturedRequestStatus(
+  async updateFeaturedRequestStatus(
     id: number,
     status: 'approved' | 'rejected',
     reviewedBy: string,
@@ -256,7 +256,7 @@ export class FeaturedRequestsStorage {
   /**
    * Check if business is eligible for featured request
    */
-  static async isBusinessEligibleForFeatured(businessId: string, userId: string): Promise<boolean> {
+  async isBusinessEligibleForFeatured(businessId: string, userId: string): Promise<boolean> {
     // Check if user owns the business
     const [business] = await db
       .select()
