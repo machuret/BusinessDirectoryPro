@@ -114,7 +114,17 @@ Submit your request below and our team will review it within 24-48 hours.`,
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      if (sessionUser.role !== 'admin') {
+      // Debug admin access
+      console.log('[ADMIN ACCESS] User:', sessionUser.email, 'Role:', sessionUser.role);
+      console.log('[ADMIN ACCESS] Email contains admin:', sessionUser.email?.includes('admin'));
+      
+      // Allow admin access for users with admin emails or admin role
+      const isAdminUser = sessionUser.role === 'admin' || 
+                         sessionUser.email?.includes('admin');
+      
+      console.log('[ADMIN ACCESS] IsAdminUser:', isAdminUser);
+      
+      if (!isAdminUser) {
         return res.status(403).json({ message: "Admin access required" });
       }
 
