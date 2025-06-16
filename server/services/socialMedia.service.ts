@@ -71,14 +71,17 @@ export function validateSocialMediaLinkUpdate(linkData: any): { isValid: boolean
   }
 
   if (linkData.url !== undefined) {
-    if (typeof linkData.url !== 'string' || linkData.url.trim().length === 0) {
-      return { isValid: false, error: 'URL must be a non-empty string' };
+    if (typeof linkData.url !== 'string') {
+      return { isValid: false, error: 'URL must be a string' };
     }
     
-    try {
-      new URL(linkData.url);
-    } catch {
-      return { isValid: false, error: 'Invalid URL format' };
+    // Allow empty URLs for updates (existing data may have empty URLs)
+    if (linkData.url.trim().length > 0) {
+      try {
+        new URL(linkData.url);
+      } catch {
+        return { isValid: false, error: 'Invalid URL format' };
+      }
     }
   }
 
