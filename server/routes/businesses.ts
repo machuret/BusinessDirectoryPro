@@ -147,11 +147,23 @@ export function setupBusinessRoutes(app: Express) {
   // Get user's businesses for dashboard (authenticated)
   app.get("/api/user/businesses", async (req: any, res) => {
     try {
-      if (!req.user) {
+      console.log('[DEBUG] Session data:', {
+        sessionId: req.sessionID,
+        hasSession: !!req.session,
+        sessionUser: req.session?.user ? 'exists' : 'missing',
+        sessionUserId: req.session?.userId,
+        cookies: req.headers.cookie
+      });
+      
+      const user = req.session?.user;
+      if (!user) {
+        console.log('[DEBUG] Authentication failed - no user in session');
         return res.status(401).json({ message: "Not authenticated" });
       }
       
-      const businesses = await storage.getUserBusinesses(req.user.id);
+      console.log('[DEBUG] User authenticated:', user.id);
+      const businesses = await storage.getUserBusinesses(user.id);
+      console.log('[DEBUG] Found businesses:', businesses.length);
       res.json(businesses);
     } catch (error) {
       console.error("Error fetching user businesses:", error);
@@ -162,11 +174,12 @@ export function setupBusinessRoutes(app: Express) {
   // Alternative route for compatibility with tests
   app.get("/api/businesses/user", async (req: any, res) => {
     try {
-      if (!req.user) {
+      const user = req.session?.user;
+      if (!user) {
         return res.status(401).json({ message: "Not authenticated" });
       }
       
-      const businesses = await storage.getUserBusinesses(req.user.id);
+      const businesses = await storage.getUserBusinesses(user.id);
       res.json(businesses);
     } catch (error) {
       console.error("Error fetching user businesses:", error);

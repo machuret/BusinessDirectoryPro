@@ -2,8 +2,8 @@
  * Setup script to create demo admin user
  */
 
-const bcrypt = require('bcrypt');
-const { Pool } = require('@neondatabase/serverless');
+import bcrypt from 'bcrypt';
+import { Pool } from '@neondatabase/serverless';
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
