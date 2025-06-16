@@ -93,7 +93,16 @@ export default function CMSManagement() {
   // Create page mutation
   const createMutation = useMutation({
     mutationFn: async (data: PageFormData) => {
-      const res = await apiRequest("POST", "/api/admin/pages", data);
+      const pageData = {
+        title: data.title,
+        slug: data.slug,
+        content: data.content,
+        seoTitle: data.title, // Use title as SEO title
+        seoDescription: data.metaDescription || "",
+        status: data.status,
+        authorId: "demo-admin" // Valid admin user ID
+      };
+      const res = await apiRequest("POST", "/api/admin/pages", pageData);
       return await res.json();
     },
     onSuccess: () => {
@@ -117,7 +126,16 @@ export default function CMSManagement() {
   // Update page mutation
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: PageFormData }) => {
-      const res = await apiRequest("PUT", `/api/admin/pages/${id}`, data);
+      const pageData = {
+        title: data.title,
+        slug: data.slug,
+        content: data.content,
+        seoTitle: data.title,
+        seoDescription: data.metaDescription || "",
+        status: data.status,
+        authorId: "demo-admin"
+      };
+      const res = await apiRequest("PUT", `/api/admin/pages/${id}`, pageData);
       return await res.json();
     },
     onSuccess: () => {
