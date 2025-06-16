@@ -225,7 +225,7 @@ export class OwnershipClaimsStorage {
       if (status === 'approved' && existingClaim.businessId && existingClaim.userId) {
         await db.execute(sql`
           UPDATE businesses 
-          SET owner_id = ${existingClaim.userId}
+          SET ownerid = ${existingClaim.userId}
           WHERE placeid = ${existingClaim.businessId}
         `);
         
