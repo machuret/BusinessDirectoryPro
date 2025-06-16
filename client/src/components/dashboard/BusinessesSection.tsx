@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,8 +13,9 @@ import { useFormManagement, useModalState } from "@/hooks/useFormManagement";
 import { useContent } from "@/contexts/ContentContext";
 import { LoadingState } from "@/components/loading/LoadingState";
 import { ErrorState } from "@/components/error/ErrorState";
-import { Building2, Edit, Star, MapPin, Phone, Clock, Globe, Mail, Plus, Trash2, HelpCircle, Image, Upload, X } from "lucide-react";
+import { Building2, Edit, Star, MapPin, Phone, Clock, Globe, Mail, Plus, Trash2, HelpCircle, Image, Upload, X, MessageSquare } from "lucide-react";
 import type { BusinessWithCategory } from "@shared/schema";
+import { useQuery } from "@tanstack/react-query";
 
 interface BusinessesSectionProps {
   businesses: BusinessWithCategory[];
@@ -29,6 +30,12 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
   const [uploadingImages, setUploadingImages] = useState(false);
   const { updateBusiness } = useBusinessMutations();
   const editModal = useModalState();
+
+  // Fetch reviews for the currently editing business
+  const { data: businessReviews = [], isLoading: reviewsLoading } = useQuery<any[]>({
+    queryKey: [`/api/reviews`, editingBusiness?.placeid],
+    enabled: !!editingBusiness?.placeid,
+  });
 
   const editForm = useFormManagement({
     initialValues: {
@@ -97,7 +104,16 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
       } else if (business.imageurl) {
         images = [business.imageurl];
       }
-      setBusinessImages(Array.isArray(images) ? images : []);
+      
+      // Add any additional images from business fields
+      const additionalImages = [];
+      if (business.logo && typeof business.logo === 'string' && business.logo.startsWith('http')) {
+        additionalImages.push(business.logo);
+      }
+      
+      const allImages = [...images, ...additionalImages].filter(Boolean);
+      const uniqueImages = Array.from(new Set(allImages));
+      setBusinessImages(Array.isArray(uniqueImages) ? uniqueImages : []);
     } catch {
       setBusinessImages([]);
     }
@@ -417,23 +433,65 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
                               <div className="flex items-center justify-between">
                                 <div>
                                   <h3 className="text-lg font-medium flex items-center gap-2">
-                                    <Star className="h-5 w-5" />
-                                    Customer Reviews
+                                    <MessageSquare className="h-5 w-5" />
+                                    Customer Reviews {businessReviews.length > 0 && `(${businessReviews.length})`}
                                   </h3>
                                   <p className="text-sm text-muted-foreground">Manage customer reviews and ratings</p>
                                 </div>
                               </div>
                               
-                              <div className="text-center py-12 border-2 border-dashed border-muted rounded-lg">
-                                <Star className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-                                <h4 className="text-lg font-medium mb-2">No Reviews Yet</h4>
-                                <p className="text-muted-foreground mb-4">This business hasn't received any customer reviews yet. Reviews will appear here once customers start leaving feedback.</p>
-                                <div className="text-sm text-muted-foreground space-y-1">
-                                  <p>• Encourage customers to leave reviews after their visit</p>
-                                  <p>• Respond to reviews to build customer relationships</p>
-                                  <p>• Use feedback to improve your business services</p>
+                              {reviewsLoading ? (
+                                <div className="flex items-center justify-center py-8">
+                                  <div className="text-center">
+                                    <MessageSquare className="h-12 w-12 mx-auto text-muted-foreground mb-2 animate-pulse" />
+                                    <p className="text-muted-foreground">Loading reviews...</p>
+                                  </div>
                                 </div>
-                              </div>
+                              ) : businessReviews.length === 0 ? (
+                                <div className="text-center py-12 border-2 border-dashed border-muted rounded-lg">
+                                  <MessageSquare className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+                                  <h4 className="text-lg font-medium mb-2">No Reviews Yet</h4>
+                                  <p className="text-muted-foreground mb-4">This business hasn't received any customer reviews yet. Reviews will appear here once customers start leaving feedback.</p>
+                                  <div className="text-sm text-muted-foreground space-y-1">
+                                    <p>• Encourage customers to leave reviews after their visit</p>
+                                    <p>• Respond to reviews to build customer relationships</p>
+                                    <p>• Use feedback to improve your business services</p>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="space-y-4">
+                                  {businessReviews.map((review: any, index: number) => (
+                                    <Card key={review.id || index} className="p-4">
+                                      <div className="flex items-start justify-between">
+                                        <div className="flex-1">
+                                          <div className="flex items-center gap-2 mb-2">
+                                            <div className="flex">
+                                              {Array.from({ length: 5 }, (_, i) => (
+                                                <Star
+                                                  key={i}
+                                                  className={`w-4 h-4 ${
+                                                    i < (review.rating || 0) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+                                                  }`}
+                                                />
+                                              ))}
+                                            </div>
+                                            <span className="text-sm font-medium">{review.user?.firstName || review.customerName || 'Anonymous'}</span>
+                                            <span className="text-xs text-muted-foreground">
+                                              {review.createdAt ? new Date(review.createdAt).toLocaleDateString() : ''}
+                                            </span>
+                                          </div>
+                                          {review.comment && (
+                                            <p className="text-sm text-muted-foreground">{review.comment}</p>
+                                          )}
+                                        </div>
+                                        <Badge variant={review.status === 'approved' ? 'default' : 'secondary'}>
+                                          {review.status || 'pending'}
+                                        </Badge>
+                                      </div>
+                                    </Card>
+                                  ))}
+                                </div>
+                              )}
                             </TabsContent>
 
                             <TabsContent value="faqs" className="space-y-4 mt-4">

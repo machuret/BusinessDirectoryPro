@@ -227,6 +227,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Reviews API endpoints
+  app.get('/api/reviews/:businessId', async (req, res) => {
+    try {
+      const reviews = await storage.getBusinessReviews(req.params.businessId);
+      res.json(reviews);
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
   // OpenAI optimization endpoints
   app.post('/api/admin/optimize-businesses', async (req, res) => {
     try {
