@@ -17,541 +17,164 @@ export function setupAdminRoutes(app: Express) {
   app.use('/api/admin/cities', citiesRouter);
   app.use('/api/admin/leads', leadsRouter);
   app.use('/api/admin/reviews', reviewsRouter);
-  // Get all businesses for admin
-  app.get('/api/admin/businesses', async (req, res) => {
+
+  // Additional non-CRUD routes that don't belong to specific sub-routers
+
+  // Get all businesses with filters (admin specific filtering)
+  app.get('/api/admin/search/businesses', async (req, res) => {
     try {
-      const businesses = await storage.getBusinesses({});
+      const { search, category, city, status } = req.query;
+      const filters: any = {};
+      
+      if (search) filters.search = search as string;
+      if (category) filters.category = category as string;
+      if (city) filters.city = city as string;
+      if (status) filters.status = status as string;
+      
+      const businesses = await storage.getBusinesses(filters);
       res.json(businesses);
     } catch (error) {
-      console.error("Error fetching admin businesses:", error);
-      res.status(500).json({ message: "Failed to fetch businesses" });
+      console.error("Error searching businesses:", error);
+      res.status(500).json({ message: "Failed to search businesses" });
     }
   });
 
-  // Create new business
-  app.post('/api/admin/businesses', async (req, res) => {
+  // Get all cities (admin view)
+  app.get('/api/admin/cities', async (req, res) => {
     try {
-      const business = await storage.createBusiness(req.body);
-      res.status(201).json(business);
-    } catch (error) {
-      console.error("Error creating business:", error);
-      res.status(500).json({ message: "Failed to create business" });
-    }
-  });
-
-  // Update business
-  app.put('/api/admin/businesses/:id', async (req, res) => {
-    try {
-      const { id } = req.params;
-      const business = await storage.updateBusiness(id, req.body);
-      if (!business) {
-        return res.status(404).json({ message: "Business not found" });
-      }
-      res.json(business);
-    } catch (error) {
-      console.error("Error updating business:", error);
-      res.status(500).json({ message: "Failed to update business" });
-    }
-  });
-
-  // Delete single business
-  app.delete('/api/admin/businesses/:id', async (req, res) => {
-    try {
-      const { id } = req.params;
-      await storage.deleteBusiness(id);
-      res.status(204).send();
-    } catch (error) {
-      console.error("Error deleting business:", error);
-      res.status(500).json({ message: "Failed to delete business" });
-    }
-  });
-
-  // Bulk delete businesses
-  app.post('/api/admin/businesses/bulk-delete', async (req, res) => {
-    try {
-      const { businessIds } = req.body;
-      
-      if (!Array.isArray(businessIds) || businessIds.length === 0) {
-        return res.status(400).json({ message: "businessIds array is required" });
-      }
-
-      let deletedCount = 0;
-      const errors = [];
-
-      for (const businessId of businessIds) {
-        try {
-          await storage.deleteBusiness(businessId);
-          deletedCount++;
-        } catch (error) {
-          errors.push({ businessId, error: (error as Error).message });
-        }
-      }
-
-      res.json({
-        message: `${deletedCount} business(es) deleted successfully`,
-        deletedCount,
-        totalRequested: businessIds.length,
-        errors
-      });
-    } catch (error) {
-      console.error("Error bulk deleting businesses:", error);
-      res.status(500).json({ message: "Failed to bulk delete businesses" });
-    }
-  });
-
-  // Photo gallery management endpoints
-  app.delete('/api/admin/businesses/:businessId/photos', async (req, res) => {
-    try {
-      const { businessId } = req.params;
-      const { photoUrl } = req.body;
-      
-      const business = await storage.getBusinessById(businessId);
-      if (!business) {
-        return res.status(404).json({ message: "Business not found" });
-      }
-
-      const photos = (business as any).images ? JSON.parse((business as any).images as string) : [];
-      const updatedPhotos = photos.filter((photo: string) => photo !== photoUrl);
-      
-      await storage.updateBusiness(businessId, { 
-        images: JSON.stringify(updatedPhotos) 
-      } as any);
-
-      res.json({ message: "Photo deleted successfully" });
-    } catch (error) {
-      console.error("Error deleting photo:", error);
-      res.status(500).json({ message: "Failed to delete photo" });
-    }
-  });
-
-  app.delete('/api/admin/businesses/:businessId/photos/bulk', async (req, res) => {
-    try {
-      const { businessId } = req.params;
-      const { photoUrls } = req.body;
-      
-      const business = await storage.getBusinessById(businessId);
-      if (!business) {
-        return res.status(404).json({ message: "Business not found" });
-      }
-
-      const photos = (business as any).images ? JSON.parse((business as any).images as string) : [];
-      const updatedPhotos = photos.filter((photo: string) => !photoUrls.includes(photo));
-      
-      await storage.updateBusiness(businessId, { 
-        images: JSON.stringify(updatedPhotos) 
-      } as any);
-
-      res.json({ message: `${photoUrls.length} photos deleted successfully` });
-    } catch (error) {
-      console.error("Error bulk deleting photos:", error);
-      res.status(500).json({ message: "Failed to bulk delete photos" });
-    }
-  });
-
-  // Review management endpoints
-  app.delete('/api/admin/reviews/:reviewId', async (req, res) => {
-    try {
-      const reviewId = parseInt(req.params.reviewId);
-      await storage.deleteReview(reviewId);
-      res.json({ message: "Review deleted successfully" });
-    } catch (error) {
-      console.error("Error deleting review:", error);
-      res.status(500).json({ message: "Failed to delete review" });
-    }
-  });
-
-  app.delete('/api/admin/reviews/bulk', async (req, res) => {
-    try {
-      const { reviewIds } = req.body;
-      
-      if (!Array.isArray(reviewIds) || reviewIds.length === 0) {
-        return res.status(400).json({ message: "reviewIds array is required" });
-      }
-
-      let deletedCount = 0;
-      for (const reviewId of reviewIds) {
-        try {
-          await storage.deleteReview(reviewId);
-          deletedCount++;
-        } catch (error) {
-          console.error(`Error deleting review ${reviewId}:`, error);
-        }
-      }
-
-      res.json({ 
-        message: `${deletedCount} reviews deleted successfully`,
-        deletedCount 
-      });
-    } catch (error) {
-      console.error("Error bulk deleting reviews:", error);
-      res.status(500).json({ message: "Failed to bulk delete reviews" });
-    }
-  });
-
-  // Categories management
-  app.post("/api/admin/categories", async (req, res) => {
-    try {
-      const category = await storage.createCategory(req.body);
-      res.status(201).json(category);
-    } catch (error) {
-      console.error("Error creating category:", error);
-      res.status(500).json({ message: "Failed to create category" });
-    }
-  });
-
-  app.put("/api/admin/categories/:id", async (req, res) => {
-    try {
-      const categoryId = parseInt(req.params.id);
-      const category = await storage.updateCategory(categoryId, req.body);
-      
-      if (!category) {
-        return res.status(404).json({ message: "Category not found" });
-      }
-      
-      res.json(category);
-    } catch (error) {
-      console.error("Error updating category:", error);
-      res.status(500).json({ message: "Failed to update category" });
-    }
-  });
-
-  app.delete("/api/admin/categories/:id", async (req, res) => {
-    try {
-      const categoryId = parseInt(req.params.id);
-      await storage.deleteCategory(categoryId);
-      res.status(204).send();
-    } catch (error) {
-      console.error("Error deleting category:", error);
-      res.status(500).json({ message: "Failed to delete category" });
-    }
-  });
-
-  // User management
-  app.get("/api/admin/users", async (req, res) => {
-    try {
-      const users = await storage.getAllUsers();
-      res.json(users);
-    } catch (error) {
-      console.error("Error fetching users:", error);
-      res.status(500).json({ message: "Failed to fetch users" });
-    }
-  });
-
-  app.post("/api/admin/users", async (req, res) => {
-    try {
-      const userData = req.body;
-      if (userData.password) {
-        userData.password = await hashPassword(userData.password);
-      }
-      const user = await storage.createUser(userData);
-      res.status(201).json(user);
-    } catch (error) {
-      console.error("Error creating user:", error);
-      res.status(500).json({ message: "Failed to create user" });
-    }
-  });
-
-  app.put("/api/admin/users/:id", async (req, res) => {
-    try {
-      const { id } = req.params;
-      const userData = req.body;
-      
-      const user = await storage.updateUser(id, userData);
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-      
-      res.json(user);
-    } catch (error) {
-      console.error("Error updating user:", error);
-      res.status(500).json({ message: "Failed to update user" });
-    }
-  });
-
-  app.delete("/api/admin/users/:id", async (req, res) => {
-    try {
-      const { id } = req.params;
-      await storage.deleteUser(id);
-      res.status(204).send();
-    } catch (error) {
-      console.error("Error deleting user:", error);
-      res.status(500).json({ message: "Failed to delete user" });
-    }
-  });
-
-  app.patch("/api/admin/users/:userId/password", async (req, res) => {
-    try {
-      const { userId } = req.params;
-      const { password } = req.body;
-      
-      if (!password || password.length < 6) {
-        return res.status(400).json({ message: "Password must be at least 6 characters" });
-      }
-
-      const hashedPassword = await hashPassword(password);
-      await storage.updateUser(userId, { password: hashedPassword });
-
-      res.json({ message: "Password updated successfully" });
-    } catch (error) {
-      console.error("Error updating user password:", error);
-      res.status(500).json({ message: "Failed to update password" });
-    }
-  });
-
-  // Cities management
-  app.get("/api/admin/cities", async (req, res) => {
-    try {
-      const cities = await storage.getUniqueCities();
-      
-      // Transform the cities data to match the expected frontend format
-      const formattedCities = cities.map(city => ({
-        id: city.city.toLowerCase().replace(/\s+/g, '-'), // Generate a simple ID
-        name: city.city,
-        state: "", // Not available in current data
-        country: "", // Not available in current data
-        pageTitle: "", // Not available in current data
-        businessCount: city.count,
-        createdAt: new Date().toISOString() // Use current date as placeholder
-      }));
-      
-      res.json(formattedCities);
+      const cities = await storage.getCities();
+      res.json(cities);
     } catch (error) {
       console.error("Error fetching cities:", error);
       res.status(500).json({ message: "Failed to fetch cities" });
     }
   });
 
-  app.post("/api/admin/cities", async (req, res) => {
+  // Get all categories (admin view)
+  app.get('/api/admin/categories', async (req, res) => {
     try {
-      const { name, city, state, country, pageTitle, pageDescription, description } = req.body;
-      const cityName = name || city; // Support both field names
-      
-      if (!cityName) {
-        return res.status(400).json({ message: "City name is required" });
-      }
-      
-      // Create city with proper ID generation
-      const cityId = cityName.toLowerCase().replace(/\s+/g, '-');
-      const newCity = {
-        id: cityId,
-        name: cityName,
-        state: state || "",
-        country: country || "",
-        pageTitle: pageTitle || "",
-        pageDescription: pageDescription || description || "",
-        businessCount: 0,
-        createdAt: new Date().toISOString()
-      };
-      
-      // City creation is handled by the fact that cities are derived from business data
-      // For now, just return the city data structure
-      res.status(201).json(newCity);
+      const categories = await storage.getCategories();
+      res.json(categories);
     } catch (error) {
-      console.error("Error adding city:", error);
-      res.status(500).json({ message: "Failed to add city" });
+      console.error("Error fetching categories:", error);
+      res.status(500).json({ message: "Failed to fetch categories" });
     }
   });
 
-  // Update city by ID (for frontend compatibility)
-  app.put("/api/admin/cities/:id", async (req, res) => {
+  // Get all reviews (admin view)
+  app.get('/api/admin/reviews', async (req, res) => {
     try {
-      const { id } = req.params;
-      const { name, state, country, pageTitle, pageDescription } = req.body;
+      const reviews = await storage.getAllReviews();
+      res.json(reviews);
+    } catch (error) {
+      console.error("Error fetching reviews:", error);
+      res.status(500).json({ message: "Failed to fetch reviews" });
+    }
+  });
+
+  // Review status management
+  app.patch('/api/admin/reviews/:reviewId/approve', async (req, res) => {
+    try {
+      const reviewId = parseInt(req.params.reviewId);
+      await storage.updateReview(reviewId, { status: 'approved' });
+      res.json({ message: "Review approved successfully" });
+    } catch (error) {
+      console.error("Error approving review:", error);
+      res.status(500).json({ message: "Failed to approve review" });
+    }
+  });
+
+  app.patch('/api/admin/reviews/:reviewId/reject', async (req, res) => {
+    try {
+      const reviewId = parseInt(req.params.reviewId);
+      await storage.updateReview(reviewId, { status: 'rejected' });
+      res.json({ message: "Review rejected successfully" });
+    } catch (error) {
+      console.error("Error rejecting review:", error);
+      res.status(500).json({ message: "Failed to reject review" });
+    }
+  });
+
+  // Get site settings (admin only)
+  app.get('/api/admin/site-settings', async (req, res) => {
+    try {
+      const settings = await storage.getSiteSettings();
+      res.json(settings);
+    } catch (error) {
+      console.error("Error fetching site settings:", error);
+      res.status(500).json({ message: "Failed to fetch site settings" });
+    }
+  });
+
+  // Update site settings (admin only)
+  app.patch('/api/admin/site-settings/:key', async (req, res) => {
+    try {
+      const { key } = req.params;
+      const { value } = req.body;
       
-      if (!name) {
-        return res.status(400).json({ message: "City name is required" });
-      }
-
-      // City updates are handled through business data updates
-      res.json({ message: "City updated successfully" });
+      await storage.updateSiteSetting(key, value);
+      res.json({ message: "Site setting updated successfully" });
     } catch (error) {
-      console.error("Error updating city:", error);
-      res.status(500).json({ message: "Failed to update city" });
+      console.error("Error updating site setting:", error);
+      res.status(500).json({ message: "Failed to update site setting" });
     }
   });
 
-  app.patch("/api/admin/cities/update", async (req, res) => {
+  // Get featured requests (admin view)
+  app.get('/api/admin/featured-requests', async (req, res) => {
     try {
-      const { oldName, newName, description } = req.body;
-      
-      if (!oldName || !newName) {
-        return res.status(400).json({ message: "Old name and new name are required" });
-      }
-
-      // City name updates handled through business data
-      res.json({ message: "City updated successfully" });
+      const requests = await storage.getFeaturedRequests();
+      res.json(requests);
     } catch (error) {
-      console.error("Error updating city:", error);
-      res.status(500).json({ message: "Failed to update city" });
+      console.error("Error fetching featured requests:", error);
+      res.status(500).json({ message: "Failed to fetch featured requests" });
     }
   });
 
-  app.delete("/api/admin/cities/:cityName", async (req, res) => {
+  // Update featured request status
+  app.patch('/api/admin/featured-requests/:requestId/status', async (req, res) => {
     try {
-      const { cityName } = req.params;
-      const decodedCityName = decodeURIComponent(cityName);
-      
-      if (!decodedCityName) {
-        return res.status(400).json({ message: "City name is required" });
-      }
-
-      // Delete all businesses in this city first, then remove the city
-      const businesses = await storage.getBusinesses({ city: decodedCityName });
-      for (const business of businesses) {
-        await storage.deleteBusiness(business.placeid);
-      }
-
-      res.status(204).send();
-    } catch (error) {
-      console.error("Error deleting city:", error);
-      res.status(500).json({ message: "Failed to delete city" });
-    }
-  });
-
-  // Mass operations
-  app.patch("/api/admin/businesses/mass-category", async (req, res) => {
-    try {
-      const { businessIds, categoryId } = req.body;
-      
-      if (!Array.isArray(businessIds) || businessIds.length === 0) {
-        return res.status(400).json({ message: "Business IDs array is required" });
-      }
-
-      if (!categoryId) {
-        return res.status(400).json({ message: "Category ID is required" });
-      }
-
-      for (const businessId of businessIds) {
-        await storage.updateBusiness(businessId, { categories: JSON.stringify([{ id: parseInt(categoryId) }]) });
-      }
-
-      res.json({ message: `${businessIds.length} businesses updated successfully` });
-    } catch (error) {
-      console.error("Error updating business categories:", error);
-      res.status(500).json({ message: "Failed to update business categories" });
-    }
-  });
-
-  app.patch("/api/admin/users/mass-action", async (req, res) => {
-    try {
-      const { userIds, action } = req.body;
-      
-      if (!Array.isArray(userIds) || userIds.length === 0) {
-        return res.status(400).json({ message: "User IDs array is required" });
-      }
-
-      if (!['suspend', 'activate', 'delete'].includes(action)) {
-        return res.status(400).json({ message: "Invalid action" });
-      }
-
-      for (const userId of userIds) {
-        if (action === 'delete') {
-          await storage.deleteUser(userId);
-        } else {
-          const role = action === 'suspend' ? 'suspended' : 'user';
-          await storage.updateUser(userId, { role });
-        }
-      }
-
-      res.json({ message: `${userIds.length} users ${action}d successfully` });
-    } catch (error) {
-      console.error("Error performing mass user action:", error);
-      res.status(500).json({ message: "Failed to perform mass user action" });
-    }
-  });
-
-  app.patch("/api/admin/users/:userId/assign-businesses", async (req, res) => {
-    try {
-      const { userId } = req.params;
-      const { businessIds } = req.body;
-      
-      if (!Array.isArray(businessIds) || businessIds.length === 0) {
-        return res.status(400).json({ message: "Business IDs array is required" });
-      }
-
-      for (const businessId of businessIds) {
-        await storage.updateBusiness(businessId, { ownerid: userId });
-      }
-
-      res.json({ message: `${businessIds.length} businesses assigned successfully` });
-    } catch (error) {
-      console.error("Error assigning businesses to user:", error);
-      res.status(500).json({ message: "Failed to assign businesses" });
-    }
-  });
-
-  // Leads management
-  app.get('/api/admin/leads', async (req, res) => {
-    try {
-      const leads = await storage.getAllLeads();
-      res.json(leads);
-    } catch (error) {
-      console.error("Error fetching admin leads:", error);
-      res.status(500).json({ message: "Failed to fetch leads" });
-    }
-  });
-
-  app.patch('/api/admin/leads/:id', async (req, res) => {
-    try {
-      const leadId = parseInt(req.params.id);
+      const requestId = parseInt(req.params.requestId);
       const { status } = req.body;
       
-      if (!status) {
-        return res.status(400).json({ message: "Status is required" });
+      if (!['pending', 'approved', 'rejected'].includes(status)) {
+        return res.status(400).json({ message: "Invalid status" });
       }
 
-      const lead = await storage.updateLead(leadId, { status });
-      if (!lead) {
-        return res.status(404).json({ message: "Lead not found" });
-      }
-      
-      res.json(lead);
+      await storage.updateFeaturedRequestStatus(requestId, status);
+      res.json({ message: "Featured request status updated successfully" });
     } catch (error) {
-      console.error("Error updating lead:", error);
-      res.status(500).json({ message: "Failed to update lead" });
+      console.error("Error updating featured request status:", error);
+      res.status(500).json({ message: "Failed to update featured request status" });
     }
   });
 
-  app.delete('/api/admin/leads/:id', async (req, res) => {
+  // Get ownership claims (admin view)
+  app.get('/api/admin/ownership-claims', async (req, res) => {
     try {
-      const leadId = parseInt(req.params.id);
-      await storage.deleteLead(leadId);
-      res.status(204).send();
+      const claims = await storage.getOwnershipClaims();
+      res.json(claims);
     } catch (error) {
-      console.error("Error deleting lead:", error);
-      res.status(500).json({ message: "Failed to delete lead" });
+      console.error("Error fetching ownership claims:", error);
+      res.status(500).json({ message: "Failed to fetch ownership claims" });
     }
   });
 
-  app.delete('/api/admin/leads/bulk', async (req, res) => {
+  // Update ownership claim status
+  app.patch('/api/admin/ownership-claims/:claimId/status', async (req, res) => {
     try {
-      const { leadIds } = req.body;
+      const claimId = parseInt(req.params.claimId);
+      const { status } = req.body;
       
-      if (!Array.isArray(leadIds) || leadIds.length === 0) {
-        return res.status(400).json({ message: "leadIds array is required" });
+      if (!['pending', 'approved', 'rejected'].includes(status)) {
+        return res.status(400).json({ message: "Invalid status" });
       }
 
-      let deletedCount = 0;
-      const errors = [];
-
-      for (const leadId of leadIds) {
-        try {
-          await storage.deleteLead(leadId);
-          deletedCount++;
-        } catch (error) {
-          errors.push({ leadId, error: (error as Error).message });
-        }
-      }
-
-      res.json({
-        message: `${deletedCount} leads deleted successfully`,
-        deletedCount,
-        totalRequested: leadIds.length,
-        errors
-      });
+      await storage.updateOwnershipClaim(claimId, { status });
+      res.json({ message: "Ownership claim status updated successfully" });
     } catch (error) {
-      console.error("Error bulk deleting leads:", error);
-      res.status(500).json({ message: "Failed to bulk delete leads" });
+      console.error("Error updating ownership claim status:", error);
+      res.status(500).json({ message: "Failed to update ownership claim status" });
     }
   });
 }
