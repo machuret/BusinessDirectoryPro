@@ -490,10 +490,6 @@ export type FeaturedRequest = typeof featuredRequests.$inferSelect;
 export type InsertFeaturedRequest = typeof featuredRequests.$inferInsert;
 export type OwnershipClaim = typeof ownershipClaims.$inferSelect;
 export type InsertOwnershipClaimFull = typeof ownershipClaims.$inferInsert;
-export type Page = typeof pages.$inferSelect;
-export type InsertPage = z.infer<typeof insertPageSchema>;
-export type WebsiteFaq = typeof websiteFaq.$inferSelect;
-export type InsertWebsiteFaq = z.infer<typeof insertWebsiteFaqSchema>;
 
 
 

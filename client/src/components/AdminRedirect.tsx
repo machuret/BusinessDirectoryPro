@@ -5,7 +5,7 @@ export function AdminRedirect() {
   const [, navigate] = useLocation();
   
   useEffect(() => {
-    navigate("/admin/settings");
+    navigate("/admin/businesses");
   }, [navigate]);
   
   return null;
