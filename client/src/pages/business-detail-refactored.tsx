@@ -1,4 +1,5 @@
 import { useParams } from "wouter";
+import { useEffect } from "react";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -57,6 +58,48 @@ export default function BusinessDetailRefactored() {
     refetchReviews();
     refetchSimilar();
   };
+
+  // Update page metadata when business data loads
+  useEffect(() => {
+    if (business) {
+      const title = business.seotitle || `${business.title} - Business Directory`;
+      const description = business.seodescription || business.description || `Find information about ${business.title} including contact details, reviews, and more.`;
+      
+      // Update page title
+      document.title = title;
+      
+      // Update or create meta description
+      let metaDescription = document.querySelector('meta[name="description"]');
+      if (metaDescription) {
+        metaDescription.setAttribute('content', description);
+      } else {
+        metaDescription = document.createElement('meta');
+        metaDescription.setAttribute('name', 'description');
+        metaDescription.setAttribute('content', description);
+        document.head.appendChild(metaDescription);
+      }
+
+      // Update or create Open Graph tags
+      const updateMetaTag = (property: string, content: string) => {
+        let metaTag = document.querySelector(`meta[property="${property}"]`);
+        if (metaTag) {
+          metaTag.setAttribute('content', content);
+        } else {
+          metaTag = document.createElement('meta');
+          metaTag.setAttribute('property', property);
+          metaTag.setAttribute('content', content);
+          document.head.appendChild(metaTag);
+        }
+      };
+
+      updateMetaTag('og:title', title);
+      updateMetaTag('og:description', description);
+      updateMetaTag('og:type', 'business.business');
+      if (business.imageurl) {
+        updateMetaTag('og:image', business.imageurl);
+      }
+    }
+  }, [business]);
 
   if (isLoading) {
     return (

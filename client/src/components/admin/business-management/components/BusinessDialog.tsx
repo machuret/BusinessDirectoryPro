@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -51,14 +51,46 @@ export default function BusinessDialog({ open, onClose, business, isEdit }: Busi
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("basic");
 
-  const { data: categories, isLoading: categoriesLoading } = useQuery({
+  const { data: allCategories, isLoading: categoriesLoading } = useQuery({
     queryKey: ["/api/categories"],
   });
+
+  // Filter and sort categories to show most relevant ones first
+  const categories = useMemo(() => {
+    if (!allCategories) return [];
+    
+    // Filter out auto-generated and inappropriate categories
+    const filtered = allCategories.filter((cat: any) => {
+      // Skip auto-generated categories with specific patterns
+      if (cat.description?.includes('Auto-created category')) return false;
+      if (cat.name.toLowerCase().includes('dentist')) return false;
+      if (cat.name.toLowerCase().includes('orthodontist')) return false;
+      if (cat.name.toLowerCase().includes('test ')) return false;
+      return true;
+    });
+    
+    // Sort with common business categories first
+    const priorityCategories = ['restaurants', 'retail', 'services', 'health', 'entertainment', 'automotive'];
+    
+    return filtered.sort((a: any, b: any) => {
+      const aSlug = a.slug.toLowerCase();
+      const bSlug = b.slug.toLowerCase();
+      
+      const aPriority = priorityCategories.findIndex(p => aSlug.includes(p));
+      const bPriority = priorityCategories.findIndex(p => bSlug.includes(p));
+      
+      if (aPriority !== -1 && bPriority !== -1) return aPriority - bPriority;
+      if (aPriority !== -1) return -1;
+      if (bPriority !== -1) return 1;
+      
+      return a.name.localeCompare(b.name);
+    });
+  }, [allCategories]);
 
   // Debug categories data
   useEffect(() => {
     if (categories) {
-      console.log('Categories loaded in BusinessDialog:', categories);
+      console.log('Filtered categories in BusinessDialog:', categories);
     }
   }, [categories]);
 
