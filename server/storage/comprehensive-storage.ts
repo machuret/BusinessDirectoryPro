@@ -553,6 +553,19 @@ export class ComprehensiveStorage implements IStorage {
     return this.socialMedia.bulkUpdateSocialMediaLinks(updates);
   }
 
+  // ===== SITE SETTINGS OPERATIONS =====
+  async getSiteSettings(): Promise<SiteSetting[]> {
+    return this.content.getSiteSettings();
+  }
+
+  async getSiteSetting(key: string): Promise<SiteSetting | undefined> {
+    return this.content.getSiteSetting(key);
+  }
+
+  async updateSiteSetting(key: string, value: any, description?: string, category?: string): Promise<SiteSetting> {
+    return this.content.updateSiteSetting(key, value, description, category);
+  }
+
   // ===== BUSINESS SUBMISSIONS OPERATIONS =====
   async getBusinessSubmissions(): Promise<any[]> {
     // Return empty array for now - business submissions would be in a separate table
@@ -569,3 +582,6 @@ export class ComprehensiveStorage implements IStorage {
     });
   }
 }
+
+// Export a singleton instance
+export const storage = new ComprehensiveStorage();

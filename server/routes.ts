@@ -7,7 +7,7 @@ import { setupAuthRoutes } from "./routes/auth";
 import { setupBusinessRoutes } from "./routes/businesses";
 import { setupAdminRoutes } from "./routes/admin";
 import { setupReviewRoutes } from "./routes/reviews";
-import { setupSettingsRoutes } from "./routes/settings";
+// import { setupSettingsRoutes } from "./routes/settings";
 import optimizationRoutes from "./routes/optimization";
 import { registerCategoryRoutes } from "./routes/categories";
 import { csvImportService } from "./csv-import";
@@ -18,6 +18,7 @@ import { createLeadsTable } from "./create-leads-table";
 import { setupLeadRoutes } from "./routes/leads";
 import { contentRouter } from "./routes/content";
 import { createContentStringsTable, seedInitialContentStrings } from "../migrations/create-content-strings-table";
+import { azureBlobService } from "./azure-blob";
 
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -49,6 +50,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     },
   });
 
+  // Configure multer for image uploads
+  const uploadImage = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+      fileSize: 10 * 1024 * 1024, // 10MB limit
+    },
+    fileFilter: (req, file, cb) => {
+      // Allow only image files
+      if (file.mimetype.startsWith('image/')) {
+        cb(null, true);
+      } else {
+        cb(new Error('Only image files are allowed'));
+      }
+    }
+  });
+
   // Database setup endpoint for manual initialization
   app.post('/api/setup-db', async (req, res) => {
     try {
@@ -66,7 +83,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   setupBusinessRoutes(app);
   setupAdminRoutes(app);
   setupReviewRoutes(app);
-  setupSettingsRoutes(app);
+  // setupSettingsRoutes(app);
   registerCategoryRoutes(app);
   setupLeadRoutes(app);
   
