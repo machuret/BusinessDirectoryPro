@@ -43,6 +43,18 @@ export function setupLeadRoutes(app: Express) {
     }
   });
 
+  // Admin route to get ALL leads regardless of ownership status
+  app.get('/api/admin/leads', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      // Admin sees ALL leads from all businesses
+      const leads = await storage.getAllLeads();
+      res.json(leads);
+    } catch (error) {
+      console.error('Error fetching admin leads:', error);
+      res.status(500).json({ message: 'Failed to fetch admin leads' });
+    }
+  });
+
   // Get leads for authenticated users (admin gets unclaimed business leads, owners get their business leads)
   app.get('/api/leads', isAuthenticated, async (req: any, res) => {
     try {

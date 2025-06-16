@@ -34,6 +34,42 @@ export class LeadsStorage {
   }
 
   /**
+   * Get ALL leads regardless of ownership status (admin only)
+   */
+  async getAllLeads(): Promise<LeadWithBusiness[]> {
+    try {
+      const result = await db.execute(sql`
+        SELECT 
+          l.*,
+          b.title as business_title,
+          b.placeid as business_placeid
+        FROM leads l
+        LEFT JOIN businesses b ON l.business_id = b.placeid
+        ORDER BY l.created_at DESC
+      `);
+      
+      return result.rows.map((row: any) => ({
+        id: row.id,
+        businessId: row.business_id,
+        senderName: row.sender_name,
+        senderEmail: row.sender_email,
+        senderPhone: row.sender_phone,
+        message: row.message,
+        status: row.status,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at,
+        business: {
+          title: row.business_title || 'Unknown Business',
+          placeid: row.business_placeid || row.business_id
+        }
+      })) as LeadWithBusiness[];
+    } catch (error) {
+      console.error("Error fetching all leads:", error);
+      throw new Error("Failed to retrieve all leads");
+    }
+  }
+
+  /**
    * Get leads for admin - only shows leads from unclaimed businesses
    */
   async getAdminLeads(): Promise<LeadWithBusiness[]> {

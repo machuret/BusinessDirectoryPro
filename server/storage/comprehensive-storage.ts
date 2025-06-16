@@ -606,6 +606,43 @@ export class ComprehensiveStorage implements IStorage {
       updatedAt: new Date()
     });
   }
+
+  // ===== LEADS OPERATIONS =====
+  async getAllLeads(): Promise<LeadWithBusiness[]> {
+    return this.leads.getAllLeads();
+  }
+
+  async getAdminLeads(): Promise<LeadWithBusiness[]> {
+    return this.leads.getAdminLeads();
+  }
+
+  async getOwnerLeads(ownerId: string): Promise<LeadWithBusiness[]> {
+    return this.leads.getOwnerLeads(ownerId);
+  }
+
+  async isBusinessClaimed(businessId: string): Promise<{ isClaimed: boolean; ownerId?: string }> {
+    return this.leads.isBusinessClaimed(businessId);
+  }
+
+  async getLead(id: number): Promise<LeadWithBusiness | undefined> {
+    return this.leads.getLead(id);
+  }
+
+  async createLead(lead: InsertLead): Promise<Lead> {
+    return this.leads.createLead(lead);
+  }
+
+  async updateLeadStatus(id: number, status: string): Promise<Lead | undefined> {
+    return this.leads.updateLeadStatus(id, status);
+  }
+
+  async deleteLead(id: number): Promise<void> {
+    return this.leads.deleteLead(id);
+  }
+
+  async getLeadsByBusiness(businessId: string): Promise<LeadWithBusiness[]> {
+    return this.leads.getLeadsByBusiness(businessId);
+  }
 }
 
 // Export a singleton instance
