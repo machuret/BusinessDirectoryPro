@@ -54,7 +54,13 @@ export default function Login() {
         title: "Welcome back!",
         description: `Successfully logged in as ${user.firstName || user.email}`,
       });
-      setLocation("/");
+      
+      // Redirect admin users to admin dashboard
+      if (user.role === 'admin') {
+        setLocation("/admin/settings");
+      } else {
+        setLocation("/");
+      }
     },
     onError: (error: Error) => {
       toast({

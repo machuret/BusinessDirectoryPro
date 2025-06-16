@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -54,7 +54,7 @@ import AdminSettingsPage from "@/pages/admin/settings";
 import AccessibilityDemo from "@/pages/accessibility-demo";
 import { ContentTest } from "@/components/ContentTest";
 import NotFound from "@/pages/not-found";
-import AdminLoginPage from "@/pages/admin-login";
+
 
 import GetFeaturedPage from "@/pages/get-featured";
 
@@ -83,12 +83,17 @@ function Router() {
       <Route path="/forms-demo" component={FormsDemo} />
       <Route path="/accessibility-demo" component={AccessibilityDemo} />
       <Route path="/content-test" component={() => <div className="container mx-auto py-8"><ContentTest /></div>} />
-      <Route path="/admin-login" component={AdminLoginPage} />
+      
+      {/* Admin redirect route */}
+      <Route path="/admin" component={() => {
+        const [, navigate] = useLocation();
+        navigate("/admin/settings");
+        return null;
+      }} />
       
       {/* Admin routes - must come before slug router */}
       {isAuthenticated && (
         <>
-          <Route path="/admin" component={() => <AdminLayout />} />
           <Route path="/admin/businesses" component={() => <AdminLayout><AdminBusinessesPage /></AdminLayout>} />
           <Route path="/admin/users" component={() => <AdminLayout><AdminUsersPage /></AdminLayout>} />
           <Route path="/admin/categories" component={() => <AdminLayout><AdminCategoriesPage /></AdminLayout>} />
