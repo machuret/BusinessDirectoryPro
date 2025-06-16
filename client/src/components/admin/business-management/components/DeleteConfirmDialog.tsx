@@ -17,6 +17,10 @@ export default function DeleteConfirmDialog({ open, onClose, businessId }: Delet
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       const res = await apiRequest("DELETE", `/api/admin/businesses/${id}`);
+      // DELETE requests return 204 No Content, no JSON to parse
+      if (res.status === 204) {
+        return null;
+      }
       return res.json();
     },
     onSuccess: () => {
