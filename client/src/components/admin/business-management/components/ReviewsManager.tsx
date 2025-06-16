@@ -18,9 +18,23 @@ export default function ReviewsManager({ businessId, business }: ReviewsManagerP
   const [selectedReviews, setSelectedReviews] = useState<number[]>([]);
 
   // Fetch reviews from API
-  const { data: reviews = [], isLoading } = useQuery({
+  const { data: reviewsData, isLoading, error } = useQuery({
     queryKey: ['/api/reviews', businessId],
     enabled: !!businessId,
+  });
+
+  // Ensure reviews is always an array
+  const reviews = Array.isArray(reviewsData) ? reviewsData : [];
+
+  // Debug logging
+  console.log('ReviewsManager Debug:', {
+    businessId,
+    reviewsData,
+    reviews,
+    reviewsLength: reviews.length,
+    isLoading,
+    error,
+    enabled: !!businessId
   });
 
   const deleteReviewMutation = useMutation({
