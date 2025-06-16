@@ -54,6 +54,7 @@ import AdminSettingsPage from "@/pages/admin/settings";
 import AccessibilityDemo from "@/pages/accessibility-demo";
 import { ContentTest } from "@/components/ContentTest";
 import NotFound from "@/pages/not-found";
+import AdminLoginPage from "@/pages/admin-login";
 
 import GetFeaturedPage from "@/pages/get-featured";
 
@@ -82,6 +83,7 @@ function Router() {
       <Route path="/forms-demo" component={FormsDemo} />
       <Route path="/accessibility-demo" component={AccessibilityDemo} />
       <Route path="/content-test" component={() => <div className="container mx-auto py-8"><ContentTest /></div>} />
+      <Route path="/admin-login" component={AdminLoginPage} />
       
       {/* Admin routes - must come before slug router */}
       {isAuthenticated && (
