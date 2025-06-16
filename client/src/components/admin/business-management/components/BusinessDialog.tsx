@@ -241,7 +241,7 @@ export default function BusinessDialog({ open, onClose, business, isEdit }: Busi
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Category *</FormLabel>
-                        <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value > 0 ? field.value.toString() : undefined}>
+                        <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value ? field.value.toString() : ""}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select category" />

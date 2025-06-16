@@ -17,10 +17,17 @@ export default function ReviewsManager({ businessId, business }: ReviewsManagerP
   const { toast } = useToast();
   const [selectedReviews, setSelectedReviews] = useState<number[]>([]);
 
-  // Fetch reviews from API
+  // Fetch reviews from API with proper error handling
   const { data: reviewsData, isLoading, error } = useQuery<any[]>({
     queryKey: ['/api/reviews', businessId],
     enabled: !!businessId,
+    retry: (failureCount, error) => {
+      // Don't retry if we're getting HTML responses (routing issue)
+      if (error.message.includes('Unexpected token') || error.message.includes('DOCTYPE')) {
+        return false;
+      }
+      return failureCount < 3;
+    },
   });
 
   // Ensure reviews is always an array
