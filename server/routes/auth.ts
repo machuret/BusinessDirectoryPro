@@ -76,9 +76,12 @@ export function setupAuthRoutes(app: Express) {
       
       const hashedPassword = await hashPassword(password);
       const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      // Allow admin role for specific admin emails
-      const isAdminEmail = sanitizedEmail === 'admin@businesshub.com' || sanitizedEmail === 'admin@businessdirectory.com';
+      // Check for admin role assignment
+      const adminEmails = ['admin@businesshub.com', 'admin@businessdirectory.com', 'admin@test.com'];
+      const isAdminEmail = adminEmails.includes(sanitizedEmail) || sanitizedEmail.startsWith('admin@');
       const userRole = isAdminEmail ? 'admin' : 'user';
+      
+      console.log(`[REGISTRATION] Email: ${sanitizedEmail}, IsAdmin: ${isAdminEmail}, Role: ${userRole}`);
       
       const user = await storage.createUser({
         id: userId,
