@@ -90,7 +90,7 @@ export default function BusinessTable({
               </TableCell>
               <TableCell>
                 <Badge variant="outline">
-                  {business.category?.name || "Uncategorized"}
+                  {business.categoryname || "Uncategorized"}
                 </Badge>
               </TableCell>
               <TableCell>
