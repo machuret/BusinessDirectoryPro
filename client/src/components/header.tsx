@@ -23,24 +23,29 @@ export default function Header() {
 
   // Fetch header menu items from database
   const { data: menuItems } = useQuery({
-    queryKey: ["/api/menu-items?location=header"],
+    queryKey: ["/api/menu-items", "header"],
+    queryFn: async () => {
+      const response = await fetch("/api/menu-items?position=header");
+      if (!response.ok) throw new Error("Failed to fetch menu items");
+      return response.json();
+    }
   });
 
   const websiteLogo = settings && Array.isArray(settings) 
     ? settings.find((s: any) => s.key === "website_logo")?.value 
     : null;
 
-  // Use dynamic menu items or fallback to default
-  const navItems = menuItems && Array.isArray(menuItems) && menuItems.length > 0 
-    ? menuItems.map((item: any) => ({
-        href: item.url,
-        label: item.name
-      }))
-    : [
-        { href: "/", label: t('header.navigation.home') },
-        { href: "/categories", label: t('header.navigation.categories') },
-        { href: "/featured", label: t('header.navigation.featured') },
-      ];
+  // Use only dynamic menu items from database - no fallback
+  const navItems = menuItems && Array.isArray(menuItems) 
+    ? menuItems
+        .filter((item: any) => item.isActive) // Only show active items
+        .sort((a: any, b: any) => a.order - b.order) // Sort by order
+        .map((item: any) => ({
+          href: item.url,
+          label: item.name,
+          target: item.target || "_self"
+        }))
+    : [];
 
   const isActiveLink = (href: string) => {
     if (href === "/" && location === "/") return true;

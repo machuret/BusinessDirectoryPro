@@ -6,8 +6,9 @@ const router = Router();
 // Menu Items API - Public endpoints
 router.get("/menu-items", async (req, res) => {
   try {
-    const { location } = req.query;
-    const menuItems = await menuService.getAllMenuItems(location as string);
+    const { position, location } = req.query;
+    const filterPosition = position || location; // Support both parameters
+    const menuItems = await menuService.getAllMenuItems(filterPosition as string);
     res.json(menuItems);
   } catch (error) {
     console.error("Error fetching menu items:", error);
