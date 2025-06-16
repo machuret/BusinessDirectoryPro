@@ -12,6 +12,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@azure/storage-blob": "^12.27.0",
     "@eslint/js": "^9.29.0",
     "@hookform/resolvers": "^3.10.0",
     "@jridgewell/trace-mapping": "^0.3.25",
