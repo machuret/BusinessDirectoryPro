@@ -59,13 +59,13 @@ export default function BusinessDialog({ open, onClose, business, isEdit }: Busi
   const categories = useMemo(() => {
     if (!allCategories || !Array.isArray(allCategories)) return [];
     
-    // Filter out auto-generated and inappropriate categories
+    // Filter categories but be more lenient - only filter out obviously irrelevant ones
     const filtered = allCategories.filter((cat: any) => {
-      // Skip auto-generated categories with specific patterns
-      if (cat.description?.includes('Auto-created category')) return false;
-      if (cat.name.toLowerCase().includes('dentist')) return false;
-      if (cat.name.toLowerCase().includes('orthodontist')) return false;
-      if (cat.name.toLowerCase().includes('test ')) return false;
+      // Only filter out clearly inappropriate categories
+      if (cat.name.toLowerCase().includes('cosmetic dentist')) return false;
+      if (cat.name.toLowerCase().includes('orthodontist in pekin')) return false;
+      if (cat.name.toLowerCase().includes('test category')) return false;
+      if (cat.name.toLowerCase().includes('test admin category')) return false;
       return true;
     });
     
@@ -91,8 +91,20 @@ export default function BusinessDialog({ open, onClose, business, isEdit }: Busi
   useEffect(() => {
     if (categories) {
       console.log('Filtered categories in BusinessDialog:', categories);
+      console.log('Current business categoryid:', business?.categoryid);
+      console.log('Current business categoryname:', business?.categoryname);
+      
+      // Check if current business category is in the filtered list
+      const currentCategoryInList = categories.find((cat: any) => cat.id === business?.categoryid);
+      if (business?.categoryid && !currentCategoryInList) {
+        console.warn('Business current category not found in filtered list!', {
+          businessCategoryId: business.categoryid,
+          businessCategoryName: business.categoryname,
+          availableCategories: categories.map((c: any) => ({ id: c.id, name: c.name }))
+        });
+      }
     }
-  }, [categories]);
+  }, [categories, business]);
 
   const { data: users } = useQuery({
     queryKey: ["/api/admin/users"],
