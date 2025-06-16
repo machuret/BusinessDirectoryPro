@@ -85,34 +85,34 @@ function Router() {
       <Route path="/accessibility-demo" component={AccessibilityDemo} />
       <Route path="/content-test" component={() => <div className="container mx-auto py-8"><ContentTest /></div>} />
       
-      {/* Admin redirect route */}
+      {/* Admin routes - handle both authenticated and unauthenticated access */}
       <Route path="/admin" component={AdminRedirect} />
+      <Route path="/admin/businesses" component={() => isAuthenticated ? <AdminLayout><AdminBusinessesPage /></AdminLayout> : <Login />} />
+      <Route path="/admin/users" component={() => isAuthenticated ? <AdminLayout><AdminUsersPage /></AdminLayout> : <Login />} />
+      <Route path="/admin/categories" component={() => isAuthenticated ? <AdminLayout><AdminCategoriesPage /></AdminLayout> : <Login />} />
+      <Route path="/admin/reviews" component={() => isAuthenticated ? <AdminLayout><AdminReviewsPage /></AdminLayout> : <Login />} />
+      <Route path="/admin/cities" component={() => isAuthenticated ? <AdminLayout><AdminCitiesPage /></AdminLayout> : <Login />} />
+      <Route path="/admin/menus" component={() => isAuthenticated ? <AdminLayout><AdminMenusPage /></AdminLayout> : <Login />} />
+      <Route path="/admin/pages" component={() => isAuthenticated ? <AdminLayout><AdminPagesPage /></AdminLayout> : <Login />} />
+      <Route path="/admin/seo" component={() => isAuthenticated ? <AdminLayout><AdminSEOPage /></AdminLayout> : <Login />} />
+      <Route path="/admin/inbox" component={() => isAuthenticated ? <AdminLayout><AdminInboxPage /></AdminLayout> : <Login />} />
+      <Route path="/admin/homepage" component={() => isAuthenticated ? <AdminLayout><AdminHomepagePage /></AdminLayout> : <Login />} />
+      <Route path="/admin/ownership" component={() => isAuthenticated ? <AdminLayout><AdminOwnershipPage /></AdminLayout> : <Login />} />
+      <Route path="/admin/submissions" component={() => isAuthenticated ? <AdminLayout><AdminSubmissionsPage /></AdminLayout> : <Login />} />
+      <Route path="/admin/api" component={() => isAuthenticated ? <AdminLayout><AdminAPIPage /></AdminLayout> : <Login />} />
+      <Route path="/admin/leads" component={() => isAuthenticated ? <AdminLayout><AdminLeadsPage /></AdminLayout> : <Login />} />
+      <Route path="/admin/import" component={() => isAuthenticated ? <AdminLayout><AdminImportPage /></AdminLayout> : <Login />} />
+      <Route path="/admin/export" component={() => isAuthenticated ? <AdminLayout><AdminExportPage /></AdminLayout> : <Login />} />
+      <Route path="/admin/featured" component={() => isAuthenticated ? <AdminLayout><AdminFeaturedPage /></AdminLayout> : <Login />} />
+      <Route path="/admin/services" component={() => isAuthenticated ? <AdminLayout><AdminServicesPage /></AdminLayout> : <Login />} />
+      <Route path="/admin/social-media" component={() => isAuthenticated ? <AdminLayout><AdminSocialMedia /></AdminLayout> : <Login />} />
+      <Route path="/admin/content" component={() => isAuthenticated ? <AdminLayout><AdminContentPage /></AdminLayout> : <Login />} />
+      <Route path="/admin/settings" component={() => isAuthenticated ? <AdminLayout><AdminSettingsPage /></AdminLayout> : <Login />} />
+      <Route path="/admin/menu/:id" component={() => isAuthenticated ? <AdminLayout><MenuEdit /></AdminLayout> : <Login />} />
       
-      {/* Admin routes - must come before slug router */}
+      {/* Authenticated-only routes */}
       {isAuthenticated && (
         <>
-          <Route path="/admin/businesses" component={() => <AdminLayout><AdminBusinessesPage /></AdminLayout>} />
-          <Route path="/admin/users" component={() => <AdminLayout><AdminUsersPage /></AdminLayout>} />
-          <Route path="/admin/categories" component={() => <AdminLayout><AdminCategoriesPage /></AdminLayout>} />
-          <Route path="/admin/reviews" component={() => <AdminLayout><AdminReviewsPage /></AdminLayout>} />
-          <Route path="/admin/cities" component={() => <AdminLayout><AdminCitiesPage /></AdminLayout>} />
-          <Route path="/admin/menus" component={() => <AdminLayout><AdminMenusPage /></AdminLayout>} />
-          <Route path="/admin/pages" component={() => <AdminLayout><AdminPagesPage /></AdminLayout>} />
-          <Route path="/admin/seo" component={() => <AdminLayout><AdminSEOPage /></AdminLayout>} />
-          <Route path="/admin/inbox" component={() => <AdminLayout><AdminInboxPage /></AdminLayout>} />
-          <Route path="/admin/homepage" component={() => <AdminLayout><AdminHomepagePage /></AdminLayout>} />
-          <Route path="/admin/ownership" component={() => <AdminLayout><AdminOwnershipPage /></AdminLayout>} />
-          <Route path="/admin/submissions" component={() => <AdminLayout><AdminSubmissionsPage /></AdminLayout>} />
-          <Route path="/admin/api" component={() => <AdminLayout><AdminAPIPage /></AdminLayout>} />
-          <Route path="/admin/leads" component={() => <AdminLayout><AdminLeadsPage /></AdminLayout>} />
-          <Route path="/admin/import" component={() => <AdminLayout><AdminImportPage /></AdminLayout>} />
-          <Route path="/admin/export" component={() => <AdminLayout><AdminExportPage /></AdminLayout>} />
-          <Route path="/admin/featured" component={() => <AdminLayout><AdminFeaturedPage /></AdminLayout>} />
-          <Route path="/admin/services" component={() => <AdminLayout><AdminServicesPage /></AdminLayout>} />
-          <Route path="/admin/social-media" component={() => <AdminLayout><AdminSocialMedia /></AdminLayout>} />
-          <Route path="/admin/content" component={() => <AdminLayout><AdminContentPage /></AdminLayout>} />
-          <Route path="/admin/settings" component={() => <AdminLayout><AdminSettingsPage /></AdminLayout>} />
-          <Route path="/admin/menu/:id" component={() => <AdminLayout><MenuEdit /></AdminLayout>} />
           <Route path="/dashboard" component={Dashboard} />
           <Route path="/get-featured" component={GetFeaturedPage} />
         </>
