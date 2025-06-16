@@ -28,6 +28,16 @@ router.get("/menu-items/:location", async (req, res) => {
 });
 
 // Menu Management APIs - Admin endpoints
+router.get("/admin/menu-items", async (req, res) => {
+  try {
+    const menuItems = await menuService.getAllMenuItems();
+    res.json(menuItems);
+  } catch (error) {
+    console.error("Error fetching admin menu items:", error);
+    res.status(500).json({ message: "Failed to fetch menu items" });
+  }
+});
+
 router.post("/admin/menu-items", async (req, res) => {
   try {
     const menuItem = await menuService.createMenuItem(req.body);
