@@ -298,7 +298,7 @@ export async function createClaim(claimData: any) {
     // Check if user already has a pending or approved claim for this business
     const existingClaims = await storage.getOwnershipClaimsByUser(userId);
     const existingClaim = existingClaims.find(
-      claim => claim.businessId === businessId && ['pending', 'approved'].includes(claim.status)
+      (claim: any) => claim.businessId === businessId && ['pending', 'approved'].includes(claim.status)
     );
 
     if (existingClaim) {

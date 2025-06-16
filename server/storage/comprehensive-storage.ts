@@ -316,7 +316,7 @@ export class ComprehensiveStorage implements IStorage {
 
   // ===== OWNERSHIP CLAIMS OPERATIONS =====
   async getOwnershipClaims(): Promise<OwnershipClaimWithDetails[]> {
-    return this.ownershipClaims.getOwnershipClaims();
+    return this.ownershipClaims.getAllOwnershipClaims();
   }
 
   async getOwnershipClaimsByUser(userId: string): Promise<OwnershipClaimWithDetails[]> {
@@ -332,7 +332,7 @@ export class ComprehensiveStorage implements IStorage {
   }
 
   async updateOwnershipClaim(id: number, status: string, adminMessage?: string, reviewedBy?: string): Promise<any> {
-    return this.ownershipClaims.updateOwnershipClaim(id, status, adminMessage, reviewedBy);
+    return this.ownershipClaims.updateOwnershipClaim(id, status as any, adminMessage, reviewedBy);
   }
 
   async deleteOwnershipClaim(id: number): Promise<void> {
