@@ -387,7 +387,7 @@ export async function getSocialMediaLinkById(linkId: number): Promise<SocialMedi
  * @returns Promise with summary of updates performed
  */
 export async function performBulkSocialMediaLinkUpdates(
-  updates: Array<{ id: number; data: any }>
+  updates: Array<{ id: number; data: unknown }>
 ): Promise<{ success: number; failed: number; errors: string[] }> {
   console.log('[SOCIAL MEDIA SERVICE] Performing bulk social media link updates:', { updateCount: updates.length });
 
@@ -395,7 +395,7 @@ export async function performBulkSocialMediaLinkUpdates(
     throw new Error('Updates array is required');
   }
 
-  const result = { success: 0, failed: 0, errors: [] };
+  const result = { success: 0, failed: 0, errors: [] as string[] };
 
   for (const update of updates) {
     try {
@@ -432,7 +432,7 @@ export async function performBulkSocialMediaLinkAction(
     throw new Error('Invalid action. Must be activate, deactivate, or delete');
   }
 
-  const result = { success: 0, failed: 0, errors: [] };
+  const result = { success: 0, failed: 0, errors: [] as string[] };
 
   for (const linkId of linkIds) {
     try {
