@@ -1,5 +1,13 @@
 import { Express } from "express";
 import { storage } from "../storage";
+import { 
+  createPublicReview, 
+  createUserReview, 
+  deleteReview, 
+  approveReview, 
+  rejectReview,
+  validateMassReviewAction 
+} from "../services/review.service";
 
 export function setupReviewRoutes(app: Express) {
   // Get reviews for a business (public - approved only)
@@ -20,11 +28,12 @@ export function setupReviewRoutes(app: Express) {
       const { businessId } = req.params;
       const reviewData = req.body;
       
-      const review = await storage.createPublicReview(businessId, reviewData);
+      const review = await createPublicReview(businessId, reviewData);
       res.status(201).json(review);
     } catch (error) {
       console.error("Error creating review:", error);
-      res.status(500).json({ message: "Failed to create review" });
+      const message = error instanceof Error ? error.message : "Failed to create review";
+      res.status(400).json({ message });
     }
   });
 
@@ -34,11 +43,12 @@ export function setupReviewRoutes(app: Express) {
       const userId = req.session.userId;
       const reviewData = { ...req.body, userId };
       
-      const review = await storage.createReview(reviewData);
+      const review = await createUserReview(reviewData);
       res.status(201).json(review);
     } catch (error) {
       console.error("Error creating review:", error);
-      res.status(500).json({ message: "Failed to create review" });
+      const message = error instanceof Error ? error.message : "Failed to create review";
+      res.status(400).json({ message });
     }
   });
 
@@ -69,11 +79,12 @@ export function setupReviewRoutes(app: Express) {
       const { notes } = req.body;
       const adminId = req.session.userId;
       
-      const review = await storage.approveReview(parseInt(id), adminId, notes);
+      const review = await approveReview(parseInt(id), adminId, notes);
       res.json(review);
     } catch (error) {
       console.error("Error approving review:", error);
-      res.status(500).json({ message: "Failed to approve review" });
+      const message = error instanceof Error ? error.message : "Failed to approve review";
+      res.status(400).json({ message });
     }
   });
 
@@ -83,52 +94,68 @@ export function setupReviewRoutes(app: Express) {
       const { notes } = req.body;
       const adminId = req.session.userId;
       
-      const review = await storage.rejectReview(parseInt(id), adminId, notes);
+      const review = await rejectReview(parseInt(id), adminId, notes);
       res.json(review);
     } catch (error) {
       console.error("Error rejecting review:", error);
-      res.status(500).json({ message: "Failed to reject review" });
+      const message = error instanceof Error ? error.message : "Failed to reject review";
+      res.status(400).json({ message });
     }
   });
 
   app.delete('/api/admin/reviews/:id', async (req, res) => {
     try {
       const { id } = req.params;
-      await storage.deleteReview(parseInt(id));
+      await deleteReview(parseInt(id));
       res.status(204).send();
     } catch (error) {
       console.error("Error deleting review:", error);
-      res.status(500).json({ message: "Failed to delete review" });
+      const message = error instanceof Error ? error.message : "Failed to delete review";
+      res.status(400).json({ message });
     }
   });
 
   // Mass review operations
   app.patch("/api/admin/reviews/mass-action", async (req: any, res) => {
     try {
-      const { reviewIds, action } = req.body;
-      
-      if (!Array.isArray(reviewIds) || reviewIds.length === 0) {
-        return res.status(400).json({ message: "Review IDs array is required" });
+      const validation = validateMassReviewAction(req.body);
+      if (!validation.isValid) {
+        return res.status(400).json({ message: validation.error });
       }
 
-      if (!['approve', 'reject', 'delete'].includes(action)) {
-        return res.status(400).json({ message: "Invalid action" });
-      }
+      const { reviewIds, action } = req.body;
+      const adminId = req.session.userId;
+      const errors: any[] = [];
+      let successCount = 0;
 
       for (const reviewId of reviewIds) {
-        if (action === 'delete') {
-          await storage.deleteReview(reviewId);
-        } else if (action === 'approve') {
-          await storage.approveReview(reviewId, req.session.userId);
-        } else if (action === 'reject') {
-          await storage.rejectReview(reviewId, req.session.userId);
+        try {
+          if (action === 'delete') {
+            await deleteReview(reviewId);
+          } else if (action === 'approve') {
+            await approveReview(reviewId, adminId);
+          } else if (action === 'reject') {
+            await rejectReview(reviewId, adminId);
+          }
+          successCount++;
+        } catch (error) {
+          errors.push({
+            reviewId,
+            error: error instanceof Error ? error.message : 'Unknown error'
+          });
         }
       }
 
-      res.json({ message: `${reviewIds.length} reviews ${action}d successfully` });
+      res.json({
+        message: `${successCount} of ${reviewIds.length} reviews ${action}d successfully`,
+        successCount,
+        totalRequested: reviewIds.length,
+        errors
+      });
     } catch (error) {
       console.error("Error performing mass review action:", error);
-      res.status(500).json({ message: "Failed to perform mass review action" });
+      const message = error instanceof Error ? error.message : "Failed to perform mass review action";
+      res.status(500).json({ message });
     }
   });
 }
