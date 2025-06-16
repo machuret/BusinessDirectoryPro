@@ -18,7 +18,7 @@ export default function ReviewsManager({ businessId, business }: ReviewsManagerP
   const [selectedReviews, setSelectedReviews] = useState<number[]>([]);
 
   // Fetch reviews from API
-  const { data: reviewsData, isLoading, error } = useQuery({
+  const { data: reviewsData, isLoading, error } = useQuery<any[]>({
     queryKey: ['/api/reviews', businessId],
     enabled: !!businessId,
   });
