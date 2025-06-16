@@ -17,17 +17,36 @@ export default function ReviewsManager({ businessId, business }: ReviewsManagerP
   const { toast } = useToast();
   const [selectedReviews, setSelectedReviews] = useState<number[]>([]);
 
-  // Fetch reviews from API with proper error handling
+  // Custom fetch function to work around Vite routing issues
+  const fetchReviews = async () => {
+    try {
+      const response = await fetch(`/api/reviews/${businessId}`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      return Array.isArray(data) ? data : [];
+    } catch (error) {
+      console.error('Reviews fetch error:', error);
+      return [];
+    }
+  };
+
+  // Fetch reviews with custom fetch function
   const { data: reviewsData, isLoading, error } = useQuery<any[]>({
     queryKey: ['/api/reviews', businessId],
+    queryFn: fetchReviews,
     enabled: !!businessId,
-    retry: (failureCount, error) => {
-      // Don't retry if we're getting HTML responses (routing issue)
-      if (error.message.includes('Unexpected token') || error.message.includes('DOCTYPE')) {
-        return false;
-      }
-      return failureCount < 3;
-    },
+    retry: false,
   });
 
   // Ensure reviews is always an array
