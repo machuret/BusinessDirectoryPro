@@ -4,12 +4,16 @@ import {
   contentStrings, 
   siteSettings,
   menuItems,
+  pages,
+  websiteFaq,
   type ContentString, 
   type InsertContentString,
   type SiteSetting,
   type InsertSiteSetting,
   type MenuItem,
-  type InsertMenuItem
+  type InsertMenuItem,
+  type Page,
+  type InsertPage
 } from "@shared/schema";
 
 /**
@@ -266,34 +270,59 @@ export class ContentStorage {
   }
 
   /**
-   * Page Management Methods (placeholder implementations)
+   * Page Management Methods
    */
-  async getPages(status?: string): Promise<any[]> {
-    return [];
+  async getPages(status?: string): Promise<Page[]> {
+    if (status) {
+      return await db.select().from(pages).where(eq(pages.status, status));
+    }
+    return await db.select().from(pages);
   }
 
-  async getPage(id: number): Promise<any | undefined> {
-    return undefined;
+  async getPage(id: number): Promise<Page | undefined> {
+    const result = await db.select().from(pages).where(eq(pages.id, id)).limit(1);
+    return result[0];
   }
 
-  async getPageBySlug(slug: string): Promise<any | undefined> {
-    return undefined;
+  async getPageBySlug(slug: string): Promise<Page | undefined> {
+    const result = await db.select().from(pages).where(eq(pages.slug, slug)).limit(1);
+    return result[0];
   }
 
-  async createPage(page: any): Promise<any> {
-    throw new Error("Page management not implemented");
+  async createPage(pageData: InsertPage): Promise<Page> {
+    const [page] = await db.insert(pages).values({
+      ...pageData,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }).returning();
+    return page;
   }
 
-  async updatePage(id: number, updates: any): Promise<any | undefined> {
-    throw new Error("Page management not implemented");
+  async updatePage(id: number, updates: Partial<InsertPage>): Promise<Page | undefined> {
+    const [page] = await db.update(pages)
+      .set({
+        ...updates,
+        updatedAt: new Date()
+      })
+      .where(eq(pages.id, id))
+      .returning();
+    return page;
   }
 
   async deletePage(id: number): Promise<void> {
-    throw new Error("Page management not implemented");
+    await db.delete(pages).where(eq(pages.id, id));
   }
 
-  async publishPage(id: number): Promise<any | undefined> {
-    throw new Error("Page management not implemented");
+  async publishPage(id: number): Promise<Page | undefined> {
+    const [page] = await db.update(pages)
+      .set({
+        status: "published",
+        publishedAt: new Date(),
+        updatedAt: new Date()
+      })
+      .where(eq(pages.id, id))
+      .returning();
+    return page;
   }
 
   /**
