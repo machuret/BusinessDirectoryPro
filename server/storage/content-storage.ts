@@ -199,15 +199,6 @@ export class ContentStorage {
   /**
    * Menu Management Methods
    */
-  async getMenuItems(): Promise<MenuItem[]> {
-    try {
-      const results = await db.select().from(menuItems).orderBy(menuItems.order);
-      return results;
-    } catch (error) {
-      console.error("Error fetching menu items:", error);
-      return [];
-    }
-  }
 
   async getMenuItem(id: number): Promise<MenuItem | undefined> {
     try {
@@ -388,8 +379,20 @@ export class ContentStorage {
   /**
    * Get menu items
    */
-  async getMenuItems(): Promise<any[]> {
-    return [];
+  async getMenuItems(position?: string): Promise<MenuItem[]> {
+    try {
+      let query = db.select().from(menuItems);
+      
+      if (position) {
+        query = query.where(eq(menuItems.position, position));
+      }
+      
+      const results = await query.orderBy(menuItems.order, menuItems.name);
+      return results;
+    } catch (error) {
+      console.error("Error fetching menu items:", error);
+      return [];
+    }
   }
 
   /**
