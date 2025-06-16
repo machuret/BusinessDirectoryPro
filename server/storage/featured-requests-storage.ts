@@ -36,7 +36,7 @@ export class FeaturedRequestsStorage {
   /**
    * Create a new featured request
    */
-  static async createFeaturedRequest(data: {
+  async createFeaturedRequest(data: {
     businessId: string;
     userId: string;
     message?: string;
@@ -65,7 +65,7 @@ export class FeaturedRequestsStorage {
   /**
    * Get featured requests by user ID
    */
-  static async getFeaturedRequestsByUser(userId: string): Promise<FeaturedRequestWithBusiness[]> {
+  async getFeaturedRequestsByUser(userId: string): Promise<FeaturedRequestWithBusiness[]> {
     const requests = await db
       .select({
         id: featuredRequests.id,
