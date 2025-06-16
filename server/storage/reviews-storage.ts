@@ -212,6 +212,28 @@ export class ReviewsStorage {
       .orderBy(desc(reviews.createdAt));
   }
 
+  async getAllReviews(): Promise<Review[]> {
+    return await db
+      .select()
+      .from(reviews)
+      .orderBy(desc(reviews.createdAt));
+  }
+
+  async updateReview(id: number, updates: Partial<InsertReview>): Promise<Review | undefined> {
+    const [updated] = await db
+      .update(reviews)
+      .set({ ...updates })
+      .where(eq(reviews.id, id))
+      .returning();
+    
+    if (updated && updates.status) {
+      // Update business rating if status changed
+      await this.updateBusinessRating(updated.businessId);
+    }
+    
+    return updated;
+  }
+
   async deleteReview(reviewId: number): Promise<void> {
     const [review] = await db.select().from(reviews).where(eq(reviews.id, reviewId));
     

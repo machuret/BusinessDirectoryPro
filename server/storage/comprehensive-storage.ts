@@ -355,7 +355,7 @@ export class ComprehensiveStorage implements IStorage {
   }
 
   // ===== LEADS OPERATIONS =====
-  async getLeads(): Promise<LeadWithBusiness[]> {
+  async getLeads(filters?: any): Promise<LeadWithBusiness[]> {
     return this.leads.getLeads();
   }
 
@@ -369,6 +369,10 @@ export class ComprehensiveStorage implements IStorage {
 
   async updateLeadStatus(id: number, status: string): Promise<Lead | undefined> {
     return this.leads.updateLeadStatus(id, status);
+  }
+
+  async updateLead(id: number, updates: Partial<InsertLead>): Promise<Lead | undefined> {
+    return this.leads.updateLeadStatus(id, updates.status || 'pending');
   }
 
   async deleteLead(id: number): Promise<void> {
