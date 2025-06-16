@@ -1,6 +1,5 @@
 import { useState, useMemo } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { useAuth } from "@/hooks/useAuth";
+import { useQuery } from "@tanstack/react-query";
 import { Plus, Edit, Trash2, Search, Eye, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,15 +10,14 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useToast } from "@/hooks/use-toast";
-import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import { useCreatePage, useUpdatePage, useDeletePage, type PageFormData } from "@/hooks/usePageMutations";
 
-// Page schema for form validation
+// Page schema for form validation  
 const pageSchema = z.object({
   title: z.string().min(1, "Title is required"),
   slug: z.string().min(1, "Slug is required").regex(/^[a-z0-9-]+$/, "Slug must contain only lowercase letters, numbers, and hyphens"),
@@ -29,8 +27,6 @@ const pageSchema = z.object({
   status: z.enum(["draft", "published"]),
   type: z.enum(["page", "blog", "help"]),
 });
-
-type PageFormData = z.infer<typeof pageSchema>;
 
 interface Page {
   id: number;
@@ -53,8 +49,6 @@ export default function CMSManagement() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isPreviewDialogOpen, setIsPreviewDialogOpen] = useState(false);
   const [selectedPage, setSelectedPage] = useState<Page | null>(null);
-  const { toast } = useToast();
-  const { user } = useAuth();
 
   const form = useForm<PageFormData>({
     resolver: zodResolver(pageSchema),
@@ -92,95 +86,23 @@ export default function CMSManagement() {
     queryKey: ["/api/admin/pages"],
   });
 
-  // Create page mutation
-  const createMutation = useMutation({
-    mutationFn: async (data: PageFormData) => {
-      const pageData = {
-        title: data.title,
-        slug: data.slug,
-        content: data.content,
-        seoTitle: data.title, // Use title as SEO title
-        seoDescription: data.metaDescription || "",
-        status: data.status,
-        authorId: (user as any)?.id || "admin-user" // Use actual user ID or fallback
-      };
-      const res = await apiRequest("POST", "/api/admin/pages", pageData);
-      return await res.json();
-    },
-    onSuccess: () => {
-      // Force a complete refresh of the pages query
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/pages"] });
-      queryClient.refetchQueries({ queryKey: ["/api/admin/pages"] });
+  // Custom hooks for page mutations
+  const createMutation = useCreatePage({
+    onCreateSuccess: () => {
       setIsCreateDialogOpen(false);
       form.reset();
-      toast({
-        title: "Success",
-        description: "Page created successfully",
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
+    }
   });
 
-  // Update page mutation
-  const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: PageFormData }) => {
-      const pageData = {
-        title: data.title,
-        slug: data.slug,
-        content: data.content,
-        seoTitle: data.title,
-        seoDescription: data.metaDescription || "",
-        status: data.status,
-        authorId: "demo-admin"
-      };
-      const res = await apiRequest("PUT", `/api/admin/pages/${id}`, pageData);
-      return await res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/pages"] });
+  const updateMutation = useUpdatePage({
+    onUpdateSuccess: () => {
       setIsEditDialogOpen(false);
       setSelectedPage(null);
       form.reset();
-      toast({
-        title: "Success",
-        description: "Page updated successfully",
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
+    }
   });
 
-  // Delete page mutation
-  const deleteMutation = useMutation({
-    mutationFn: async (id: number) => {
-      await apiRequest("DELETE", `/api/admin/pages/${id}`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/pages"] });
-      toast({
-        title: "Success",
-        description: "Page deleted successfully",
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
+  const deleteMutation = useDeletePage();
 
   const handleEdit = (page: Page) => {
     setSelectedPage(page);
