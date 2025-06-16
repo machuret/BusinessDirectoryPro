@@ -1,5 +1,11 @@
 import { Router } from "express";
 import { storage } from "../storage";
+import { 
+  approveClaim, 
+  rejectClaim, 
+  updateClaimStatus, 
+  createClaim 
+} from "../services/claims.service";
 
 const router = Router();
 
@@ -43,24 +49,12 @@ router.patch('/admin/ownership-claims/:id', async (req: any, res) => {
     const { status, adminMessage } = req.body;
     const reviewedBy = req.user?.id || 'demo-admin';
     
-    if (!['pending', 'approved', 'rejected'].includes(status)) {
-      return res.status(400).json({ message: "Invalid status. Must be 'pending', 'approved', or 'rejected'" });
-    }
-    
-    console.log(`Admin ${reviewedBy} updating ownership claim ${id} to status: ${status}`);
-    const claim = await storage.updateOwnershipClaim(parseInt(id), status, adminMessage, reviewedBy);
-    
-    if (!claim) {
-      return res.status(404).json({ message: "Ownership claim not found" });
-    }
-    
-    res.json(claim);
+    const result = await updateClaimStatus(parseInt(id), status, reviewedBy, adminMessage);
+    res.json(result);
   } catch (error) {
     console.error("Error updating ownership claim:", error);
-    res.status(500).json({ 
-      message: error instanceof Error ? error.message : "Failed to update ownership claim",
-      error: error instanceof Error ? error.message : "Unknown error"
-    });
+    const message = error instanceof Error ? error.message : "Failed to update ownership claim";
+    res.status(400).json({ message });
   }
 });
 
@@ -164,32 +158,51 @@ router.post('/ownership-claims', async (req: any, res) => {
     const userId = req.user?.id || req.body.userId;
     const { businessId, message } = req.body;
 
-    if (!userId || !businessId || !message) {
-      return res.status(400).json({ 
-        message: "User ID, business ID, and message are required" 
-      });
-    }
-
-    if (message.trim().length < 50) {
-      return res.status(400).json({ 
-        message: "Message must be at least 50 characters long" 
-      });
-    }
-
-    const claimData = {
-      userId,
-      businessId,
-      message: message.trim(),
-      status: 'pending'
-    };
-
-    const newClaim = await storage.createOwnershipClaim(claimData);
+    const claimData = { userId, businessId, message };
+    const newClaim = await createClaim(claimData);
     res.status(201).json(newClaim);
   } catch (error) {
     console.error("Error creating ownership claim:", error);
-    res.status(500).json({ 
-      message: error instanceof Error ? error.message : "Failed to create ownership claim"
-    });
+    const message = error instanceof Error ? error.message : "Failed to create ownership claim";
+    res.status(400).json({ message });
+  }
+});
+
+// Admin approval endpoint
+router.post('/admin/ownership-claims/:id/approve', async (req: any, res) => {
+  try {
+    const claimId = parseInt(req.params.id);
+    const { adminMessage } = req.body;
+    const adminId = req.user?.id || 'demo-admin';
+
+    const result = await approveClaim(claimId, adminId, adminMessage);
+    res.json(result);
+  } catch (error) {
+    console.error("Error approving ownership claim:", error);
+    const message = error instanceof Error ? error.message : "Failed to approve ownership claim";
+    res.status(400).json({ message });
+  }
+});
+
+// Admin rejection endpoint
+router.post('/admin/ownership-claims/:id/reject', async (req: any, res) => {
+  try {
+    const claimId = parseInt(req.params.id);
+    const { adminMessage } = req.body;
+    const adminId = req.user?.id || 'demo-admin';
+
+    if (!adminMessage || adminMessage.trim().length < 10) {
+      return res.status(400).json({ 
+        message: "Admin message is required for rejection and must be at least 10 characters" 
+      });
+    }
+
+    const result = await rejectClaim(claimId, adminId, adminMessage);
+    res.json(result);
+  } catch (error) {
+    console.error("Error rejecting ownership claim:", error);
+    const message = error instanceof Error ? error.message : "Failed to reject ownership claim";
+    res.status(400).json({ message });
   }
 });
 
