@@ -91,6 +91,15 @@ export class ComprehensiveStorage implements IStorage {
     return this.categories.deleteCategory(id);
   }
 
+  // ===== CITY OPERATIONS =====
+  async getCities(): Promise<{ city: string; count: number }[]> {
+    return this.businesses.getUniqueCities();
+  }
+
+  async getUniqueCities(): Promise<{ city: string; count: number }[]> {
+    return this.businesses.getUniqueCities();
+  }
+
   // ===== BUSINESS OPERATIONS =====
   async getBusinesses(params?: { 
     search?: string; 
@@ -147,6 +156,19 @@ export class ComprehensiveStorage implements IStorage {
     return this.reviews.updateBusinessRating(businessId);
   }
 
+  async getBusinessSubmissions(): Promise<BusinessWithCategory[]> {
+    return this.businesses.getPendingBusinesses();
+  }
+
+  async updateBusinessSubmissionStatus(id: string, status: string, adminNotes?: string, reviewedBy?: string): Promise<Business | undefined> {
+    const updates: Partial<InsertBusiness> = {
+      status: status as any,
+      adminNotes,
+      reviewedBy
+    };
+    return this.businesses.updateBusiness(id, updates);
+  }
+
   // ===== REVIEW OPERATIONS =====
   async getReviewsByBusiness(businessId: string): Promise<(Review & { user: Pick<User, 'firstName' | 'lastName'> })[]> {
     return this.reviews.getReviewsByBusiness(businessId);
@@ -178,6 +200,19 @@ export class ComprehensiveStorage implements IStorage {
 
   async getAllReviewsForAdmin(): Promise<Review[]> {
     return this.reviews.getAllReviewsForAdmin();
+  }
+
+  async getAllReviews(): Promise<Review[]> {
+    return this.reviews.getAllReviewsForAdmin();
+  }
+
+  async updateReview(reviewId: number, updates: { status: string }): Promise<Review> {
+    if (updates.status === 'approved') {
+      return this.reviews.approveReview(reviewId, 'admin');
+    } else if (updates.status === 'rejected') {
+      return this.reviews.rejectReview(reviewId, 'admin');
+    }
+    throw new Error('Invalid status update');
   }
 
   async deleteReview(reviewId: number): Promise<void> {
