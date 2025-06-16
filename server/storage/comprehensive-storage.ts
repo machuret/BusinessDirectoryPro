@@ -566,6 +566,27 @@ export class ComprehensiveStorage implements IStorage {
     return this.content.updateSiteSetting(key, value, description, category);
   }
 
+  // ===== MENU ITEMS OPERATIONS =====
+  async getMenuItems(location?: string): Promise<MenuItem[]> {
+    return this.content.getMenuItems(location);
+  }
+
+  async getMenuItem(id: number): Promise<MenuItem | undefined> {
+    return this.content.getMenuItem(id);
+  }
+
+  async createMenuItem(menuItem: InsertMenuItem): Promise<MenuItem> {
+    return this.content.createMenuItem(menuItem);
+  }
+
+  async updateMenuItem(id: number, menuItem: Partial<InsertMenuItem>): Promise<MenuItem | undefined> {
+    return this.content.updateMenuItem(id, menuItem);
+  }
+
+  async deleteMenuItem(id: number): Promise<void> {
+    return this.content.deleteMenuItem(id);
+  }
+
   // ===== BUSINESS SUBMISSIONS OPERATIONS =====
   async getBusinessSubmissions(): Promise<any[]> {
     // Return empty array for now - business submissions would be in a separate table

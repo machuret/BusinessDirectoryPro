@@ -128,13 +128,8 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
 
-  // Add a fallback handler for unmatched API routes before Vite setup
-  app.use('/api/*', (req: Request, res: Response) => {
-    res.status(404).json({ 
-      message: `API endpoint ${req.method} ${req.path} not found`,
-      timestamp: new Date().toISOString()
-    });
-  });
+  // Fallback handler for unmatched routes will be handled by Vite in development
+  // or by the static file server in production
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

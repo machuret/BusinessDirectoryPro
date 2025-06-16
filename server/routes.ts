@@ -1011,6 +1011,110 @@ Respond with JSON format: {"services": [array of service objects]}. Make service
     }
   });
 
+  // Site Settings API
+  app.get("/api/site-settings", async (req, res) => {
+    try {
+      const settings = await storage.getSiteSettings();
+      res.json(settings);
+    } catch (error) {
+      console.error("Error fetching site settings:", error);
+      res.status(500).json({ message: "Failed to fetch site settings" });
+    }
+  });
+
+  app.put("/api/site-settings/:key", async (req, res) => {
+    try {
+      const { key } = req.params;
+      const { value } = req.body;
+      const setting = await storage.updateSiteSetting(key, value);
+      res.json(setting);
+    } catch (error) {
+      console.error("Error updating site setting:", error);
+      res.status(500).json({ message: "Failed to update site setting" });
+    }
+  });
+
+  // Admin Site Settings API
+  app.get("/api/admin/site-settings", async (req, res) => {
+    try {
+      const settings = await storage.getSiteSettings();
+      res.json(settings);
+    } catch (error) {
+      console.error("Error fetching admin site settings:", error);
+      res.status(500).json({ message: "Failed to fetch admin site settings" });
+    }
+  });
+
+  app.patch("/api/admin/site-settings/:key", async (req, res) => {
+    try {
+      const { key } = req.params;
+      const { value } = req.body;
+      const setting = await storage.updateSiteSetting(key, value);
+      res.json(setting);
+    } catch (error) {
+      console.error("Error updating admin site setting:", error);
+      res.status(500).json({ message: "Failed to update admin site setting" });
+    }
+  });
+
+  // Menu Items API
+  app.get("/api/menu-items", async (req, res) => {
+    try {
+      const { location } = req.query;
+      const menuItems = await storage.getMenuItems(location as string);
+      res.json(menuItems);
+    } catch (error) {
+      console.error("Error fetching menu items:", error);
+      res.status(500).json({ message: "Failed to fetch menu items" });
+    }
+  });
+
+  app.get("/api/menu-items/:location", async (req, res) => {
+    try {
+      const { location } = req.params;
+      const menuItems = await storage.getMenuItems(location);
+      res.json(menuItems);
+    } catch (error) {
+      console.error("Error fetching menu items by location:", error);
+      res.status(500).json({ message: "Failed to fetch menu items" });
+    }
+  });
+
+  app.post("/api/admin/menu-items", async (req, res) => {
+    try {
+      const menuItem = await storage.createMenuItem(req.body);
+      res.status(201).json(menuItem);
+    } catch (error) {
+      console.error("Error creating menu item:", error);
+      res.status(500).json({ message: "Failed to create menu item" });
+    }
+  });
+
+  app.put("/api/admin/menu-items/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const menuItem = await storage.updateMenuItem(id, req.body);
+      if (!menuItem) {
+        return res.status(404).json({ message: "Menu item not found" });
+      }
+      res.json(menuItem);
+    } catch (error) {
+      console.error("Error updating menu item:", error);
+      res.status(500).json({ message: "Failed to update menu item" });
+    }
+  });
+
+  app.delete("/api/admin/menu-items/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteMenuItem(id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting menu item:", error);
+      res.status(500).json({ message: "Failed to delete menu item" });
+    }
+  });
+
   // Setup featured requests routes
   setupFeaturedRequestsRoutes(app);
 
