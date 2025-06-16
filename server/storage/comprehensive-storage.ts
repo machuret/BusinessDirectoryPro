@@ -609,9 +609,34 @@ export class ComprehensiveStorage implements IStorage {
 
   // ===== BUSINESS SUBMISSIONS OPERATIONS =====
   async getBusinessSubmissions(): Promise<any[]> {
-    // Return empty array for now - business submissions would be in a separate table
-    // This prevents the 500 error and provides a working endpoint
-    return [];
+    try {
+      // Get businesses that are pending approval (submissionstatus = 'pending')
+      const submissions = await db
+        .select({
+          id: businesses.placeid,
+          placeid: businesses.placeid,
+          title: businesses.title,
+          description: businesses.description,
+          address: businesses.address,
+          city: businesses.city,
+          phone: businesses.phone,
+          email: businesses.email,
+          website: businesses.website,
+          categoryName: businesses.categoryname,
+          status: businesses.submissionstatus,
+          submittedBy: businesses.submittedby,
+          submissionDate: businesses.createdat,
+          updatedAt: businesses.updatedat,
+        })
+        .from(businesses)
+        .where(eq(businesses.submissionstatus, 'pending'))
+        .orderBy(desc(businesses.createdat));
+
+      return submissions;
+    } catch (error) {
+      console.error('Error fetching business submissions:', error);
+      return [];
+    }
   }
 
   async updateBusinessSubmissionStatus(id: string, status: string, adminNotes?: string, reviewedBy?: string): Promise<any> {

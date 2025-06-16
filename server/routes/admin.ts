@@ -20,6 +20,36 @@ export function setupAdminRoutes(app: Express) {
 
   // Additional non-CRUD routes that don't belong to specific sub-routers
 
+  // Business submissions management
+  app.get('/api/admin/business-submissions', async (req, res) => {
+    try {
+      const submissions = await storage.getBusinessSubmissions();
+      res.json(submissions);
+    } catch (error) {
+      console.error("Error fetching business submissions:", error);
+      res.status(500).json({ message: "Failed to fetch business submissions" });
+    }
+  });
+
+  app.patch('/api/admin/business-submissions/:id', async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const { status, adminNotes } = req.body;
+      const reviewedBy = req.session?.userId;
+
+      const result = await storage.updateBusinessSubmissionStatus(id, status, adminNotes, reviewedBy);
+      
+      if (!result) {
+        return res.status(404).json({ message: "Business submission not found" });
+      }
+
+      res.json(result);
+    } catch (error) {
+      console.error("Error updating business submission:", error);
+      res.status(500).json({ message: "Failed to update business submission" });
+    }
+  });
+
   // Get all businesses with filters (admin specific filtering)
   app.get('/api/admin/search/businesses', async (req, res) => {
     try {
