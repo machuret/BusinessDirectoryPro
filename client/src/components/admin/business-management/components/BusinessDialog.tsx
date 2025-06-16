@@ -55,36 +55,12 @@ export default function BusinessDialog({ open, onClose, business, isEdit }: Busi
     queryKey: ["/api/categories"],
   });
 
-  // Filter and sort categories to show most relevant ones first
+  // Use ALL categories from admin page - no filtering
   const categories = useMemo(() => {
     if (!allCategories || !Array.isArray(allCategories)) return [];
     
-    // Filter categories but be more lenient - only filter out obviously irrelevant ones
-    const filtered = allCategories.filter((cat: any) => {
-      // Only filter out clearly inappropriate categories
-      if (cat.name.toLowerCase().includes('cosmetic dentist')) return false;
-      if (cat.name.toLowerCase().includes('orthodontist in pekin')) return false;
-      if (cat.name.toLowerCase().includes('test category')) return false;
-      if (cat.name.toLowerCase().includes('test admin category')) return false;
-      return true;
-    });
-    
-    // Sort with common business categories first
-    const priorityCategories = ['restaurants', 'retail', 'services', 'health', 'entertainment', 'automotive'];
-    
-    return filtered.sort((a: any, b: any) => {
-      const aSlug = a.slug.toLowerCase();
-      const bSlug = b.slug.toLowerCase();
-      
-      const aPriority = priorityCategories.findIndex(p => aSlug.includes(p));
-      const bPriority = priorityCategories.findIndex(p => bSlug.includes(p));
-      
-      if (aPriority !== -1 && bPriority !== -1) return aPriority - bPriority;
-      if (aPriority !== -1) return -1;
-      if (bPriority !== -1) return 1;
-      
-      return a.name.localeCompare(b.name);
-    });
+    // Sort alphabetically to match admin categories page
+    return [...allCategories].sort((a: any, b: any) => a.name.localeCompare(b.name));
   }, [allCategories]);
 
   // Debug categories data
