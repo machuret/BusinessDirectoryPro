@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -57,7 +57,7 @@ export default function BusinessDialog({ open, onClose, business, isEdit }: Busi
 
   // Filter and sort categories to show most relevant ones first
   const categories = useMemo(() => {
-    if (!allCategories) return [];
+    if (!allCategories || !Array.isArray(allCategories)) return [];
     
     // Filter out auto-generated and inappropriate categories
     const filtered = allCategories.filter((cat: any) => {
