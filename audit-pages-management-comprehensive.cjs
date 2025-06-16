@@ -270,7 +270,10 @@ async function auditPagesManagement() {
         title: `Consistency Test ${i}`,
         slug: `consistency-${i}-${Date.now()}`,
         content: `<p>Consistency test ${i}</p>`,
-        status: 'published'
+        seoTitle: `Consistency Test ${i}`,
+        seoDescription: `Consistency test description ${i}`,
+        status: 'published',
+        authorId: adminUserId
       };
       
       const createResponse = await makeRequest('POST', '/api/admin/pages', consistencyData, adminCookie);
