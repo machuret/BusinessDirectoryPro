@@ -105,11 +105,6 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
     // Parse existing images from the business data
     try {
       let images: string[] = [];
-      console.log('Business data for images:', {
-        imageurls: business.imageurls,
-        imageurl: business.imageurl,
-        logo: business.logo
-      });
       
       if (business.imageurls) {
         if (typeof business.imageurls === 'string') {
@@ -129,10 +124,8 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
       
       const allImages = [...images, ...additionalImages].filter(Boolean);
       const uniqueImages = Array.from(new Set(allImages));
-      console.log('Parsed images:', uniqueImages);
       setBusinessImages(Array.isArray(uniqueImages) ? uniqueImages : []);
     } catch (error) {
-      console.error('Error parsing images:', error);
       setBusinessImages([]);
     }
     
@@ -452,7 +445,7 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
                                 <div>
                                   <h3 className="text-lg font-medium flex items-center gap-2">
                                     <MessageSquare className="h-5 w-5" />
-                                    Customer Reviews {Array.isArray(businessReviews) && businessReviews.length > 0 && `(${businessReviews.length})`}
+                                    Customer Reviews {reviews.length > 0 && `(${reviews.length})`}
                                   </h3>
                                   <p className="text-sm text-muted-foreground">Manage customer reviews and ratings</p>
                                 </div>
@@ -465,7 +458,7 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
                                     <p className="text-muted-foreground">Loading reviews...</p>
                                   </div>
                                 </div>
-                              ) : businessReviews.length === 0 ? (
+                              ) : reviews.length === 0 ? (
                                 <div className="text-center py-12 border-2 border-dashed border-muted rounded-lg">
                                   <MessageSquare className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
                                   <h4 className="text-lg font-medium mb-2">No Reviews Yet</h4>
@@ -478,7 +471,7 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
                                 </div>
                               ) : (
                                 <div className="space-y-4">
-                                  {businessReviews.map((review: any, index: number) => (
+                                  {reviews.map((review: any, index: number) => (
                                     <Card key={review.id || index} className="p-4">
                                       <div className="flex items-start justify-between">
                                         <div className="flex-1">
