@@ -3,8 +3,8 @@
  * Tests the complete page service layer implementation with validation and business logic
  */
 
-const { storage } = require('./server/storage');
-const pageService = require('./server/services/page.service');
+import { storage } from './server/storage/index.ts';
+import * as pageService from './server/services/page.service.ts';
 
 class PageServiceTester {
   constructor() {
@@ -458,8 +458,8 @@ async function runPageServiceTests() {
 }
 
 // Run tests if called directly
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   runPageServiceTests();
 }
 
-module.exports = { PageServiceTester };
+export { PageServiceTester };
