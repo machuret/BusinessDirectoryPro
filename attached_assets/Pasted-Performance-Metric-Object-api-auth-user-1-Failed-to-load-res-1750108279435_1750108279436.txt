@@ -1,0 +1,167 @@
+Performance Metric: Object
+/api/auth/user:1 
+            
+            
+           Failed to load resource: the server responded with a status of 401 (Unauthorized)Understand this error
+MetaTagUpdater.tsx:82 SEO: Generated description is too short or empty
+updateAll @ MetaTagUpdater.tsx:82Understand this warning
+chunk-RPCDYKBN.js?v=7a30982b:521 Warning: Encountered two children with the same key, `https://www.mairserv.com.au/`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+    at nav
+    at div
+    at div
+    at div
+    at header
+    at Header (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/header.tsx:30:22)
+    at div
+    at PageWrapper (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/layout/PageWrapper.tsx:21:3)
+    at Home (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/pages/home.tsx:32:17)
+    at Route (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=7a30982b:323:16)
+    at Switch (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=7a30982b:379:17)
+    at Router (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/App.tsx?v=oPhWouFYA-AdHNkMEUPnv:74:42)
+    at Provider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-5AJU3CG7.js?v=7a30982b:38:15)
+    at TooltipProvider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=7a30982b:65:5)
+    at ErrorBoundary (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/error/ErrorBoundary.tsx:10:5)
+    at ContentProvider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/contexts/ContentContext.tsx:20:35)
+    at QueryClientProvider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=7a30982b:2805:3)
+    at App (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/App.tsx?v=oPhWouFYA-AdHNkMEUPnv:598:3)
+printWarning @ chunk-RPCDYKBN.js?v=7a30982b:521Understand this error
+2chunk-RPCDYKBN.js?v=7a30982b:521 Warning: Encountered two children with the same key, `/`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+    at nav
+    at div
+    at div
+    at div
+    at header
+    at Header (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/header.tsx:30:22)
+    at div
+    at PageWrapper (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/layout/PageWrapper.tsx:21:3)
+    at Home (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/pages/home.tsx:32:17)
+    at Route (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=7a30982b:323:16)
+    at Switch (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=7a30982b:379:17)
+    at Router (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/App.tsx?v=oPhWouFYA-AdHNkMEUPnv:74:42)
+    at Provider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-5AJU3CG7.js?v=7a30982b:38:15)
+    at TooltipProvider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=7a30982b:65:5)
+    at ErrorBoundary (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/error/ErrorBoundary.tsx:10:5)
+    at ContentProvider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/contexts/ContentContext.tsx:20:35)
+    at QueryClientProvider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=7a30982b:2805:3)
+    at App (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/App.tsx?v=oPhWouFYA-AdHNkMEUPnv:598:3)
+printWarning @ chunk-RPCDYKBN.js?v=7a30982b:521Understand this error
+chunk-RPCDYKBN.js?v=7a30982b:521 Warning: Encountered two children with the same key, `https://www.mairserv.com.au/`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+    at nav
+    at div
+    at div
+    at div
+    at header
+    at Header (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/header.tsx:30:22)
+    at div
+    at PageWrapper (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/layout/PageWrapper.tsx:21:3)
+    at Home (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/pages/home.tsx:32:17)
+    at Route (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=7a30982b:323:16)
+    at Switch (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=7a30982b:379:17)
+    at Router (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/App.tsx?v=oPhWouFYA-AdHNkMEUPnv:74:42)
+    at Provider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-5AJU3CG7.js?v=7a30982b:38:15)
+    at TooltipProvider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=7a30982b:65:5)
+    at ErrorBoundary (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/error/ErrorBoundary.tsx:10:5)
+    at ContentProvider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/contexts/ContentContext.tsx:20:35)
+    at QueryClientProvider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=7a30982b:2805:3)
+    at App (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/App.tsx?v=oPhWouFYA-AdHNkMEUPnv:598:3)
+printWarning @ chunk-RPCDYKBN.js?v=7a30982b:521Understand this error
+2chunk-RPCDYKBN.js?v=7a30982b:521 Warning: Encountered two children with the same key, `/`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+    at nav
+    at div
+    at div
+    at div
+    at header
+    at Header (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/header.tsx:30:22)
+    at div
+    at PageWrapper (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/layout/PageWrapper.tsx:21:3)
+    at Home (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/pages/home.tsx:32:17)
+    at Route (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=7a30982b:323:16)
+    at Switch (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=7a30982b:379:17)
+    at Router (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/App.tsx?v=oPhWouFYA-AdHNkMEUPnv:74:42)
+    at Provider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-5AJU3CG7.js?v=7a30982b:38:15)
+    at TooltipProvider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=7a30982b:65:5)
+    at ErrorBoundary (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/error/ErrorBoundary.tsx:10:5)
+    at ContentProvider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/contexts/ContentContext.tsx:20:35)
+    at QueryClientProvider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=7a30982b:2805:3)
+    at App (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/App.tsx?v=oPhWouFYA-AdHNkMEUPnv:598:3)
+printWarning @ chunk-RPCDYKBN.js?v=7a30982b:521Understand this error
+chunk-RPCDYKBN.js?v=7a30982b:521 Warning: Encountered two children with the same key, `https://www.mairserv.com.au/`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+    at nav
+    at div
+    at div
+    at div
+    at header
+    at Header (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/header.tsx:30:22)
+    at div
+    at PageWrapper (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/layout/PageWrapper.tsx:21:3)
+    at Home (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/pages/home.tsx:32:17)
+    at Route (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=7a30982b:323:16)
+    at Switch (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=7a30982b:379:17)
+    at Router (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/App.tsx?v=oPhWouFYA-AdHNkMEUPnv:74:42)
+    at Provider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-5AJU3CG7.js?v=7a30982b:38:15)
+    at TooltipProvider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=7a30982b:65:5)
+    at ErrorBoundary (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/error/ErrorBoundary.tsx:10:5)
+    at ContentProvider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/contexts/ContentContext.tsx:20:35)
+    at QueryClientProvider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=7a30982b:2805:3)
+    at App (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/App.tsx?v=oPhWouFYA-AdHNkMEUPnv:598:3)
+printWarning @ chunk-RPCDYKBN.js?v=7a30982b:521Understand this error
+2chunk-RPCDYKBN.js?v=7a30982b:521 Warning: Encountered two children with the same key, `/`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+    at nav
+    at div
+    at div
+    at div
+    at header
+    at Header (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/header.tsx:30:22)
+    at div
+    at PageWrapper (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/layout/PageWrapper.tsx:21:3)
+    at Home (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/pages/home.tsx:32:17)
+    at Route (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=7a30982b:323:16)
+    at Switch (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=7a30982b:379:17)
+    at Router (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/App.tsx?v=oPhWouFYA-AdHNkMEUPnv:74:42)
+    at Provider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-5AJU3CG7.js?v=7a30982b:38:15)
+    at TooltipProvider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=7a30982b:65:5)
+    at ErrorBoundary (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/error/ErrorBoundary.tsx:10:5)
+    at ContentProvider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/contexts/ContentContext.tsx:20:35)
+    at QueryClientProvider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=7a30982b:2805:3)
+    at App (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/App.tsx?v=oPhWouFYA-AdHNkMEUPnv:598:3)
+printWarning @ chunk-RPCDYKBN.js?v=7a30982b:521Understand this error
+chunk-RPCDYKBN.js?v=7a30982b:521 Warning: Encountered two children with the same key, `https://www.mairserv.com.au/`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+    at nav
+    at div
+    at div
+    at div
+    at header
+    at Header (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/header.tsx:30:22)
+    at div
+    at PageWrapper (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/layout/PageWrapper.tsx:21:3)
+    at Home (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/pages/home.tsx:32:17)
+    at Route (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=7a30982b:323:16)
+    at Switch (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=7a30982b:379:17)
+    at Router (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/App.tsx?v=oPhWouFYA-AdHNkMEUPnv:74:42)
+    at Provider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-5AJU3CG7.js?v=7a30982b:38:15)
+    at TooltipProvider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=7a30982b:65:5)
+    at ErrorBoundary (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/error/ErrorBoundary.tsx:10:5)
+    at ContentProvider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/contexts/ContentContext.tsx:20:35)
+    at QueryClientProvider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=7a30982b:2805:3)
+    at App (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/App.tsx?v=oPhWouFYA-AdHNkMEUPnv:598:3)
+printWarning @ chunk-RPCDYKBN.js?v=7a30982b:521Understand this error
+2chunk-RPCDYKBN.js?v=7a30982b:521 Warning: Encountered two children with the same key, `/`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+    at nav
+    at div
+    at div
+    at div
+    at header
+    at Header (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/header.tsx:30:22)
+    at div
+    at PageWrapper (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/layout/PageWrapper.tsx:21:3)
+    at Home (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/pages/home.tsx:32:17)
+    at Route (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=7a30982b:323:16)
+    at Switch (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=7a30982b:379:17)
+    at Router (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/App.tsx?v=oPhWouFYA-AdHNkMEUPnv:74:42)
+    at Provider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-5AJU3CG7.js?v=7a30982b:38:15)
+    at TooltipProvider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=7a30982b:65:5)
+    at ErrorBoundary (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/error/ErrorBoundary.tsx:10:5)
+    at ContentProvider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/contexts/ContentContext.tsx:20:35)
+    at QueryClientProvider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=7a30982b:2805:3)
+    at App (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/App.tsx?v=oPhWouFYA-AdHNkMEUPnv:598:3)
+printWarning @ chunk-RPCDYKBN.js?v=7a30982b:521Understand this error

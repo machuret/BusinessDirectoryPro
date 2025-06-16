@@ -41,6 +41,7 @@ export default function Header() {
         .filter((item: any) => item.isActive) // Only show active items
         .sort((a: any, b: any) => a.order - b.order) // Sort by order
         .map((item: any) => ({
+          id: item.id, // Include unique ID for React keys
           href: item.url,
           label: item.name,
           target: item.target || "_self"
@@ -114,7 +115,7 @@ export default function Header() {
             <nav className="hidden md:ml-8 md:flex md:space-x-8">
               {navItems.map((item: any) => (
                 <Link
-                  key={item.href}
+                  key={item.id}
                   href={item.href}
                   className={`px-1 pb-1 text-sm font-medium transition-colors ${
                     isActiveLink(item.href)
@@ -214,7 +215,7 @@ export default function Header() {
                 <nav className="flex flex-col space-y-4 mt-6">
                   {navItems.map((item: any) => (
                     <Link
-                      key={item.href}
+                      key={item.id}
                       href={item.href}
                       className={`text-lg font-medium transition-colors ${
                         isActiveLink(item.href)
