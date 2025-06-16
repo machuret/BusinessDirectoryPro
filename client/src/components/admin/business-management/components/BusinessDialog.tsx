@@ -51,9 +51,16 @@ export default function BusinessDialog({ open, onClose, business, isEdit }: Busi
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("basic");
 
-  const { data: categories } = useQuery({
+  const { data: categories, isLoading: categoriesLoading } = useQuery({
     queryKey: ["/api/categories"],
   });
+
+  // Debug categories data
+  useEffect(() => {
+    if (categories) {
+      console.log('Categories loaded in BusinessDialog:', categories);
+    }
+  }, [categories]);
 
   const { data: users } = useQuery({
     queryKey: ["/api/admin/users"],
@@ -248,11 +255,17 @@ export default function BusinessDialog({ open, onClose, business, isEdit }: Busi
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {categories?.map((category: any) => (
-                              <SelectItem key={category.id} value={category.id.toString()}>
-                                {category.name}
-                              </SelectItem>
-                            ))}
+                            {categoriesLoading ? (
+                              <SelectItem value="" disabled>Loading categories...</SelectItem>
+                            ) : categories && categories.length > 0 ? (
+                              categories.map((category: any) => (
+                                <SelectItem key={category.id} value={category.id.toString()}>
+                                  {category.name}
+                                </SelectItem>
+                              ))
+                            ) : (
+                              <SelectItem value="" disabled>No categories available</SelectItem>
+                            )}
                           </SelectContent>
                         </Select>
                         <FormMessage />
