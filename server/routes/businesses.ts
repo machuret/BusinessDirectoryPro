@@ -144,6 +144,36 @@ export function setupBusinessRoutes(app: Express) {
     }
   });
 
+  // Get user's businesses for dashboard (authenticated)
+  app.get("/api/user/businesses", async (req: any, res) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      const businesses = await storage.getUserBusinesses(req.user.id);
+      res.json(businesses);
+    } catch (error) {
+      console.error("Error fetching user businesses:", error);
+      res.status(500).json({ message: "Failed to fetch businesses" });
+    }
+  });
+
+  // Alternative route for compatibility with tests
+  app.get("/api/businesses/user", async (req: any, res) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      const businesses = await storage.getUserBusinesses(req.user.id);
+      res.json(businesses);
+    } catch (error) {
+      console.error("Error fetching user businesses:", error);
+      res.status(500).json({ message: "Failed to fetch businesses" });
+    }
+  });
+
   // Get businesses by category slug (public)
   app.get("/api/businesses/category/:slug", async (req, res) => {
     try {
