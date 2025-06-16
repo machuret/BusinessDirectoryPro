@@ -17,8 +17,11 @@ import {
   type MenuItem, type InsertMenuItem, type Page, type InsertPage,
   type WebsiteFaq, type InsertWebsiteFaq, type Lead, type InsertLead,
   type ContactMessage, type InsertContactMessage, type LeadWithBusiness,
-  type ContentString, type InsertContentString, type SocialMediaLink, type InsertSocialMediaLink
+  type ContentString, type InsertContentString, type SocialMediaLink, type InsertSocialMediaLink,
+  businesses
 } from "@shared/schema";
+import { db } from "../db";
+import { eq, and, isNotNull, like, desc, sql } from "drizzle-orm";
 
 /**
  * Refactored comprehensive storage using composition pattern
@@ -610,27 +613,32 @@ export class ComprehensiveStorage implements IStorage {
   // ===== BUSINESS SUBMISSIONS OPERATIONS =====
   async getBusinessSubmissions(): Promise<any[]> {
     try {
-      // Get businesses that are pending approval (submissionstatus = 'pending')
-      const submissions = await db
-        .select({
-          id: businesses.placeid,
-          placeid: businesses.placeid,
-          title: businesses.title,
-          description: businesses.description,
-          address: businesses.address,
-          city: businesses.city,
-          phone: businesses.phone,
-          email: businesses.email,
-          website: businesses.website,
-          categoryName: businesses.categoryname,
-          status: businesses.submissionstatus,
-          submittedBy: businesses.submittedby,
-          submissionDate: businesses.createdat,
-          updatedAt: businesses.updatedat,
-        })
-        .from(businesses)
-        .where(eq(businesses.submissionstatus, 'pending'))
-        .orderBy(desc(businesses.createdat));
+      // Get businesses that were submitted by users through the business storage layer
+      const allBusinesses = await this.businesses.getBusinesses();
+      
+      // Filter for user-submitted businesses (those with ownerid field and user_submitted placeid pattern)
+      const submissions = allBusinesses
+        .filter(business => 
+          business.ownerid && 
+          business.placeid?.startsWith('user_submitted_')
+        )
+        .map(business => ({
+          id: business.placeid,
+          placeid: business.placeid,
+          title: business.title,
+          description: business.description,
+          address: business.address,
+          city: business.city,
+          phone: business.phone,
+          email: business.website, // Using website as email field if available
+          website: business.website,
+          categoryName: business.categoryname,
+          status: 'pending', // Default status for user submissions
+          submittedBy: business.ownerid,
+          submissionDate: business.createdat,
+          updatedAt: business.updatedat,
+        }))
+        .sort((a, b) => new Date(b.submissionDate || 0).getTime() - new Date(a.submissionDate || 0).getTime());
 
       return submissions;
     } catch (error) {
