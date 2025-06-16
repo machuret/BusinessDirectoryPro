@@ -458,7 +458,7 @@ export class ComprehensiveStorage implements IStorage {
   }
 
   async getSocialMediaLink(id: number): Promise<SocialMediaLink | undefined> {
-    return this.socialMedia.getSocialMediaLink(id);
+    return this.socialMedia.getSocialMediaLinkById(id);
   }
 
   async createSocialMediaLink(link: InsertSocialMediaLink): Promise<SocialMediaLink> {
