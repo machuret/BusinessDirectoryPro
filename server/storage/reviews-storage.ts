@@ -7,7 +7,7 @@ import {
 
 export class ReviewsStorage {
   async getReviewsByBusiness(businessId: string): Promise<(Review & { user: Pick<User, 'firstName' | 'lastName'> })[]> {
-    return await db
+    const result = await db
       .select({
         id: reviews.id,
         businessId: reviews.businessId,
@@ -20,20 +20,39 @@ export class ReviewsStorage {
         status: reviews.status,
         adminNotes: reviews.adminNotes,
         createdAt: reviews.createdAt,
-        updatedAt: reviews.updatedAt,
-        user: {
-          firstName: users.firstName,
-          lastName: users.lastName
-        }
+        reviewedAt: reviews.reviewedAt,
+        reviewedBy: reviews.reviewedBy,
+        userFirstName: users.firstName,
+        userLastName: users.lastName
       })
       .from(reviews)
       .leftJoin(users, eq(reviews.userId, users.id))
       .where(eq(reviews.businessId, businessId))
       .orderBy(desc(reviews.createdAt));
+
+    return result.map(row => ({
+      id: row.id,
+      businessId: row.businessId,
+      userId: row.userId,
+      rating: row.rating,
+      title: row.title,
+      comment: row.comment,
+      authorName: row.authorName,
+      authorEmail: row.authorEmail,
+      status: row.status,
+      adminNotes: row.adminNotes,
+      createdAt: row.createdAt,
+      reviewedAt: row.reviewedAt,
+      reviewedBy: row.reviewedBy,
+      user: {
+        firstName: row.userFirstName,
+        lastName: row.userLastName
+      }
+    }));
   }
 
   async getApprovedReviewsByBusiness(businessId: string): Promise<(Review & { user: Pick<User, 'firstName' | 'lastName'> })[]> {
-    return await db
+    const result = await db
       .select({
         id: reviews.id,
         businessId: reviews.businessId,
@@ -46,11 +65,10 @@ export class ReviewsStorage {
         status: reviews.status,
         adminNotes: reviews.adminNotes,
         createdAt: reviews.createdAt,
-        updatedAt: reviews.updatedAt,
-        user: {
-          firstName: users.firstName,
-          lastName: users.lastName
-        }
+        reviewedAt: reviews.reviewedAt,
+        reviewedBy: reviews.reviewedBy,
+        userFirstName: users.firstName,
+        userLastName: users.lastName
       })
       .from(reviews)
       .leftJoin(users, eq(reviews.userId, users.id))
@@ -59,6 +77,27 @@ export class ReviewsStorage {
         eq(reviews.status, 'approved')
       ))
       .orderBy(desc(reviews.createdAt));
+
+    // Transform the result to include user object
+    return result.map(row => ({
+      id: row.id,
+      businessId: row.businessId,
+      userId: row.userId,
+      rating: row.rating,
+      title: row.title,
+      comment: row.comment,
+      authorName: row.authorName,
+      authorEmail: row.authorEmail,
+      status: row.status,
+      adminNotes: row.adminNotes,
+      createdAt: row.createdAt,
+      reviewedAt: row.reviewedAt,
+      reviewedBy: row.reviewedBy,
+      user: {
+        firstName: row.userFirstName,
+        lastName: row.userLastName
+      }
+    }));
   }
 
   async createReview(review: InsertReview): Promise<Review> {

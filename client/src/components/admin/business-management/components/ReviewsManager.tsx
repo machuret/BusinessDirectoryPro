@@ -17,10 +17,10 @@ export default function ReviewsManager({ businessId, business }: ReviewsManagerP
   const { toast } = useToast();
   const [selectedReviews, setSelectedReviews] = useState<number[]>([]);
 
-  // Custom fetch function to work around Vite routing issues
+  // Custom fetch function using correct API endpoint
   const fetchReviews = async () => {
     try {
-      const response = await fetch(`/api/reviews/${businessId}`, {
+      const response = await fetch(`/api/businesses/${businessId}/reviews`, {
         method: 'GET',
         credentials: 'include',
         headers: {
@@ -41,9 +41,9 @@ export default function ReviewsManager({ businessId, business }: ReviewsManagerP
     }
   };
 
-  // Fetch reviews with custom fetch function
+  // Fetch reviews with correct API endpoint
   const { data: reviewsData, isLoading, error } = useQuery<any[]>({
-    queryKey: ['/api/reviews', businessId],
+    queryKey: ['/api/businesses', businessId, 'reviews'],
     queryFn: fetchReviews,
     enabled: !!businessId,
     retry: false,
