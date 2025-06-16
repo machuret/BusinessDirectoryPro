@@ -55,6 +55,7 @@ import AccessibilityDemo from "@/pages/accessibility-demo";
 import { ContentTest } from "@/components/ContentTest";
 import NotFound from "@/pages/not-found";
 import { AdminRedirect } from "@/components/AdminRedirect";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 
 import GetFeaturedPage from "@/pages/get-featured";
@@ -85,38 +86,34 @@ function Router() {
       <Route path="/accessibility-demo" component={AccessibilityDemo} />
       <Route path="/content-test" component={() => <div className="container mx-auto py-8"><ContentTest /></div>} />
       
-      {/* Admin routes - handle both authenticated and unauthenticated access */}
+      {/* Admin routes - protected with proper redirect handling */}
       <Route path="/admin" component={AdminRedirect} />
-      <Route path="/admin/businesses" component={() => isAuthenticated ? <AdminLayout><AdminBusinessesPage /></AdminLayout> : <Login />} />
-      <Route path="/admin/users" component={() => isAuthenticated ? <AdminLayout><AdminUsersPage /></AdminLayout> : <Login />} />
-      <Route path="/admin/categories" component={() => isAuthenticated ? <AdminLayout><AdminCategoriesPage /></AdminLayout> : <Login />} />
-      <Route path="/admin/reviews" component={() => isAuthenticated ? <AdminLayout><AdminReviewsPage /></AdminLayout> : <Login />} />
-      <Route path="/admin/cities" component={() => isAuthenticated ? <AdminLayout><AdminCitiesPage /></AdminLayout> : <Login />} />
-      <Route path="/admin/menus" component={() => isAuthenticated ? <AdminLayout><AdminMenusPage /></AdminLayout> : <Login />} />
-      <Route path="/admin/pages" component={() => isAuthenticated ? <AdminLayout><AdminPagesPage /></AdminLayout> : <Login />} />
-      <Route path="/admin/seo" component={() => isAuthenticated ? <AdminLayout><AdminSEOPage /></AdminLayout> : <Login />} />
-      <Route path="/admin/inbox" component={() => isAuthenticated ? <AdminLayout><AdminInboxPage /></AdminLayout> : <Login />} />
-      <Route path="/admin/homepage" component={() => isAuthenticated ? <AdminLayout><AdminHomepagePage /></AdminLayout> : <Login />} />
-      <Route path="/admin/ownership" component={() => isAuthenticated ? <AdminLayout><AdminOwnershipPage /></AdminLayout> : <Login />} />
-      <Route path="/admin/submissions" component={() => isAuthenticated ? <AdminLayout><AdminSubmissionsPage /></AdminLayout> : <Login />} />
-      <Route path="/admin/api" component={() => isAuthenticated ? <AdminLayout><AdminAPIPage /></AdminLayout> : <Login />} />
-      <Route path="/admin/leads" component={() => isAuthenticated ? <AdminLayout><AdminLeadsPage /></AdminLayout> : <Login />} />
-      <Route path="/admin/import" component={() => isAuthenticated ? <AdminLayout><AdminImportPage /></AdminLayout> : <Login />} />
-      <Route path="/admin/export" component={() => isAuthenticated ? <AdminLayout><AdminExportPage /></AdminLayout> : <Login />} />
-      <Route path="/admin/featured" component={() => isAuthenticated ? <AdminLayout><AdminFeaturedPage /></AdminLayout> : <Login />} />
-      <Route path="/admin/services" component={() => isAuthenticated ? <AdminLayout><AdminServicesPage /></AdminLayout> : <Login />} />
-      <Route path="/admin/social-media" component={() => isAuthenticated ? <AdminLayout><AdminSocialMedia /></AdminLayout> : <Login />} />
-      <Route path="/admin/content" component={() => isAuthenticated ? <AdminLayout><AdminContentPage /></AdminLayout> : <Login />} />
-      <Route path="/admin/settings" component={() => isAuthenticated ? <AdminLayout><AdminSettingsPage /></AdminLayout> : <Login />} />
-      <Route path="/admin/menu/:id" component={() => isAuthenticated ? <AdminLayout><MenuEdit /></AdminLayout> : <Login />} />
+      <Route path="/admin/businesses" component={() => <ProtectedRoute><AdminLayout><AdminBusinessesPage /></AdminLayout></ProtectedRoute>} />
+      <Route path="/admin/users" component={() => <ProtectedRoute><AdminLayout><AdminUsersPage /></AdminLayout></ProtectedRoute>} />
+      <Route path="/admin/categories" component={() => <ProtectedRoute><AdminLayout><AdminCategoriesPage /></AdminLayout></ProtectedRoute>} />
+      <Route path="/admin/reviews" component={() => <ProtectedRoute><AdminLayout><AdminReviewsPage /></AdminLayout></ProtectedRoute>} />
+      <Route path="/admin/cities" component={() => <ProtectedRoute><AdminLayout><AdminCitiesPage /></AdminLayout></ProtectedRoute>} />
+      <Route path="/admin/menus" component={() => <ProtectedRoute><AdminLayout><AdminMenusPage /></AdminLayout></ProtectedRoute>} />
+      <Route path="/admin/pages" component={() => <ProtectedRoute><AdminLayout><AdminPagesPage /></AdminLayout></ProtectedRoute>} />
+      <Route path="/admin/seo" component={() => <ProtectedRoute><AdminLayout><AdminSEOPage /></AdminLayout></ProtectedRoute>} />
+      <Route path="/admin/inbox" component={() => <ProtectedRoute><AdminLayout><AdminInboxPage /></AdminLayout></ProtectedRoute>} />
+      <Route path="/admin/homepage" component={() => <ProtectedRoute><AdminLayout><AdminHomepagePage /></AdminLayout></ProtectedRoute>} />
+      <Route path="/admin/ownership" component={() => <ProtectedRoute><AdminLayout><AdminOwnershipPage /></AdminLayout></ProtectedRoute>} />
+      <Route path="/admin/submissions" component={() => <ProtectedRoute><AdminLayout><AdminSubmissionsPage /></AdminLayout></ProtectedRoute>} />
+      <Route path="/admin/api" component={() => <ProtectedRoute><AdminLayout><AdminAPIPage /></AdminLayout></ProtectedRoute>} />
+      <Route path="/admin/leads" component={() => <ProtectedRoute><AdminLayout><AdminLeadsPage /></AdminLayout></ProtectedRoute>} />
+      <Route path="/admin/import" component={() => <ProtectedRoute><AdminLayout><AdminImportPage /></AdminLayout></ProtectedRoute>} />
+      <Route path="/admin/export" component={() => <ProtectedRoute><AdminLayout><AdminExportPage /></AdminLayout></ProtectedRoute>} />
+      <Route path="/admin/featured" component={() => <ProtectedRoute><AdminLayout><AdminFeaturedPage /></AdminLayout></ProtectedRoute>} />
+      <Route path="/admin/services" component={() => <ProtectedRoute><AdminLayout><AdminServicesPage /></AdminLayout></ProtectedRoute>} />
+      <Route path="/admin/social-media" component={() => <ProtectedRoute><AdminLayout><AdminSocialMedia /></AdminLayout></ProtectedRoute>} />
+      <Route path="/admin/content" component={() => <ProtectedRoute><AdminLayout><AdminContentPage /></AdminLayout></ProtectedRoute>} />
+      <Route path="/admin/settings" component={() => <ProtectedRoute><AdminLayout><AdminSettingsPage /></AdminLayout></ProtectedRoute>} />
+      <Route path="/admin/menu/:id" component={() => <ProtectedRoute><AdminLayout><MenuEdit /></AdminLayout></ProtectedRoute>} />
       
-      {/* Authenticated-only routes */}
-      {isAuthenticated && (
-        <>
-          <Route path="/dashboard" component={Dashboard} />
-          <Route path="/get-featured" component={GetFeaturedPage} />
-        </>
-      )}
+      {/* Other protected routes */}
+      <Route path="/dashboard" component={() => <ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      <Route path="/get-featured" component={() => <ProtectedRoute><GetFeaturedPage /></ProtectedRoute>} />
       
       {/* Slug router - must come after all specific routes */}
       <Route path="/:slug" component={SlugRouter} />
