@@ -32,10 +32,20 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
   const editModal = useModalState();
 
   // Fetch reviews for the currently editing business
-  const { data: businessReviews = [], isLoading: reviewsLoading } = useQuery<any[]>({
+  const { data: businessReviews = [], isLoading: reviewsLoading } = useQuery({
     queryKey: [`/api/reviews`, editingBusiness?.placeid],
     enabled: !!editingBusiness?.placeid,
   });
+
+  // Ensure businessReviews is always an array
+  const reviews = Array.isArray(businessReviews) ? businessReviews : [];
+
+  // Log reviews data when it changes
+  useEffect(() => {
+    if (reviews.length > 0) {
+      console.log('Reviews loaded for business:', editingBusiness?.placeid, reviews);
+    }
+  }, [reviews, editingBusiness?.placeid]);
 
   const editForm = useFormManagement({
     initialValues: {
@@ -95,6 +105,12 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
     // Parse existing images from the business data
     try {
       let images: string[] = [];
+      console.log('Business data for images:', {
+        imageurls: business.imageurls,
+        imageurl: business.imageurl,
+        logo: business.logo
+      });
+      
       if (business.imageurls) {
         if (typeof business.imageurls === 'string') {
           images = JSON.parse(business.imageurls);
@@ -113,8 +129,10 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
       
       const allImages = [...images, ...additionalImages].filter(Boolean);
       const uniqueImages = Array.from(new Set(allImages));
+      console.log('Parsed images:', uniqueImages);
       setBusinessImages(Array.isArray(uniqueImages) ? uniqueImages : []);
-    } catch {
+    } catch (error) {
+      console.error('Error parsing images:', error);
       setBusinessImages([]);
     }
     
@@ -434,7 +452,7 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
                                 <div>
                                   <h3 className="text-lg font-medium flex items-center gap-2">
                                     <MessageSquare className="h-5 w-5" />
-                                    Customer Reviews {businessReviews.length > 0 && `(${businessReviews.length})`}
+                                    Customer Reviews {Array.isArray(businessReviews) && businessReviews.length > 0 && `(${businessReviews.length})`}
                                   </h3>
                                   <p className="text-sm text-muted-foreground">Manage customer reviews and ratings</p>
                                 </div>
