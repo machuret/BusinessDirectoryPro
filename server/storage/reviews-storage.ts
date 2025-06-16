@@ -53,9 +53,7 @@ export class ReviewsStorage {
 
   async getApprovedReviewsByBusiness(businessId: string): Promise<(Review & { user: Pick<User, 'firstName' | 'lastName'> })[]> {
     try {
-      console.log(`[REVIEWS DEBUG] Fetching reviews for business: ${businessId}`);
-      
-      // Get the business with reviews data
+      // Get the business with reviews data from JSON field
       const businessResult = await db
         .select({ 
           reviews: businesses.reviews,
@@ -65,11 +63,8 @@ export class ReviewsStorage {
         .where(eq(businesses.placeid, businessId))
         .limit(1);
 
-      console.log(`[REVIEWS DEBUG] Business query result:`, businessResult);
-
       if (businessResult.length > 0) {
         const business = businessResult[0];
-        console.log(`[REVIEWS DEBUG] Business reviews field:`, business.reviews);
         
         if (business.reviews) {
           let reviewsData: any[] = [];
@@ -89,41 +84,31 @@ export class ReviewsStorage {
             }
           }
           
-          console.log(`[REVIEWS DEBUG] Processed reviews data:`, reviewsData);
-          
           if (reviewsData.length > 0) {
-            const transformedReviews = reviewsData.map((review, index) => {
-              const transformedReview = {
-                id: index + 1,
-                businessId: businessId,
-                userId: null,
-                rating: parseInt(review.rating) || review.star_rating || 5,
-                title: review.title || review.summary || null,
-                comment: review.text || review.comment || review.review || review.content || '',
-                authorName: review.author_name || review.authorName || review.name || review.user_name || 'Anonymous',
-                authorEmail: null,
-                status: 'approved' as const,
-                adminNotes: null,
-                createdAt: review.time ? new Date(review.time * 1000) : (review.date ? new Date(review.date) : new Date()),
-                reviewedAt: null,
-                reviewedBy: null,
-                user: {
-                  firstName: null,
-                  lastName: null
-                }
-              };
-              console.log(`[REVIEWS DEBUG] Transformed review ${index + 1}:`, transformedReview);
-              return transformedReview;
-            });
-            
-            console.log(`[REVIEWS DEBUG] Returning ${transformedReviews.length} reviews`);
-            return transformedReviews;
+            return reviewsData.map((review, index) => ({
+              id: index + 1,
+              businessId: businessId,
+              userId: null,
+              rating: parseInt(review.rating) || review.stars || review.star_rating || 5,
+              title: review.title || review.summary || null,
+              comment: review.text || review.comment || review.review || review.content || '',
+              authorName: review.author_name || review.authorName || review.name || review.user_name || 'Anonymous',
+              authorEmail: null,
+              status: 'approved' as const,
+              adminNotes: null,
+              createdAt: review.time ? new Date(review.time * 1000) : (review.date ? new Date(review.date) : new Date()),
+              reviewedAt: null,
+              reviewedBy: null,
+              user: {
+                firstName: null,
+                lastName: null
+              }
+            }));
           }
         }
       }
 
       // Fallback to reviews table if no JSON reviews found
-      console.log(`[REVIEWS DEBUG] No JSON reviews found, checking reviews table`);
       const result = await db
         .select()
         .from(reviews)
@@ -132,8 +117,6 @@ export class ReviewsStorage {
           eq(reviews.status, 'approved')
         ))
         .orderBy(desc(reviews.createdAt));
-
-      console.log(`[REVIEWS DEBUG] Reviews table result:`, result);
       
       return result.map(row => ({
         ...row,
@@ -143,7 +126,7 @@ export class ReviewsStorage {
         }
       }));
     } catch (error) {
-      console.error('[REVIEWS DEBUG] Error fetching approved reviews:', error);
+      console.error('Error fetching approved reviews:', error);
       return [];
     }
   }
