@@ -147,23 +147,12 @@ export function setupBusinessRoutes(app: Express) {
   // Get user's businesses for dashboard (authenticated)
   app.get("/api/user/businesses", async (req: any, res) => {
     try {
-      console.log('[DEBUG] Session data:', {
-        sessionId: req.sessionID,
-        hasSession: !!req.session,
-        sessionUser: req.session?.user ? 'exists' : 'missing',
-        sessionUserId: req.session?.userId,
-        cookies: req.headers.cookie
-      });
-      
       const user = req.session?.user;
       if (!user) {
-        console.log('[DEBUG] Authentication failed - no user in session');
         return res.status(401).json({ message: "Not authenticated" });
       }
       
-      console.log('[DEBUG] User authenticated:', user.id);
       const businesses = await storage.getUserBusinesses(user.id);
-      console.log('[DEBUG] Found businesses:', businesses.length);
       res.json(businesses);
     } catch (error) {
       console.error("Error fetching user businesses:", error);
