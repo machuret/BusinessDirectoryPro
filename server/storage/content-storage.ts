@@ -396,6 +396,22 @@ export class ContentStorage {
   }
 
   /**
+   * Get menu item by ID
+   */
+  async getMenuItemById(id: number): Promise<MenuItem | undefined> {
+    try {
+      const [menuItem] = await db.select()
+        .from(menuItems)
+        .where(eq(menuItems.id, id));
+      
+      return menuItem;
+    } catch (error) {
+      console.error("Error fetching menu item by ID:", error);
+      return undefined;
+    }
+  }
+
+  /**
    * Get all site settings
    */
   async getSiteSettings(): Promise<SiteSetting[]> {

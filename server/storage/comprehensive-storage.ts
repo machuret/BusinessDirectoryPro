@@ -205,6 +205,10 @@ export class ComprehensiveStorage implements IStorage {
     return this.content.getMenuItem(id);
   }
 
+  async getMenuItemById(id: number): Promise<MenuItem | undefined> {
+    return this.content.getMenuItemById(id);
+  }
+
   async createMenuItem(menuItem: InsertMenuItem): Promise<MenuItem> {
     return this.content.createMenuItem(menuItem);
   }

@@ -184,7 +184,7 @@ export async function deleteMenuItem(menuItemId: number): Promise<void> {
 
   try {
     // Check if menu item exists
-    const existingItem = await storage.getMenuItemById?.(menuItemId);
+    const existingItem = await storage.getMenuItemById(menuItemId);
     if (!existingItem) {
       throw new Error('Menu item not found');
     }
