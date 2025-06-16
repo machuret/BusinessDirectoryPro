@@ -106,7 +106,6 @@ interface IStorage {
   
   // City operations
   getUniqueCities(): Promise<{ city: string; count: number }[]>;
-  updateCityName(oldName: string, newName: string, description?: string): Promise<void>;
   
   // Business operations
   getBusinesses(params?: { 
@@ -124,10 +123,6 @@ interface IStorage {
   updateBusiness(id: string, business: Partial<InsertBusiness>): Promise<Business | undefined>;
   deleteBusiness(id: string): Promise<void>;
   updateBusinessRating(businessId: string): Promise<void>;
-  
-  // CSV Import operations
-  importBusinessFromCSV(businessData: any): Promise<Business>;
-  bulkImportBusinesses(businessesData: any[]): Promise<{ success: number; errors: any[] }>;
   
   // Review operations
   getReviewsByBusiness(businessId: string): Promise<(Review & { user: Pick<User, 'firstName' | 'lastName'> })[]>;
