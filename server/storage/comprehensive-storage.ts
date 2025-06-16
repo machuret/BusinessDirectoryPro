@@ -613,15 +613,12 @@ export class ComprehensiveStorage implements IStorage {
   // ===== BUSINESS SUBMISSIONS OPERATIONS =====
   async getBusinessSubmissions(): Promise<any[]> {
     try {
-      // Get businesses that were submitted by users through the business storage layer
+      // Get all businesses and filter for user submissions by placeid pattern
       const allBusinesses = await this.businesses.getBusinesses();
       
-      // Filter for user-submitted businesses (those with ownerid field and user_submitted placeid pattern)
+      // Filter for user-submitted businesses (those with user_submitted placeid pattern)
       const submissions = allBusinesses
-        .filter(business => 
-          business.ownerid && 
-          business.placeid?.startsWith('user_submitted_')
-        )
+        .filter(business => business.placeid?.startsWith('user_submitted_'))
         .map(business => ({
           id: business.placeid,
           placeid: business.placeid,
@@ -634,7 +631,7 @@ export class ComprehensiveStorage implements IStorage {
           website: business.website,
           categoryName: business.categoryname,
           status: 'pending', // Default status for user submissions
-          submittedBy: business.ownerid,
+          submittedBy: business.ownerid || 'unknown',
           submissionDate: business.createdat,
           updatedAt: business.updatedat,
         }))
