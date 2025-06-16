@@ -42,10 +42,12 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
       if (!editingBusiness) return;
       
       // Combine form data with FAQs and images
+      // Only save FAQs that have both question and answer filled
+      const validFaqs = faqs.filter(faq => faq.question.trim() && faq.answer.trim());
       const updateData = {
         ...values,
-        faq: JSON.stringify(faqs.filter(faq => faq.question && faq.answer)),
-        imageurls: JSON.stringify(businessImages)
+        faq: validFaqs.length > 0 ? JSON.stringify(validFaqs) : null,
+        imageurls: businessImages.length > 0 ? JSON.stringify(businessImages) : null
       };
       
       await updateBusiness.mutateAsync({
