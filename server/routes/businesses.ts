@@ -7,9 +7,9 @@ export function setupBusinessRoutes(app: Express) {
     try {
       const { categoryId, search, city, featured, limit, offset } = req.query;
       const businesses = await storage.getBusinesses({
-        categoryId: categoryId ? parseInt(categoryId as string) : undefined,
+        category: categoryId ? parseInt(categoryId as string) : undefined,
         search: search as string,
-        city: city as string,
+        location: city as string,
         featured: featured === 'true',
         limit: limit ? parseInt(limit as string) : undefined,
         offset: offset ? parseInt(offset as string) : undefined,
@@ -313,7 +313,7 @@ export function setupBusinessRoutes(app: Express) {
         return res.status(403).json({ message: "Admin access required" });
       }
 
-      const businesses = await storage.getAllBusinesses();
+      const businesses = await storage.getBusinesses({});
       res.json(businesses);
     } catch (error) {
       console.error("Error fetching admin businesses:", error);
