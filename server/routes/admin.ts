@@ -306,14 +306,28 @@ export function setupAdminRoutes(app: Express) {
 
   app.post("/api/admin/cities", async (req, res) => {
     try {
-      const { city, description } = req.body;
+      const { name, city, state, country, pageTitle, pageDescription, description } = req.body;
+      const cityName = name || city; // Support both field names
       
-      if (!city) {
+      if (!cityName) {
         return res.status(400).json({ message: "City name is required" });
       }
       
-      await storage.updateCityName(city, city, description);
-      res.status(201).json({ city, description, message: "City added successfully" });
+      // Create city with proper ID generation
+      const cityId = cityName.toLowerCase().replace(/\s+/g, '-');
+      const newCity = {
+        id: cityId,
+        name: cityName,
+        state: state || "",
+        country: country || "",
+        pageTitle: pageTitle || "",
+        pageDescription: pageDescription || description || "",
+        businessCount: 0,
+        createdAt: new Date().toISOString()
+      };
+      
+      await storage.updateCityName(cityName, cityName, pageDescription || description);
+      res.status(201).json(newCity);
     } catch (error) {
       console.error("Error adding city:", error);
       res.status(500).json({ message: "Failed to add city" });
