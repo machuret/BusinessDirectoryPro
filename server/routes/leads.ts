@@ -58,7 +58,27 @@ export function setupLeadRoutes(app: Express) {
   // Get leads for authenticated users (admin gets unclaimed business leads, owners get their business leads)
   app.get('/api/leads', isAuthenticated, async (req: any, res) => {
     try {
-      const user = req.user;
+      const session = req.session as any;
+      const userId = session?.userId;
+      let user = session?.user;
+      
+      // If we have userId but no user object or no role, load it from storage
+      if (userId && (!user || !user.role)) {
+        try {
+          user = await storage.getUser(userId);
+          if (user) {
+            // Update session with user object for future requests
+            session.user = user;
+          }
+        } catch (error) {
+          console.error('Error loading user from storage:', error);
+        }
+      }
+
+      if (!user) {
+        return res.status(401).json({ message: 'User not found' });
+      }
+
       let leads;
 
       if (user.role === 'admin') {

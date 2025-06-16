@@ -58,7 +58,7 @@ async function testCompleteLeadsFlow() {
           method: 'POST',
           body: JSON.stringify({
             email: 'admin@businesshub.com',
-            password: 'admin123'
+            password: 'Xola2025'
           })
         });
         
