@@ -3,133 +3,85 @@
  * Handles business logic for social media links including CRUD operations, ordering, and validation
  */
 
+import { z } from 'zod';
 import { storage } from '../storage';
 import type { SocialMediaLink, InsertSocialMediaLink } from '@shared/schema';
 
-/**
- * Validates social media link creation data
- * @param linkData - The social media link data to validate
- * @returns Object with validation result and error message if invalid
- */
-export function validateSocialMediaLinkCreation(linkData: any): { isValid: boolean; error?: string } {
-  console.log('[SOCIAL MEDIA SERVICE] Validating social media link creation:', { platform: linkData.platform });
-
-  if (!linkData.platform || typeof linkData.platform !== 'string' || linkData.platform.trim().length === 0) {
-    return { isValid: false, error: 'Platform is required' };
-  }
-
-  if (!linkData.url || typeof linkData.url !== 'string' || linkData.url.trim().length === 0) {
-    return { isValid: false, error: 'URL is required' };
-  }
-
-  // Basic URL validation
-  try {
-    new URL(linkData.url);
-  } catch {
-    return { isValid: false, error: 'Invalid URL format' };
-  }
-
-  if (!linkData.displayName || typeof linkData.displayName !== 'string' || linkData.displayName.trim().length === 0) {
-    return { isValid: false, error: 'Display name is required' };
-  }
-
-  if (!linkData.iconClass || typeof linkData.iconClass !== 'string' || linkData.iconClass.trim().length === 0) {
-    return { isValid: false, error: 'Icon class is required' };
-  }
-
-  const validPlatforms = ['facebook', 'twitter', 'instagram', 'linkedin', 'youtube', 'tiktok', 'pinterest', 'snapchat', 'whatsapp'];
-  if (!validPlatforms.includes(linkData.platform.toLowerCase())) {
-    return { isValid: false, error: `Invalid platform. Supported platforms: ${validPlatforms.join(', ')}` };
-  }
-
-  if (linkData.sortOrder !== undefined) {
-    if (typeof linkData.sortOrder !== 'number' || linkData.sortOrder < 0) {
-      return { isValid: false, error: 'Sort order must be a non-negative number' };
-    }
-  }
-
-  return { isValid: true };
-}
+// Valid social media platforms
+const VALID_PLATFORMS = [
+  'facebook', 'twitter', 'instagram', 'linkedin', 'youtube', 
+  'tiktok', 'pinterest', 'snapchat', 'whatsapp'
+] as const;
 
 /**
- * Validates social media link update data
- * @param linkData - The social media link data to validate
- * @returns Object with validation result and error message if invalid
+ * Zod schema for social media link validation
  */
-export function validateSocialMediaLinkUpdate(linkData: any): { isValid: boolean; error?: string } {
-  console.log('[SOCIAL MEDIA SERVICE] Validating social media link update:', { updates: Object.keys(linkData) });
-
-  if (linkData.platform !== undefined) {
-    if (typeof linkData.platform !== 'string' || linkData.platform.trim().length === 0) {
-      return { isValid: false, error: 'Platform must be a non-empty string' };
-    }
-    
-    const validPlatforms = ['facebook', 'twitter', 'instagram', 'linkedin', 'youtube', 'tiktok', 'pinterest', 'snapchat', 'whatsapp'];
-    if (!validPlatforms.includes(linkData.platform.toLowerCase())) {
-      return { isValid: false, error: `Invalid platform. Supported platforms: ${validPlatforms.join(', ')}` };
-    }
-  }
-
-  if (linkData.url !== undefined) {
-    if (typeof linkData.url !== 'string') {
-      return { isValid: false, error: 'URL must be a string' };
-    }
-    
-    // Allow empty URLs for updates (existing data may have empty URLs)
-    if (linkData.url.trim().length > 0) {
-      try {
-        new URL(linkData.url);
-      } catch {
-        return { isValid: false, error: 'Invalid URL format' };
+export const socialMediaLinkSchema = z.object({
+  platform: z.string()
+    .min(1, 'Platform is required')
+    .toLowerCase()
+    .refine(
+      (platform) => VALID_PLATFORMS.includes(platform as any),
+      {
+        message: `Invalid platform. Supported platforms: ${VALID_PLATFORMS.join(', ')}`
       }
-    }
-  }
+    ),
+  url: z.string()
+    .min(1, 'URL is required')
+    .url('Invalid URL format'),
+  displayName: z.string()
+    .min(1, 'Display name is required')
+    .trim(),
+  iconClass: z.string()
+    .min(1, 'Icon class is required')
+    .trim(),
+  isActive: z.boolean().optional().default(true),
+  sortOrder: z.number()
+    .int('Sort order must be an integer')
+    .min(0, 'Sort order must be non-negative')
+    .optional()
+});
 
-  if (linkData.displayName !== undefined) {
-    if (typeof linkData.displayName !== 'string' || linkData.displayName.trim().length === 0) {
-      return { isValid: false, error: 'Display name must be a non-empty string' };
-    }
-  }
+/**
+ * Zod schema for social media link updates (all fields optional)
+ */
+export const socialMediaLinkUpdateSchema = socialMediaLinkSchema.partial().extend({
+  url: z.string()
+    .optional()
+    .refine(
+      (url) => !url || url.trim().length === 0 || z.string().url().safeParse(url).success,
+      'Invalid URL format'
+    )
+});
 
-  if (linkData.iconClass !== undefined) {
-    if (typeof linkData.iconClass !== 'string' || linkData.iconClass.trim().length === 0) {
-      return { isValid: false, error: 'Icon class must be a non-empty string' };
-    }
-  }
-
-  if (linkData.sortOrder !== undefined) {
-    if (typeof linkData.sortOrder !== 'number' || linkData.sortOrder < 0) {
-      return { isValid: false, error: 'Sort order must be a non-negative number' };
-    }
-  }
-
-  return { isValid: true };
-}
+/**
+ * Type definitions derived from Zod schemas
+ */
+export type SocialMediaLinkInput = z.infer<typeof socialMediaLinkSchema>;
+export type SocialMediaLinkUpdateInput = z.infer<typeof socialMediaLinkUpdateSchema>;
 
 /**
  * Creates a new social media link with validation and proper ordering
  * @param linkData - The social media link data
  * @returns Promise with the created social media link
  */
-export async function createSocialMediaLink(linkData: any): Promise<SocialMediaLink> {
-  console.log('[SOCIAL MEDIA SERVICE] Creating new social media link:', { platform: linkData.platform });
+export async function createSocialMediaLink(linkData: unknown): Promise<SocialMediaLink> {
+  console.log('[SOCIAL MEDIA SERVICE] Creating new social media link:', { 
+    platform: typeof linkData === 'object' && linkData !== null && 'platform' in linkData ? (linkData as any).platform : 'unknown' 
+  });
 
-  // Validate input data
-  const validation = validateSocialMediaLinkCreation(linkData);
-  if (!validation.isValid) {
-    console.log('[SOCIAL MEDIA SERVICE] Validation failed:', validation.error);
-    throw new Error(validation.error);
-  }
+  // Validate input data using Zod schema
+  const validatedData = socialMediaLinkSchema.parse(linkData);
 
   try {
     // Check for duplicate platform
     const existingLinks = await storage.getSocialMediaLinks();
     const duplicatePlatform = existingLinks.find(link => 
-      link.platform.toLowerCase() === linkData.platform.toLowerCase()
+      link.platform.toLowerCase() === validatedData.platform.toLowerCase()
     );
     
     if (duplicatePlatform) {
-      throw new Error(`A social media link for ${linkData.platform} already exists`);
+      throw new Error(`A social media link for ${validatedData.platform} already exists`);
     }
 
     // Get the next sort order
@@ -137,12 +89,12 @@ export async function createSocialMediaLink(linkData: any): Promise<SocialMediaL
 
     // Prepare social media link data with proper ordering
     const createData: InsertSocialMediaLink = {
-      platform: linkData.platform.toLowerCase(),
-      url: linkData.url.trim(),
-      displayName: linkData.displayName.trim(),
-      iconClass: linkData.iconClass.trim(),
-      isActive: linkData.isActive !== undefined ? linkData.isActive : true,
-      sortOrder: linkData.sortOrder !== undefined ? linkData.sortOrder : maxOrder + 1
+      platform: validatedData.platform,
+      url: validatedData.url.trim(),
+      displayName: validatedData.displayName.trim(),
+      iconClass: validatedData.iconClass.trim(),
+      isActive: validatedData.isActive,
+      sortOrder: validatedData.sortOrder ?? maxOrder + 1
     };
 
     const socialMediaLink = await storage.createSocialMediaLink(createData);
@@ -154,8 +106,9 @@ export async function createSocialMediaLink(linkData: any): Promise<SocialMediaL
 
     return socialMediaLink;
   } catch (error) {
-    console.log('[SOCIAL MEDIA SERVICE] Error creating social media link:', error.message);
-    throw new Error(`Failed to create social media link: ${error.message}`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.log('[SOCIAL MEDIA SERVICE] Error creating social media link:', errorMessage);
+    throw new Error(`Failed to create social media link: ${errorMessage}`);
   }
 }
 
@@ -165,15 +118,14 @@ export async function createSocialMediaLink(linkData: any): Promise<SocialMediaL
  * @param linkData - The partial social media link data to update
  * @returns Promise with the updated social media link
  */
-export async function updateSocialMediaLink(linkId: number, linkData: any): Promise<SocialMediaLink> {
-  console.log('[SOCIAL MEDIA SERVICE] Updating social media link:', { id: linkId, updates: Object.keys(linkData) });
+export async function updateSocialMediaLink(linkId: number, linkData: unknown): Promise<SocialMediaLink> {
+  console.log('[SOCIAL MEDIA SERVICE] Updating social media link:', { 
+    id: linkId, 
+    updates: typeof linkData === 'object' && linkData !== null ? Object.keys(linkData) : [] 
+  });
 
-  // Validate input data
-  const validation = validateSocialMediaLinkUpdate(linkData);
-  if (!validation.isValid) {
-    console.log('[SOCIAL MEDIA SERVICE] Validation failed:', validation.error);
-    throw new Error(validation.error);
-  }
+  // Validate input data using Zod schema
+  const validatedData = socialMediaLinkUpdateSchema.parse(linkData);
 
   try {
     // Check if social media link exists
@@ -183,28 +135,32 @@ export async function updateSocialMediaLink(linkId: number, linkData: any): Prom
     }
 
     // Check for duplicate platform if platform is being updated
-    if (linkData.platform && linkData.platform.toLowerCase() !== existingLink.platform.toLowerCase()) {
+    if (validatedData.platform && validatedData.platform !== existingLink.platform.toLowerCase()) {
       const allLinks = await storage.getSocialMediaLinks();
       const duplicatePlatform = allLinks.find(link => 
-        link.id !== linkId && link.platform.toLowerCase() === linkData.platform.toLowerCase()
+        link.id !== linkId && link.platform.toLowerCase() === validatedData.platform!.toLowerCase()
       );
       
       if (duplicatePlatform) {
-        throw new Error(`A social media link for ${linkData.platform} already exists`);
+        throw new Error(`A social media link for ${validatedData.platform} already exists`);
       }
     }
 
     // Prepare update data
     const updateData: Partial<InsertSocialMediaLink> = {};
     
-    if (linkData.platform !== undefined) updateData.platform = linkData.platform.toLowerCase();
-    if (linkData.url !== undefined) updateData.url = linkData.url.trim();
-    if (linkData.displayName !== undefined) updateData.displayName = linkData.displayName.trim();
-    if (linkData.iconClass !== undefined) updateData.iconClass = linkData.iconClass.trim();
-    if (linkData.isActive !== undefined) updateData.isActive = linkData.isActive;
-    if (linkData.sortOrder !== undefined) updateData.sortOrder = linkData.sortOrder;
+    if (validatedData.platform !== undefined) updateData.platform = validatedData.platform;
+    if (validatedData.url !== undefined) updateData.url = validatedData.url.trim();
+    if (validatedData.displayName !== undefined) updateData.displayName = validatedData.displayName.trim();
+    if (validatedData.iconClass !== undefined) updateData.iconClass = validatedData.iconClass.trim();
+    if (validatedData.isActive !== undefined) updateData.isActive = validatedData.isActive;
+    if (validatedData.sortOrder !== undefined) updateData.sortOrder = validatedData.sortOrder;
 
     const updatedLink = await storage.updateSocialMediaLink(linkId, updateData);
+    if (!updatedLink) {
+      throw new Error('Failed to update social media link');
+    }
+
     console.log('[SOCIAL MEDIA SERVICE] Successfully updated social media link:', {
       id: updatedLink.id,
       platform: updatedLink.platform
@@ -212,8 +168,9 @@ export async function updateSocialMediaLink(linkId: number, linkData: any): Prom
 
     return updatedLink;
   } catch (error) {
-    console.log('[SOCIAL MEDIA SERVICE] Error updating social media link:', error.message);
-    throw new Error(`Failed to update social media link: ${error.message}`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.log('[SOCIAL MEDIA SERVICE] Error updating social media link:', errorMessage);
+    throw new Error(`Failed to update social media link: ${errorMessage}`);
   }
 }
 
@@ -244,8 +201,9 @@ export async function deleteSocialMediaLink(linkId: number): Promise<void> {
       await reorderAllSocialMediaLinks(remainingLinks.map(link => link.id));
     }
   } catch (error) {
-    console.log('[SOCIAL MEDIA SERVICE] Error deleting social media link:', error.message);
-    throw new Error(`Failed to delete social media link: ${error.message}`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.log('[SOCIAL MEDIA SERVICE] Error deleting social media link:', errorMessage);
+    throw new Error(`Failed to delete social media link: ${errorMessage}`);
   }
 }
 
@@ -272,8 +230,9 @@ export async function reorderAllSocialMediaLinks(orderedIds: number[]): Promise<
 
     console.log('[SOCIAL MEDIA SERVICE] Successfully reordered all social media links:', { linkCount: orderedIds.length });
   } catch (error) {
-    console.log('[SOCIAL MEDIA SERVICE] Error reordering social media links:', error.message);
-    throw new Error(`Failed to reorder social media links: ${error.message}`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.log('[SOCIAL MEDIA SERVICE] Error reordering social media links:', errorMessage);
+    throw new Error(`Failed to reorder social media links: ${errorMessage}`);
   }
 }
 
