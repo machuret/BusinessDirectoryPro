@@ -41,6 +41,17 @@ router.post("/admin/menu-items", async (req, res) => {
   }
 });
 
+// Activate all menu items endpoint
+router.post("/admin/activate-menu-items", async (req, res) => {
+  try {
+    const result = await menuService.performBulkMenuItemAction([], 'activate-all');
+    res.json({ message: "All menu items activated", result });
+  } catch (error) {
+    console.error("Error activating menu items:", error);
+    res.status(500).json({ message: "Failed to activate menu items" });
+  }
+});
+
 router.get("/admin/menu-items/:id", async (req, res) => {
   try {
     const id = parseInt(req.params.id);

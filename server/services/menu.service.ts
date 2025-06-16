@@ -377,16 +377,35 @@ export async function toggleMenuItemStatus(menuItemId: number): Promise<MenuItem
  */
 export async function performBulkMenuItemAction(
   menuItemIds: number[], 
-  action: 'activate' | 'deactivate' | 'delete'
+  action: 'activate' | 'deactivate' | 'delete' | 'activate-all'
 ): Promise<{ success: number; failed: number; errors: string[] }> {
   console.log('[MENU SERVICE] Performing bulk menu item action:', { action, itemCount: menuItemIds.length });
+
+  if (action === 'activate-all') {
+    // Special case: activate all menu items
+    try {
+      const allItems = await storage.getMenuItems();
+      let successCount = 0;
+      for (const item of allItems) {
+        if (!item.isActive) {
+          await storage.updateMenuItem(item.id, { isActive: true });
+          successCount++;
+        }
+      }
+      console.log('[MENU SERVICE] Activated all menu items:', { count: successCount });
+      return { success: successCount, failed: 0, errors: [] };
+    } catch (error) {
+      console.log('[MENU SERVICE] Error activating all menu items:', error.message);
+      return { success: 0, failed: 1, errors: [error.message] };
+    }
+  }
 
   if (!menuItemIds || menuItemIds.length === 0) {
     throw new Error('Menu item IDs array is required');
   }
 
   if (!['activate', 'deactivate', 'delete'].includes(action)) {
-    throw new Error('Invalid action. Must be activate, deactivate, or delete');
+    throw new Error('Invalid action. Must be activate, deactivate, delete, or activate-all');
   }
 
   const result = { success: 0, failed: 0, errors: [] };
