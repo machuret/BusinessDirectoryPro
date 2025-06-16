@@ -21,7 +21,7 @@ interface OwnershipClaim {
   userEmail?: string;
   userFirstName?: string;
   userLastName?: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'approved' | 'rejected' | 'revoked';
   message?: string; // User's claim message
   adminMessage?: string; // Admin's response message
   reviewedBy?: string;
@@ -194,6 +194,7 @@ export function OwnershipManagement() {
                 <SelectItem value="pending">Pending</SelectItem>
                 <SelectItem value="approved">Approved</SelectItem>
                 <SelectItem value="rejected">Rejected</SelectItem>
+                <SelectItem value="revoked">Revoked</SelectItem>
               </SelectContent>
             </Select>
           </div>

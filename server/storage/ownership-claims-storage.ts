@@ -193,7 +193,7 @@ export class OwnershipClaimsStorage {
    */
   async updateOwnershipClaim(
     id: number, 
-    status: 'pending' | 'approved' | 'rejected', 
+    status: 'pending' | 'approved' | 'rejected' | 'revoked', 
     adminMessage?: string, 
     reviewedBy?: string
   ): Promise<OwnershipClaim | undefined> {
@@ -221,15 +221,27 @@ export class OwnershipClaimsStorage {
         .where(eq(ownershipClaims.id, id))
         .returning();
 
-      // If claim is approved, transfer business ownership
-      if (status === 'approved' && existingClaim.businessId && existingClaim.userId) {
-        await db.execute(sql`
-          UPDATE businesses 
-          SET ownerid = ${existingClaim.userId}
-          WHERE placeid = ${existingClaim.businessId}
-        `);
-        
-        console.log(`Business ownership transferred: ${existingClaim.businessId} -> ${existingClaim.userId}`);
+      // Handle business ownership based on status
+      if (existingClaim.businessId && existingClaim.userId) {
+        if (status === 'approved') {
+          // Transfer business ownership
+          await db.execute(sql`
+            UPDATE businesses 
+            SET ownerid = ${existingClaim.userId}
+            WHERE placeid = ${existingClaim.businessId}
+          `);
+          
+          console.log(`Business ownership transferred: ${existingClaim.businessId} -> ${existingClaim.userId}`);
+        } else if (status === 'revoked') {
+          // Remove business ownership
+          await db.execute(sql`
+            UPDATE businesses 
+            SET ownerid = NULL
+            WHERE placeid = ${existingClaim.businessId} AND ownerid = ${existingClaim.userId}
+          `);
+          
+          console.log(`Business ownership revoked: ${existingClaim.businessId} from ${existingClaim.userId}`);
+        }
       }
 
       console.log(`Ownership claim ${id} updated to status: ${status} by admin ${reviewedBy}`);
