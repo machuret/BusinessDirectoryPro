@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { storage } from "../../storage";
+import { bulkDeleteBusinesses, validateBulkDeleteRequest, generateBulkDeleteSummary } from "../../services/business.service";
 
 const router = Router();
 
@@ -56,29 +57,25 @@ router.delete('/:id', async (req, res) => {
 // Bulk delete businesses
 router.post('/bulk-delete', async (req, res) => {
   try {
+    // Validate request data using service
+    const validation = validateBulkDeleteRequest(req.body);
+    if (!validation.isValid) {
+      return res.status(400).json({ message: validation.error });
+    }
+
     const { businessIds } = req.body;
-    
-    if (!Array.isArray(businessIds) || businessIds.length === 0) {
-      return res.status(400).json({ message: "businessIds array is required" });
-    }
 
-    let deletedCount = 0;
-    const errors = [];
+    // Use service to perform bulk deletion
+    const result = await bulkDeleteBusinesses(businessIds);
 
-    for (const businessId of businessIds) {
-      try {
-        await storage.deleteBusiness(businessId);
-        deletedCount++;
-      } catch (error) {
-        errors.push({ businessId, error: (error as Error).message });
-      }
-    }
+    // Generate user-friendly summary message
+    const message = generateBulkDeleteSummary(result);
 
     res.json({
-      message: `${deletedCount} business(es) deleted successfully`,
-      deletedCount,
-      totalRequested: businessIds.length,
-      errors
+      message,
+      deletedCount: result.deletedCount,
+      totalRequested: result.totalRequested,
+      errors: result.errors.length > 0 ? result.errors : undefined
     });
   } catch (error) {
     console.error("Error bulk deleting businesses:", error);
