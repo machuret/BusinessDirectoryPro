@@ -1129,6 +1129,9 @@ Respond with JSON format: {"services": [array of service objects]}. Make service
   // Setup featured requests routes
   setupFeaturedRequestsRoutes(app);
 
+  // Setup reviews routes
+  setupReviewRoutes(app);
+
   // Setup content management routes
   app.use(contentRouter);
 

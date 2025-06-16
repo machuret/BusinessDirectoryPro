@@ -52,52 +52,100 @@ export class ReviewsStorage {
   }
 
   async getApprovedReviewsByBusiness(businessId: string): Promise<(Review & { user: Pick<User, 'firstName' | 'lastName'> })[]> {
-    const result = await db
-      .select({
-        id: reviews.id,
-        businessId: reviews.businessId,
-        userId: reviews.userId,
-        rating: reviews.rating,
-        title: reviews.title,
-        comment: reviews.comment,
-        authorName: reviews.authorName,
-        authorEmail: reviews.authorEmail,
-        status: reviews.status,
-        adminNotes: reviews.adminNotes,
-        createdAt: reviews.createdAt,
-        reviewedAt: reviews.reviewedAt,
-        reviewedBy: reviews.reviewedBy,
-        userFirstName: users.firstName,
-        userLastName: users.lastName
-      })
-      .from(reviews)
-      .leftJoin(users, eq(reviews.userId, users.id))
-      .where(and(
-        eq(reviews.businessId, businessId),
-        eq(reviews.status, 'approved')
-      ))
-      .orderBy(desc(reviews.createdAt));
+    try {
+      console.log(`[REVIEWS DEBUG] Fetching reviews for business: ${businessId}`);
+      
+      // Get the business with reviews data
+      const businessResult = await db
+        .select({ 
+          reviews: businesses.reviews,
+          title: businesses.title 
+        })
+        .from(businesses)
+        .where(eq(businesses.placeid, businessId))
+        .limit(1);
 
-    // Transform the result to include user object
-    return result.map(row => ({
-      id: row.id,
-      businessId: row.businessId,
-      userId: row.userId,
-      rating: row.rating,
-      title: row.title,
-      comment: row.comment,
-      authorName: row.authorName,
-      authorEmail: row.authorEmail,
-      status: row.status,
-      adminNotes: row.adminNotes,
-      createdAt: row.createdAt,
-      reviewedAt: row.reviewedAt,
-      reviewedBy: row.reviewedBy,
-      user: {
-        firstName: row.userFirstName,
-        lastName: row.userLastName
+      console.log(`[REVIEWS DEBUG] Business query result:`, businessResult);
+
+      if (businessResult.length > 0) {
+        const business = businessResult[0];
+        console.log(`[REVIEWS DEBUG] Business reviews field:`, business.reviews);
+        
+        if (business.reviews) {
+          let reviewsData: any[] = [];
+          
+          // Handle different possible structures of reviews data
+          if (Array.isArray(business.reviews)) {
+            reviewsData = business.reviews;
+          } else if (typeof business.reviews === 'object' && business.reviews !== null) {
+            // If reviews is an object, try to extract array from common properties
+            const reviewsObj = business.reviews as any;
+            if (Array.isArray(reviewsObj.reviews)) {
+              reviewsData = reviewsObj.reviews;
+            } else if (Array.isArray(reviewsObj.data)) {
+              reviewsData = reviewsObj.data;
+            } else if (Array.isArray(reviewsObj.results)) {
+              reviewsData = reviewsObj.results;
+            }
+          }
+          
+          console.log(`[REVIEWS DEBUG] Processed reviews data:`, reviewsData);
+          
+          if (reviewsData.length > 0) {
+            const transformedReviews = reviewsData.map((review, index) => {
+              const transformedReview = {
+                id: index + 1,
+                businessId: businessId,
+                userId: null,
+                rating: parseInt(review.rating) || review.star_rating || 5,
+                title: review.title || review.summary || null,
+                comment: review.text || review.comment || review.review || review.content || '',
+                authorName: review.author_name || review.authorName || review.name || review.user_name || 'Anonymous',
+                authorEmail: null,
+                status: 'approved' as const,
+                adminNotes: null,
+                createdAt: review.time ? new Date(review.time * 1000) : (review.date ? new Date(review.date) : new Date()),
+                reviewedAt: null,
+                reviewedBy: null,
+                user: {
+                  firstName: null,
+                  lastName: null
+                }
+              };
+              console.log(`[REVIEWS DEBUG] Transformed review ${index + 1}:`, transformedReview);
+              return transformedReview;
+            });
+            
+            console.log(`[REVIEWS DEBUG] Returning ${transformedReviews.length} reviews`);
+            return transformedReviews;
+          }
+        }
       }
-    }));
+
+      // Fallback to reviews table if no JSON reviews found
+      console.log(`[REVIEWS DEBUG] No JSON reviews found, checking reviews table`);
+      const result = await db
+        .select()
+        .from(reviews)
+        .where(and(
+          eq(reviews.businessId, businessId),
+          eq(reviews.status, 'approved')
+        ))
+        .orderBy(desc(reviews.createdAt));
+
+      console.log(`[REVIEWS DEBUG] Reviews table result:`, result);
+      
+      return result.map(row => ({
+        ...row,
+        user: {
+          firstName: null,
+          lastName: null
+        }
+      }));
+    } catch (error) {
+      console.error('[REVIEWS DEBUG] Error fetching approved reviews:', error);
+      return [];
+    }
   }
 
   async createReview(review: InsertReview): Promise<Review> {
