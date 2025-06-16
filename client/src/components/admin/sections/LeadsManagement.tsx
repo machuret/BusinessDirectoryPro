@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Mail, Phone, User, Building2, Eye, Trash2, Clock, CheckCircle, XCircle, AlertCircle } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Mail, Phone, User, Building2, Eye, Trash2, Clock, CheckCircle, XCircle, AlertCircle, Trash } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
@@ -27,6 +28,7 @@ interface Lead {
 
 export function LeadsManagement() {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [selectedLeads, setSelectedLeads] = useState<Set<number>>(new Set());
   const { toast } = useToast();
 
   const { data: leads, isLoading } = useQuery<Lead[]>({
@@ -62,6 +64,27 @@ export function LeadsManagement() {
       toast({
         title: "Success",
         description: "Lead deleted successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const bulkDeleteMutation = useMutation({
+    mutationFn: async (leadIds: number[]) => {
+      await apiRequest("DELETE", "/api/admin/leads/bulk", { leadIds });
+    },
+    onSuccess: (_, leadIds) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/leads"] });
+      setSelectedLeads(new Set());
+      toast({
+        title: "Success",
+        description: `${leadIds.length} leads deleted successfully`,
       });
     },
     onError: (error: Error) => {
@@ -109,6 +132,33 @@ export function LeadsManagement() {
     converted: leads.filter(l => l.status === "converted").length,
     closed: leads.filter(l => l.status === "closed").length,
   } : { new: 0, contacted: 0, converted: 0, closed: 0 };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked && leads) {
+      setSelectedLeads(new Set(leads.map(lead => lead.id)));
+    } else {
+      setSelectedLeads(new Set());
+    }
+  };
+
+  const handleSelectLead = (leadId: number, checked: boolean) => {
+    const newSelected = new Set(selectedLeads);
+    if (checked) {
+      newSelected.add(leadId);
+    } else {
+      newSelected.delete(leadId);
+    }
+    setSelectedLeads(newSelected);
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedLeads.size > 0) {
+      bulkDeleteMutation.mutate(Array.from(selectedLeads));
+    }
+  };
+
+  const isAllSelected = leads ? selectedLeads.size === leads.length && leads.length > 0 : false;
+  const isPartiallySelected = selectedLeads.size > 0 && selectedLeads.size < (leads?.length || 0);
 
   return (
     <div className="space-y-6">
@@ -163,8 +213,47 @@ export function LeadsManagement() {
       {/* Leads Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Customer Leads</CardTitle>
-          <CardDescription>View and manage customer inquiries and business leads</CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Customer Leads</CardTitle>
+              <CardDescription>View and manage customer inquiries and business leads</CardDescription>
+            </div>
+            {selectedLeads.size > 0 && (
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-muted-foreground">
+                  {selectedLeads.size} selected
+                </span>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="destructive" size="sm" disabled={bulkDeleteMutation.isPending}>
+                      <Trash className="h-4 w-4 mr-2" />
+                      Delete Selected ({selectedLeads.size})
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Confirm Bulk Delete</DialogTitle>
+                      <DialogDescription>
+                        Are you sure you want to delete {selectedLeads.size} selected leads? This action cannot be undone.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex justify-end space-x-2 mt-4">
+                      <DialogTrigger asChild>
+                        <Button variant="outline">Cancel</Button>
+                      </DialogTrigger>
+                      <Button 
+                        variant="destructive" 
+                        onClick={handleBulkDelete}
+                        disabled={bulkDeleteMutation.isPending}
+                      >
+                        {bulkDeleteMutation.isPending ? "Deleting..." : "Delete All"}
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -173,6 +262,13 @@ export function LeadsManagement() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-12">
+                    <Checkbox
+                      checked={isAllSelected}
+                      onCheckedChange={handleSelectAll}
+                      aria-label="Select all leads"
+                    />
+                  </TableHead>
                   <TableHead>Customer</TableHead>
                   <TableHead>Business</TableHead>
                   <TableHead>Contact</TableHead>
@@ -184,6 +280,13 @@ export function LeadsManagement() {
               <TableBody>
                 {leads.map((lead) => (
                   <TableRow key={lead.id}>
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedLeads.has(lead.id)}
+                        onCheckedChange={(checked) => handleSelectLead(lead.id, checked as boolean)}
+                        aria-label={`Select lead from ${lead.senderName}`}
+                      />
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-2">
                         <User className="h-4 w-4 text-muted-foreground" />
