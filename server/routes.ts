@@ -160,6 +160,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Azure Blob Storage upload endpoint
+  app.post('/api/admin/upload-image', uploadImage.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: 'No file uploaded' });
+      }
+
+      const { type } = req.body;
+      
+      if (!type || !['logo', 'background'].includes(type)) {
+        return res.status(400).json({ message: 'Invalid upload type. Must be "logo" or "background"' });
+      }
+
+      // Generate unique filename
+      const fileName = azureBlobService.generateFileName(req.file.originalname, type as 'logo' | 'background');
+      
+      // Upload to Azure Blob Storage
+      const url = await azureBlobService.uploadFile(
+        req.file.buffer,
+        fileName,
+        req.file.mimetype
+      );
+
+      res.json({
+        success: true,
+        url,
+        fileName,
+        type,
+        originalName: req.file.originalname,
+        size: req.file.size
+      });
+
+    } catch (error) {
+      console.error('Upload error:', error);
+      res.status(500).json({ 
+        message: error instanceof Error ? error.message : 'Failed to upload file',
+        success: false 
+      });
+    }
+  });
+
+  // Site settings update endpoint
+  app.put('/api/admin/site-settings/:key', async (req, res) => {
+    try {
+      const { key } = req.params;
+      const { value, description, category } = req.body;
+
+      if (!value) {
+        return res.status(400).json({ message: 'Value is required' });
+      }
+
+      const updatedSetting = await storage.updateSiteSetting(
+        key,
+        value,
+        description,
+        category
+      );
+
+      res.json(updatedSetting);
+    } catch (error) {
+      console.error('Error updating site setting:', error);
+      res.status(500).json({ 
+        message: error instanceof Error ? error.message : 'Failed to update setting'
+      });
+    }
+  });
+
   // OpenAI optimization endpoints
   app.post('/api/admin/optimize-businesses', async (req, res) => {
     try {
