@@ -116,6 +116,16 @@ export function OwnershipManagement() {
     }
   };
 
+  const handleRevoke = () => {
+    if (selectedClaim) {
+      updateClaimMutation.mutate({
+        claimId: selectedClaim.id,
+        status: 'revoked',
+        notes: reviewNotes,
+      });
+    }
+  };
+
   // Filter claims
   const filteredClaims = claims.filter((claim: OwnershipClaim) => {
     const matchesSearch = claim.businessTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -132,6 +142,8 @@ export function OwnershipManagement() {
         return <Badge variant="outline" className="text-primary border-primary"><CheckCircle className="h-3 w-3 mr-1" />Approved</Badge>;
       case 'rejected':
         return <Badge variant="outline" className="text-destructive border-destructive"><XCircle className="h-3 w-3 mr-1" />Rejected</Badge>;
+      case 'revoked':
+        return <Badge variant="outline" className="text-orange-600 border-orange-600"><XCircle className="h-3 w-3 mr-1" />Revoked</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -361,11 +373,25 @@ export function OwnershipManagement() {
 
                               {selectedClaim.status !== 'pending' && (
                                 <div className="bg-muted p-3 rounded-lg">
-                                  <div className="flex items-center gap-2">
-                                    {getStatusBadge(selectedClaim.status)}
-                                    <span className="text-sm text-muted-foreground">
-                                      on {new Date(selectedClaim.reviewedAt || selectedClaim.createdAt).toLocaleDateString()}
-                                    </span>
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                      {getStatusBadge(selectedClaim.status)}
+                                      <span className="text-sm text-muted-foreground">
+                                        on {new Date(selectedClaim.reviewedAt || selectedClaim.createdAt).toLocaleDateString()}
+                                      </span>
+                                    </div>
+                                    {selectedClaim.status === 'approved' && (
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={handleRevoke}
+                                        disabled={updateClaimMutation.isPending}
+                                        className="text-orange-600 hover:text-orange-700"
+                                      >
+                                        <XCircle className="h-4 w-4 mr-1" />
+                                        Revoke Ownership
+                                      </Button>
+                                    )}
                                   </div>
                                   {selectedClaim.adminMessage && (
                                     <div className="mt-2 text-sm">

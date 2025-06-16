@@ -106,7 +106,9 @@ export default function CMSManagement() {
       return await res.json();
     },
     onSuccess: () => {
+      // Force a complete refresh of the pages query
       queryClient.invalidateQueries({ queryKey: ["/api/admin/pages"] });
+      queryClient.refetchQueries({ queryKey: ["/api/admin/pages"] });
       setIsCreateDialogOpen(false);
       form.reset();
       toast({
