@@ -76,17 +76,22 @@ export function setupAuthRoutes(app: Express) {
       
       const hashedPassword = await hashPassword(password);
       const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      // Allow admin role for specific admin emails
+      const isAdminEmail = sanitizedEmail === 'admin@businesshub.com' || sanitizedEmail === 'admin@businessdirectory.com';
+      const userRole = isAdminEmail ? 'admin' : 'user';
+      
       const user = await storage.createUser({
         id: userId,
         email: sanitizedEmail,
         password: hashedPassword,
         firstName: sanitizedFirstName,
         lastName: sanitizedLastName,
-        role: "user"
+        role: userRole
       });
       
-      // Set session
+      // Set session with complete user data
       req.session.userId = user.id;
+      req.session.user = user;
       
       // Remove password from response
       const { password: _, ...userWithoutPassword } = user;
@@ -124,8 +129,9 @@ export function setupAuthRoutes(app: Express) {
         return res.status(401).json({ message: "Invalid email or password" });
       }
       
-      // Set session
+      // Set session with complete user data
       req.session.userId = user.id;
+      req.session.user = user;
       
       // Remove password from response
       const { password: _, ...userWithoutPassword } = user;
