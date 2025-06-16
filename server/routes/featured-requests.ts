@@ -107,15 +107,14 @@ Submit your request below and our team will review it within 24-48 hours.`,
   });
 
   // Get all featured requests for admin review with business details
-  app.get("/api/admin/featured-requests", isAuthenticated, async (req: any, res) => {
+  app.get("/api/featured-requests/admin", async (req: any, res) => {
     try {
-      const currentUser = req.user;
-      if (!currentUser || !currentUser.claims) {
+      const sessionUser = req.session?.user;
+      if (!sessionUser) {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const user = await storage.getUser(currentUser.claims.sub);
-      if (!user || user.role !== 'admin') {
+      if (sessionUser.role !== 'admin') {
         return res.status(403).json({ message: "Admin access required" });
       }
 
@@ -128,15 +127,14 @@ Submit your request below and our team will review it within 24-48 hours.`,
   });
 
   // Approve or reject featured request (admin only)
-  app.patch("/api/admin/featured-requests/:id", isAuthenticated, async (req: any, res) => {
+  app.patch("/api/featured-requests/:id/status", async (req: any, res) => {
     try {
-      const currentUser = req.user;
-      if (!currentUser || !currentUser.claims) {
+      const sessionUser = req.session?.user;
+      if (!sessionUser) {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const user = await storage.getUser(currentUser.claims.sub);
-      if (!user || user.role !== 'admin') {
+      if (sessionUser.role !== 'admin') {
         return res.status(403).json({ message: "Admin access required" });
       }
 
@@ -150,7 +148,7 @@ Submit your request below and our team will review it within 24-48 hours.`,
       const updatedRequest = await storage.updateFeaturedRequestStatus(
         parseInt(id), 
         status, 
-        user.id, 
+        sessionUser.id, 
         adminMessage
       );
 
