@@ -70,27 +70,21 @@ export function setupLeadRoutes(app: Express) {
   app.get('/api/leads/:id', isAuthenticated, async (req: any, res) => {
     try {
       const leadId = parseInt(req.params.id);
-      const user = req.user;
+      const userId = req.session?.userId;
+
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
+
+      // Check access permission using service
+      const hasAccess = await canUserAccessLead(userId, leadId);
+      if (!hasAccess) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
 
       const lead = await storage.getLead(leadId);
       if (!lead) {
         return res.status(404).json({ message: 'Lead not found' });
-      }
-
-      // Check if user has access to this lead
-      const { isClaimed, ownerId } = await storage.isBusinessClaimed(lead.businessId);
-      
-      let hasAccess = false;
-      if (user.role === 'admin' && !isClaimed) {
-        // Admin can access leads from unclaimed businesses
-        hasAccess = true;
-      } else if (isClaimed && ownerId === user.id) {
-        // Business owner can access leads from their claimed businesses
-        hasAccess = true;
-      }
-
-      if (!hasAccess) {
-        return res.status(403).json({ message: 'Access denied' });
       }
 
       res.json(lead);
@@ -105,36 +99,30 @@ export function setupLeadRoutes(app: Express) {
     try {
       const leadId = parseInt(req.params.id);
       const { status } = req.body;
-      const user = req.user;
+      const userId = req.session?.userId;
 
-      if (!status || !['new', 'contacted', 'qualified', 'converted', 'closed'].includes(status)) {
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
+
+      // Validate status using service
+      if (!status || !isValidLeadStatus(status)) {
         return res.status(400).json({ 
           message: 'Invalid status. Must be one of: new, contacted, qualified, converted, closed' 
         });
       }
 
-      const lead = await storage.getLead(leadId);
-      if (!lead) {
-        return res.status(404).json({ message: 'Lead not found' });
-      }
-
-      // Check if user has access to this lead
-      const { isClaimed, ownerId } = await storage.isBusinessClaimed(lead.businessId);
-      
-      let hasAccess = false;
-      if (user.role === 'admin' && !isClaimed) {
-        // Admin can update leads from unclaimed businesses
-        hasAccess = true;
-      } else if (isClaimed && ownerId === user.id) {
-        // Business owner can update leads from their claimed businesses
-        hasAccess = true;
-      }
-
+      // Check access permission using service
+      const hasAccess = await canUserAccessLead(userId, leadId);
       if (!hasAccess) {
         return res.status(403).json({ message: 'Access denied' });
       }
 
       const updatedLead = await storage.updateLeadStatus(leadId, status);
+      if (!updatedLead) {
+        return res.status(404).json({ message: 'Lead not found' });
+      }
+
       res.json(updatedLead);
     } catch (error) {
       console.error('Error updating lead status:', error);
@@ -146,25 +134,14 @@ export function setupLeadRoutes(app: Express) {
   app.delete('/api/leads/:id', isAuthenticated, async (req: any, res) => {
     try {
       const leadId = parseInt(req.params.id);
-      const user = req.user;
+      const userId = req.session?.userId;
 
-      const lead = await storage.getLead(leadId);
-      if (!lead) {
-        return res.status(404).json({ message: 'Lead not found' });
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
       }
 
-      // Check if user has access to this lead
-      const { isClaimed, ownerId } = await storage.isBusinessClaimed(lead.businessId);
-      
-      let hasAccess = false;
-      if (user.role === 'admin' && !isClaimed) {
-        // Admin can delete leads from unclaimed businesses
-        hasAccess = true;
-      } else if (isClaimed && ownerId === user.id) {
-        // Business owner can delete leads from their claimed businesses
-        hasAccess = true;
-      }
-
+      // Check access permission using service
+      const hasAccess = await canUserAccessLead(userId, leadId);
       if (!hasAccess) {
         return res.status(403).json({ message: 'Access denied' });
       }
