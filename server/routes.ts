@@ -850,6 +850,37 @@ Respond with JSON format: {"services": [array of service objects]}. Make service
     }
   });
 
+  // Revert ownership claim (admin functionality)
+  app.put("/api/admin/ownership-claims/:id/revert", async (req, res) => {
+    try {
+      const claimId = parseInt(req.params.id);
+      const { adminMessage } = req.body;
+      
+      // Get reviewer ID from session or use demo-admin as fallback
+      const session = req.session as any;
+      const reviewedBy = session?.userId || 'demo-admin';
+      
+      // Update claim status to 'rejected' and remove business ownership
+      const updatedClaim = await storage.updateOwnershipClaim(claimId, 'rejected', adminMessage || 'Ownership reverted by admin', reviewedBy);
+      
+      if (updatedClaim) {
+        // Remove business ownership if it was previously approved
+        await storage.removeBusinessOwnership(updatedClaim.businessId);
+      }
+      
+      res.json({ 
+        success: true, 
+        message: "Ownership claim reverted successfully",
+        claim: updatedClaim 
+      });
+    } catch (error) {
+      console.error("Error reverting ownership claim:", error);
+      res.status(500).json({ 
+        message: error instanceof Error ? error.message : "Failed to revert ownership claim"
+      });
+    }
+  });
+
   // Business Submissions Management
   app.get("/api/admin/business-submissions", async (req, res) => {
     try {

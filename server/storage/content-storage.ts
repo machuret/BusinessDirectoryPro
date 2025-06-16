@@ -3,10 +3,13 @@ import { db } from "../db";
 import { 
   contentStrings, 
   siteSettings,
+  menuItems,
   type ContentString, 
   type InsertContentString,
   type SiteSetting,
-  type InsertSiteSetting 
+  type InsertSiteSetting,
+  type MenuItem,
+  type InsertMenuItem
 } from "@shared/schema";
 
 /**
@@ -190,12 +193,159 @@ export class ContentStorage {
   }
 
   /**
-   * Get pages (placeholder implementation for admin interface)
+   * Menu Management Methods
+   */
+  async getMenuItems(): Promise<MenuItem[]> {
+    try {
+      const results = await db.select().from(menuItems).orderBy(menuItems.order);
+      return results;
+    } catch (error) {
+      console.error("Error fetching menu items:", error);
+      return [];
+    }
+  }
+
+  async getMenuItem(id: number): Promise<MenuItem | undefined> {
+    try {
+      const [result] = await db.select().from(menuItems).where(eq(menuItems.id, id));
+      return result;
+    } catch (error) {
+      console.error("Error fetching menu item:", error);
+      return undefined;
+    }
+  }
+
+  async createMenuItem(menuItem: InsertMenuItem): Promise<MenuItem> {
+    try {
+      // Get next order number
+      const maxOrder = await db.select({ maxOrder: sql<number>`COALESCE(MAX("order"), 0)` })
+        .from(menuItems);
+      
+      const newOrder = Number(maxOrder[0]?.maxOrder || 0) + 1;
+      
+      const [result] = await db.insert(menuItems)
+        .values({
+          ...menuItem,
+          order: newOrder,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        })
+        .returning();
+      
+      return result;
+    } catch (error) {
+      console.error("Error creating menu item:", error);
+      throw new Error("Failed to create menu item");
+    }
+  }
+
+  async updateMenuItem(id: number, updates: Partial<InsertMenuItem>): Promise<MenuItem | undefined> {
+    try {
+      const [result] = await db.update(menuItems)
+        .set({
+          ...updates,
+          updatedAt: new Date()
+        })
+        .where(eq(menuItems.id, id))
+        .returning();
+      
+      return result;
+    } catch (error) {
+      console.error("Error updating menu item:", error);
+      throw new Error("Failed to update menu item");
+    }
+  }
+
+  async deleteMenuItem(id: number): Promise<void> {
+    try {
+      await db.delete(menuItems).where(eq(menuItems.id, id));
+    } catch (error) {
+      console.error("Error deleting menu item:", error);
+      throw new Error("Failed to delete menu item");
+    }
+  }
+
+  /**
+   * Page Management Methods (placeholder implementations)
    */
   async getPages(status?: string): Promise<any[]> {
-    // This is a placeholder method to prevent server errors
-    // In a full CMS implementation, this would fetch actual pages
     return [];
+  }
+
+  async getPage(id: number): Promise<any | undefined> {
+    return undefined;
+  }
+
+  async getPageBySlug(slug: string): Promise<any | undefined> {
+    return undefined;
+  }
+
+  async createPage(page: any): Promise<any> {
+    throw new Error("Page management not implemented");
+  }
+
+  async updatePage(id: number, updates: any): Promise<any | undefined> {
+    throw new Error("Page management not implemented");
+  }
+
+  async deletePage(id: number): Promise<void> {
+    throw new Error("Page management not implemented");
+  }
+
+  async publishPage(id: number): Promise<any | undefined> {
+    throw new Error("Page management not implemented");
+  }
+
+  /**
+   * Website FAQ Management Methods
+   */
+  async getWebsiteFaqs(): Promise<any[]> {
+    return [];
+  }
+
+  async getWebsiteFaq(id: number): Promise<any | undefined> {
+    return undefined;
+  }
+
+  async createWebsiteFaq(faq: any): Promise<any> {
+    throw new Error("Website FAQ management not implemented");
+  }
+
+  async updateWebsiteFaq(id: number, updates: any): Promise<any | undefined> {
+    throw new Error("Website FAQ management not implemented");
+  }
+
+  async deleteWebsiteFaq(id: number): Promise<void> {
+    throw new Error("Website FAQ management not implemented");
+  }
+
+  async reorderWebsiteFaqs(reorderData: any[]): Promise<void> {
+    throw new Error("Website FAQ reordering not implemented");
+  }
+
+  /**
+   * Content Statistics
+   */
+  async getContentStringStats(): Promise<any> {
+    try {
+      const totalCount = await db.select({ count: sql`COUNT(*)` })
+        .from(contentStrings);
+      
+      const categoryCount = await db.select({ 
+        category: contentStrings.category,
+        count: sql`COUNT(*)` 
+      })
+        .from(contentStrings)
+        .groupBy(contentStrings.category);
+      
+      return {
+        total: totalCount[0]?.count || 0,
+        byCategory: categoryCount
+      };
+    } catch (error) {
+      console.error("Error fetching content stats:", error);
+      return { total: 0, byCategory: [] };
+    }
   }
 
   /**
