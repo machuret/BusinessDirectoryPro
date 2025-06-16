@@ -165,22 +165,16 @@ Submit your request below and our team will review it within 24-48 hours.`,
     try {
       const { userId } = req.params;
       
-      // Check if user is authenticated
-      if (!req.isAuthenticated || !req.isAuthenticated()) {
+      const sessionUser = req.session?.user;
+      if (!sessionUser) {
         return res.status(401).json({ message: "Authentication required" });
       }
       
-      const currentUser = req.user;
-      if (!currentUser || !currentUser.claims) {
-        return res.status(401).json({ message: "Authentication required" });
-      }
-      
-      const currentUserId = currentUser.claims.sub;
+      const currentUserId = sessionUser.id;
       
       // Users can only view their own featured requests, admins can view any
       if (currentUserId !== userId) {
-        const user = await storage.getUser(currentUserId);
-        if (!user || user.role !== 'admin') {
+        if (sessionUser.role !== 'admin') {
           return res.status(403).json({ message: "Access denied" });
         }
       }
@@ -196,16 +190,12 @@ Submit your request below and our team will review it within 24-48 hours.`,
   // Create a new featured request
   app.post("/api/featured-requests", async (req: any, res) => {
     try {
-      if (!req.isAuthenticated || !req.isAuthenticated()) {
+      const sessionUser = req.session?.user;
+      if (!sessionUser) {
         return res.status(401).json({ message: "Authentication required" });
       }
       
-      const currentUser = req.user;
-      if (!currentUser || !currentUser.claims) {
-        return res.status(401).json({ message: "Authentication required" });
-      }
-      
-      const userId = currentUser.claims.sub;
+      const userId = sessionUser.id;
 
       const { businessId, message } = req.body;
       
