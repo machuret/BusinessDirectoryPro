@@ -293,8 +293,9 @@ export async function moveSocialMediaLink(linkId: number, direction: 'up' | 'dow
 
     return true;
   } catch (error) {
-    console.log('[SOCIAL MEDIA SERVICE] Error moving social media link:', error.message);
-    throw new Error(`Failed to move social media link: ${error.message}`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.log('[SOCIAL MEDIA SERVICE] Error moving social media link:', errorMessage);
+    throw new Error(`Failed to move social media link: ${errorMessage}`);
   }
 }
 
@@ -316,6 +317,10 @@ export async function toggleSocialMediaLinkStatus(linkId: number): Promise<Socia
       isActive: !existingLink.isActive 
     });
 
+    if (!updatedLink) {
+      throw new Error('Failed to toggle social media link status');
+    }
+
     console.log('[SOCIAL MEDIA SERVICE] Toggled social media link status:', {
       id: linkId,
       platform: updatedLink.platform,
@@ -324,8 +329,9 @@ export async function toggleSocialMediaLinkStatus(linkId: number): Promise<Socia
 
     return updatedLink;
   } catch (error) {
-    console.log('[SOCIAL MEDIA SERVICE] Error toggling social media link status:', error.message);
-    throw new Error(`Failed to toggle social media link status: ${error.message}`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.log('[SOCIAL MEDIA SERVICE] Error toggling social media link status:', errorMessage);
+    throw new Error(`Failed to toggle social media link status: ${errorMessage}`);
   }
 }
 
@@ -338,15 +344,17 @@ export async function getAllSocialMediaLinks(activeOnly?: boolean): Promise<Soci
   console.log('[SOCIAL MEDIA SERVICE] Retrieved social media links:', { activeOnly: activeOnly || false });
 
   try {
-    const links = await storage.getSocialMediaLinks(activeOnly);
+    const allLinks = await storage.getSocialMediaLinks();
+    const links = activeOnly ? allLinks.filter(link => link.isActive) : allLinks;
     console.log('[SOCIAL MEDIA SERVICE] Retrieved social media links:', { 
       count: links.length, 
       activeOnly: activeOnly || false 
     });
     return links;
   } catch (error) {
-    console.log('[SOCIAL MEDIA SERVICE] Error retrieving social media links:', error.message);
-    throw new Error(`Failed to retrieve social media links: ${error.message}`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.log('[SOCIAL MEDIA SERVICE] Error retrieving social media links:', errorMessage);
+    throw new Error(`Failed to retrieve social media links: ${errorMessage}`);
   }
 }
 
@@ -367,8 +375,9 @@ export async function getSocialMediaLinkById(linkId: number): Promise<SocialMedi
     }
     return link;
   } catch (error) {
-    console.log('[SOCIAL MEDIA SERVICE] Error retrieving social media link by ID:', error.message);
-    throw new Error(`Failed to retrieve social media link: ${error.message}`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.log('[SOCIAL MEDIA SERVICE] Error retrieving social media link by ID:', errorMessage);
+    throw new Error(`Failed to retrieve social media link: ${errorMessage}`);
   }
 }
 
@@ -394,7 +403,8 @@ export async function performBulkSocialMediaLinkUpdates(
       result.success++;
     } catch (error) {
       result.failed++;
-      result.errors.push(`Link ${update.id}: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      result.errors.push(`Link ${update.id}: ${errorMessage}`);
     }
   }
 
@@ -440,7 +450,8 @@ export async function performBulkSocialMediaLinkAction(
       result.success++;
     } catch (error) {
       result.failed++;
-      result.errors.push(`Link ${linkId}: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      result.errors.push(`Link ${linkId}: ${errorMessage}`);
     }
   }
 
