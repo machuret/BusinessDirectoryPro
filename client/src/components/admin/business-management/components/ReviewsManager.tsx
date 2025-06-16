@@ -17,9 +17,11 @@ export default function ReviewsManager({ businessId, business }: ReviewsManagerP
   const { toast } = useToast();
   const [selectedReviews, setSelectedReviews] = useState<number[]>([]);
 
-  // Extract reviews from business data
-  const reviews = business?.reviews ? (Array.isArray(business.reviews) ? business.reviews : JSON.parse(business.reviews as string)) : [];
-  const isLoading = false;
+  // Fetch reviews from API
+  const { data: reviews = [], isLoading } = useQuery({
+    queryKey: ['/api/reviews', businessId],
+    enabled: !!businessId,
+  });
 
   const deleteReviewMutation = useMutation({
     mutationFn: async (reviewId: number) => {

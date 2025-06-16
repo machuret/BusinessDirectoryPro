@@ -78,7 +78,39 @@ export default function PhotoGalleryManager({ businessId, business }: PhotoGalle
     );
   }
 
-  const photos = business?.images ? (Array.isArray(business.images) ? business.images : JSON.parse(business.images as string)) : [];
+  // Parse images from various business fields
+  const parseBusinessImages = () => {
+    if (!business) return [];
+    
+    let images: string[] = [];
+    
+    // Parse from imageurls field (JSON array)
+    if (business.imageurls) {
+      try {
+        if (typeof business.imageurls === 'string') {
+          images = JSON.parse(business.imageurls);
+        } else if (Array.isArray(business.imageurls)) {
+          images = business.imageurls;
+        }
+      } catch (error) {
+        console.error('Error parsing imageurls:', error);
+      }
+    }
+    
+    // Add single imageurl
+    if (business.imageurl && !images.includes(business.imageurl)) {
+      images.push(business.imageurl);
+    }
+    
+    // Add logo if it's a valid URL
+    if (business.logo && typeof business.logo === 'string' && business.logo.startsWith('http') && !images.includes(business.logo)) {
+      images.push(business.logo);
+    }
+    
+    return images.filter(Boolean);
+  };
+  
+  const photos = parseBusinessImages();
 
   if (!photos || photos.length === 0) {
     return (
