@@ -5,28 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
-import { useCreatePage, useUpdatePage, useDeletePage, type PageFormData } from "@/hooks/usePageMutations";
-
-// Page schema for form validation  
-const pageSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  slug: z.string().min(1, "Slug is required").regex(/^[a-z0-9-]+$/, "Slug must contain only lowercase letters, numbers, and hyphens"),
-  content: z.string().min(1, "Content is required"),
-  metaDescription: z.string().optional(),
-  metaKeywords: z.string().optional(),
-  status: z.enum(["draft", "published"]),
-  type: z.enum(["page", "blog", "help"]),
-});
+import { useCreatePage, useUpdatePage, useDeletePage } from "@/hooks/usePageMutations";
+import PageForm, { type PageFormData } from "@/components/admin/forms/PageForm";
 
 interface Page {
   id: number;
@@ -50,37 +33,6 @@ export default function CMSManagement() {
   const [isPreviewDialogOpen, setIsPreviewDialogOpen] = useState(false);
   const [selectedPage, setSelectedPage] = useState<Page | null>(null);
 
-  const form = useForm<PageFormData>({
-    resolver: zodResolver(pageSchema),
-    defaultValues: {
-      title: "",
-      slug: "",
-      content: "",
-      metaDescription: "",
-      metaKeywords: "",
-      status: "draft",
-      type: "page",
-    },
-  });
-
-  // Rich text editor configuration
-  const quillModules = {
-    toolbar: [
-      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-      ['bold', 'italic', 'underline', 'strike'],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-      [{ 'indent': '-1'}, { 'indent': '+1' }],
-      ['link', 'image'],
-      [{ 'align': [] }],
-      ['clean']
-    ],
-  };
-
-  const quillFormats = [
-    'header', 'bold', 'italic', 'underline', 'strike',
-    'list', 'bullet', 'indent', 'link', 'image', 'align'
-  ];
-
   // Fetch pages
   const { data: pages = [], isLoading } = useQuery<Page[]>({
     queryKey: ["/api/admin/pages"],
@@ -90,7 +42,6 @@ export default function CMSManagement() {
   const createMutation = useCreatePage({
     onCreateSuccess: () => {
       setIsCreateDialogOpen(false);
-      form.reset();
     }
   });
 
@@ -98,7 +49,6 @@ export default function CMSManagement() {
     onUpdateSuccess: () => {
       setIsEditDialogOpen(false);
       setSelectedPage(null);
-      form.reset();
     }
   });
 
@@ -106,15 +56,6 @@ export default function CMSManagement() {
 
   const handleEdit = (page: Page) => {
     setSelectedPage(page);
-    form.reset({
-      title: page.title,
-      slug: page.slug,
-      content: page.content,
-      metaDescription: page.metaDescription || "",
-      metaKeywords: page.metaKeywords || "",
-      status: page.status,
-      type: page.type,
-    });
     setIsEditDialogOpen(true);
   };
 
@@ -123,11 +64,13 @@ export default function CMSManagement() {
     setIsPreviewDialogOpen(true);
   };
 
-  const onSubmit = (data: PageFormData) => {
+  const handleCreateSubmit = (data: PageFormData) => {
+    createMutation.mutate(data);
+  };
+
+  const handleUpdateSubmit = (data: PageFormData) => {
     if (selectedPage) {
       updateMutation.mutate({ id: selectedPage.id, data });
-    } else {
-      createMutation.mutate(data);
     }
   };
 
@@ -161,150 +104,13 @@ export default function CMSManagement() {
               <DialogTitle>Create New Page</DialogTitle>
               <DialogDescription>Add a new page to your website</DialogDescription>
             </DialogHeader>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="title"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Title</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Page title" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="slug"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Slug</FormLabel>
-                        <FormControl>
-                          <Input placeholder="page-slug" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="metaDescription"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Meta Description</FormLabel>
-                        <FormControl>
-                          <Textarea placeholder="SEO meta description" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="metaKeywords"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Meta Keywords</FormLabel>
-                        <FormControl>
-                          <Input placeholder="keyword1, keyword2, keyword3" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="type"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Type</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select type" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="page">Page</SelectItem>
-                            <SelectItem value="blog">Blog Post</SelectItem>
-                            <SelectItem value="help">Help Article</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="status"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Status</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select status" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="draft">Draft</SelectItem>
-                            <SelectItem value="published">Published</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <FormField
-                  control={form.control}
-                  name="content"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Content</FormLabel>
-                      <FormControl>
-                        <div className="h-64">
-                          <ReactQuill
-                            theme="snow"
-                            value={field.value}
-                            onChange={field.onChange}
-                            modules={quillModules}
-                            formats={quillFormats}
-                            style={{ height: '200px' }}
-                          />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <DialogFooter className="mt-8">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={() => setIsCreateDialogOpen(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button type="submit" disabled={createMutation.isPending}>
-                    {createMutation.isPending ? "Creating..." : "Create Page"}
-                  </Button>
-                </DialogFooter>
-              </form>
-            </Form>
+            <PageForm
+              onSubmit={handleCreateSubmit}
+              isSubmitting={createMutation.isPending}
+              submitLabel="Create Page"
+              showCancel={true}
+              onCancel={() => setIsCreateDialogOpen(false)}
+            />
           </DialogContent>
         </Dialog>
       </div>
@@ -451,150 +257,24 @@ export default function CMSManagement() {
             <DialogTitle>Edit Page</DialogTitle>
             <DialogDescription>Update page content and settings</DialogDescription>
           </DialogHeader>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Title</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Page title" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="slug"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Slug</FormLabel>
-                      <FormControl>
-                        <Input placeholder="page-slug" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="metaDescription"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Meta Description</FormLabel>
-                      <FormControl>
-                        <Textarea placeholder="SEO meta description" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="metaKeywords"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Meta Keywords</FormLabel>
-                      <FormControl>
-                        <Input placeholder="keyword1, keyword2, keyword3" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="type"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Type</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select type" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="page">Page</SelectItem>
-                          <SelectItem value="blog">Blog Post</SelectItem>
-                          <SelectItem value="help">Help Article</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="status"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Status</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select status" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="draft">Draft</SelectItem>
-                          <SelectItem value="published">Published</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <FormField
-                control={form.control}
-                name="content"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Content</FormLabel>
-                    <FormControl>
-                      <div className="h-64">
-                        <ReactQuill
-                          theme="snow"
-                          value={field.value}
-                          onChange={field.onChange}
-                          modules={quillModules}
-                          formats={quillFormats}
-                          style={{ height: '200px' }}
-                        />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <DialogFooter className="mt-8">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => setIsEditDialogOpen(false)}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={updateMutation.isPending}>
-                  {updateMutation.isPending ? "Updating..." : "Update Page"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
+          {selectedPage && (
+            <PageForm
+              onSubmit={handleUpdateSubmit}
+              initialValues={{
+                title: selectedPage.title,
+                slug: selectedPage.slug,
+                content: selectedPage.content,
+                metaDescription: selectedPage.metaDescription || "",
+                metaKeywords: selectedPage.metaKeywords || "",
+                status: selectedPage.status,
+                type: selectedPage.type,
+              }}
+              isSubmitting={updateMutation.isPending}
+              submitLabel="Update Page"
+              showCancel={true}
+              onCancel={() => setIsEditDialogOpen(false)}
+            />
+          )}
         </DialogContent>
       </Dialog>
 

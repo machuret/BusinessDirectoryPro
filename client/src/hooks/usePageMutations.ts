@@ -2,16 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-
-export interface PageFormData {
-  title: string;
-  slug: string;
-  content: string;
-  metaDescription?: string;
-  metaKeywords?: string;
-  status: "draft" | "published";
-  type: "page" | "blog" | "help";
-}
+import { type PageFormData } from "@/components/admin/forms/PageForm";
 
 export interface UsePageMutationsCallbacks {
   onCreateSuccess?: () => void;
