@@ -54,6 +54,7 @@ import AdminSettingsPage from "@/pages/admin/settings";
 import AccessibilityDemo from "@/pages/accessibility-demo";
 import { ContentTest } from "@/components/ContentTest";
 import NotFound from "@/pages/not-found";
+import { AdminRedirect } from "@/components/AdminRedirect";
 
 
 import GetFeaturedPage from "@/pages/get-featured";
@@ -85,11 +86,7 @@ function Router() {
       <Route path="/content-test" component={() => <div className="container mx-auto py-8"><ContentTest /></div>} />
       
       {/* Admin redirect route */}
-      <Route path="/admin" component={() => {
-        const [, navigate] = useLocation();
-        navigate("/admin/settings");
-        return null;
-      }} />
+      <Route path="/admin" component={AdminRedirect} />
       
       {/* Admin routes - must come before slug router */}
       {isAuthenticated && (

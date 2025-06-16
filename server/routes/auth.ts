@@ -152,29 +152,6 @@ export function setupAuthRoutes(app: Express) {
     }
   });
 
-  // Development login for admin access
-  app.post("/api/auth/dev-login", async (req: any, res) => {
-    try {
-      if (process.env.NODE_ENV !== 'development') {
-        return res.status(404).json({ message: "Not found" });
-      }
-      
-      const adminUser = await storage.getUserByEmail("admin@businesshub.com");
-      if (!adminUser) {
-        return res.status(404).json({ message: "Admin user not found" });
-      }
-      
-      // Set session for admin user
-      req.session.userId = adminUser.id;
-      
-      // Remove password from response
-      const { password: _, ...userWithoutPassword } = adminUser;
-      res.json(userWithoutPassword);
-    } catch (error) {
-      console.error("Dev login error:", error);
-      res.status(500).json({ message: "Login failed" });
-    }
-  });
 
   // Get current user
   app.get("/api/auth/user", async (req: any, res) => {
