@@ -33,7 +33,7 @@ async function testClaimsService() {
     console.log('1. Creating a new ownership claim...');
     const claimData = {
       userId: 'demo-user-1',
-      businessId: 'ChIJN1t_tDeuEmsRUsoyG83frY4', // Use a real business ID from the database
+      businessId: 'user_submitted_1750099765953_3c75ttj1s', // Use a real business ID from the database
       message: 'I am the legitimate owner of this business. I have been operating it for over 5 years and have all the necessary documentation to prove ownership. Please approve my claim.'
     };
     

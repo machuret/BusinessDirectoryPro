@@ -72,7 +72,7 @@ export async function approveClaim(claimId: number, adminId: string, adminMessag
 
     // First, get the claim details to extract businessId and userId
     const claims = await storage.getOwnershipClaims();
-    const claim = claims.find(c => c.id === claimId);
+    const claim = claims.find((c: any) => c.id === claimId);
     
     if (!claim) {
       throw new Error('Ownership claim not found');
@@ -157,7 +157,7 @@ export async function rejectClaim(claimId: number, adminId: string, adminMessage
 
     // Get the claim to verify it exists
     const claims = await storage.getOwnershipClaims();
-    const claim = claims.find(c => c.id === claimId);
+    const claim = claims.find((c: any) => c.id === claimId);
     
     if (!claim) {
       throw new Error('Ownership claim not found');
