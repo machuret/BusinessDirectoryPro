@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { optimizeBusinesses } from "./openai";
 import { setupAuthRoutes } from "./routes/auth";
+import { setupAuth } from "./auth";
 import { setupBusinessRoutes } from "./routes/businesses";
 import { setupAdminRoutes } from "./routes/admin";
 import { setupReviewRoutes } from "./routes/reviews";
@@ -47,6 +48,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Set up authentication system first
+  setupAuth(app);
+  
   // Register existing modular route handlers
   setupAuthRoutes(app);
   setupBusinessRoutes(app);
