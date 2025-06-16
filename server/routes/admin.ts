@@ -474,4 +474,79 @@ export function setupAdminRoutes(app: Express) {
       res.status(500).json({ message: "Failed to assign businesses" });
     }
   });
+
+  // Leads management
+  app.get('/api/admin/leads', async (req, res) => {
+    try {
+      const leads = await storage.getAllLeads();
+      res.json(leads);
+    } catch (error) {
+      console.error("Error fetching admin leads:", error);
+      res.status(500).json({ message: "Failed to fetch leads" });
+    }
+  });
+
+  app.patch('/api/admin/leads/:id', async (req, res) => {
+    try {
+      const leadId = parseInt(req.params.id);
+      const { status } = req.body;
+      
+      if (!status) {
+        return res.status(400).json({ message: "Status is required" });
+      }
+
+      const lead = await storage.updateLead(leadId, { status });
+      if (!lead) {
+        return res.status(404).json({ message: "Lead not found" });
+      }
+      
+      res.json(lead);
+    } catch (error) {
+      console.error("Error updating lead:", error);
+      res.status(500).json({ message: "Failed to update lead" });
+    }
+  });
+
+  app.delete('/api/admin/leads/:id', async (req, res) => {
+    try {
+      const leadId = parseInt(req.params.id);
+      await storage.deleteLead(leadId);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting lead:", error);
+      res.status(500).json({ message: "Failed to delete lead" });
+    }
+  });
+
+  app.delete('/api/admin/leads/bulk', async (req, res) => {
+    try {
+      const { leadIds } = req.body;
+      
+      if (!Array.isArray(leadIds) || leadIds.length === 0) {
+        return res.status(400).json({ message: "leadIds array is required" });
+      }
+
+      let deletedCount = 0;
+      const errors = [];
+
+      for (const leadId of leadIds) {
+        try {
+          await storage.deleteLead(leadId);
+          deletedCount++;
+        } catch (error) {
+          errors.push({ leadId, error: (error as Error).message });
+        }
+      }
+
+      res.json({
+        message: `${deletedCount} leads deleted successfully`,
+        deletedCount,
+        totalRequested: leadIds.length,
+        errors
+      });
+    } catch (error) {
+      console.error("Error bulk deleting leads:", error);
+      res.status(500).json({ message: "Failed to bulk delete leads" });
+    }
+  });
 }
