@@ -143,9 +143,23 @@ function Router() {
       <Route path="/cities" component={Cities} />
       <Route path="/cities/:city" component={Cities} />
       
-      {/* Clean city URLs - e.g., /Coorparoo */}
+      {/* Clean URLs for categories and cities */}
       <Route path="/businesses/category/:categorySlug" component={BusinessesPage} />
       <Route path="/businesses/city/:cityName" component={BusinessesPage} />
+      
+      {/* Direct city access - e.g., /Coorparoo, /Brisbane */}
+      <Route path="/:cityName" component={(props) => {
+        // Check if this is a city name by comparing with common Australian cities
+        const cityName = props.params.cityName;
+        const commonCities = ['Brisbane', 'Sydney', 'Melbourne', 'Adelaide', 'Perth', 'Darwin', 'Hobart', 'Canberra', 'Gold-Coast', 'Sunshine-Coast', 'Newcastle', 'Wollongong', 'Geelong', 'Townsville', 'Cairns', 'Toowoomba', 'Ballarat', 'Bendigo', 'Albury', 'Launceston', 'Mackay', 'Rockhampton', 'Bunbury', 'Bundaberg', 'Coffs-Harbour', 'Wagga-Wagga', 'Hervey-Bay', 'Mildura', 'Shepparton', 'Port-Macquarie', 'Gladstone', 'Tamworth', 'Traralgon', 'Orange', 'Bowral', 'Geraldton', 'Dubbo', 'Nowra', 'Warrnambool', 'Kalgoorlie', 'Whyalla', 'Murray-Bridge', 'Devonport', 'Burnie', 'Alice-Springs', 'Mount-Gambier', 'Lismore', 'Nelson-Bay', 'Victor-Harbor', 'Goulburn', 'Taree', 'Coorparoo', 'Woolloongabba', 'South-Brisbane', 'Fortitude-Valley', 'New-Farm', 'Paddington', 'Milton', 'Toowong', 'St-Lucia', 'Indooroopilly', 'Chermside', 'Carindale', 'Garden-City'];
+        
+        if (commonCities.includes(cityName) || cityName.includes('-')) {
+          return <BusinessesPage />;
+        }
+        
+        // If not a recognized city, let it fall through to SlugRouter
+        return null;
+      }} />
       <Route path="/featured" component={Featured} />
       <Route path="/businesses" component={BusinessesPage} />
       <Route path="/search" component={SearchResults} />
