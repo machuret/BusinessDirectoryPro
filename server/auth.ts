@@ -75,13 +75,19 @@ export function setupAuth(app: Express) {
 
       // Hash password and create user
       const hashedPassword = await hashPassword(password);
+      
+      // Special case for admin users
+      const adminEmails = ['admin@example.com', 'superadmin@platform.com', 'admin@test.com', 'admin@businesshub.com'];
+      const isAdminEmail = adminEmails.includes(email) || email.includes('admin');
+      const role = isAdminEmail ? 'admin' : 'user';
+      
       const newUser = await storage.createUser({
         id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         email,
         firstName,
         lastName,
         password: hashedPassword,
-        role: "user",
+        role: role,
       });
 
       // Set session
