@@ -26,8 +26,7 @@ async function addMissingCategoryStrings() {
       const existing = await db
         .select()
         .from(contentStrings)
-        .where(eq(contentStrings.key, stringData.key))
-        .limit(1);
+        .where(eq(contentStrings.key, stringData.key));
 
       if (existing.length === 0) {
         await db.insert(contentStrings).values({
