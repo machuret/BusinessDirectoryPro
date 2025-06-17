@@ -8,10 +8,9 @@ export class BusinessOperations {
    * Create a new business
    */
   static async createBusiness(businessData: InsertBusiness): Promise<Business> {
-    // Validate business data
-    const validationErrors = BusinessValidation.validateBusinessData(businessData);
-    if (validationErrors.length > 0) {
-      throw new Error(`Validation failed: ${validationErrors.join(', ')}`);
+    // Generate a unique place ID if not provided
+    if (!businessData.placeid) {
+      businessData.placeid = `ChIJ${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     }
 
     // Generate slug if not provided
@@ -35,6 +34,12 @@ export class BusinessOperations {
     // Set timestamps - use lowercase field names for database
     (businessData as any).createdat = new Date();
     (businessData as any).updatedat = new Date();
+
+    // Validate business data after all required fields are set
+    const validationErrors = BusinessValidation.validateBusinessData(businessData);
+    if (validationErrors.length > 0) {
+      throw new Error(`Validation failed: ${validationErrors.join(', ')}`);
+    }
 
     // Sanitize data
     const sanitizedBusiness = BusinessValidation.sanitizeBusinessData(businessData);
@@ -131,7 +136,7 @@ export class BusinessOperations {
     if (excludePlaceId) {
       query = db.select({ count: sql`count(*)` })
         .from(businesses)
-        .where(and(eq(businesses.slug, slug), eq(businesses.placeid, excludePlaceId)));
+        .where(and(eq(businesses.slug, slug), sql`${businesses.placeid} != ${excludePlaceId}`));
     }
 
     const result = await query;

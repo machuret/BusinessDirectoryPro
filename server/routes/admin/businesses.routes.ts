@@ -19,11 +19,14 @@ router.get('/', async (req, res) => {
 // Create new business
 router.post('/', async (req, res) => {
   try {
+    console.log("Creating business with data:", JSON.stringify(req.body, null, 2));
     const business = await storage.createBusiness(req.body);
+    console.log("Business created successfully:", business.placeid);
     res.status(201).json(business);
   } catch (error) {
     console.error("Error creating business:", error);
-    res.status(500).json({ message: "Failed to create business" });
+    console.error("Request body was:", JSON.stringify(req.body, null, 2));
+    res.status(500).json({ message: "Failed to create business", error: error instanceof Error ? error.message : 'Unknown error' });
   }
 });
 
