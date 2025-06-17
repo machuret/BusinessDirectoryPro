@@ -7,7 +7,11 @@ const router = Router();
 // Create new category
 router.post("/", async (req, res) => {
   try {
-    const category = await storage.createCategory(req.body);
+    const categoryData = {
+      ...req.body,
+      slug: req.body.slug || req.body.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+    };
+    const category = await storage.createCategory(categoryData);
     res.status(201).json(category);
   } catch (error) {
     console.error("Error creating category:", error);
