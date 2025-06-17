@@ -372,7 +372,7 @@ export function setupAuth(app: Express) {
 
 
   // Get current user endpoint
-  app.get("/api/user", async (req, res) => {
+  app.get("/api/auth/user", async (req, res) => {
     try {
       const userId = (req.session as any)?.userId;
       if (!userId) {
