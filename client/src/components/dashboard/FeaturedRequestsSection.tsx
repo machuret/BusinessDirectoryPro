@@ -11,6 +11,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Star, Clock, CheckCircle, XCircle, Plus } from "lucide-react";
 import { format } from "date-fns";
 import { useContent } from "@/contexts/ContentContext";
+import type { BusinessWithCategory } from "@shared/schema";
 
 interface FeaturedRequest {
   id: number;
@@ -30,12 +31,12 @@ interface Business {
   placeid: string;
   title: string | null;
   city?: string | null;
-  featured: boolean;
+  featured: boolean | null;
 }
 
 interface FeaturedRequestsSectionProps {
   userId: string;
-  userBusinesses: Business[];
+  userBusinesses: BusinessWithCategory[];
 }
 
 /**
