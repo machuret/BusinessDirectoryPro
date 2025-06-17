@@ -1,88 +1,97 @@
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useContent } from "@/contexts/ContentContext";
 import { Image, Upload, X } from "lucide-react";
+import { useContent } from "@/contexts/ContentContext";
 
 interface BusinessPhotosTabProps {
   businessImages: string[];
   uploadingImages: boolean;
-  onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
   onRemoveImage: (imageUrl: string) => void;
 }
 
-export function BusinessPhotosTab({
-  businessImages,
-  uploadingImages,
-  onFileUpload,
-  onRemoveImage,
+/**
+ * BusinessPhotosTab - Component for managing business photo gallery
+ * 
+ * Provides interface for uploading, displaying, and removing business photos.
+ * Handles file upload operations with loading states and error handling.
+ * Displays images in a responsive grid with hover controls for removal.
+ * 
+ * @param businessImages - Array of current business image URLs
+ * @param uploadingImages - Loading state during photo upload operations
+ * @param onFileUpload - Callback function to handle file upload events
+ * @param onRemoveImage - Callback function to remove images from gallery
+ * 
+ * @returns JSX.Element - Photo management interface with upload and gallery display
+ * 
+ * @example
+ * <BusinessPhotosTab 
+ *   businessImages={businessEditor.businessImages}
+ *   uploadingImages={businessEditor.uploadingImages}
+ *   onFileUpload={businessEditor.handleFileUpload}
+ *   onRemoveImage={businessEditor.removeImage}
+ * />
+ */
+export function BusinessPhotosTab({ 
+  businessImages, 
+  uploadingImages, 
+  onFileUpload, 
+  onRemoveImage 
 }: BusinessPhotosTabProps) {
   const { t } = useContent();
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-medium flex items-center gap-2">
-            <Image className="h-5 w-5" />
-            {t("dashboard.businesses.photos.title")}
-          </h3>
-          <p className="text-sm text-muted-foreground">{t("dashboard.businesses.photos.description")}</p>
-        </div>
-        <div className="flex gap-2">
-          <input
+        <Label className="flex items-center gap-2">
+          <Image className="h-4 w-4" />
+          {t("dashboard.businesses.form.photos.label")}
+        </Label>
+        <div className="flex items-center gap-2">
+          <Input
             type="file"
-            id="photo-upload"
-            multiple
             accept="image/*"
+            multiple
             onChange={onFileUpload}
             className="hidden"
-          />
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => document.getElementById('photo-upload')?.click()}
+            id="photo-upload"
             disabled={uploadingImages}
-          >
-            <Upload className="h-4 w-4 mr-1" />
-            {uploadingImages ? t("dashboard.businesses.photos.uploading") : t("dashboard.businesses.photos.upload")}
-          </Button>
+          />
+          <Label htmlFor="photo-upload" className="cursor-pointer">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={uploadingImages}
+              asChild
+            >
+              <span>
+                <Upload className="mr-1 h-4 w-4" />
+                {uploadingImages ? "Uploading..." : "Upload Photos"}
+              </span>
+            </Button>
+          </Label>
         </div>
       </div>
       
-      {businessImages.length === 0 ? (
-        <div className="text-center py-12 border-2 border-dashed border-muted rounded-lg">
-          <Image className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-          <h4 className="text-lg font-medium mb-2">{t("dashboard.businesses.photos.empty.title")}</h4>
-          <p className="text-muted-foreground mb-4">{t("dashboard.businesses.photos.empty.description")}</p>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => document.getElementById('photo-upload')?.click()}
-            disabled={uploadingImages}
-          >
-            <Upload className="h-4 w-4 mr-2" />
-            {t("dashboard.businesses.photos.empty.action")}
-          </Button>
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      {businessImages.length > 0 && (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {businessImages.map((imageUrl, index) => (
             <div key={index} className="relative group">
-              <div className="aspect-square overflow-hidden rounded-lg border bg-muted">
-                <img
-                  src={imageUrl}
-                  alt={`Business photo ${index + 1}`}
-                  className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                  onError={(e) => {
-                    e.currentTarget.src = '/placeholder-image.png';
-                  }}
-                />
-              </div>
+              <img
+                src={imageUrl}
+                alt={`Business photo ${index + 1}`}
+                className="w-full h-32 object-cover rounded-lg border"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
               <Button
                 type="button"
                 variant="destructive"
                 size="sm"
-                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0"
+                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
                 onClick={() => onRemoveImage(imageUrl)}
               >
                 <X className="h-4 w-4" />
@@ -92,19 +101,10 @@ export function BusinessPhotosTab({
         </div>
       )}
       
-      {businessImages.length > 0 && (
-        <div className="p-4 bg-muted/50 rounded-lg">
-          <h4 className="font-medium mb-2 flex items-center gap-2">
-            <Upload className="h-4 w-4" />
-            {t("dashboard.businesses.photos.tips.title")}
-          </h4>
-          <ul className="text-sm text-muted-foreground space-y-1">
-            <li>{t("dashboard.businesses.photos.tips.quality")}</li>
-            <li>{t("dashboard.businesses.photos.tips.variety")}</li>
-            <li>{t("dashboard.businesses.photos.tips.recent")}</li>
-            <li>{t("dashboard.businesses.photos.tips.remove")}</li>
-          </ul>
-        </div>
+      {businessImages.length === 0 && (
+        <p className="text-sm text-muted-foreground text-center py-8">
+          {t("dashboard.businesses.form.photos.empty")}
+        </p>
       )}
     </div>
   );

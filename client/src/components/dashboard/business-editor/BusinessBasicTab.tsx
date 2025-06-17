@@ -1,14 +1,37 @@
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useContent } from "@/contexts/ContentContext";
 import { Building2, MapPin } from "lucide-react";
+import { useContent } from "@/contexts/ContentContext";
 
 interface BusinessBasicTabProps {
-  editForm: any;
+  values: {
+    title: string;
+    description: string;
+    address: string;
+  };
+  onFieldUpdate: (field: string, value: string) => void;
 }
 
-export function BusinessBasicTab({ editForm }: BusinessBasicTabProps) {
+/**
+ * BusinessBasicTab - Form component for editing basic business information
+ * 
+ * Handles the core business details including name, description, and address.
+ * Provides a clean interface for business owners to update their primary
+ * business information with proper validation and user-friendly form controls.
+ * 
+ * @param values - Current form values for basic business fields
+ * @param onFieldUpdate - Callback function to update field values in parent form
+ * 
+ * @returns JSX.Element - Form fields for basic business information editing
+ * 
+ * @example
+ * <BusinessBasicTab 
+ *   values={editForm.values}
+ *   onFieldUpdate={editForm.updateField}
+ * />
+ */
+export function BusinessBasicTab({ values, onFieldUpdate }: BusinessBasicTabProps) {
   const { t } = useContent();
 
   return (
@@ -20,8 +43,8 @@ export function BusinessBasicTab({ editForm }: BusinessBasicTabProps) {
         </Label>
         <Input
           id="title"
-          value={editForm.values.title}
-          onChange={(e) => editForm.updateField("title", e.target.value)}
+          value={values.title}
+          onChange={(e) => onFieldUpdate("title", e.target.value)}
           placeholder={t("dashboard.businesses.form.name.placeholder")}
           required
         />
@@ -31,8 +54,8 @@ export function BusinessBasicTab({ editForm }: BusinessBasicTabProps) {
         <Label htmlFor="description">{t("dashboard.businesses.form.description.label")}</Label>
         <Textarea
           id="description"
-          value={editForm.values.description}
-          onChange={(e) => editForm.updateField("description", e.target.value)}
+          value={values.description}
+          onChange={(e) => onFieldUpdate("description", e.target.value)}
           placeholder={t("dashboard.businesses.form.description.placeholder")}
           rows={4}
         />
@@ -45,8 +68,8 @@ export function BusinessBasicTab({ editForm }: BusinessBasicTabProps) {
         </Label>
         <Input
           id="address"
-          value={editForm.values.address}
-          onChange={(e) => editForm.updateField("address", e.target.value)}
+          value={values.address}
+          onChange={(e) => onFieldUpdate("address", e.target.value)}
           placeholder={t("dashboard.businesses.form.address.placeholder")}
         />
       </div>

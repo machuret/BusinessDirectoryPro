@@ -4,14 +4,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { useBusinessEditor } from "@/hooks/useBusinessEditor";
 import { useUserBusinesses } from "@/hooks/useUserBusinesses";
 import { useContent } from "@/contexts/ContentContext";
 import { LoadingState } from "@/components/loading/LoadingState";
-import { Building2, Edit, Star, MapPin, Phone, Clock, Globe, Mail, Plus, Trash2, HelpCircle, Image, Upload, X, MessageSquare } from "lucide-react";
+import { BusinessBasicTab } from "./business-editor/BusinessBasicTab";
+import { BusinessContactTab } from "./business-editor/BusinessContactTab";
+import { BusinessPhotosTab } from "./business-editor/BusinessPhotosTab";
+import { BusinessReviewsTab } from "./business-editor/BusinessReviewsTab";
+import { BusinessFAQsTab } from "./business-editor/BusinessFAQsTab";
+import { Building2, Edit, Star } from "lucide-react";
 import type { BusinessWithCategory } from "@shared/schema";
 
 interface BusinessesSectionProps {

@@ -1,88 +1,135 @@
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Star } from "lucide-react";
-import type { Review } from "@/hooks/useBusinessReviews";
+import { Card, CardContent } from "@/components/ui/card";
+import { Star, MessageSquare, User } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface BusinessReviewsTabProps {
-  reviews: Review[];
-  reviewsLoading: boolean;
+  reviews: any[];
+  isLoading: boolean;
+  error: Error | null;
 }
 
-export function BusinessReviewsTab({ reviews, reviewsLoading }: BusinessReviewsTabProps) {
-  if (reviewsLoading) {
+/**
+ * BusinessReviewsTab - Component for displaying business reviews and ratings
+ * 
+ * Shows a read-only display of customer reviews with ratings, comments, and author information.
+ * Handles loading states and error conditions gracefully. Provides a clean interface
+ * for business owners to view customer feedback without editing capabilities.
+ * 
+ * @param reviews - Array of review objects with rating, comment, and author data
+ * @param isLoading - Loading state indicating whether reviews are being fetched
+ * @param error - Error state if review fetching fails
+ * 
+ * @returns JSX.Element - Reviews display with loading states and error handling
+ * 
+ * @example
+ * <BusinessReviewsTab 
+ *   reviews={businessEditor.reviews}
+ *   isLoading={businessEditor.reviewsLoading}
+ *   error={businessEditor.reviewsError}
+ * />
+ */
+export function BusinessReviewsTab({ reviews, isLoading, error }: BusinessReviewsTabProps) {
+  if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <div className="text-center">
-          <MessageSquare className="h-12 w-12 mx-auto text-muted-foreground mb-2 animate-pulse" />
-          <p className="text-muted-foreground">Loading reviews...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (reviews.length === 0) {
-    return (
-      <div className="text-center py-12 border-2 border-dashed border-muted rounded-lg">
-        <MessageSquare className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-        <h4 className="text-lg font-medium mb-2">No Reviews Yet</h4>
-        <p className="text-muted-foreground mb-4">
-          This business hasn't received any customer reviews yet. Reviews will appear here once customers start leaving feedback.
-        </p>
-        <div className="text-sm text-muted-foreground space-y-1">
-          <p>• Encourage customers to leave reviews after their visit</p>
-          <p>• Respond to reviews to build customer relationships</p>
-          <p>• Use feedback to improve your business services</p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-medium flex items-center gap-2">
-            <MessageSquare className="h-5 w-5" />
-            Customer Reviews ({reviews.length})
-          </h3>
-          <p className="text-sm text-muted-foreground">Manage customer reviews and ratings</p>
-        </div>
-      </div>
-      
       <div className="space-y-4">
-        {reviews.map((review, index) => (
-          <Card key={review.id || index} className="p-4">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="flex">
-                    {Array.from({ length: 5 }, (_, i) => (
-                      <Star
-                        key={i}
-                        className={`w-4 h-4 ${
-                          i < (review.rating || 0) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-                        }`}
-                      />
-                    ))}
+        {Array.from({ length: 3 }).map((_, index) => (
+          <Card key={index}>
+            <CardContent className="p-4">
+              <div className="flex items-start gap-3">
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-4 w-16" />
                   </div>
-                  <span className="text-sm font-medium">
-                    {review.user?.firstName || review.customerName || 'Anonymous'}
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    {review.createdAt ? new Date(review.createdAt).toLocaleDateString() : ''}
-                  </span>
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-3/4" />
                 </div>
-                {review.comment && (
-                  <p className="text-sm text-muted-foreground">{review.comment}</p>
-                )}
               </div>
-              <Badge variant={review.status === 'approved' ? 'default' : 'secondary'}>
-                {review.status || 'pending'}
-              </Badge>
-            </div>
+            </CardContent>
           </Card>
         ))}
       </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <MessageSquare className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+        <p className="text-sm text-muted-foreground">
+          Unable to load reviews at this time.
+        </p>
+      </div>
+    );
+  }
+
+  if (!reviews || reviews.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <MessageSquare className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+        <p className="text-sm text-muted-foreground">
+          No reviews available for this business yet.
+        </p>
+      </div>
+    );
+  }
+
+  const renderStars = (rating: number) => {
+    return Array.from({ length: 5 }).map((_, index) => (
+      <Star
+        key={index}
+        className={`h-4 w-4 ${
+          index < rating
+            ? "fill-yellow-400 text-yellow-400"
+            : "text-muted-foreground"
+        }`}
+      />
+    ));
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2 mb-4">
+        <MessageSquare className="h-5 w-5" />
+        <span className="font-medium">Customer Reviews</span>
+        <Badge variant="secondary">{reviews.length}</Badge>
+      </div>
+
+      {reviews.map((review, index) => (
+        <Card key={index}>
+          <CardContent className="p-4">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0">
+                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                  <User className="h-5 w-5" />
+                </div>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="font-medium text-sm">
+                    {review.author_name || "Anonymous"}
+                  </span>
+                  <div className="flex items-center gap-1">
+                    {renderStars(review.rating || 0)}
+                  </div>
+                  {review.time && (
+                    <span className="text-xs text-muted-foreground">
+                      {new Date(review.time * 1000).toLocaleDateString()}
+                    </span>
+                  )}
+                </div>
+                {review.text && (
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {review.text}
+                  </p>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
     </div>
   );
 }
