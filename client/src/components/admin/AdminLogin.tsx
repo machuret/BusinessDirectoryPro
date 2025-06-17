@@ -9,29 +9,27 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { adminLogin } from "@/utils/adminAuth";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
 
 export function AdminLogin() {
   const [email, setEmail] = useState("admin@businesshub.com");
   const [password, setPassword] = useState("Xola2025");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { login } = useAdminAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      const result = await adminLogin(email, password);
+      const result = await login(email, password);
 
       if (result.isAuthenticated) {
         toast({
           title: "Login Successful",
-          description: "You have been logged in successfully.",
+          description: "Access granted to admin panel.",
         });
-
-        // Reload page to ensure proper session handling
-        window.location.reload();
       } else {
         toast({
           title: "Login Failed",
@@ -43,7 +41,7 @@ export function AdminLogin() {
       console.error("Login error:", error);
       toast({
         title: "Login Failed",
-        description: "Network error occurred.",
+        description: "Unable to connect to authentication service.",
         variant: "destructive",
       });
     } finally {

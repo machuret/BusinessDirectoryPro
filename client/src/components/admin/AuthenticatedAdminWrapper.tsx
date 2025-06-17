@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { AdminLogin } from "./AdminLogin";
 import { queryClient } from "@/lib/queryClient";
+import { checkAuthStatus } from "@/utils/adminAuth";
 
 interface AuthenticatedAdminWrapperProps {
   children: React.ReactNode;

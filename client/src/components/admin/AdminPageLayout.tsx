@@ -1,4 +1,4 @@
-import { useAuth } from "@/hooks/useAuth";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { AdminLogin } from "./AdminLogin";
 
 interface AdminPageLayoutProps {
@@ -8,7 +8,7 @@ interface AdminPageLayoutProps {
 }
 
 export function AdminPageLayout({ title, description, children }: AdminPageLayoutProps) {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading } = useAdminAuth();
 
   // Show loading state during authentication check
   if (isLoading) {
