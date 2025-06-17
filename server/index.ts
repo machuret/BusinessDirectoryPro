@@ -154,7 +154,20 @@ app.get('/health', (req, res) => {
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
-    serveStatic(app);
+    try {
+      serveStatic(app);
+    } catch (error) {
+      console.warn('Static files not available, serving API only:', error instanceof Error ? error.message : String(error));
+      // Fallback for deployment platforms when static files aren't available
+      app.get("*", (_req, res) => {
+        res.status(200).json({ 
+          status: 'ok', 
+          message: 'Business Directory API is running',
+          timestamp: new Date().toISOString(),
+          mode: 'api-only'
+        });
+      });
+    }
   }
 
   // Use PORT environment variable for deployment compatibility
@@ -167,4 +180,31 @@ app.get('/health', (req, res) => {
   }, () => {
     log(`serving on port ${port}`);
   });
-})();
+
+  // Handle graceful shutdown
+  process.on('SIGTERM', () => {
+    console.log('SIGTERM received, shutting down gracefully');
+    server.close(() => {
+      console.log('Process terminated');
+    });
+  });
+
+  process.on('SIGINT', () => {
+    console.log('SIGINT received, shutting down gracefully');
+    server.close(() => {
+      console.log('Process terminated');
+    });
+  });
+
+  // Keep process alive and handle unhandled rejections
+  process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+    // Don't exit on unhandled rejection in production
+  });
+
+  process.on('uncaughtException', (error) => {
+    console.error('Uncaught Exception:', error);
+    // Don't exit on uncaught exception in production
+  });
+
+})().catch(console.error);
