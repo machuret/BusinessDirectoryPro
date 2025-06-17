@@ -267,14 +267,7 @@ function Router() {
         </PageSuspense>
       </Route>
 
-      {/* City slug routes - /:cityName/ format */}
-      <Route path="/:citySlug/">
-        <PageSuspense>
-          <Cities />
-        </PageSuspense>
-      </Route>
-
-      {/* Business detail route - must come before 404 fallback */}
+      {/* Business detail route - must come before city route */}
       <Route path="/:businessSlug">
         {(params) => {
           const slug = params.businessSlug;
@@ -286,10 +279,10 @@ function Router() {
               </PageSuspense>
             );
           }
-          // Otherwise show 404
+          // If not a business slug, check if it's a city slug
           return (
             <PageSuspense>
-              <NotFound />
+              <Cities />
             </PageSuspense>
           );
         }}
