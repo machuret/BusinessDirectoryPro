@@ -41,6 +41,15 @@ const AdminInboxPage = lazy(() => import("@/pages/admin/inbox"));
 const AdminHomepagePage = lazy(() => import("@/pages/admin/homepage"));
 const AdminOwnershipPage = lazy(() => import("@/pages/admin/ownership"));
 const AdminLeadsPage = lazy(() => import("@/pages/admin/leads"));
+const AdminServicesPage = lazy(() => import("@/pages/admin/services"));
+const AdminSubmissionsPage = lazy(() => import("@/pages/admin/submissions"));
+const AdminAPIPage = lazy(() => import("@/pages/admin/api"));
+const AdminImportPage = lazy(() => import("@/pages/admin/import"));
+const AdminExportPage = lazy(() => import("@/pages/admin/export"));
+const AdminFeaturedPage = lazy(() => import("@/pages/admin/featured"));
+const AdminSocialMediaPage = lazy(() => import("@/pages/admin/social-media"));
+const AdminContentPage = lazy(() => import("@/pages/admin/content"));
+const AdminSettingsPage = lazy(() => import("@/pages/admin/settings"));
 
 function PageSuspense({ children }: { children: React.ReactNode }) {
   return (
@@ -255,6 +264,87 @@ function Router() {
           <ProtectedRoute>
             <AdminLayout>
               <AdminLeadsPage />
+            </AdminLayout>
+          </ProtectedRoute>
+        </PageSuspense>
+      </Route>
+      <Route path="/admin/services">
+        <PageSuspense>
+          <ProtectedRoute>
+            <AdminLayout>
+              <AdminServicesPage />
+            </AdminLayout>
+          </ProtectedRoute>
+        </PageSuspense>
+      </Route>
+      <Route path="/admin/submissions">
+        <PageSuspense>
+          <ProtectedRoute>
+            <AdminLayout>
+              <AdminSubmissionsPage />
+            </AdminLayout>
+          </ProtectedRoute>
+        </PageSuspense>
+      </Route>
+      <Route path="/admin/api">
+        <PageSuspense>
+          <ProtectedRoute>
+            <AdminLayout>
+              <AdminAPIPage />
+            </AdminLayout>
+          </ProtectedRoute>
+        </PageSuspense>
+      </Route>
+      <Route path="/admin/import">
+        <PageSuspense>
+          <ProtectedRoute>
+            <AdminLayout>
+              <AdminImportPage />
+            </AdminLayout>
+          </ProtectedRoute>
+        </PageSuspense>
+      </Route>
+      <Route path="/admin/export">
+        <PageSuspense>
+          <ProtectedRoute>
+            <AdminLayout>
+              <AdminExportPage />
+            </AdminLayout>
+          </ProtectedRoute>
+        </PageSuspense>
+      </Route>
+      <Route path="/admin/featured">
+        <PageSuspense>
+          <ProtectedRoute>
+            <AdminLayout>
+              <AdminFeaturedPage />
+            </AdminLayout>
+          </ProtectedRoute>
+        </PageSuspense>
+      </Route>
+      <Route path="/admin/social-media">
+        <PageSuspense>
+          <ProtectedRoute>
+            <AdminLayout>
+              <AdminSocialMediaPage />
+            </AdminLayout>
+          </ProtectedRoute>
+        </PageSuspense>
+      </Route>
+      <Route path="/admin/content">
+        <PageSuspense>
+          <ProtectedRoute>
+            <AdminLayout>
+              <AdminContentPage />
+            </AdminLayout>
+          </ProtectedRoute>
+        </PageSuspense>
+      </Route>
+      <Route path="/admin/settings">
+        <PageSuspense>
+          <ProtectedRoute>
+            <AdminLayout>
+              <AdminSettingsPage />
             </AdminLayout>
           </ProtectedRoute>
         </PageSuspense>
