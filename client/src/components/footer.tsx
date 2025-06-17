@@ -5,6 +5,32 @@ import { useContent } from "@/contexts/ContentContext";
 import { SocialIcon } from "@/components/SocialIcon";
 import type { SocialMediaLink } from "@shared/schema";
 
+/**
+ * Footer - Site footer component with dynamic menu links and social media integration
+ * 
+ * Renders the site footer with database-driven menu items organized in two columns,
+ * active social media links, and site branding. Integrates with CMS for dynamic
+ * content management and displays copyright information with current year. Supports
+ * responsive design and accessibility standards for proper site navigation structure.
+ * 
+ * @returns JSX.Element - Responsive footer with dynamic menus, social links, and branding
+ * 
+ * @example
+ * // Basic usage in app layout
+ * <Footer />
+ * 
+ * @example
+ * // Used in main app structure
+ * function App() {
+ *   return (
+ *     <>
+ *       <Header />
+ *       <main>{children}</main>
+ *       <Footer />
+ *     </>
+ *   );
+ * }
+ */
 export default function Footer() {
   const { t } = useContent();
   

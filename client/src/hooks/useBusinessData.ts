@@ -3,6 +3,44 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { BusinessWithCategory, InsertBusiness } from "@shared/schema";
 
+/**
+ * useBusinesses - Hook for fetching and filtering business listings with pagination
+ * 
+ * Provides comprehensive business data fetching with support for category filtering,
+ * search queries, city-based filtering, featured status, and pagination. Automatically
+ * constructs query parameters and manages caching for optimal performance. Supports
+ * real-time filtering and search functionality for business directory listings.
+ * 
+ * @param params - Optional filtering and pagination parameters
+ * @param params.categoryId - Filter businesses by specific category ID
+ * @param params.search - Search term to filter business names and descriptions
+ * @param params.city - Filter businesses by city location
+ * @param params.featured - Show only featured businesses when true
+ * @param params.limit - Maximum number of businesses to return per page
+ * @param params.offset - Number of businesses to skip for pagination
+ * 
+ * @returns Query result containing business data, loading state, and error information
+ * 
+ * @example
+ * // Basic business listing
+ * const { data: businesses, isLoading } = useBusinesses();
+ * 
+ * @example
+ * // Filtered by category and city
+ * const { data: restaurants } = useBusinesses({
+ *   categoryId: 5,
+ *   city: 'Sydney',
+ *   limit: 20
+ * });
+ * 
+ * @example
+ * // Search with pagination
+ * const { data: searchResults } = useBusinesses({
+ *   search: 'coffee',
+ *   limit: 10,
+ *   offset: currentPage * 10
+ * });
+ */
 export function useBusinesses(params?: {
   categoryId?: number;
   search?: string;
@@ -28,6 +66,20 @@ export function useBusinesses(params?: {
   });
 }
 
+/**
+ * useBusiness - Hook for fetching individual business details by identifier
+ * 
+ * Retrieves comprehensive business information including category, images, reviews,
+ * and contact details for a specific business. Uses place ID or slug as identifier
+ * and includes automatic caching for performance optimization.
+ * 
+ * @param identifier - Business place ID or slug identifier
+ * 
+ * @returns Query result with detailed business data
+ * 
+ * @example
+ * const { data: business, isLoading } = useBusiness('ChIJ123...');
+ */
 export function useBusiness(identifier: string) {
   return useQuery<BusinessWithCategory>({
     queryKey: [`/api/businesses/${identifier}`],
@@ -35,12 +87,38 @@ export function useBusiness(identifier: string) {
   });
 }
 
+/**
+ * useFeaturedBusinesses - Hook for fetching featured business listings
+ * 
+ * Retrieves businesses marked as featured with optional limit parameter.
+ * Used for homepage carousels, featured sections, and promotional displays.
+ * 
+ * @param limit - Maximum number of featured businesses to return (default: 6)
+ * 
+ * @returns Query result with featured business array
+ * 
+ * @example
+ * const { data: featured } = useFeaturedBusinesses(10);
+ */
 export function useFeaturedBusinesses(limit = 6) {
   return useQuery<BusinessWithCategory[]>({
     queryKey: [`/api/businesses/featured?limit=${limit}`],
   });
 }
 
+/**
+ * useUserBusinesses - Hook for fetching businesses owned by a specific user
+ * 
+ * Retrieves all businesses associated with a user account for dashboard
+ * management, ownership claims, and business editing functionality.
+ * 
+ * @param userId - User identifier to fetch associated businesses
+ * 
+ * @returns Query result with user's business listings
+ * 
+ * @example
+ * const { data: userBusinesses } = useUserBusinesses(user.id);
+ */
 export function useUserBusinesses(userId?: string) {
   return useQuery<BusinessWithCategory[]>({
     queryKey: ["/api/user/businesses"],

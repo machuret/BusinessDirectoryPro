@@ -9,6 +9,32 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Building, Menu, User, LogOut, Settings, BarChart3 } from "lucide-react";
 
+/**
+ * Header - Main navigation header component with dynamic menu and user authentication
+ * 
+ * Renders the primary site navigation with database-driven menu items, user authentication
+ * status, and responsive mobile navigation. Integrates with CMS for dynamic menu management,
+ * displays user avatar and dropdown menu when authenticated, and provides seamless navigation
+ * across all site sections. Supports both desktop and mobile layouts with hamburger menu.
+ * 
+ * @returns JSX.Element - Responsive header with navigation, authentication, and mobile support
+ * 
+ * @example
+ * // Basic usage in app layout
+ * <Header />
+ * 
+ * @example
+ * // Used in main app structure
+ * function App() {
+ *   return (
+ *     <>
+ *       <Header />
+ *       <main>{children}</main>
+ *       <Footer />
+ *     </>
+ *   );
+ * }
+ */
 export default function Header() {
   const [location] = useLocation();
   const { user, isAuthenticated, isLoading } = useAuth();

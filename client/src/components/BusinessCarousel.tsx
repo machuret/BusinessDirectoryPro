@@ -14,6 +14,41 @@ interface BusinessCarouselProps {
   title?: string;
 }
 
+/**
+ * BusinessCarousel - Horizontal carousel component for displaying related business listings
+ * 
+ * Renders a responsive carousel of business cards filtered by category and/or city,
+ * excluding the current business. Supports navigation controls, loading states, and
+ * responsive grid layouts. Automatically fetches related businesses based on provided
+ * filters and displays them in an interactive carousel format with smooth scrolling.
+ * 
+ * @param currentBusinessId - ID of current business to exclude from results
+ * @param categoryId - Optional category filter for related businesses
+ * @param city - Optional city filter for geographic relevance
+ * @param title - Custom title for the carousel section (defaults to "Related Businesses")
+ * 
+ * @returns JSX.Element - Responsive carousel with business cards and navigation controls
+ * 
+ * @example
+ * // Basic usage on business detail page
+ * <BusinessCarousel currentBusinessId={business.placeid} />
+ * 
+ * @example
+ * // Category-filtered carousel
+ * <BusinessCarousel 
+ *   currentBusinessId={business.placeid}
+ *   categoryId={business.categoryId}
+ *   title="Similar Restaurants"
+ * />
+ * 
+ * @example
+ * // Location-based carousel
+ * <BusinessCarousel 
+ *   currentBusinessId={business.placeid}
+ *   city={business.city}
+ *   title="Nearby Businesses"
+ * />
+ */
 export default function BusinessCarousel({ 
   currentBusinessId, 
   categoryId, 

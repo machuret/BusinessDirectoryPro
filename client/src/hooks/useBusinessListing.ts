@@ -4,6 +4,40 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { BusinessWithCategory, Review, InsertReview } from "@shared/schema";
 
+/**
+ * useBusinessListing - Comprehensive hook for business detail page functionality
+ * 
+ * Manages all data and interactions for business listing pages including business details,
+ * reviews, similar businesses, and review submission. Provides integrated state management
+ * for business viewing, review operations, and claim modal functionality. Handles data
+ * fetching with proper loading states and error handling for complete business listing experience.
+ * 
+ * @param identifier - Business place ID or slug for data fetching
+ * 
+ * @returns Object containing business data, reviews, actions, and UI state
+ * @returns returns.business - Complete business information with category details
+ * @returns returns.reviews - Array of business reviews with moderation status
+ * @returns returns.similarBusinesses - Related businesses for recommendations
+ * @returns returns.isLoading - Loading state for business data fetching
+ * @returns returns.submitReviewMutation - Mutation for submitting new reviews
+ * @returns returns.claimBusinessMutation - Mutation for business ownership claims
+ * @returns returns.showClaimModal - Modal visibility state for ownership claims
+ * @returns returns.setShowClaimModal - Function to control claim modal visibility
+ * 
+ * @example
+ * // Basic business listing page
+ * const { business, reviews, isLoading } = useBusinessListing(businessId);
+ * 
+ * @example
+ * // Complete business page with review submission
+ * const {
+ *   business,
+ *   reviews,
+ *   similarBusinesses,
+ *   submitReviewMutation,
+ *   claimBusinessMutation
+ * } = useBusinessListing(businessId);
+ */
 export function useBusinessListing(identifier: string | undefined) {
   const { toast } = useToast();
   const [showClaimModal, setShowClaimModal] = useState(false);
