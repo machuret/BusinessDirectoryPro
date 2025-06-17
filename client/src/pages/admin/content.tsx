@@ -1,284 +1,227 @@
-import { useState, useEffect } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { useToast } from "@/hooks/use-toast";
-import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Search, Save, RefreshCw } from "lucide-react";
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Plus, Edit, Save, FileText, Globe } from 'lucide-react';
 
-interface ContentString {
-  key: string;
-  value: string;
-  category: string;
-  description?: string;
-}
+export default function AdminContentPage() {
+  const queryClient = useQueryClient();
+  const [editingString, setEditingString] = useState<any>(null);
 
-export default function ContentEditorPage() {
-  const { toast } = useToast();
-  const [searchFilter, setSearchFilter] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("all");
-  const [editedValues, setEditedValues] = useState<Record<string, string>>({});
-
-  // Fetch all content strings
-  const { data: contentStrings = {}, isLoading, error } = useQuery({
-    queryKey: ["/api/content/strings"],
-    refetchOnWindowFocus: false,
+  const { data: contentStrings, isLoading } = useQuery({
+    queryKey: ['/api/admin/content-strings'],
   });
 
-  // Convert the content object to an array for easier manipulation
-  const contentArray: ContentString[] = Object.entries(contentStrings as Record<string, string>).map(([key, value]) => ({
-    key,
-    value: value as string,
-    category: key.split('.')[0], // Extract category from key prefix
-    description: `Content string for ${key}`,
-  }));
-
-  // Get unique categories
-  const categories = Array.from(new Set(contentArray.map(item => item.category)));
-
-  // Filter content based on search and category
-  const filteredContent = contentArray.filter(item => {
-    const matchesSearch = item.key.toLowerCase().includes(searchFilter.toLowerCase()) ||
-                         item.value.toLowerCase().includes(searchFilter.toLowerCase());
-    const matchesCategory = categoryFilter === "all" || item.category === categoryFilter;
-    return matchesSearch && matchesCategory;
-  });
-
-  // Update content strings mutation
-  const updateContentMutation = useMutation({
-    mutationFn: async (updates: Record<string, string>) => {
-      const response = await apiRequest("PUT", "/api/admin/content/strings", updates);
-      return response.json();
-    },
+  const updateStringMutation = useMutation({
+    mutationFn: ({ id, value }: { id: string; value: string }) =>
+      fetch(`/api/admin/content-strings/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ value })
+      }),
     onSuccess: () => {
-      toast({
-        title: "Content Updated",
-        description: "All content strings have been successfully updated.",
-      });
-      setEditedValues({});
-      queryClient.invalidateQueries({ queryKey: ["/api/content/strings"] });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Update Failed",
-        description: error.message || "Failed to update content strings.",
-        variant: "destructive",
-      });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/content-strings'] });
+      setEditingString(null);
     },
   });
 
-  const handleValueChange = (key: string, value: string) => {
-    setEditedValues(prev => ({
-      ...prev,
-      [key]: value
-    }));
-  };
+  const createStringMutation = useMutation({
+    mutationFn: ({ key, value, category }: { key: string; value: string; category?: string }) =>
+      fetch('/api/admin/content-strings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key, value, category })
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/content-strings'] });
+    },
+  });
 
-  const handleSaveChanges = () => {
-    if (Object.keys(editedValues).length === 0) {
-      toast({
-        title: "No Changes",
-        description: "No content strings have been modified.",
-      });
-      return;
+  const handleSaveEdit = (value: string) => {
+    if (editingString) {
+      updateStringMutation.mutate({ id: editingString.id, value });
     }
-
-    updateContentMutation.mutate(editedValues);
   };
-
-  const getCurrentValue = (key: string) => {
-    return editedValues[key] ?? (contentStrings as Record<string, string>)[key] ?? "";
-  };
-
-  const hasChanges = Object.keys(editedValues).length > 0;
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <div className="p-6">Loading content strings...</div>;
   }
 
-  if (error) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-destructive">Error Loading Content</CardTitle>
-          <CardDescription>
-            Failed to load content strings. Please try refreshing the page.
-          </CardDescription>
-        </CardHeader>
-      </Card>
-    );
-  }
+  const groupedStrings = contentStrings?.reduce((acc: any, string: any) => {
+    const category = string.category || 'general';
+    if (!acc[category]) acc[category] = [];
+    acc[category].push(string);
+    return acc;
+  }, {}) || {};
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Content Editor</h1>
-        <p className="text-muted-foreground mt-2">
-          Manage all website text content from this centralized interface.
-        </p>
+    <div className="container mx-auto p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Content Management</h1>
+        <Button>
+          <Plus className="w-4 h-4 mr-2" />
+          Add Content String
+        </Button>
       </div>
 
-      {/* Filters and Search */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Filters</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <Label htmlFor="search">Search Content</Label>
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="search"
-                  placeholder="Search by key or value..."
-                  value={searchFilter}
-                  onChange={(e) => setSearchFilter(e.target.value)}
-                  className="pl-10"
-                />
+      <Tabs defaultValue="strings" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="strings">Content Strings</TabsTrigger>
+          <TabsTrigger value="pages">Static Pages</TabsTrigger>
+          <TabsTrigger value="translations">Translations</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="strings">
+          <div className="space-y-6">
+            {Object.entries(groupedStrings).map(([category, strings]: [string, any]) => (
+              <Card key={category}>
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <span className="flex items-center">
+                      <FileText className="w-5 h-5 mr-2" />
+                      {category.charAt(0).toUpperCase() + category.slice(1)} Content
+                    </span>
+                    <Badge variant="secondary">{strings.length} strings</Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {strings.map((string: any) => (
+                      <div key={string.id} className="border rounded-lg p-4">
+                        <div className="flex justify-between items-start mb-2">
+                          <div className="flex-1">
+                            <code className="text-sm bg-gray-100 px-2 py-1 rounded">
+                              {string.key}
+                            </code>
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setEditingString(string)}
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                        </div>
+                        
+                        {editingString?.id === string.id ? (
+                          <div className="space-y-2">
+                            <Textarea
+                              value={editingString.value}
+                              onChange={(e) => setEditingString({
+                                ...editingString,
+                                value: e.target.value
+                              })}
+                              rows={3}
+                            />
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                onClick={() => handleSaveEdit(editingString.value)}
+                                disabled={updateStringMutation.isPending}
+                              >
+                                <Save className="w-4 h-4 mr-2" />
+                                Save
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setEditingString(null)}
+                              >
+                                Cancel
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-sm text-gray-700 mt-2">
+                            {string.value}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="pages">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Globe className="w-5 h-5 mr-2" />
+                Static Pages Management
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <div>
+                    <h3 className="font-medium">About Page</h3>
+                    <p className="text-sm text-gray-600">/about</p>
+                  </div>
+                  <Button variant="outline">Edit Page</Button>
+                </div>
+                
+                <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <div>
+                    <h3 className="font-medium">Privacy Policy</h3>
+                    <p className="text-sm text-gray-600">/privacy</p>
+                  </div>
+                  <Button variant="outline">Edit Page</Button>
+                </div>
+                
+                <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <div>
+                    <h3 className="font-medium">Terms of Service</h3>
+                    <p className="text-sm text-gray-600">/terms</p>
+                  </div>
+                  <Button variant="outline">Edit Page</Button>
+                </div>
+                
+                <Button>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create New Page
+                </Button>
               </div>
-            </div>
-            <div className="min-w-[200px]">
-              <Label htmlFor="category">Filter by Category</Label>
-              <select
-                id="category"
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-                className="w-full px-3 py-2 border border-input bg-background rounded-md"
-              >
-                <option value="all">All Categories</option>
-                {categories.map(category => (
-                  <option key={category} value={category}>
-                    {category.charAt(0).toUpperCase() + category.slice(1)}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-      {/* Content Strings Editor */}
-      <Card>
-        <CardHeader className="flex-row items-center justify-between">
-          <div>
-            <CardTitle>Content Strings</CardTitle>
-            <CardDescription>
-              {filteredContent.length} of {contentArray.length} strings shown
-            </CardDescription>
-          </div>
-          <Button
-            onClick={handleSaveChanges}
-            disabled={!hasChanges || updateContentMutation.isPending}
-            className="min-w-[120px]"
-          >
-            {updateContentMutation.isPending ? (
-              <RefreshCw className="h-4 w-4 animate-spin mr-2" />
-            ) : (
-              <Save className="h-4 w-4 mr-2" />
-            )}
-            Save Changes
-          </Button>
-        </CardHeader>
-        <CardContent>
-          {hasChanges && (
-            <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
-              <p className="text-sm text-blue-800 dark:text-blue-200">
-                <strong>{Object.keys(editedValues).length}</strong> content string{Object.keys(editedValues).length === 1 ? '' : 's'} modified. 
-                Don't forget to save your changes!
-              </p>
-            </div>
-          )}
-
-          <div className="space-y-4">
-            {filteredContent.map((item, index) => (
-              <div key={item.key}>
-                <div className="flex flex-col sm:flex-row gap-4 items-start">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Label 
-                        htmlFor={`content-${item.key}`}
-                        className="font-mono text-sm font-medium"
-                      >
-                        {item.key}
-                      </Label>
-                      <Badge variant="secondary" className="text-xs">
-                        {item.category}
-                      </Badge>
-                      {editedValues[item.key] && (
-                        <Badge variant="outline" className="text-xs">
-                          Modified
-                        </Badge>
-                      )}
-                    </div>
-                    <Input
-                      id={`content-${item.key}`}
-                      value={getCurrentValue(item.key)}
-                      onChange={(e) => handleValueChange(item.key, e.target.value)}
-                      placeholder="Enter content value..."
-                      className="font-normal"
-                    />
-                    {item.description && (
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {item.description}
-                      </p>
-                    )}
+        <TabsContent value="translations">
+          <Card>
+            <CardHeader>
+              <CardTitle>Multi-language Support</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span>Default Language:</span>
+                  <Badge>English (EN)</Badge>
+                </div>
+                
+                <div className="space-y-2">
+                  <h4 className="font-medium">Available Languages:</h4>
+                  <div className="flex gap-2">
+                    <Badge variant="outline">Spanish (ES)</Badge>
+                    <Badge variant="outline">French (FR)</Badge>
+                    <Badge variant="outline">German (DE)</Badge>
                   </div>
                 </div>
-                {index < filteredContent.length - 1 && (
-                  <Separator className="mt-4" />
-                )}
+                
+                <Button>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Language
+                </Button>
               </div>
-            ))}
-
-            {filteredContent.length === 0 && (
-              <div className="text-center py-8 text-muted-foreground">
-                <p>No content strings match your current filters.</p>
-                <p className="text-sm mt-1">Try adjusting your search or category filter.</p>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Summary Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Summary</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-            <div>
-              <div className="text-2xl font-bold">{contentArray.length}</div>
-              <div className="text-sm text-muted-foreground">Total Strings</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold">{categories.length}</div>
-              <div className="text-sm text-muted-foreground">Categories</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-blue-600">
-                {Object.keys(editedValues).length}
-              </div>
-              <div className="text-sm text-muted-foreground">Modified</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-green-600">
-                {filteredContent.length}
-              </div>
-              <div className="text-sm text-muted-foreground">Shown</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
