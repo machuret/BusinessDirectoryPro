@@ -25,8 +25,6 @@ export function UserRoutes() {
           </ProtectedRoute>
         </UserSuspense>
       </Route>
-
-
     </>
   );
 }
