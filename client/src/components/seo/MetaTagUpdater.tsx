@@ -72,14 +72,14 @@ export class MetaTagUpdater {
   }
 
   updateAll(content: MetaTagContent, schemas: any[]) {
-    // Validate generated content
+    // Validate generated content (silently handle missing content)
     if (!content.title || content.title.length < 10) {
-      console.warn('SEO: Generated title is too short or empty');
-      return;
+      return; // Silently skip if title is missing
     }
 
-    if (!content.description || content.description.length < 50) {
-      console.warn('SEO: Generated description is too short or empty');
+    // Continue with description even if short (no warnings in production)
+    if (!content.description) {
+      content.description = ''; // Use empty string if no description
     }
 
     // Update title

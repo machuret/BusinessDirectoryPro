@@ -86,7 +86,7 @@ export function BusinessHero({ business, heroImage }: BusinessHeroProps) {
               <Badge variant="secondary">{business.categoryname}</Badge>
             )}
             {business.city && (
-              <Link href={`/businesses?city=${encodeURIComponent(business.city)}`} className="flex items-center gap-1 text-gray-200 hover:text-white transition-colors">
+              <Link href={`/${business.city.toLowerCase().replace(/\s+/g, '-')}/`} className="flex items-center gap-1 text-gray-200 hover:text-white transition-colors">
                 <MapPin className="w-4 h-4" />
                 {business.city}
               </Link>
