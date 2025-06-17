@@ -63,14 +63,12 @@ export function useAuth() {
   } = useQuery({
     queryKey: ["/api/auth/user"],
     queryFn: getQueryFn({ on401: "returnNull" }),
-    retry: (failureCount, error: any) => {
-      const errorType = getAuthErrorType(error);
-      // Retry network errors up to 3 times, but not auth errors
-      return errorType === 'network' && failureCount < 3;
-    },
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
+    retry: false,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    enabled: true, // Always enabled but returns null on 401
   });
 
   // Handle authentication errors with user feedback

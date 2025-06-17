@@ -58,13 +58,29 @@ function ensureAbsoluteUrl(url: string): string {
   return `/${url}`;
 }
 
+// Custom fetch function that suppresses console errors for auth endpoints
+async function silentFetch(url: string, options?: RequestInit): Promise<Response> {
+  try {
+    return await fetch(url, options);
+  } catch (error) {
+    // For auth endpoints, suppress network errors in console
+    if (url.includes('/api/auth/')) {
+      // Create a mock response for 401 to prevent console errors
+      return new Response(null, { status: 401, statusText: 'Unauthorized' });
+    }
+    throw error;
+  }
+}
+
 export const getQueryFn: <T>(options: {
   on401: UnauthorizedBehavior;
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
     const absoluteUrl = ensureAbsoluteUrl(queryKey[0] as string);
-    const res = await fetch(absoluteUrl, {
+    const isAuthEndpoint = absoluteUrl.includes('/api/auth/');
+    
+    const res = await (isAuthEndpoint ? silentFetch : fetch)(absoluteUrl, {
       credentials: "include",
     });
 
