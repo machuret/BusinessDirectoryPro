@@ -53,12 +53,6 @@ export default function BusinessCardEnhanced({ business, variant = "default" }: 
                 src={business.imageurl}
                 alt={business.title}
                 className="w-full h-full object-cover"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                  const placeholder = target.parentElement?.querySelector('.placeholder');
-                  if (placeholder) placeholder.classList.remove('hidden');
-                }}
               />
             ) : null}
             <div className="placeholder flex items-center justify-center h-full text-gray-400">
@@ -82,14 +76,16 @@ export default function BusinessCardEnhanced({ business, variant = "default" }: 
           {/* Business Info */}
           <div className="flex-1 space-y-3">
             <div>
-              <Link to={`/${business.slug || business.placeid}`}>
-                <a {...linkAttributes} className={`block hover:underline ${
+              <Link 
+                to={`/businesses/${business.slug || business.placeid}`}
+                className={`block hover:underline ${
                   isFeatured ? "text-yellow-900 font-bold" : "text-gray-900"
-                }`}>
-                  <h3 className="text-lg font-semibold line-clamp-2">
-                    {business.title}
-                  </h3>
-                </a>
+                }`}
+                {...linkAttributes}
+              >
+                <h3 className="text-lg font-semibold line-clamp-2">
+                  {business.title}
+                </h3>
               </Link>
               
               {business.category && (

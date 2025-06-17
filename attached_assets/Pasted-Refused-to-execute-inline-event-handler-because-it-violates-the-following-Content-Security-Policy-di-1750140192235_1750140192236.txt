@@ -1,0 +1,151 @@
+Refused to execute inline event handler because it violates the following Content Security Policy directive: "script-src-attr 'none'". Either the 'unsafe-inline' keyword, a hash ('sha256-...'), or a nonce ('nonce-...') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the 'unsafe-hashes' keyword is present.
+Understand this error
+chunk-RPCDYKBN.js?v=7a30982b:21551 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+queryClient.ts:67 
+            
+            
+           GET https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/api/auth/user 401 (Unauthorized)
+(anonymous) @ queryClient.ts:67
+fetchFn @ @tanstack_react-query.js?v=7a30982b:840
+run @ @tanstack_react-query.js?v=7a30982b:494
+start @ @tanstack_react-query.js?v=7a30982b:536
+fetch @ @tanstack_react-query.js?v=7a30982b:926
+executeFetch_fn @ @tanstack_react-query.js?v=7a30982b:2211
+onSubscribe @ @tanstack_react-query.js?v=7a30982b:1898
+subscribe @ @tanstack_react-query.js?v=7a30982b:24
+(anonymous) @ @tanstack_react-query.js?v=7a30982b:3022
+subscribeToStore @ chunk-RPCDYKBN.js?v=7a30982b:11984
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=7a30982b:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=7a30982b:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=7a30982b:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=7a30982b:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=7a30982b:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=7a30982b:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=7a30982b:19447
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=7a30982b:18868
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=7a30982b:9119
+commitRootImpl @ chunk-RPCDYKBN.js?v=7a30982b:19432
+commitRoot @ chunk-RPCDYKBN.js?v=7a30982b:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=7a30982b:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=7a30982b:18718
+workLoop @ chunk-RPCDYKBN.js?v=7a30982b:197
+flushWork @ chunk-RPCDYKBN.js?v=7a30982b:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=7a30982b:384Understand this error
+MetaTagUpdater.tsx:82 SEO: Generated description is too short or empty
+updateAll @ MetaTagUpdater.tsx:82
+(anonymous) @ SEOHead.tsx:101
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=7a30982b:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=7a30982b:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=7a30982b:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=7a30982b:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=7a30982b:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=7a30982b:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=7a30982b:19447
+commitRootImpl @ chunk-RPCDYKBN.js?v=7a30982b:19416
+commitRoot @ chunk-RPCDYKBN.js?v=7a30982b:19277
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=7a30982b:18895
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=7a30982b:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=7a30982b:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=7a30982b:555
+flush @ @tanstack_react-query.js?v=7a30982b:569
+batch @ @tanstack_react-query.js?v=7a30982b:587
+dispatch_fn @ @tanstack_react-query.js?v=7a30982b:996
+setData @ @tanstack_react-query.js?v=7a30982b:696
+onSuccess @ @tanstack_react-query.js?v=7a30982b:897
+resolve @ @tanstack_react-query.js?v=7a30982b:456
+Promise.then
+run @ @tanstack_react-query.js?v=7a30982b:498
+start @ @tanstack_react-query.js?v=7a30982b:536
+fetch @ @tanstack_react-query.js?v=7a30982b:926
+executeFetch_fn @ @tanstack_react-query.js?v=7a30982b:2211
+onSubscribe @ @tanstack_react-query.js?v=7a30982b:1898
+subscribe @ @tanstack_react-query.js?v=7a30982b:24
+(anonymous) @ @tanstack_react-query.js?v=7a30982b:3022
+subscribeToStore @ chunk-RPCDYKBN.js?v=7a30982b:11984
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=7a30982b:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=7a30982b:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=7a30982b:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=7a30982b:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=7a30982b:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=7a30982b:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=7a30982b:19447
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=7a30982b:18868
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=7a30982b:9119
+commitRootImpl @ chunk-RPCDYKBN.js?v=7a30982b:19432
+commitRoot @ chunk-RPCDYKBN.js?v=7a30982b:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=7a30982b:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=7a30982b:18718
+workLoop @ chunk-RPCDYKBN.js?v=7a30982b:197
+flushWork @ chunk-RPCDYKBN.js?v=7a30982b:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=7a30982b:384Understand this warning
+chunk-RPCDYKBN.js?v=7a30982b:521 Warning: validateDOMNesting(...): <a> cannot appear as a descendant of <a>.
+    at a
+    at a
+    at https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=7a30982b:337:18
+    at div
+    at div
+    at div
+    at div
+    at _c9 (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/ui/card.tsx:114:12)
+    at div
+    at _c (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/ui/card.tsx:20:11)
+    at BusinessCardEnhanced (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/business-card-enhanced.tsx:22:48)
+    at div
+    at BusinessGrid (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/businesses/BusinessGrid.tsx:19:32)
+    at div
+    at div
+    at BusinessesPage (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/pages/businesses.tsx:27:18)
+    at Suspense
+    at PageSuspense (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/App.tsx?v=h1ZXBPgyjMHmp3fBb3z2Q:80:25)
+    at Route (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=7a30982b:323:16)
+    at Switch (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=7a30982b:379:17)
+    at Router (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/App.tsx?v=h1ZXBPgyjMHmp3fBb3z2Q:94:42)
+    at div
+    at Provider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-5AJU3CG7.js?v=7a30982b:38:15)
+    at TooltipProvider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=7a30982b:65:5)
+    at UIProvider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/contexts/UIContext.tsx:20:30)
+    at ContentProvider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/contexts/ContentContext.tsx:20:35)
+    at QueryClientProvider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=7a30982b:2805:3)
+    at ErrorBoundary (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/error/ErrorBoundary.tsx:10:5)
+    at App (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/App.tsx?v=h1ZXBPgyjMHmp3fBb3z2Q:587:3)
+printWarning @ chunk-RPCDYKBN.js?v=7a30982b:521
+error @ chunk-RPCDYKBN.js?v=7a30982b:505
+validateDOMNesting @ chunk-RPCDYKBN.js?v=7a30982b:8256
+createInstance @ chunk-RPCDYKBN.js?v=7a30982b:8328
+completeWork @ chunk-RPCDYKBN.js?v=7a30982b:16290
+completeUnitOfWork @ chunk-RPCDYKBN.js?v=7a30982b:19224
+performUnitOfWork @ chunk-RPCDYKBN.js?v=7a30982b:19206
+workLoopSync @ chunk-RPCDYKBN.js?v=7a30982b:19137
+renderRootSync @ chunk-RPCDYKBN.js?v=7a30982b:19116
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=7a30982b:18874
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=7a30982b:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=7a30982b:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=7a30982b:555
+flush @ @tanstack_react-query.js?v=7a30982b:569
+batch @ @tanstack_react-query.js?v=7a30982b:587
+dispatch_fn @ @tanstack_react-query.js?v=7a30982b:996
+setData @ @tanstack_react-query.js?v=7a30982b:696
+onSuccess @ @tanstack_react-query.js?v=7a30982b:897
+resolve @ @tanstack_react-query.js?v=7a30982b:456
+Promise.then
+run @ @tanstack_react-query.js?v=7a30982b:498
+start @ @tanstack_react-query.js?v=7a30982b:536
+fetch @ @tanstack_react-query.js?v=7a30982b:926
+executeFetch_fn @ @tanstack_react-query.js?v=7a30982b:2211
+onSubscribe @ @tanstack_react-query.js?v=7a30982b:1898
+subscribe @ @tanstack_react-query.js?v=7a30982b:24
+(anonymous) @ @tanstack_react-query.js?v=7a30982b:3022
+subscribeToStore @ chunk-RPCDYKBN.js?v=7a30982b:11984
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=7a30982b:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=7a30982b:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=7a30982b:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=7a30982b:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=7a30982b:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=7a30982b:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=7a30982b:19447
+(anonymous) @ chunk-RPCDYKBN.js?v=7a30982b:19328
+workLoop @ chunk-RPCDYKBN.js?v=7a30982b:197
+flushWork @ chunk-RPCDYKBN.js?v=7a30982b:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=7a30982b:384Understand this error
