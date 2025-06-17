@@ -54,3 +54,6 @@ export class CategoryStorage {
     await db.delete(categories).where(eq(categories.id, id));
   }
 }
+
+// Export singleton instance
+export const categoryStorage = new CategoryStorage();

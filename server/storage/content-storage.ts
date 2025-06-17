@@ -4,19 +4,24 @@ import { menuItemsStorage } from './menu-items.storage';
 import { pagesStorage } from './pages.storage';
 import { websiteFaqsStorage } from './website-faqs.storage';
 import { contactMessagesStorage } from './contact-messages.storage';
+import { BusinessStorage } from './business/index';
+import { categoryStorage } from './category-storage';
 
 /**
  * ContentStorage - Refactored to use modular domain-specific storage classes
  * This class now delegates operations to focused storage implementations
  */
 export class ContentStorage {
+  private businessStorage = new BusinessStorage();
+
   constructor(
     private contentStrings = contentStringsStorage,
     private siteSettings = siteSettingsStorage,
     private menuItems = menuItemsStorage,
     private pages = pagesStorage,
     private websiteFaqs = websiteFaqsStorage,
-    private contactMessages = contactMessagesStorage
+    private contactMessages = contactMessagesStorage,
+    private categories = categoryStorage
   ) {}
 
   // Content String delegation methods
@@ -167,6 +172,143 @@ export class ContentStorage {
 
   async deleteContactMessage(id: number) {
     return this.contactMessages.deleteContactMessage(id);
+  }
+
+  // ========== BUSINESS METHODS ==========
+  // Business-related methods delegated to BusinessStorage
+
+  async getBusinesses(params?: {
+    categoryId?: number;
+    search?: string;
+    city?: string;
+    featured?: boolean;
+    limit?: number;
+    offset?: number;
+  }) {
+    return this.businessStorage.getBusinesses(params);
+  }
+
+  async getBusinessById(id: string) {
+    return this.businessStorage.getBusinessById(id);
+  }
+
+  async getBusinessBySlug(slug: string) {
+    return this.businessStorage.getBusinessBySlug(slug);
+  }
+
+  async getBusinessesByOwner(ownerId: string) {
+    return this.businessStorage.getBusinessesByOwner(ownerId);
+  }
+
+  async getFeaturedBusinesses(limit: number = 10) {
+    return this.businessStorage.getFeaturedBusinesses(limit);
+  }
+
+  async getRandomBusinesses(limit: number = 10) {
+    return this.businessStorage.getRandomBusinesses(limit);
+  }
+
+  async getBusinessesByCategory(categoryId: number, limit?: number) {
+    return this.businessStorage.getBusinessesByCategory(categoryId, limit);
+  }
+
+  async getBusinessesByCity(city: string, limit?: number) {
+    return this.businessStorage.getBusinessesByCity(city, limit);
+  }
+
+  async searchBusinesses(searchTerm: string, limit?: number) {
+    return this.businessStorage.searchBusinesses(searchTerm, limit);
+  }
+
+  async getPendingBusinesses() {
+    return this.businessStorage.getPendingBusinesses();
+  }
+
+  async getBusinessStats() {
+    return this.businessStorage.getBusinessStats();
+  }
+
+  async getBusinessesNearLocation(latitude: number, longitude: number, radiusKm: number = 10, limit: number = 20) {
+    return this.businessStorage.getBusinessesNearLocation(latitude, longitude, radiusKm, limit);
+  }
+
+  async getCitiesWithBusinessCounts() {
+    return this.businessStorage.getCitiesWithBusinessCounts();
+  }
+
+  async getUniqueCities() {
+    return this.businessStorage.getUniqueCities();
+  }
+
+  async createBusiness(business: any) {
+    return this.businessStorage.createBusiness(business);
+  }
+
+  async updateBusiness(id: string, updates: any) {
+    return this.businessStorage.updateBusiness(id, updates);
+  }
+
+  async deleteBusiness(id: string) {
+    return this.businessStorage.deleteBusiness(id);
+  }
+
+  async updateFeaturedStatus(id: string, featured: boolean) {
+    return this.businessStorage.updateFeaturedStatus(id, featured);
+  }
+
+  async updateVerificationStatus(id: string, verified: boolean) {
+    return this.businessStorage.updateVerificationStatus(id, verified);
+  }
+
+  async bulkUpdateBusinesses(ids: string[], updates: any) {
+    return this.businessStorage.bulkUpdateBusinesses(ids, updates);
+  }
+
+  async bulkDeleteBusinesses(ids: string[]) {
+    return this.businessStorage.bulkDeleteBusinesses(ids);
+  }
+
+  async generateUniqueSlug(baseSlug: string, excludePlaceId?: string) {
+    return this.businessStorage.generateUniqueSlug(baseSlug, excludePlaceId);
+  }
+
+  generateSeoMetadata(business: any) {
+    return this.businessStorage.generateSeoMetadata(business);
+  }
+
+  validateBusinessData(business: any) {
+    return this.businessStorage.validateBusinessData(business);
+  }
+
+  sanitizeBusinessData(business: any) {
+    return this.businessStorage.sanitizeBusinessData(business);
+  }
+
+  generateSeoSlug(title: string, city?: string, categoryName?: string) {
+    return this.businessStorage.generateSeoSlug(title, city, categoryName);
+  }
+
+  // ========== CATEGORY METHODS ==========
+  // Category-related methods delegated to CategoryStorage
+
+  async getCategories() {
+    return this.categories.getCategories();
+  }
+
+  async getCategoryBySlug(slug: string) {
+    return this.categories.getCategoryBySlug(slug);
+  }
+
+  async createCategory(category: any) {
+    return this.categories.createCategory(category);
+  }
+
+  async updateCategory(id: number, category: any) {
+    return this.categories.updateCategory(id, category);
+  }
+
+  async deleteCategory(id: number) {
+    return this.categories.deleteCategory(id);
   }
 }
 
