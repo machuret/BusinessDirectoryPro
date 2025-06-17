@@ -1,5 +1,7 @@
 import { Express } from "express";
 import { storage } from "../storage";
+import uploadRouter from "./upload";
+import { azureBlobService } from "../azure-blob";
 
 // Import modular sub-routers
 import businessesRouter from "./admin/businesses.routes";
@@ -10,6 +12,9 @@ import leadsRouter from "./admin/leads.routes";
 import reviewsRouter from "./admin/reviews.routes";
 
 export function setupAdminRoutes(app: Express) {
+  // Register upload router for admin file uploads
+  app.use('/api/admin', uploadRouter);
+  
   // Register modular sub-routers with their respective base paths
   app.use('/api/admin/businesses', businessesRouter);
   app.use('/api/admin/users', usersRouter);
@@ -232,6 +237,45 @@ export function setupAdminRoutes(app: Express) {
     } catch (error) {
       console.error("Error updating ownership claim status:", error);
       res.status(500).json({ message: "Failed to update ownership claim status" });
+    }
+  });
+
+  // Site Settings Management
+  app.get('/api/admin/site-settings', async (req, res) => {
+    try {
+      const settings = await storage.getAllSiteSettings();
+      res.json(settings);
+    } catch (error) {
+      console.error("Error fetching site settings:", error);
+      res.status(500).json({ message: "Failed to fetch site settings" });
+    }
+  });
+
+  app.put('/api/admin/site-settings/:key', async (req, res) => {
+    try {
+      const { key } = req.params;
+      const { value, description, category } = req.body;
+      
+      const setting = await storage.updateSiteSetting(key, value, description, category);
+      res.json(setting);
+    } catch (error) {
+      console.error("Error updating site setting:", error);
+      res.status(500).json({ message: "Failed to update site setting" });
+    }
+  });
+
+  // Azure Blob Storage Test Endpoint
+  app.post('/api/admin/azure-blob/test', async (req, res) => {
+    try {
+      const testResult = await azureBlobService.testConnection();
+      res.json(testResult);
+    } catch (error) {
+      console.error("Azure Blob Storage test failed:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Azure Blob Storage test failed",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   });
 }
