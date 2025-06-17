@@ -28,7 +28,7 @@ app.use(helmet({
 // CORS configuration
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? [/\.replit\.app$/, /\.replit\.dev$/] 
+    ? [/\.replit\.app$/, /\.replit\.dev$/, /\.vercel\.app$/, /\.herokuapp\.com$/] 
     : ["http://localhost:5000", "http://127.0.0.1:5000"],
   credentials: true,
 }));
@@ -125,6 +125,15 @@ app.use((req, res, next) => {
   next();
 });
 
+// Health check endpoint for deployment platforms
+app.get('/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'healthy', 
+    message: 'Business Directory API is healthy',
+    timestamp: new Date().toISOString()
+  });
+});
+
 (async () => {
   const server = await registerRoutes(app);
 
@@ -148,10 +157,9 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on port 5000
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const port = 5000;
+  // Use PORT environment variable for deployment compatibility
+  // Fallback to 5000 for local development
+  const port = parseInt(process.env.PORT || "5000");
   server.listen({
     port,
     host: "0.0.0.0",
