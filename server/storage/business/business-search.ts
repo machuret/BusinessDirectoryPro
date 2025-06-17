@@ -2,6 +2,7 @@ import { eq, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { type BusinessWithCategory } from "@shared/schema";
 import { BusinessQueries } from "./business-queries";
+import { businessCache } from "../../cache/business-cache";
 
 export class BusinessSearch {
   /**
@@ -20,17 +21,40 @@ export class BusinessSearch {
   }
 
   /**
-   * Get featured businesses
+   * Get featured businesses with caching
    */
   static async getFeaturedBusinesses(limit: number = 10): Promise<BusinessWithCategory[]> {
-    return this.getBusinesses({ featured: true, limit });
+    // Check cache first
+    const cached = businessCache.getFeaturedBusinesses(limit);
+    if (cached) {
+      console.log(`[CACHE HIT] Featured businesses (${limit}) served from cache`);
+      return cached;
+    }
+
+    // Cache miss - fetch from database
+    console.log(`[CACHE MISS] Fetching featured businesses (${limit}) from database`);
+    const businesses = await this.getBusinesses({ featured: true, limit });
+    
+    // Cache the result
+    businessCache.setFeaturedBusinesses(businesses, limit);
+    console.log(`[CACHE SET] Featured businesses (${limit}) cached for 5 minutes`);
+    
+    return businesses;
   }
 
   /**
-   * Get random businesses for homepage
+   * Get random businesses for homepage with caching
    */
   static async getRandomBusinesses(limit: number = 10): Promise<BusinessWithCategory[]> {
+    // Check cache first
+    const cached = businessCache.getRandomBusinesses(limit);
+    if (cached) {
+      console.log(`[CACHE HIT] Random businesses (${limit}) served from cache`);
+      return cached;
+    }
+
     try {
+      console.log(`[CACHE MISS] Fetching random businesses (${limit}) from database`);
       const result = await db.execute(sql`
         SELECT b.*, c.name as category_name, c.slug as category_slug, c.description as category_description, 
                c.icon as category_icon, c.color as category_color, c.id as category_id
@@ -41,7 +65,13 @@ export class BusinessSearch {
         LIMIT ${limit}
       `);
 
-      return BusinessQueries.transformBusinessResults(result.rows);
+      const businesses = BusinessQueries.transformBusinessResults(result.rows);
+      
+      // Cache the result for 2 minutes
+      businessCache.setRandomBusinesses(businesses, limit);
+      console.log(`[CACHE SET] Random businesses (${limit}) cached for 2 minutes`);
+      
+      return businesses;
     } catch (error) {
       console.error('Error fetching random businesses:', error);
       return [];
