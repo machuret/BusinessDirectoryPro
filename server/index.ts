@@ -155,16 +155,16 @@ app.get('/health', (req, res) => {
     // setting up all the other routes so the catch-all route
     // doesn't interfere with the other routes
     
-    // Force static file serving to show interface
-    try {
-      serveStatic(app);
-      console.log('Serving static files from server/public');
-    } catch (error) {
-      console.warn('Static files not available, falling back to Vite or API mode:', error instanceof Error ? error.message : String(error));
-      
-      if (app.get("env") === "development") {
-        await setupVite(app, server);
-      } else {
+    // Setup Vite for development to serve your React application
+    if (app.get("env") === "development") {
+      await setupVite(app, server);
+      console.log('Serving React application via Vite dev server');
+    } else {
+      try {
+        serveStatic(app);
+        console.log('Serving static files from server/public');
+      } catch (error) {
+        console.warn('Static files not available, serving API only:', error instanceof Error ? error.message : String(error));
         // Fallback for deployment platforms when static files aren't available
         app.get("*", (_req, res) => {
           res.status(200).json({ 
