@@ -152,8 +152,7 @@ export function OptimizedImage({
           placeholder === 'blur' && !isLoaded && 'blur-sm',
           className
         )}
-        onLoad={handleLoad}
-        onError={handleError}
+
         loading={priority ? 'eager' : 'lazy'}
         decoding="async"
         style={{
