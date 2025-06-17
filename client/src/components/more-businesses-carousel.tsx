@@ -75,7 +75,7 @@ export default function MoreBusinessesCarousel({
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {businesses.slice(0, 4).map((business) => (
-            <Link key={business.placeid} href={`/${business.slug || business.placeid}`}>
+            <Link key={business.placeid} href={`/businesses/${business.slug || business.placeid}`}>
               <Card className="h-full hover:shadow-lg transition-shadow duration-200 cursor-pointer">
                 <div className="aspect-video overflow-hidden rounded-t-lg">
                   {business.imageurl ? (

@@ -106,6 +106,20 @@ function Router() {
           <BusinessDetail />
         </PageSuspense>
       </Route>
+      
+      {/* Legacy route for backwards compatibility - redirects to proper /businesses/ path */}
+      <Route path="/:businessSlug">
+        {(params) => {
+          // Only redirect if it looks like a business slug (contains hyphen and alphanumeric)
+          const slug = params.businessSlug;
+          if (slug && /^[a-zA-Z0-9-]+$/.test(slug) && slug.includes('-')) {
+            window.location.href = `/businesses/${slug}`;
+            return null;
+          }
+          // Otherwise show 404
+          return <NotFound />;
+        }}
+      </Route>
 
       {/* Featured businesses */}
       <Route path="/featured">
