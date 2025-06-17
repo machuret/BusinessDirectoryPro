@@ -54,8 +54,8 @@ export function getSessionConfig() {
         ...baseConfig,
         cookie: {
           ...baseConfig.cookie,
-          secure: true, // Enable secure for Replit deployment
-          sameSite: 'none' as const, // Required for cross-origin requests in Replit
+          secure: false, // HTTP compatibility for Replit
+          sameSite: 'lax' as const, // Better compatibility for same-origin
           domain: undefined // Don't set domain for Replit
         }
       };
