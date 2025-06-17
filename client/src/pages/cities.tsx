@@ -16,22 +16,28 @@ interface City {
 }
 
 export default function Cities() {
-  const { city } = useParams();
+  const { city, cityName, citySlug } = useParams();
   const { t } = useContent();
+  
+  // Handle different route parameters: city, cityName, or citySlug
+  const currentCity = city || cityName || citySlug;
 
   // If no city specified, show all cities
   const { data: cities, isLoading: citiesLoading } = useQuery<City[]>({
     queryKey: ["/api/cities"],
-    enabled: !city,
+    enabled: !currentCity,
   });
 
   // If city specified, show businesses in that city
+  // Convert slug back to city name if needed (e.g., "nundah" -> "Nundah")
+  const cityForAPI = currentCity ? currentCity.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : '';
+  
   const { data: businesses, isLoading: businessesLoading } = useQuery<BusinessWithCategory[]>({
-    queryKey: [`/api/cities/${city}/businesses`],
-    enabled: !!city,
+    queryKey: [`/api/cities/${cityForAPI}/businesses`],
+    enabled: !!currentCity,
   });
 
-  const decodedCity = city ? decodeURIComponent(city) : 'Unknown City';
+  const displayCity = currentCity ? cityForAPI : 'Unknown City';
 
   if (citiesLoading || businessesLoading) {
     return (
@@ -53,7 +59,7 @@ export default function Cities() {
       <Header />
       
       <div className="container mx-auto px-4 py-8">
-        {!city ? (
+        {!currentCity ? (
           // Cities overview page
           <>
             <div className="text-center mb-8">
@@ -109,14 +115,14 @@ export default function Cities() {
                   <li>/</li>
                   <li><Link href="/cities" className="hover:text-primary">{t('cities.breadcrumbs.cities')}</Link></li>
                   <li>/</li>
-                  <li className="text-gray-900 font-medium">{decodedCity}</li>
+                  <li className="text-gray-900 font-medium">{displayCity}</li>
                 </ol>
               </nav>
               
               <div className="flex items-center space-x-3 mb-4">
                 <MapPin className="h-8 w-8 text-primary" />
                 <h1 className="text-3xl font-bold text-gray-900">
-                  {t('cities.cityPage.title', { cityName: decodedCity })}
+                  {t('cities.cityPage.title', { cityName: displayCity })}
                 </h1>
               </div>
               
