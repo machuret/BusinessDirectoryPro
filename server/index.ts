@@ -125,14 +125,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Health check endpoint for deployment platforms - MUST be before route registration
-app.get('/', (req, res) => {
-  res.status(200).json({ 
-    status: 'ok', 
-    message: 'Business Directory API is running',
-    timestamp: new Date().toISOString()
-  });
-});
+// Homepage will be served by static file server
 
 app.get('/health', (req, res) => {
   res.status(200).json({ 
@@ -161,13 +154,17 @@ app.get('/health', (req, res) => {
     // importantly only setup vite in development and after
     // setting up all the other routes so the catch-all route
     // doesn't interfere with the other routes
-    if (app.get("env") === "development") {
-      await setupVite(app, server);
-    } else {
-      try {
-        serveStatic(app);
-      } catch (error) {
-        console.warn('Static files not available, serving API only:', error instanceof Error ? error.message : String(error));
+    
+    // Force static file serving to show interface
+    try {
+      serveStatic(app);
+      console.log('Serving static files from server/public');
+    } catch (error) {
+      console.warn('Static files not available, falling back to Vite or API mode:', error instanceof Error ? error.message : String(error));
+      
+      if (app.get("env") === "development") {
+        await setupVite(app, server);
+      } else {
         // Fallback for deployment platforms when static files aren't available
         app.get("*", (_req, res) => {
           res.status(200).json({ 
