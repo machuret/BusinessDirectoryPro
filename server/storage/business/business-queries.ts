@@ -15,7 +15,8 @@ export class BusinessQueries {
     offset?: number;
   }): string {
     let query = `
-      SELECT b.*, c.name as category_name, c.slug as category_slug, c.description as category_description, 
+      SELECT DISTINCT ON (b.title, b.address, b.city) 
+             b.*, c.name as category_name, c.slug as category_slug, c.description as category_description, 
              c.icon as category_icon, c.color as category_color, c.id as category_id
       FROM businesses b
       LEFT JOIN categories c ON (b.categoryname = c.name OR 
@@ -47,7 +48,7 @@ export class BusinessQueries {
     const limit = params?.limit || 50;
     const offset = params?.offset || 0;
 
-    query += ` ORDER BY b.featured DESC, b.createdat DESC NULLS LAST LIMIT ${limit} OFFSET ${offset}`;
+    query += ` ORDER BY b.title, b.address, b.city, b.featured DESC, b.createdat DESC NULLS LAST LIMIT ${limit} OFFSET ${offset}`;
 
     return query;
   }
