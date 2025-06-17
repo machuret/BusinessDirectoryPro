@@ -17,6 +17,39 @@ const getAuthErrorType = (error: any): 'network' | 'unauthorized' | 'server' | '
   return 'unknown';
 };
 
+/**
+ * useAuth - Authentication hook with robust error handling and user feedback
+ * 
+ * Manages user authentication state with automatic retry logic for network failures,
+ * proper error categorization, and user-friendly toast notifications. Handles
+ * authentication token validation, session management, and provides loading states
+ * for UI components. Includes intelligent retry strategy that distinguishes between
+ * network issues and authentication failures.
+ * 
+ * @returns Object containing authentication state and helper functions
+ * @returns returns.user - Current authenticated user object or null if not authenticated
+ * @returns returns.isAuthenticated - Boolean indicating if user is currently authenticated
+ * @returns returns.isLoading - Loading state during authentication checks and retries
+ * @returns returns.error - Authentication error object with detailed error information
+ * @returns returns.refetch - Function to manually trigger authentication state refresh
+ * 
+ * @example
+ * // Basic authentication check
+ * const { user, isAuthenticated, isLoading } = useAuth();
+ * 
+ * if (isLoading) return <LoadingSpinner />;
+ * if (!isAuthenticated) return <LoginPrompt />;
+ * return <AuthenticatedContent user={user} />;
+ * 
+ * @example
+ * // Manual refresh after login
+ * const { refetch } = useAuth();
+ * 
+ * const handleLogin = async () => {
+ *   await loginUser(credentials);
+ *   refetch(); // Refresh auth state
+ * };
+ */
 export function useAuth() {
   const { toast } = useToast();
   const [hasShownNetworkError, setHasShownNetworkError] = useState(false);

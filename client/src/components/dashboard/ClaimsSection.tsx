@@ -9,6 +9,33 @@ interface ClaimsSectionProps {
   isLoading: boolean;
 }
 
+/**
+ * ClaimsSection - Dashboard component for displaying and managing business ownership claims
+ * 
+ * Provides a comprehensive interface for business owners to view the status of their ownership
+ * claims, including pending, approved, and rejected claims. Displays claim details in a table
+ * format with status badges and timestamps. Handles loading states and empty states gracefully
+ * with appropriate messaging and visual indicators.
+ * 
+ * @param claims - Array of ownership claim objects containing business details and claim status
+ * @param isLoading - Boolean indicating whether claims data is currently being fetched
+ * 
+ * @returns JSX.Element - A responsive card containing claims table with status indicators and empty states
+ * 
+ * @example
+ * // Basic usage in dashboard
+ * <ClaimsSection 
+ *   claims={userClaims}
+ *   isLoading={claimsQuery.isLoading}
+ * />
+ * 
+ * @example
+ * // Usage with empty state
+ * <ClaimsSection 
+ *   claims={[]}
+ *   isLoading={false}
+ * />
+ */
 export function ClaimsSection({ claims, isLoading }: ClaimsSectionProps) {
   const { t } = useContent();
   

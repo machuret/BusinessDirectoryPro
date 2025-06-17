@@ -38,6 +38,34 @@ interface FeaturedRequestsSectionProps {
   userBusinesses: Business[];
 }
 
+/**
+ * FeaturedRequestsSection - Dashboard component for managing business featured status requests
+ * 
+ * Provides a comprehensive interface for business owners to submit requests for featured status,
+ * view the status of existing requests, and manage the featured request workflow. Displays
+ * eligible businesses for featured requests, handles form submission with validation, and
+ * shows request history with status tracking. Includes real-time status updates and admin
+ * response messaging.
+ * 
+ * @param userId - Unique identifier for the current user to fetch their featured requests
+ * @param userBusinesses - Array of businesses owned by the user to determine eligibility
+ * 
+ * @returns JSX.Element - A responsive card containing featured request management interface
+ * 
+ * @example
+ * // Basic usage in dashboard
+ * <FeaturedRequestsSection 
+ *   userId={currentUser.id}
+ *   userBusinesses={userBusinesses}
+ * />
+ * 
+ * @example
+ * // Usage with empty business list
+ * <FeaturedRequestsSection 
+ *   userId={userId}
+ *   userBusinesses={[]}
+ * />
+ */
 export function FeaturedRequestsSection({ userId, userBusinesses }: FeaturedRequestsSectionProps) {
   const { t } = useContent();
   const { toast } = useToast();

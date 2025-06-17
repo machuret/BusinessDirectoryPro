@@ -9,6 +9,28 @@ interface BusinessCardProps {
   business: BusinessWithCategory;
 }
 
+/**
+ * BusinessCard - Displays a business listing in a card format with image, details, and rating
+ * 
+ * Renders a comprehensive business card showing business image, name, category, location,
+ * rating, and key details in an attractive card layout. Supports hover effects and click
+ * navigation to business detail pages. Handles image loading with fallback support and
+ * displays featured status badges. Optimized for grid layouts and responsive design.
+ * 
+ * @param business - Business object with category information including images, rating, and location
+ * 
+ * @returns JSX.Element - A clickable card component with business information and navigation
+ * 
+ * @example
+ * // Basic usage in business grid
+ * <BusinessCard business={businessData} />
+ * 
+ * @example
+ * // Usage in featured carousel
+ * {featuredBusinesses.map(business => (
+ *   <BusinessCard key={business.placeid} business={business} />
+ * ))}
+ */
 export function BusinessCard({ business }: BusinessCardProps) {
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }).map((_, i) => (

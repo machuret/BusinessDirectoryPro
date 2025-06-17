@@ -13,6 +13,37 @@ interface ContactFormProps {
   showContactInfo?: boolean;
 }
 
+/**
+ * ContactForm - Reusable contact form component with validation and submission handling
+ * 
+ * Provides a comprehensive contact form with fields for name, email, phone, subject, and message.
+ * Handles form validation, submission to contact API endpoint, and user feedback via toast notifications.
+ * Supports customizable title and optional contact information display. Includes loading states
+ * and error handling for robust user experience.
+ * 
+ * @param title - Custom title for the contact form card header (defaults to "Contact Us")
+ * @param showContactInfo - Whether to display additional contact information section (defaults to true)
+ * 
+ * @returns JSX.Element - A responsive card containing the contact form with validation and submission handling
+ * 
+ * @example
+ * // Basic usage with default settings
+ * <ContactForm />
+ * 
+ * @example
+ * // Custom title without contact info
+ * <ContactForm 
+ *   title="Get In Touch" 
+ *   showContactInfo={false}
+ * />
+ * 
+ * @example
+ * // Business-specific contact form
+ * <ContactForm 
+ *   title="Contact This Business"
+ *   showContactInfo={true}
+ * />
+ */
 export default function ContactForm({ title = "Contact Us", showContactInfo = true }: ContactFormProps) {
   const { toast } = useToast();
   const [formData, setFormData] = useState({
