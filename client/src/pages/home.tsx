@@ -1,45 +1,25 @@
 import { useApiQuery } from "@/hooks/useApiQuery";
 import { useContent } from "@/contexts/ContentContext";
-import { PageWrapper, Grid, FlexContainer } from "@/components/layout";
+import { PageWrapper, Grid } from "@/components/layout";
 import SearchBar from "@/components/search-bar";
-import CategoryGrid from "@/components/category-grid";
-import { BusinessCard } from "@/components/business-card-consolidated";
-import BusinessCardSkeleton from "@/components/business-card-skeleton";
 import WelcomeSection from "@/components/welcome-section";
 import SEOHead from "@/components/SEOHead";
-import { SectionErrorBoundary } from "@/components/error/SectionErrorBoundary";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Building, Users, Star, MapPin, RefreshCw } from "lucide-react";
-import type { BusinessWithCategory, CategoryWithCount } from "@shared/schema";
+import { Building, Users, Star } from "lucide-react";
+
+// Progressive loading components
+import CategoriesSection from "@/components/home/CategoriesSection";
+import FeaturedBusinessesList from "@/components/home/FeaturedBusinessesList";
+import LatestBusinessesList from "@/components/home/LatestBusinessesList";
+import StatsSection from "@/components/home/StatsSection";
 
 export default function Home() {
   const { t } = useContent();
   
-  const { data: featuredBusinesses, isLoading: featuredLoading, error: featuredError, refetch: retryFeatured } = useApiQuery<BusinessWithCategory[]>({
-    queryKey: ["/api/businesses/featured"],
-  });
-
-  const { data: randomBusinesses, isLoading: randomLoading, error: randomError, refetch: retryRandom } = useApiQuery<BusinessWithCategory[]>({
-    queryKey: ["/api/businesses/random", { limit: 9 }],
-  });
-
-  const { data: categories, isLoading: categoriesLoading, error: categoriesError, refetch: retryCategories } = useApiQuery<CategoryWithCount[]>({
-    queryKey: ["/api/categories"],
-  });
-
-  const { data: siteSettings, error: settingsError, refetch: retrySettings } = useApiQuery<Record<string, any>>({
+  // Only fetch site settings for SEO and CTA buttons - non-blocking for hero
+  const { data: siteSettings } = useApiQuery<Record<string, any>>({
     queryKey: ["/api/site-settings"],
   });
-
-
-
-  const stats = {
-    businesses: categories?.reduce((sum, cat) => sum + cat.businessCount, 0) || 0,
-    reviews: t("homepage.stats.reviews.value"),
-    categories: categories?.length || 0,
-    cities: t("homepage.stats.cities.value"),
-  };
 
   return (
     <PageWrapper 
@@ -68,42 +48,8 @@ export default function Home() {
       {/* Welcome Section */}
       <WelcomeSection />
 
-      {/* Category Grid */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              {t("homepage.categories.title")}
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              {t("homepage.categories.subtitle")}
-            </p>
-          </div>
-          
-          <SectionErrorBoundary 
-            fallbackTitle={t("homepage.categories.error.title")}
-            fallbackMessage={t("homepage.categories.error.message")}
-          >
-            {categoriesLoading ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="bg-gray-200 rounded-xl p-6 h-32 animate-pulse" />
-                ))}
-              </div>
-            ) : categoriesError ? (
-              <div className="text-center py-8">
-                <p className="text-gray-500 mb-4">{t("homepage.categories.error.unable")}</p>
-                <Button onClick={retryCategories} variant="outline">
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  {t("homepage.categories.error.retry")}
-                </Button>
-              </div>
-            ) : (
-              <CategoryGrid categories={categories?.filter(cat => (cat as any).businessCount > 0) || []} />
-            )}
-          </SectionErrorBoundary>
-        </div>
-      </section>
+      {/* Categories Section - Progressive Loading */}
+      <CategoriesSection />
 
       {/* Features Section */}
       <section className="py-16 bg-white">
@@ -134,92 +80,11 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Featured Businesses */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              {t("homepage.featured.title")}
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              {t("homepage.featured.subtitle")}
-            </p>
-          </div>
-          
-          <SectionErrorBoundary 
-            fallbackTitle={t("homepage.featured.error.title")}
-            fallbackMessage={t("homepage.featured.error.message")}
-          >
-            {featuredLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                <BusinessCardSkeleton 
-                  count={6} 
-                  variant="default"
-                  className="transition-all duration-300"
-                />
-              </div>
-            ) : featuredError ? (
-              <div className="text-center py-8">
-                <p className="text-gray-500 mb-4">{t("homepage.featured.error.unable")}</p>
-                <Button onClick={retryFeatured} variant="outline">
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  {t("homepage.featured.error.retry")}
-                </Button>
-              </div>
-            ) : featuredBusinesses && featuredBusinesses.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {featuredBusinesses.map((business) => (
-                  <BusinessCard key={business.placeid} business={business} />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-gray-500">{t("homepage.featured.empty")}</p>
-              </div>
-            )}
-          </SectionErrorBoundary>
-        </div>
-      </section>
+      {/* Featured Businesses Section - Progressive Loading */}
+      <FeaturedBusinessesList />
 
-      {/* Latest Businesses */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              {t("homepage.latest.title")}
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              {t("homepage.latest.subtitle")}
-            </p>
-          </div>
-          
-          {randomLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              <BusinessCardSkeleton 
-                count={9} 
-                variant="carousel"
-                className="transition-all duration-300"
-              />
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {randomBusinesses?.map((business) => (
-                <BusinessCard key={business.placeid} business={business} />
-              ))}
-            </div>
-          )}
-          
-          <div className="text-center mt-12">
-            <Button 
-              variant="secondary" 
-              size="lg"
-              onClick={() => window.location.href = siteSettings?.homepage_random_button_url || "/businesses"}
-            >
-              {t("homepage.latest.button")}
-            </Button>
-          </div>
-        </div>
-      </section>
+      {/* Latest Businesses Section - Progressive Loading */}
+      <LatestBusinessesList siteSettings={siteSettings} />
 
       {/* Business Owner CTA */}
       <section className="py-16 bg-primary">
@@ -253,29 +118,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div>
-              <div className="text-3xl font-bold text-primary mb-2">{stats.businesses.toLocaleString()}</div>
-              <div className="text-gray-600">{t("homepage.stats.businesses.label")}</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-primary mb-2">{stats.reviews}</div>
-              <div className="text-gray-600">{t("homepage.stats.reviews.label")}</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-primary mb-2">{stats.categories}+</div>
-              <div className="text-gray-600">{t("homepage.stats.categories.label")}</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-primary mb-2">{stats.cities}</div>
-              <div className="text-gray-600">{t("homepage.stats.cities.label")}</div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Stats Section - Progressive Loading */}
+      <StatsSection />
 
     </PageWrapper>
   );
