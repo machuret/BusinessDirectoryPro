@@ -397,6 +397,23 @@ export class ContentStorage {
   async getReviewsByBusiness(businessId: string) {
     return this.reviewsStorage.getReviewsByBusiness(businessId);
   }
+
+  async getReviews() {
+    return this.reviewsStorage.getReviews();
+  }
+
+  async createReview(reviewData: any) {
+    return this.reviewsStorage.createReview(reviewData);
+  }
+
+  async updateReviewStatus(reviewId: number, status: string, adminNotes?: string) {
+    return this.reviewsStorage.updateReviewStatus(reviewId, status, adminNotes);
+  }
+
+  async deleteReview(reviewId: number) {
+    return this.reviewsStorage.deleteReview(reviewId);
+  }
+
   // ========== ADMIN-SPECIFIC METHODS ==========
   // Methods required by admin API endpoints
 
