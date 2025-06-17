@@ -8,6 +8,7 @@ import { BusinessStorage } from './business/index';
 import { categoryStorage } from './category-storage';
 import { SocialMediaStorage } from './social-media-storage';
 import { userStorage } from './user-storage';
+import { ReviewsStorage } from './reviews-storage';
 
 /**
  * ContentStorage - Refactored to use modular domain-specific storage classes
@@ -16,6 +17,7 @@ import { userStorage } from './user-storage';
 export class ContentStorage {
   private businessStorage = new BusinessStorage();
   private socialMediaStorage = new SocialMediaStorage();
+  private reviewsStorage = new ReviewsStorage();
 
   constructor(
     private contentStrings = contentStringsStorage,
@@ -383,6 +385,17 @@ export class ContentStorage {
 
   async getAllUsers() {
     return this.users.getAllUsers();
+  }
+
+  // ========== REVIEW METHODS ==========
+  // Review-related methods delegated to ReviewsStorage
+
+  async getApprovedReviewsByBusiness(businessId: string) {
+    return this.reviewsStorage.getApprovedReviewsByBusiness(businessId);
+  }
+
+  async getReviewsByBusiness(businessId: string) {
+    return this.reviewsStorage.getReviewsByBusiness(businessId);
   }
 }
 

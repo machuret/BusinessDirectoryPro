@@ -229,13 +229,17 @@ export default function BusinessDetailRefactored() {
   };
 
   const allReviews = parseBusinessReviews();
+  
+  // Only show review error if there are truly no reviews available from any source
+  const hasReviewsFromAnySource = allReviews.length > 0 || (business.reviews && business.reviews.length > 0);
+  const shouldShowReviewsError = reviewsError && !hasReviewsFromAnySource;
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
       
       {/* Error alerts for secondary features */}
-      {reviewsError && (
+      {shouldShowReviewsError && (
         <Alert className="mx-4 mt-4" variant="destructive">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
