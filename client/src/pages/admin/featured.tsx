@@ -4,17 +4,36 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Star, CheckCircle, XCircle, Eye } from 'lucide-react';
+import { AdminPageLayout } from '@/components/admin/AdminPageLayout';
 
 export default function AdminFeaturedPage() {
   const queryClient = useQueryClient();
 
-  const { data: featuredRequests, isLoading } = useQuery({
+  const { data: featuredRequests = [], isLoading } = useQuery({
     queryKey: ['/api/admin/featured-requests'],
+    queryFn: async () => {
+      const response = await fetch('/api/admin/featured-requests', {
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch featured requests');
+      }
+      return response.json();
+    },
   });
 
   const approveMutation = useMutation({
     mutationFn: (requestId: string) =>
-      fetch(`/api/admin/featured-requests/${requestId}/approve`, { method: 'POST' }),
+      fetch(`/api/admin/featured-requests/${requestId}/approve`, { 
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/featured-requests'] });
     },
@@ -22,7 +41,13 @@ export default function AdminFeaturedPage() {
 
   const rejectMutation = useMutation({
     mutationFn: (requestId: string) =>
-      fetch(`/api/admin/featured-requests/${requestId}/reject`, { method: 'POST' }),
+      fetch(`/api/admin/featured-requests/${requestId}/reject`, { 
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/featured-requests'] });
     },

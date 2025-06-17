@@ -19,7 +19,12 @@ export default function CitiesManagement() {
   const { data: cities = [], isLoading } = useQuery<CityData[]>({
     queryKey: ["/api/admin/cities"],
     queryFn: async () => {
-      const response = await fetch("/api/admin/cities");
+      const response = await fetch("/api/admin/cities", {
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
       if (!response.ok) {
         throw new Error("Failed to fetch cities");
       }

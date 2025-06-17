@@ -1,3 +1,6 @@
+import { useAuth } from "@/hooks/useAuth";
+import { AdminLogin } from "./AdminLogin";
+
 interface AdminPageLayoutProps {
   title: string;
   description?: string;
@@ -5,6 +8,26 @@ interface AdminPageLayoutProps {
 }
 
 export function AdminPageLayout({ title, description, children }: AdminPageLayoutProps) {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  // Show loading state during authentication check
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-2 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show login interface if not authenticated
+  if (!isAuthenticated) {
+    return <AdminLogin />;
+  }
+
+  // Show admin content if authenticated
   return (
     <div className="space-y-6">
       <div>
