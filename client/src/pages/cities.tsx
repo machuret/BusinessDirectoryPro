@@ -131,12 +131,16 @@ export default function Cities() {
               </div>
             ) : businesses && businesses.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {businesses.map((business) => (
-                  <BusinessCard
-                    key={business.placeid}
-                    business={business}
-                  />
-                ))}
+                {businesses
+                  .filter((business, index, array) => 
+                    array.findIndex(b => b.placeid === business.placeid) === index
+                  )
+                  .map((business, index) => (
+                    <BusinessCard
+                      key={`city-${business.placeid}-${index}`}
+                      business={business}
+                    />
+                  ))}
               </div>
             ) : (
               <div className="text-center py-12">

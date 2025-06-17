@@ -1,0 +1,47 @@
+[vite] connecting...
+[vite] connected.
+Warning: Encountered two children with the same key, &#x60;ChIJcSOLtmFYkWsR7x6qehwezOk_1749617173824_6dd14f4d&#x60;. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+    at div
+    at SectionErrorBoundary (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/error/SectionErrorBoundary.tsx:10:5)
+    at div
+    at section
+    at FeaturedBusinessesList (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/home/FeaturedBusinessesList.tsx:27:17)
+    at div
+    at main
+    at div
+    at div
+    at PageWrapper (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/layout/PageWrapper.tsx:21:3)
+    at Home (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/pages/home.tsx:32:17)
+    at Route (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=7a30982b:323:16)
+    at Switch (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=7a30982b:379:17)
+    at Router (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/App.tsx?v=bOGBy7fLJzbn3zcuIWHsV:229:42)
+    at Provider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-5AJU3CG7.js?v=7a30982b:38:15)
+    at TooltipProvider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=7a30982b:65:5)
+    at ErrorBoundary (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/error/ErrorBoundary.tsx:10:5)
+    at ContentProvider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/contexts/ContentContext.tsx:20:35)
+    at QueryClientProvider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=7a30982b:2805:3)
+    at App (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/App.tsx?v=bOGBy7fLJzbn3zcuIWHsV:1233:3)
+at div
+at SectionErrorBoundary (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/error/SectionErrorBoundary.tsx:10:5)
+at div
+at section
+at FeaturedBusinessesList (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/home/FeaturedBusinessesList.tsx:27:17)
+at div
+at main
+at div
+at div
+at PageWrapper (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/layout/PageWrapper.tsx:21:3)
+at Home (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/pages/home.tsx:32:17)
+at Route (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=7a30982b:323:16)
+at Switch (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=7a30982b:379:17)
+at Router (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/App.tsx?v=bOGBy7fLJzbn3zcuIWHsV:229:42)
+at Provider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-5AJU3CG7.js?v=7a30982b:38:15)
+at TooltipProvider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=7a30982b:65:5)
+at ErrorBoundary (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/components/error/ErrorBoundary.tsx:10:5)
+at ContentProvider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/contexts/ContentContext.tsx:20:35)
+at QueryClientProvider (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=7a30982b:2805:3)
+at App (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/src/App.tsx?v=bOGBy7fLJzbn3zcuIWHsV:1233:3)
+at t.value (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400

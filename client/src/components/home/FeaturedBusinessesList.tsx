@@ -53,9 +53,13 @@ export default function FeaturedBusinessesList() {
             </div>
           ) : featuredBusinesses && featuredBusinesses.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {featuredBusinesses.map((business) => (
-                <BusinessCard key={business.placeid} business={business} />
-              ))}
+              {featuredBusinesses
+                .filter((business, index, array) => 
+                  array.findIndex(b => b.placeid === business.placeid) === index
+                )
+                .map((business, index) => (
+                  <BusinessCard key={`featured-${business.placeid}-${index}`} business={business} />
+                ))}
             </div>
           ) : (
             <div className="text-center py-8">

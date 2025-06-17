@@ -83,8 +83,12 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
               </TableRow>
             </TableHeader>
             <TableBody>
-              {businesses.map((business) => (
-                <TableRow key={business.placeid}>
+              {businesses
+                .filter((business, index, array) => 
+                  array.findIndex(b => b.placeid === business.placeid) === index
+                )
+                .map((business, index) => (
+                <TableRow key={`dashboard-${business.placeid}-${index}`}>
                   <TableCell className="font-medium">{business.title}</TableCell>
                   <TableCell>
                     <div className="flex items-center">

@@ -186,9 +186,13 @@ export default function Categories() {
             </div>
           ) : currentBusinesses && currentBusinesses.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {currentBusinesses.map((business) => (
-                <BusinessCard key={business.placeid} business={business} />
-              ))}
+              {currentBusinesses
+                .filter((business, index, array) => 
+                  array.findIndex(b => b.placeid === business.placeid) === index
+                )
+                .map((business, index) => (
+                  <BusinessCard key={`category-${business.placeid}-${index}`} business={business} />
+                ))}
             </div>
           ) : (
             <div className="text-center py-16">
