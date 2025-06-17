@@ -6,21 +6,32 @@ import cors from "cors";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { createApiPriorityMiddleware } from "./api-priority-middleware";
+import { 
+  getSessionConfig, 
+  getCORSConfig, 
+  getSecurityConfig, 
+  validateEnvironment, 
+  logConfiguration 
+} from "./config/environment";
 
 const app = express();
-app.set('trust proxy', 1); // Trust first proxy for Replit environment
+app.set('trust proxy', 1);
 
-// Security middleware - Relaxed for Replit deployment
-app.use(helmet({
-  contentSecurityPolicy: false, // Disable CSP for deployment compatibility
-  crossOriginEmbedderPolicy: false,
-}));
+// Validate environment variables on startup
+const envValidation = validateEnvironment();
+if (!envValidation.valid) {
+  console.error('[CONFIG] Missing required environment variables:', envValidation.missing);
+  process.exit(1);
+}
 
-// CORS configuration
-app.use(cors({
-  origin: true, // Allow all origins for Replit deployment compatibility
-  credentials: true,
-}));
+// Log current configuration for debugging
+logConfiguration();
+
+// Apply environment-aware security middleware
+app.use(helmet(getSecurityConfig()));
+
+// Apply environment-aware CORS configuration
+app.use(cors(getCORSConfig()));
 
 // Rate limiting
 const limiter = rateLimit({
@@ -46,30 +57,8 @@ app.use('/api', limiter);
 app.use('/api/login', authLimiter);
 app.use('/api/register', authLimiter);
 
-// Validate required environment variables
-if (!process.env.SESSION_SECRET) {
-  throw new Error("SESSION_SECRET environment variable is required for security");
-}
-
-// Session configuration with memory store for development
-const sessionConfig = {
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  rolling: true, // Reset expiration on each request
-  cookie: {
-    secure: false, // Set to false for Replit deployment compatibility
-    httpOnly: true,
-    maxAge: 2 * 60 * 60 * 1000, // 2 hours
-    sameSite: 'lax' as const, // Use 'lax' for better deployment compatibility
-  },
-  // Use memory store for development to avoid persistence issues
-  ...(process.env.NODE_ENV === 'development' && {
-    store: undefined // Use default memory store
-  })
-};
-
-app.use(session(sessionConfig));
+// Apply environment-aware session configuration
+app.use(session(getSessionConfig()));
 
 // Clear all sessions on server start to prevent persistence issues
 console.log('[SERVER] Clearing all existing sessions on startup');
@@ -120,6 +109,28 @@ app.get('/health', (req, res) => {
   res.status(200).json({ 
     status: 'healthy', 
     message: 'Business Directory API is healthy',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Configuration health check endpoint
+app.get('/api/health/config', (req, res) => {
+  const { getEnvironmentConfig } = require('./config/environment');
+  const config = getEnvironmentConfig();
+  
+  res.json({
+    status: 'healthy',
+    platform: config.platform,
+    session: {
+      secure: config.session.secure,
+      sameSite: config.session.sameSite
+    },
+    cors: {
+      origin: typeof config.cors.origin === 'boolean' ? 'all' : 'restricted'
+    },
+    security: {
+      csp: config.security.contentSecurityPolicy !== false
+    },
     timestamp: new Date().toISOString()
   });
 });
