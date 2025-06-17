@@ -45,6 +45,9 @@ export function setupBusinessRoutes(app: Express) {
     }
   });
 
+  // 🔒 PROTECTED CITIES API ENDPOINTS - DO NOT EDIT
+  // STATUS: WORKING PERFECTLY - USER REQUESTED BULLETPROOFING
+  
   // Get unique cities (public)
   app.get("/api/cities", async (req, res) => {
     try {
