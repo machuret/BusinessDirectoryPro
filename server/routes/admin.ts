@@ -10,6 +10,8 @@ import categoriesRouter from "./admin/categories.routes";
 import citiesRouter from "./admin/cities.routes";
 import leadsRouter from "./admin/leads.routes";
 import reviewsRouter from "./admin/reviews.routes";
+import servicesRouter from "./admin/services.routes";
+import socialMediaRouter from "./admin/social-media.routes";
 
 export function setupAdminRoutes(app: Express) {
   // Register upload router for admin file uploads
@@ -22,6 +24,8 @@ export function setupAdminRoutes(app: Express) {
   app.use('/api/admin/cities', citiesRouter);
   app.use('/api/admin/leads', leadsRouter);
   app.use('/api/admin/reviews', reviewsRouter);
+  app.use('/api/admin/services', servicesRouter);
+  app.use('/api/admin/social-media', socialMediaRouter);
 
   // Additional non-CRUD routes that don't belong to specific sub-routers
 
@@ -111,38 +115,7 @@ export function setupAdminRoutes(app: Express) {
     }
   });
 
-  // Get all cities (admin view)
-  app.get('/api/admin/cities', async (req, res) => {
-    try {
-      const cities = await storage.getCities();
-      res.json(cities);
-    } catch (error) {
-      console.error("Error fetching cities:", error);
-      res.status(500).json({ message: "Failed to fetch cities" });
-    }
-  });
-
-  // Get all categories (admin view)
-  app.get('/api/admin/categories', async (req, res) => {
-    try {
-      const categories = await storage.getCategories();
-      res.json(categories);
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-      res.status(500).json({ message: "Failed to fetch categories" });
-    }
-  });
-
-  // Get all reviews (admin view)
-  app.get('/api/admin/reviews', async (req, res) => {
-    try {
-      const reviews = await storage.getAllReviews();
-      res.json(reviews);
-    } catch (error) {
-      console.error("Error fetching reviews:", error);
-      res.status(500).json({ message: "Failed to fetch reviews" });
-    }
-  });
+  // Note: Cities, categories, and reviews are now handled by their respective sub-routers
 
   // Review status management
   app.patch('/api/admin/reviews/:reviewId/approve', async (req, res) => {
