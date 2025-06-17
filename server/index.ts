@@ -125,7 +125,15 @@ app.use((req, res, next) => {
   next();
 });
 
-// Health check endpoint for deployment platforms
+// Health check endpoint for deployment platforms - MUST be before route registration
+app.get('/', (req, res) => {
+  res.status(200).json({ 
+    status: 'ok', 
+    message: 'Business Directory API is running',
+    timestamp: new Date().toISOString()
+  });
+});
+
 app.get('/health', (req, res) => {
   res.status(200).json({ 
     status: 'healthy', 
@@ -134,77 +142,87 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Main server initialization - restructured to prevent early exit
 (async () => {
-  const server = await registerRoutes(app);
+  try {
+    const server = await registerRoutes(app);
 
-  // Fallback handler for unmatched routes will be handled by Vite in development
-  // or by the static file server in production
+    // Fallback handler for unmatched routes will be handled by Vite in development
+    // or by the static file server in production
 
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
+    app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+      const status = err.status || err.statusCode || 500;
+      const message = err.message || "Internal Server Error";
 
-    res.status(status).json({ message });
-    throw err;
-  });
+      res.status(status).json({ message });
+      console.error('Request error:', err);
+    });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
-  if (app.get("env") === "development") {
-    await setupVite(app, server);
-  } else {
-    try {
-      serveStatic(app);
-    } catch (error) {
-      console.warn('Static files not available, serving API only:', error instanceof Error ? error.message : String(error));
-      // Fallback for deployment platforms when static files aren't available
-      app.get("*", (_req, res) => {
-        res.status(200).json({ 
-          status: 'ok', 
-          message: 'Business Directory API is running',
-          timestamp: new Date().toISOString(),
-          mode: 'api-only'
+    // importantly only setup vite in development and after
+    // setting up all the other routes so the catch-all route
+    // doesn't interfere with the other routes
+    if (app.get("env") === "development") {
+      await setupVite(app, server);
+    } else {
+      try {
+        serveStatic(app);
+      } catch (error) {
+        console.warn('Static files not available, serving API only:', error instanceof Error ? error.message : String(error));
+        // Fallback for deployment platforms when static files aren't available
+        app.get("*", (_req, res) => {
+          res.status(200).json({ 
+            status: 'ok', 
+            message: 'Business Directory API is running',
+            timestamp: new Date().toISOString(),
+            mode: 'api-only'
+          });
         });
-      });
+      }
     }
+
+    // Use PORT environment variable for deployment compatibility
+    // Fallback to 5000 for local development
+    const port = parseInt(process.env.PORT || "5000");
+    
+    // Start the server and keep it alive - this blocks execution
+    await new Promise<void>((resolve, reject) => {
+      server.listen(port, "0.0.0.0", (err?: Error) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        log(`serving on port ${port}`);
+        console.log('Server is ready to accept connections');
+        console.log('Process will stay alive to serve requests');
+        // Don't resolve - keep the promise pending to prevent process exit
+      });
+    });
+
+  } catch (error) {
+    console.error('Server startup error:', error);
+    // Exit on critical startup errors
+    process.exit(1);
   }
+})();
 
-  // Use PORT environment variable for deployment compatibility
-  // Fallback to 5000 for local development
-  const port = parseInt(process.env.PORT || "5000");
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`serving on port ${port}`);
-  });
+// Handle graceful shutdown - moved outside the async function
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received, shutting down gracefully');
+  process.exit(0);
+});
 
-  // Handle graceful shutdown
-  process.on('SIGTERM', () => {
-    console.log('SIGTERM received, shutting down gracefully');
-    server.close(() => {
-      console.log('Process terminated');
-    });
-  });
+process.on('SIGINT', () => {
+  console.log('SIGINT received, shutting down gracefully');
+  process.exit(0);
+});
 
-  process.on('SIGINT', () => {
-    console.log('SIGINT received, shutting down gracefully');
-    server.close(() => {
-      console.log('Process terminated');
-    });
-  });
+// Keep process alive and handle unhandled rejections
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  // Don't exit on unhandled rejection in production
+});
 
-  // Keep process alive and handle unhandled rejections
-  process.on('unhandledRejection', (reason, promise) => {
-    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-    // Don't exit on unhandled rejection in production
-  });
-
-  process.on('uncaughtException', (error) => {
-    console.error('Uncaught Exception:', error);
-    // Don't exit on uncaught exception in production
-  });
-
-})().catch(console.error);
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+  // Don't exit on uncaught exception in production
+});

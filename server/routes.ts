@@ -28,15 +28,18 @@ import pagesRouter from "./routes/pages.routes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize database tables - ensure ownership_claims, featured_requests, leads, and content_strings tables exist
-  try {
-    await createOwnershipClaimsTable();
-    await createFeaturedRequestsTable();
-    await createLeadsTable();
-    await createContentStringsTable();
-    await seedInitialContentStrings();
-  } catch (error) {
-    console.error('Error initializing database tables:', error);
-  }
+  // Run in background to prevent blocking server startup
+  setTimeout(async () => {
+    try {
+      await createOwnershipClaimsTable();
+      await createFeaturedRequestsTable();
+      await createLeadsTable();
+      await createContentStringsTable();
+      await seedInitialContentStrings();
+    } catch (error) {
+      console.error('Error initializing database tables:', error);
+    }
+  }, 1000);
 
   // Database setup endpoint for manual initialization
   app.post('/api/setup-db', async (req, res) => {
