@@ -33,13 +33,13 @@ async function fixCategoryStrings() {
     
     // Verify the strings were added
     const result = await client.query(
-      "SELECT key, value FROM content_strings WHERE key IN ($1, $2)",
+      "SELECT string_key, default_value FROM content_strings WHERE string_key IN ($1, $2)",
       ['categories.directory.title', 'categories.directory.description']
     );
     
     console.log('📋 Added strings:');
     result.rows.forEach(row => {
-      console.log(`  ${row.key}: ${row.value}`);
+      console.log(`  ${row.string_key}: ${row.default_value}`);
     });
     
   } catch (error) {
