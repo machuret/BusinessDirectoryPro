@@ -127,7 +127,7 @@ export default function Categories() {
           </Breadcrumb>
           
           <div className="mt-4">
-            {slug && category ? (
+            {actualSlug && category ? (
               <div className="flex items-center space-x-4">
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center`} style={{ backgroundColor: category.color + '20' }}>
                   <i className={`${category.icon} text-2xl`} style={{ color: category.color }}></i>
@@ -179,7 +179,7 @@ export default function Categories() {
         <section>
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl font-bold text-gray-900">
-              {slug && category ? t('categories.businesses.categoryTitle', { categoryName: category.name }) : t('categories.businesses.allTitle')}
+              {actualSlug && category ? t('categories.businesses.categoryTitle', { categoryName: category.name }) : t('categories.businesses.allTitle')}
               {currentBusinesses && (
                 <span className="text-lg font-normal text-gray-600 ml-2">
                   ({currentBusinesses.length} {currentBusinesses.length === 1 ? t('categories.businesses.businessSingular') : t('categories.businesses.businessPlural')})
