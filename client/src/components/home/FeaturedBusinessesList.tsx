@@ -46,7 +46,7 @@ export default function FeaturedBusinessesList() {
           ) : featuredError ? (
             <div className="text-center py-8">
               <p className="text-gray-500 mb-4">{t("homepage.featured.error.unable")}</p>
-              <Button onClick={retryFeatured} variant="outline">
+              <Button variant="outline">
                 <RefreshCw className="h-4 w-4 mr-2" />
                 {t("homepage.featured.error.retry")}
               </Button>
