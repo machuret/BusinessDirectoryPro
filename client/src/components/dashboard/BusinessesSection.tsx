@@ -219,4 +219,3 @@ function BusinessesSection({ businesses, isLoading }: BusinessesSectionProps) {
 }
 
 export default BusinessesSection;
-export { BusinessesSection };

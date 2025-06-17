@@ -4,7 +4,7 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 // Temporarily removed toaster import to fix build
 // Temporarily removed tooltip import to fix build
-// Temporarily removing useAuth import for build
+import { useAuth } from "@/hooks/useAuth";
 import { UIProvider } from "@/contexts/UIContext";
 import { ContentProvider } from "@/contexts/ContentContext";
 import { ErrorBoundary } from "@/components/error/ErrorBoundary";
