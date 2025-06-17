@@ -1,11 +1,10 @@
 import { Route } from "wouter";
 import { lazy, Suspense } from "react";
 import { LoadingState } from "@/components/loading/LoadingState";
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 // Lazy load user dashboard components
 const Dashboard = lazy(() => import("@/pages/dashboard"));
-const BusinessOwnerDashboard = lazy(() => import("@/pages/business-owner"));
 
 function UserSuspense({ children }: { children: React.ReactNode }) {
   return (
@@ -27,14 +26,7 @@ export function UserRoutes() {
         </UserSuspense>
       </Route>
 
-      {/* Business owner dashboard */}
-      <Route path="/business-owner">
-        <UserSuspense>
-          <ProtectedRoute>
-            <BusinessOwnerDashboard />
-          </ProtectedRoute>
-        </UserSuspense>
-      </Route>
+
     </>
   );
 }

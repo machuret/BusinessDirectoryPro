@@ -17,9 +17,6 @@ const AdminInboxPage = lazy(() => import("@/pages/admin/inbox"));
 const AdminHomepagePage = lazy(() => import("@/pages/admin/homepage"));
 const AdminOwnershipPage = lazy(() => import("@/pages/admin/ownership"));
 const AdminLeadsPage = lazy(() => import("@/pages/admin/leads"));
-const AdminSocialMediaPage = lazy(() => import("@/pages/admin/social-media"));
-const AdminFeaturedRequestsPage = lazy(() => import("@/pages/admin/featured-requests"));
-const AdminSiteSettingsPage = lazy(() => import("@/pages/admin/site-settings"));
 
 function AdminSuspense({ children }: { children: React.ReactNode }) {
   return (
@@ -40,7 +37,7 @@ export function AdminRoutes() {
       {/* Admin businesses */}
       <Route path="/admin/businesses">
         <AdminSuspense>
-          <ProtectedRoute requiredRole="admin">
+          <ProtectedRoute>
             <AdminLayout>
               <AdminBusinessesPage />
             </AdminLayout>
@@ -51,7 +48,7 @@ export function AdminRoutes() {
       {/* Admin users */}
       <Route path="/admin/users">
         <AdminSuspense>
-          <ProtectedRoute requiredRole="admin">
+          <ProtectedRoute>
             <AdminLayout>
               <AdminUsersPage />
             </AdminLayout>
@@ -62,7 +59,7 @@ export function AdminRoutes() {
       {/* Admin categories */}
       <Route path="/admin/categories">
         <AdminSuspense>
-          <ProtectedRoute requiredRole="admin">
+          <ProtectedRoute>
             <AdminLayout>
               <AdminCategoriesPage />
             </AdminLayout>
@@ -73,7 +70,7 @@ export function AdminRoutes() {
       {/* Admin reviews */}
       <Route path="/admin/reviews">
         <AdminSuspense>
-          <ProtectedRoute requiredRole="admin">
+          <ProtectedRoute>
             <AdminLayout>
               <AdminReviewsPage />
             </AdminLayout>
@@ -84,7 +81,7 @@ export function AdminRoutes() {
       {/* Admin cities */}
       <Route path="/admin/cities">
         <AdminSuspense>
-          <ProtectedRoute requiredRole="admin">
+          <ProtectedRoute>
             <AdminLayout>
               <AdminCitiesPage />
             </AdminLayout>
@@ -92,10 +89,10 @@ export function AdminRoutes() {
         </AdminSuspense>
       </Route>
 
-      {/* Admin menu editor */}
-      <Route path="/admin/menu">
+      {/* Menu editor */}
+      <Route path="/admin/menu-editor">
         <AdminSuspense>
-          <ProtectedRoute requiredRole="admin">
+          <ProtectedRoute>
             <AdminLayout>
               <MenuEditor />
             </AdminLayout>
@@ -106,7 +103,7 @@ export function AdminRoutes() {
       {/* Admin pages */}
       <Route path="/admin/pages">
         <AdminSuspense>
-          <ProtectedRoute requiredRole="admin">
+          <ProtectedRoute>
             <AdminLayout>
               <AdminPagesPage />
             </AdminLayout>
@@ -117,7 +114,7 @@ export function AdminRoutes() {
       {/* Admin SEO */}
       <Route path="/admin/seo">
         <AdminSuspense>
-          <ProtectedRoute requiredRole="admin">
+          <ProtectedRoute>
             <AdminLayout>
               <AdminSEOPage />
             </AdminLayout>
@@ -128,7 +125,7 @@ export function AdminRoutes() {
       {/* Admin inbox */}
       <Route path="/admin/inbox">
         <AdminSuspense>
-          <ProtectedRoute requiredRole="admin">
+          <ProtectedRoute>
             <AdminLayout>
               <AdminInboxPage />
             </AdminLayout>
@@ -139,7 +136,7 @@ export function AdminRoutes() {
       {/* Admin homepage */}
       <Route path="/admin/homepage">
         <AdminSuspense>
-          <ProtectedRoute requiredRole="admin">
+          <ProtectedRoute>
             <AdminLayout>
               <AdminHomepagePage />
             </AdminLayout>
@@ -147,10 +144,10 @@ export function AdminRoutes() {
         </AdminSuspense>
       </Route>
 
-      {/* Admin ownership claims */}
+      {/* Admin ownership */}
       <Route path="/admin/ownership">
         <AdminSuspense>
-          <ProtectedRoute requiredRole="admin">
+          <ProtectedRoute>
             <AdminLayout>
               <AdminOwnershipPage />
             </AdminLayout>
@@ -161,42 +158,9 @@ export function AdminRoutes() {
       {/* Admin leads */}
       <Route path="/admin/leads">
         <AdminSuspense>
-          <ProtectedRoute requiredRole="admin">
+          <ProtectedRoute>
             <AdminLayout>
               <AdminLeadsPage />
-            </AdminLayout>
-          </ProtectedRoute>
-        </AdminSuspense>
-      </Route>
-
-      {/* Admin social media */}
-      <Route path="/admin/social-media">
-        <AdminSuspense>
-          <ProtectedRoute requiredRole="admin">
-            <AdminLayout>
-              <AdminSocialMediaPage />
-            </AdminLayout>
-          </ProtectedRoute>
-        </AdminSuspense>
-      </Route>
-
-      {/* Admin featured requests */}
-      <Route path="/admin/featured-requests">
-        <AdminSuspense>
-          <ProtectedRoute requiredRole="admin">
-            <AdminLayout>
-              <AdminFeaturedRequestsPage />
-            </AdminLayout>
-          </ProtectedRoute>
-        </AdminSuspense>
-      </Route>
-
-      {/* Admin site settings */}
-      <Route path="/admin/site-settings">
-        <AdminSuspense>
-          <ProtectedRoute requiredRole="admin">
-            <AdminLayout>
-              <AdminSiteSettingsPage />
             </AdminLayout>
           </ProtectedRoute>
         </AdminSuspense>
