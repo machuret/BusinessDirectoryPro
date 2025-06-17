@@ -112,7 +112,7 @@ export function BusinessCard({
           {/* Business Header */}
           <div className="flex items-start justify-between mb-3">
             <div className="flex-1">
-              <Link href={`/${business.slug || business.placeid}`}>
+              <Link href={`/businesses/${business.slug || business.placeid}`}>
                 <h3 className={`text-xl font-semibold mb-1 line-clamp-1 hover:underline ${
                   isFeatured && isEnhanced ? "text-yellow-900 font-bold" : "text-gray-900"
                 }`}>
@@ -196,7 +196,7 @@ export function BusinessCard({
           {/* Actions */}
           {showActions && (
             <div className={`flex space-x-3 ${isEnhanced ? "mt-auto pt-4 border-t" : ""}`}>
-              <Link href={`/${business.slug || business.placeid}`} className="flex-1">
+              <Link href={`/businesses/${business.slug || business.placeid}`} className="flex-1">
                 <Button 
                   className={`w-full ${
                     isFeatured && isEnhanced
@@ -212,15 +212,16 @@ export function BusinessCard({
               </Link>
               
               {!isEnhanced && business.phone && (
-                <Button 
-                  variant="outline"
-                  size="icon"
-                  onClick={() => window.open(`tel:${business.phone}`, '_self')}
-                  aria-label={`Call ${business.title} at ${business.phone}`}
-                >
-                  <Phone className="w-4 h-4" aria-hidden="true" />
-                  <span className="sr-only">Call Business</span>
-                </Button>
+                <a href={`tel:${business.phone}`}>
+                  <Button 
+                    variant="outline"
+                    size="icon"
+                    aria-label={`Call ${business.title} at ${business.phone}`}
+                  >
+                    <Phone className="w-4 h-4" aria-hidden="true" />
+                    <span className="sr-only">Call Business</span>
+                  </Button>
+                </a>
               )}
             </div>
           )}
