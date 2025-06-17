@@ -138,248 +138,50 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
                           
                           <form onSubmit={businessEditor.editForm.handleSubmit}>
                             <TabsContent value="basic" className="space-y-4 mt-4">
-                              <div className="grid grid-cols-1 gap-4">
-                                <div>
-                                  <Label htmlFor="title" className="flex items-center gap-2">
-                                    <Building2 className="h-4 w-4" />
-                                    {t("dashboard.businesses.form.name.label")} *
-                                  </Label>
-                                  <Input
-                                    id="title"
-                                    value={businessEditor.editForm.values.title}
-                                    onChange={(e) => businessEditor.editForm.updateField("title", e.target.value)}
-                                    placeholder={t("dashboard.businesses.form.name.placeholder")}
-                                    required
-                                  />
-                                </div>
-                                
-                                <div>
-                                  <Label htmlFor="description">{t("dashboard.businesses.form.description.label")}</Label>
-                                  <Textarea
-                                    id="description"
-                                    value={businessEditor.editForm.values.description}
-                                    onChange={(e) => businessEditor.editForm.updateField("description", e.target.value)}
-                                    placeholder={t("dashboard.businesses.form.description.placeholder")}
-                                    rows={4}
-                                  />
-                                </div>
-                                
-                                <div>
-                                  <Label htmlFor="address" className="flex items-center gap-2">
-                                    <MapPin className="h-4 w-4" />
-                                    {t("dashboard.businesses.form.address.label")}
-                                  </Label>
-                                  <Input
-                                    id="address"
-                                    value={businessEditor.editForm.values.address}
-                                    onChange={(e) => businessEditor.editForm.updateField("address", e.target.value)}
-                                    placeholder={t("dashboard.businesses.form.address.placeholder")}
-                                  />
-                                </div>
-                              </div>
+                              <BusinessBasicTab
+                                values={{
+                                  title: businessEditor.editForm.values.title,
+                                  description: businessEditor.editForm.values.description,
+                                  address: businessEditor.editForm.values.address,
+                                }}
+                                onFieldUpdate={businessEditor.editForm.updateField}
+                              />
                             </TabsContent>
                             
                             <TabsContent value="contact" className="space-y-4 mt-4">
-                              <div className="grid grid-cols-1 gap-4">
-                                <div>
-                                  <Label htmlFor="phone" className="flex items-center gap-2">
-                                    <Phone className="h-4 w-4" />
-                                    {t("dashboard.businesses.form.phone.label")}
-                                  </Label>
-                                  <Input
-                                    id="phone"
-                                    value={businessEditor.editForm.values.phone}
-                                    onChange={(e) => businessEditor.editForm.updateField("phone", e.target.value)}
-                                    placeholder={t("dashboard.businesses.form.phone.placeholder")}
-                                  />
-                                </div>
-                                
-                                <div>
-                                  <Label htmlFor="website" className="flex items-center gap-2">
-                                    <Globe className="h-4 w-4" />
-                                    {t("dashboard.businesses.form.website.label")}
-                                  </Label>
-                                  <Input
-                                    id="website"
-                                    type="url"
-                                    value={businessEditor.editForm.values.website}
-                                    onChange={(e) => businessEditor.editForm.updateField("website", e.target.value)}
-                                    placeholder={t("dashboard.businesses.form.website.placeholder")}
-                                  />
-                                </div>
-                              </div>
+                              <BusinessContactTab
+                                values={{
+                                  phone: businessEditor.editForm.values.phone,
+                                  website: businessEditor.editForm.values.website,
+                                }}
+                                onFieldUpdate={businessEditor.editForm.updateField}
+                              />
                             </TabsContent>
                             
                             <TabsContent value="photos" className="space-y-4 mt-4">
-                              <div className="space-y-4">
-                                <div className="flex items-center justify-between">
-                                  <Label className="flex items-center gap-2">
-                                    <Image className="h-4 w-4" />
-                                    {t("dashboard.businesses.form.photos.label")}
-                                  </Label>
-                                  <div className="flex items-center gap-2">
-                                    <Input
-                                      type="file"
-                                      accept="image/*"
-                                      multiple
-                                      onChange={businessEditor.handleFileUpload}
-                                      className="hidden"
-                                      id="photo-upload"
-                                      disabled={businessEditor.uploadingImages}
-                                    />
-                                    <Label htmlFor="photo-upload" className="cursor-pointer">
-                                      <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        disabled={businessEditor.uploadingImages}
-                                        asChild
-                                      >
-                                        <span>
-                                          <Upload className="mr-1 h-4 w-4" />
-                                          {businessEditor.uploadingImages ? "Uploading..." : "Upload Photos"}
-                                        </span>
-                                      </Button>
-                                    </Label>
-                                  </div>
-                                </div>
-                                
-                                {businessEditor.businessImages.length > 0 && (
-                                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                    {businessEditor.businessImages.map((imageUrl, index) => (
-                                      <div key={index} className="relative group">
-                                        <img
-                                          src={imageUrl}
-                                          alt={`Business photo ${index + 1}`}
-                                          className="w-full h-32 object-cover rounded-lg border"
-                                          onError={(e) => {
-                                            e.currentTarget.style.display = 'none';
-                                          }}
-                                        />
-                                        <Button
-                                          type="button"
-                                          variant="destructive"
-                                          size="sm"
-                                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                                          onClick={() => businessEditor.removeImage(imageUrl)}
-                                        >
-                                          <X className="h-4 w-4" />
-                                        </Button>
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
-                                
-                                {businessEditor.businessImages.length === 0 && (
-                                  <p className="text-sm text-muted-foreground text-center py-8">
-                                    {t("dashboard.businesses.form.photos.empty")}
-                                  </p>
-                                )}
-                              </div>
+                              <BusinessPhotosTab
+                                businessImages={businessEditor.businessImages}
+                                uploadingImages={businessEditor.uploadingImages}
+                                onFileUpload={businessEditor.handleFileUpload}
+                                onRemoveImage={businessEditor.removeImage}
+                              />
                             </TabsContent>
                             
                             <TabsContent value="reviews" className="space-y-4 mt-4">
-                              <div className="space-y-4">
-                                <Label className="flex items-center gap-2">
-                                  <MessageSquare className="h-4 w-4" />
-                                  Customer Reviews
-                                </Label>
-                                
-                                {businessEditor.reviewsLoading ? (
-                                  <LoadingState message="Loading reviews..." />
-                                ) : businessEditor.reviews.length > 0 ? (
-                                  <div className="space-y-4 max-h-96 overflow-y-auto">
-                                    {businessEditor.reviews.map((review: any, index: number) => (
-                                      <div key={index} className="border rounded-lg p-4">
-                                        <div className="flex items-center gap-2 mb-2">
-                                          <div className="flex items-center">
-                                            {[...Array(5)].map((_, i) => (
-                                              <Star
-                                                key={i}
-                                                className={`h-4 w-4 ${
-                                                  i < (review.rating || 0) ? 'text-yellow-500 fill-current' : 'text-gray-300'
-                                                }`}
-                                              />
-                                            ))}
-                                          </div>
-                                          <span className="text-sm font-medium">{review.author_name || 'Anonymous'}</span>
-                                          <span className="text-sm text-muted-foreground">
-                                            {review.relative_time_description || review.time}
-                                          </span>
-                                        </div>
-                                        <p className="text-sm">{review.text || review.review_text}</p>
-                                      </div>
-                                    ))}
-                                  </div>
-                                ) : (
-                                  <p className="text-sm text-muted-foreground text-center py-8">
-                                    No reviews available for this business.
-                                  </p>
-                                )}
-                              </div>
+                              <BusinessReviewsTab
+                                reviews={businessEditor.reviews}
+                                isLoading={businessEditor.reviewsLoading}
+                                error={businessEditor.reviewsError}
+                              />
                             </TabsContent>
                             
                             <TabsContent value="faqs" className="space-y-4 mt-4">
-                              <div className="space-y-4">
-                                <div className="flex items-center justify-between">
-                                  <Label className="flex items-center gap-2">
-                                    <HelpCircle className="h-4 w-4" />
-                                    {t("dashboard.businesses.form.faqs.label")}
-                                  </Label>
-                                  <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={businessEditor.addFaq}
-                                  >
-                                    <Plus className="mr-1 h-4 w-4" />
-                                    Add FAQ
-                                  </Button>
-                                </div>
-                                
-                                {businessEditor.faqs.length > 0 ? (
-                                  <div className="space-y-4">
-                                    {businessEditor.faqs.map((faq, index) => (
-                                      <div key={index} className="border rounded-lg p-4 space-y-3">
-                                        <div className="flex items-center justify-between">
-                                          <span className="text-sm font-medium">FAQ {index + 1}</span>
-                                          <Button
-                                            type="button"
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => businessEditor.removeFaq(index)}
-                                          >
-                                            <Trash2 className="h-4 w-4" />
-                                          </Button>
-                                        </div>
-                                        <div>
-                                          <Label htmlFor={`faq-question-${index}`}>Question</Label>
-                                          <Input
-                                            id={`faq-question-${index}`}
-                                            value={faq.question}
-                                            onChange={(e) => businessEditor.updateFaq(index, 'question', e.target.value)}
-                                            placeholder="Enter your question..."
-                                          />
-                                        </div>
-                                        <div>
-                                          <Label htmlFor={`faq-answer-${index}`}>Answer</Label>
-                                          <Textarea
-                                            id={`faq-answer-${index}`}
-                                            value={faq.answer}
-                                            onChange={(e) => businessEditor.updateFaq(index, 'answer', e.target.value)}
-                                            placeholder="Enter your answer..."
-                                            rows={3}
-                                          />
-                                        </div>
-                                      </div>
-                                    ))}
-                                  </div>
-                                ) : (
-                                  <p className="text-sm text-muted-foreground text-center py-8">
-                                    {t("dashboard.businesses.form.faqs.empty")}
-                                  </p>
-                                )}
-                              </div>
+                              <BusinessFAQsTab
+                                faqs={businessEditor.faqs}
+                                onAddFaq={businessEditor.addFaq}
+                                onUpdateFaq={businessEditor.updateFaq}
+                                onRemoveFaq={businessEditor.removeFaq}
+                              />
                             </TabsContent>
                             
                             <div className="flex justify-end gap-2 mt-6 pt-4 border-t">
