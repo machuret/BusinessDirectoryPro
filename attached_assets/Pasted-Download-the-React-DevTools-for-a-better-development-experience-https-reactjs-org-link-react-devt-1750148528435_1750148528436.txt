@@ -1,0 +1,37 @@
+Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+error-prevention.ts:51 
+            
+            
+           GET https://1de4c0d5-7744-4d3e-affc-e42351a33897-00-1uqmw2jsipkv3.janeway.replit.dev/api/auth/user 401 (Unauthorized)
+window.fetch @ error-prevention.ts:51
+silentFetch @ queryClient.ts:64
+(anonymous) @ queryClient.ts:83
+fetchFn @ @tanstack_react-query.js?v=7a30982b:840
+run @ @tanstack_react-query.js?v=7a30982b:494
+start @ @tanstack_react-query.js?v=7a30982b:536
+fetch @ @tanstack_react-query.js?v=7a30982b:926
+executeFetch_fn @ @tanstack_react-query.js?v=7a30982b:2211
+onSubscribe @ @tanstack_react-query.js?v=7a30982b:1898
+subscribe @ @tanstack_react-query.js?v=7a30982b:24
+(anonymous) @ @tanstack_react-query.js?v=7a30982b:3022
+subscribeToStore @ chunk-RPCDYKBN.js?v=7a30982b:11984
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=7a30982b:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=7a30982b:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=7a30982b:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=7a30982b:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=7a30982b:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=7a30982b:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=7a30982b:19447
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=7a30982b:18868
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=7a30982b:9119
+commitRootImpl @ chunk-RPCDYKBN.js?v=7a30982b:19432
+commitRoot @ chunk-RPCDYKBN.js?v=7a30982b:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=7a30982b:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=7a30982b:18718
+workLoop @ chunk-RPCDYKBN.js?v=7a30982b:197
+flushWork @ chunk-RPCDYKBN.js?v=7a30982b:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=7a30982b:384Understand this error
+categories.tsx:92 Categories Debug: {slug: undefined, categoryParam: null, currentCategory: undefined, businesses: undefined, businessesLoading: false, …}
+categories.tsx:92 Categories Debug: {slug: undefined, categoryParam: null, currentCategory: undefined, businesses: undefined, businessesLoading: false, …}
+categories.tsx:92 Categories Debug: {slug: undefined, categoryParam: null, currentCategory: undefined, businesses: undefined, businessesLoading: false, …}
+categories.tsx:92 Categories Debug: {slug: undefined, categoryParam: null, currentCategory: undefined, businesses: undefined, businessesLoading: false, …}

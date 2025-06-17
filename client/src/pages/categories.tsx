@@ -19,6 +19,10 @@ export default function Categories() {
   const [location] = useLocation();
   const { t } = useContent();
   
+  // Extract category slug from URL path /categories/slug
+  const pathSlug = location.split('/').pop();
+  const actualSlug = pathSlug && pathSlug !== 'categories' ? pathSlug : slug;
+  
   // Extract category from query parameter
   const urlParams = new URLSearchParams(location.split('?')[1] || '');
   const categoryParam = urlParams.get('category');
@@ -28,8 +32,8 @@ export default function Categories() {
   });
 
   const { data: category, isLoading: categoryLoading } = useQuery<Category>({
-    queryKey: [`/api/categories/${slug}`],
-    enabled: !!slug,
+    queryKey: [`/api/categories/${actualSlug}`],
+    enabled: !!actualSlug,
   });
 
   // Find category by name when using query parameter
@@ -49,7 +53,7 @@ export default function Categories() {
 
   const { data: allBusinesses, isLoading: allBusinessesLoading } = useQuery<BusinessWithCategory[]>({
     queryKey: ["/api/businesses"],
-    enabled: !slug,
+    enabled: !actualSlug,
   });
 
   const { data: siteSettings } = useQuery<Record<string, any>>({
@@ -85,26 +89,17 @@ export default function Categories() {
     );
   }
 
-  const currentBusinesses = (slug || categoryParam) ? businesses : allBusinesses;
-  const isLoadingBusinesses = (slug || categoryParam) ? businessesLoading : allBusinessesLoading;
+  const currentBusinesses = (actualSlug || categoryParam) ? businesses : allBusinesses;
+  const isLoadingBusinesses = (actualSlug || categoryParam) ? businessesLoading : allBusinessesLoading;
 
-  // Debug logging
-  console.log('Categories Debug:', {
-    slug,
-    categoryParam,
-    currentCategory,
-    businesses,
-    businessesLoading,
-    currentBusinesses,
-    isLoadingBusinesses
-  });
+
 
   return (
     <div className="min-h-screen bg-gray-50">
       <SEOHead 
         category={category}
         siteSettings={siteSettings}
-        pageType={slug ? "category" : "home"}
+        pageType={actualSlug ? "category" : "home"}
       />
       <Header />
       
@@ -120,7 +115,7 @@ export default function Categories() {
               <BreadcrumbItem>
                 <BreadcrumbLink href="/categories">Categories</BreadcrumbLink>
               </BreadcrumbItem>
-              {slug && category && (
+              {actualSlug && category && (
                 <>
                   <BreadcrumbSeparator />
                   <BreadcrumbItem>
@@ -162,7 +157,7 @@ export default function Categories() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {!slug && (
+        {!actualSlug && (
           <>
             {/* All Categories Grid */}
             <section className="mb-16">
