@@ -90,14 +90,6 @@ function Router() {
         </PageSuspense>
       </Route>
       
-      {/* City slug routes - /:cityName/ format */}
-      <Route path="/:citySlug/">
-        <PageSuspense>
-          <Cities />
-        </PageSuspense>
-      </Route>
-
-
       {/* Business directory pages */}
       <Route path="/businesses">
         <PageSuspense>
@@ -272,6 +264,13 @@ function Router() {
       <Route path="/page/:slug">
         <PageSuspense>
           <PageDisplay />
+        </PageSuspense>
+      </Route>
+
+      {/* City slug routes - /:cityName/ format */}
+      <Route path="/:citySlug/">
+        <PageSuspense>
+          <Cities />
         </PageSuspense>
       </Route>
 

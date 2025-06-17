@@ -7,9 +7,9 @@ export function setupBusinessRoutes(app: Express) {
     try {
       const { categoryId, search, city, featured, limit, offset } = req.query;
       const businesses = await storage.getBusinesses({
-        category: categoryId ? parseInt(categoryId as string) : undefined,
+        categoryId: categoryId ? parseInt(categoryId as string) : undefined,
         search: search as string,
-        location: city as string,
+        city: city as string,
         featured: featured === 'true',
         limit: limit ? parseInt(limit as string) : undefined,
         offset: offset ? parseInt(offset as string) : undefined,
@@ -53,6 +53,21 @@ export function setupBusinessRoutes(app: Express) {
     } catch (error) {
       console.error("Error fetching cities:", error);
       res.status(500).send("Internal server error");
+    }
+  });
+
+  // Get businesses by city (public)
+  app.get("/api/cities/:city/businesses", async (req, res) => {
+    try {
+      const { city } = req.params;
+      const businesses = await storage.getBusinesses({
+        city: city,
+        limit: 100
+      });
+      res.json(businesses);
+    } catch (error) {
+      console.error("Error fetching businesses for city:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
   });
 
