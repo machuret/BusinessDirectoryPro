@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { storage } from "../storage";
+import { BlobServiceClient, StorageSharedKeyCredential } from '@azure/storage-blob';
 
 const router = Router();
 
@@ -91,8 +92,7 @@ router.post("/admin/azure-blob/test", async (req, res) => {
       });
     }
 
-    // Import Azure Blob Storage SDK
-    const { BlobServiceClient, StorageSharedKeyCredential } = require('@azure/storage-blob');
+    // Use imported Azure Blob Storage SDK
     
     let blobServiceClient;
 
