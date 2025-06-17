@@ -15,40 +15,87 @@ export class BusinessQueries {
     offset?: number;
   }): string {
     let query = `
-      SELECT DISTINCT ON (b.title, b.address, b.city) 
-             b.*, c.name as category_name, c.slug as category_slug, c.description as category_description, 
-             c.icon as category_icon, c.color as category_color, c.id as category_id
-      FROM businesses b
-      LEFT JOIN categories c ON (b.categoryname = c.name OR 
-                                b.categoryname || 's' = c.name OR 
-                                b.categoryname = c.name || 's' OR
-                                b.categoryname ILIKE '%' || REPLACE(c.name, 'Restaurants', 'Restaurant') || '%' OR
-                                c.name ILIKE '%' || b.categoryname || '%')
-      WHERE (b.permanentlyclosed = false OR b.permanentlyclosed IS NULL)
+      WITH business_category_matches AS (
+        SELECT DISTINCT ON (b.placeid) 
+               b.*, 
+               FIRST_VALUE(c.name) OVER (PARTITION BY b.placeid ORDER BY 
+                 CASE 
+                   WHEN b.categoryname = c.name THEN 1
+                   WHEN b.categoryname || 's' = c.name THEN 2
+                   WHEN b.categoryname = c.name || 's' THEN 3
+                   ELSE 4
+                 END) as category_name,
+               FIRST_VALUE(c.slug) OVER (PARTITION BY b.placeid ORDER BY 
+                 CASE 
+                   WHEN b.categoryname = c.name THEN 1
+                   WHEN b.categoryname || 's' = c.name THEN 2
+                   WHEN b.categoryname = c.name || 's' THEN 3
+                   ELSE 4
+                 END) as category_slug,
+               FIRST_VALUE(c.description) OVER (PARTITION BY b.placeid ORDER BY 
+                 CASE 
+                   WHEN b.categoryname = c.name THEN 1
+                   WHEN b.categoryname || 's' = c.name THEN 2
+                   WHEN b.categoryname = c.name || 's' THEN 3
+                   ELSE 4
+                 END) as category_description,
+               FIRST_VALUE(c.icon) OVER (PARTITION BY b.placeid ORDER BY 
+                 CASE 
+                   WHEN b.categoryname = c.name THEN 1
+                   WHEN b.categoryname || 's' = c.name THEN 2
+                   WHEN b.categoryname = c.name || 's' THEN 3
+                   ELSE 4
+                 END) as category_icon,
+               FIRST_VALUE(c.color) OVER (PARTITION BY b.placeid ORDER BY 
+                 CASE 
+                   WHEN b.categoryname = c.name THEN 1
+                   WHEN b.categoryname || 's' = c.name THEN 2
+                   WHEN b.categoryname = c.name || 's' THEN 3
+                   ELSE 4
+                 END) as category_color,
+               FIRST_VALUE(c.id) OVER (PARTITION BY b.placeid ORDER BY 
+                 CASE 
+                   WHEN b.categoryname = c.name THEN 1
+                   WHEN b.categoryname || 's' = c.name THEN 2
+                   WHEN b.categoryname = c.name || 's' THEN 3
+                   ELSE 4
+                 END) as category_id
+        FROM businesses b
+        LEFT JOIN categories c ON (
+          b.categoryname = c.name OR 
+          b.categoryname || 's' = c.name OR 
+          b.categoryname = c.name || 's' OR
+          b.categoryname ILIKE '%' || REPLACE(c.name, 'Restaurants', 'Restaurant') || '%' OR
+          c.name ILIKE '%' || b.categoryname || '%'
+        )
+        WHERE (b.permanentlyclosed = false OR b.permanentlyclosed IS NULL)
+      )
+      SELECT * FROM business_category_matches
+      WHERE 1=1
     `;
 
     if (params?.categoryId) {
-      query += ` AND c.id = ${params.categoryId}`;
+      query += ` AND category_id = ${params.categoryId}`;
     }
 
     if (params?.search) {
       const searchTerm = params.search.replace(/'/g, "''");
-      query += ` AND (b.title ILIKE '%${searchTerm}%' OR b.description ILIKE '%${searchTerm}%' OR b.categoryname ILIKE '%${searchTerm}%')`;
+      query += ` AND (title ILIKE '%${searchTerm}%' OR description ILIKE '%${searchTerm}%' OR categoryname ILIKE '%${searchTerm}%')`;
     }
 
     if (params?.city) {
       const cityTerm = params.city.replace(/'/g, "''");
-      query += ` AND b.city = '${cityTerm}'`;
+      query += ` AND city = '${cityTerm}'`;
     }
 
     if (params?.featured) {
-      query += ` AND b.featured = true`;
+      query += ` AND featured = true`;
     }
 
     const limit = params?.limit || 50;
     const offset = params?.offset || 0;
 
-    query += ` ORDER BY b.title, b.address, b.city, b.featured DESC, b.createdat DESC NULLS LAST LIMIT ${limit} OFFSET ${offset}`;
+    query += ` ORDER BY title, address, city, featured DESC, createdat DESC NULLS LAST LIMIT ${limit} OFFSET ${offset}`;
 
     return query;
   }
