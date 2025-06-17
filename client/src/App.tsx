@@ -268,6 +268,27 @@ function Router() {
         </PageSuspense>
       </Route>
 
+      {/* Business detail route - must come before 404 fallback */}
+      <Route path="/:businessSlug">
+        {(params) => {
+          const slug = params.businessSlug;
+          // Check if this looks like a business slug (contains at least one hyphen and ends with alphanumeric ID)
+          if (slug && /^[a-zA-Z0-9]+-[a-zA-Z0-9-]*[a-zA-Z0-9]+$/.test(slug)) {
+            return (
+              <PageSuspense>
+                <BusinessDetail />
+              </PageSuspense>
+            );
+          }
+          // Otherwise show 404
+          return (
+            <PageSuspense>
+              <NotFound />
+            </PageSuspense>
+          );
+        }}
+      </Route>
+
       {/* 404 fallback */}
       <Route>
         <PageSuspense>

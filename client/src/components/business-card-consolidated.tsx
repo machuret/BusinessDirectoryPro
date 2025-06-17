@@ -112,7 +112,7 @@ export function BusinessCard({
           {/* Business Header */}
           <div className="flex items-start justify-between mb-3">
             <div className="flex-1">
-              <Link href={`/businesses/${business.slug || business.placeid}`}>
+              <Link href={`/${business.slug || business.placeid}`}>
                 <h3 className={`text-xl font-semibold mb-1 line-clamp-1 hover:underline ${
                   isFeatured && isEnhanced ? "text-yellow-900 font-bold" : "text-gray-900"
                 }`}>
@@ -196,7 +196,7 @@ export function BusinessCard({
           {/* Actions */}
           {showActions && (
             <div className={`flex space-x-3 ${isEnhanced ? "mt-auto pt-4 border-t" : ""}`}>
-              <Link href={`/businesses/${business.slug || business.placeid}`} className="flex-1">
+              <Link href={`/${business.slug || business.placeid}`} className="flex-1">
                 <Button 
                   className={`w-full ${
                     isFeatured && isEnhanced
