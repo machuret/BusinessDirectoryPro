@@ -218,6 +218,5 @@ function BusinessesSection({ businesses, isLoading }: BusinessesSectionProps) {
   );
 }
 
-// Export both named and default for compatibility
-export { BusinessesSection };
 export default BusinessesSection;
+export { BusinessesSection };

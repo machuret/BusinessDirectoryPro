@@ -10,7 +10,7 @@ import Header from "@/components/header";
 import Footer from "@/components/footer";
 import BusinessesSection from "@/components/dashboard/BusinessesSection";
 import ClaimsSection from "@/components/dashboard/ClaimsSection";
-import { FeaturedRequestsSection } from "@/components/dashboard/FeaturedRequestsSection";
+import FeaturedRequestsSection from "@/components/dashboard/FeaturedRequestsSection";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -37,11 +37,11 @@ export default function Dashboard() {
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Building2 className="h-6 w-6" />
-                <span>{t("dashboard.access.denied.title", "Access Denied")}</span>
+                <span>{t("dashboard.access.denied.title") || "Access Denied"}</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p>{t("dashboard.access.denied.message", "Please log in to access your dashboard.")}</p>
+              <p>{t("dashboard.access.denied.message") || "Please log in to access your dashboard."}</p>
             </CardContent>
           </Card>
         </div>
@@ -55,8 +55,8 @@ export default function Dashboard() {
       <Header />
       <div className="container mx-auto p-6">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold">{t("dashboard.page.title", "Business Dashboard")}</h1>
-          <p className="text-muted-foreground mt-2">{t("dashboard.page.subtitle", "Manage your businesses and ownership claims")}</p>
+          <h1 className="text-3xl font-bold">{t("dashboard.page.title") || "Business Dashboard"}</h1>
+          <p className="text-muted-foreground mt-2">{t("dashboard.page.subtitle") || "Manage your businesses and ownership claims"}</p>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
