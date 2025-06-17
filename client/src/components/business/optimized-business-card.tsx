@@ -84,7 +84,7 @@ export function OptimizedBusinessCard({
       onMouseLeave={handleMouseLeave}
     >
       <Link
-        href={`/businesses/${business.slug}`}
+        href={`/${business.slug}`}
         onClick={handleCardClick}
         className="block"
       >
