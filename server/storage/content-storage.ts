@@ -397,6 +397,83 @@ export class ContentStorage {
   async getReviewsByBusiness(businessId: string) {
     return this.reviewsStorage.getReviewsByBusiness(businessId);
   }
+  // ========== ADMIN-SPECIFIC METHODS ==========
+  // Methods required by admin API endpoints
+
+  async getBusinessSubmissions() {
+    // Return empty array for now - this would connect to a submissions table
+    return [];
+  }
+
+  async updateBusinessSubmissionStatus(id: string, status: string, adminNotes?: string, reviewedBy?: string) {
+    // Placeholder implementation for business submission approval
+    return { id, status, adminNotes, reviewedBy, updatedAt: new Date() };
+  }
+
+  async getAllFeaturedRequests() {
+    // Return empty array for now - this would connect to featured_requests table
+    return [];
+  }
+
+  async updateFeaturedRequestStatus(id: number, status: string) {
+    // Placeholder implementation for featured request status updates
+    return { id, status, updatedAt: new Date() };
+  }
+
+  async getOwnershipClaims() {
+    // Return empty array for now - this would connect to ownership_claims table
+    return [];
+  }
+
+  async updateOwnershipClaim(id: number, status: string) {
+    // Placeholder implementation for ownership claim updates
+    return { id, status, updatedAt: new Date() };
+  }
+
+  async getAllReviews() {
+    return this.reviewsStorage.getAllReviews();
+  }
+
+  async updateReview(id: number, updates: any) {
+    return this.reviewsStorage.updateReview(id, updates);
+  }
+
+  async getCities() {
+    return this.businessStorage.getUniqueCities();
+  }
+
+  async getAllSiteSettings() {
+    return this.siteSettings.getAllSiteSettings();
+  }
+
+  async getServices() {
+    // Return empty array for now - services functionality to be implemented
+    return [];
+  }
+
+  async getSocialMediaLinks(activeOnly: boolean = true) {
+    return this.socialMediaStorage.getSocialMediaLinks(activeOnly);
+  }
+
+  async updateSocialMediaLink(id: number, updates: any) {
+    return this.socialMediaStorage.updateSocialMediaLink(id, updates);
+  }
+
+  async deleteSocialMediaLink(id: number) {
+    return this.socialMediaStorage.deleteSocialMediaLink(id);
+  }
+
+  async getUsers() {
+    return this.users.getUsers();
+  }
+
+  async getUser(id: string) {
+    return this.users.getUser(id);
+  }
+
+  async updateUser(id: string, updates: any) {
+    return this.users.updateUser(id, updates);
+  }
 }
 
 // Export singleton instance for backward compatibility

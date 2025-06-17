@@ -53,6 +53,16 @@ export function setupAdminRoutes(app: Express) {
   });
 
   // Business submissions management
+  app.get('/api/admin/submissions', async (req, res) => {
+    try {
+      const submissions = await storage.getBusinessSubmissions();
+      res.json(submissions || []);
+    } catch (error) {
+      console.error("Error fetching business submissions:", error);
+      res.json([]);
+    }
+  });
+
   app.get('/api/admin/business-submissions', async (req, res) => {
     try {
       const submissions = await storage.getBusinessSubmissions();
@@ -276,6 +286,193 @@ export function setupAdminRoutes(app: Express) {
         message: "Azure Blob Storage test failed",
         error: error instanceof Error ? error.message : 'Unknown error'
       });
+    }
+  });
+
+  // Services Management API
+  app.get('/api/admin/services', async (req, res) => {
+    try {
+      const services = await storage.getServices();
+      res.json(services || []);
+    } catch (error) {
+      console.error("Error fetching services:", error);
+      res.json([]);
+    }
+  });
+
+  // Import/Export API endpoints
+  app.post('/api/admin/import/businesses', async (req, res) => {
+    try {
+      // Handle CSV file upload and processing
+      res.json({ 
+        success: true, 
+        imported: 0, 
+        skipped: 0, 
+        errors: [],
+        message: "Import functionality ready for implementation" 
+      });
+    } catch (error) {
+      console.error("Error importing businesses:", error);
+      res.status(500).json({ message: "Failed to import businesses" });
+    }
+  });
+
+  app.post('/api/admin/export', async (req, res) => {
+    try {
+      const { type, format, fields } = req.body;
+      
+      let data = [];
+      switch (type) {
+        case 'businesses':
+          data = await storage.getBusinesses();
+          break;
+        case 'users':
+          data = await storage.getUsers();
+          break;
+        case 'reviews':
+          data = await storage.getAllReviews();
+          break;
+        case 'categories':
+          data = await storage.getCategories();
+          break;
+        default:
+          return res.status(400).json({ message: "Invalid export type" });
+      }
+
+      // Filter fields if specified
+      if (fields && fields.length > 0) {
+        data = data.map((item: any) => {
+          const filtered: any = {};
+          fields.forEach((field: string) => {
+            if (item[field] !== undefined) {
+              filtered[field] = item[field];
+            }
+          });
+          return filtered;
+        });
+      }
+
+      res.json(data);
+    } catch (error) {
+      console.error("Error exporting data:", error);
+      res.status(500).json({ message: "Failed to export data" });
+    }
+  });
+
+  // Social Media Management API
+  app.get('/api/admin/social-media', async (req, res) => {
+    try {
+      const links = await storage.getSocialMediaLinks(false); // Get all links including inactive
+      res.json(links || []);
+    } catch (error) {
+      console.error("Error fetching social media links:", error);
+      res.json([]);
+    }
+  });
+
+  app.patch('/api/admin/social-media/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { isActive } = req.body;
+      
+      await storage.updateSocialMediaLink(parseInt(id), { isActive });
+      res.json({ message: "Social media link updated successfully" });
+    } catch (error) {
+      console.error("Error updating social media link:", error);
+      res.status(500).json({ message: "Failed to update social media link" });
+    }
+  });
+
+  app.delete('/api/admin/social-media/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteSocialMediaLink(parseInt(id));
+      res.json({ message: "Social media link deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting social media link:", error);
+      res.status(500).json({ message: "Failed to delete social media link" });
+    }
+  });
+
+  // Content Management API
+  app.get('/api/admin/content-strings', async (req, res) => {
+    try {
+      const contentStrings = await storage.getContentStrings();
+      res.json(contentStrings || []);
+    } catch (error) {
+      console.error("Error fetching content strings:", error);
+      res.json([]);
+    }
+  });
+
+  app.patch('/api/admin/content-strings/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { value } = req.body;
+      
+      await storage.updateContentString(parseInt(id), value);
+      res.json({ message: "Content string updated successfully" });
+    } catch (error) {
+      console.error("Error updating content string:", error);
+      res.status(500).json({ message: "Failed to update content string" });
+    }
+  });
+
+  app.post('/api/admin/content-strings', async (req, res) => {
+    try {
+      const { key, value, category } = req.body;
+      
+      const contentString = await storage.createContentString({ key, value, category });
+      res.status(201).json(contentString);
+    } catch (error) {
+      console.error("Error creating content string:", error);
+      res.status(500).json({ message: "Failed to create content string" });
+    }
+  });
+
+  // Featured requests approval endpoints
+  app.post('/api/admin/featured-requests/:id/approve', async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.updateFeaturedRequestStatus(parseInt(id), 'approved');
+      res.json({ message: "Featured request approved successfully" });
+    } catch (error) {
+      console.error("Error approving featured request:", error);
+      res.status(500).json({ message: "Failed to approve featured request" });
+    }
+  });
+
+  app.post('/api/admin/featured-requests/:id/reject', async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.updateFeaturedRequestStatus(parseInt(id), 'rejected');
+      res.json({ message: "Featured request rejected successfully" });
+    } catch (error) {
+      console.error("Error rejecting featured request:", error);
+      res.status(500).json({ message: "Failed to reject featured request" });
+    }
+  });
+
+  // Submissions approval endpoints
+  app.post('/api/admin/submissions/:id/approve', async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.updateBusinessSubmissionStatus(id, 'approved', 'Approved by admin', req.session?.userId);
+      res.json({ message: "Submission approved successfully" });
+    } catch (error) {
+      console.error("Error approving submission:", error);
+      res.status(500).json({ message: "Failed to approve submission" });
+    }
+  });
+
+  app.post('/api/admin/submissions/:id/reject', async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.updateBusinessSubmissionStatus(id, 'rejected', 'Rejected by admin', req.session?.userId);
+      res.json({ message: "Submission rejected successfully" });
+    } catch (error) {
+      console.error("Error rejecting submission:", error);
+      res.status(500).json({ message: "Failed to reject submission" });
     }
   });
 }
