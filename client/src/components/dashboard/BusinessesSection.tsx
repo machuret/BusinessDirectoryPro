@@ -145,7 +145,7 @@ function BusinessesSection({ businesses, isLoading }: BusinessesSectionProps) {
                                   description: businessEditor.editForm.values.description,
                                   address: businessEditor.editForm.values.address,
                                 }}
-                                onFieldUpdate={(field, value) => businessEditor.editForm.updateField(field as any, value)}
+                                onFieldUpdate={(field, value) => businessEditor.editForm.updateField(field as keyof typeof businessEditor.editForm.values, value)}
                               />
                             </TabsContent>
                             
@@ -155,7 +155,7 @@ function BusinessesSection({ businesses, isLoading }: BusinessesSectionProps) {
                                   phone: businessEditor.editForm.values.phone,
                                   website: businessEditor.editForm.values.website,
                                 }}
-                                onFieldUpdate={(field, value) => businessEditor.editForm.updateField(field as any, value)}
+                                onFieldUpdate={(field, value) => businessEditor.editForm.updateField(field as keyof typeof businessEditor.editForm.values, value)}
                               />
                             </TabsContent>
                             

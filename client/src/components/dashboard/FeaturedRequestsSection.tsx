@@ -324,6 +324,5 @@ function FeaturedRequestsSection({ userId, userBusinesses }: FeaturedRequestsSec
   );
 }
 
-// Export both named and default for compatibility
-export { FeaturedRequestsSection };
+// Default export for backward compatibility
 export default FeaturedRequestsSection;
