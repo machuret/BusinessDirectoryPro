@@ -18,6 +18,7 @@ const Home = lazy(() => import("@/pages/home"));
 const Categories = lazy(() => import("@/pages/categories"));
 const Cities = lazy(() => import("@/pages/cities"));
 const BusinessesPage = lazy(() => import("@/pages/businesses"));
+const BusinessDetail = lazy(() => import("@/pages/business-detail-refactored"));
 const Featured = lazy(() => import("@/pages/featured"));
 const SearchResults = lazy(() => import("@/pages/search-results"));
 const PageDisplay = lazy(() => import("@/pages/page-display"));
@@ -102,7 +103,7 @@ function Router() {
       </Route>
       <Route path="/businesses/:businessSlug">
         <PageSuspense>
-          <BusinessesPage />
+          <BusinessDetail />
         </PageSuspense>
       </Route>
 

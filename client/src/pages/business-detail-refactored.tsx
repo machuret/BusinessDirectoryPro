@@ -20,7 +20,7 @@ import BusinessContactInfo from "@/components/business/BusinessContactInfo";
 import type { BusinessWithCategory, Review } from "@shared/schema";
 
 export default function BusinessDetailRefactored() {
-  const { slug } = useParams<{ slug: string }>();
+  const { businessSlug } = useParams<{ businessSlug: string }>();
 
   const { 
     data: business, 
