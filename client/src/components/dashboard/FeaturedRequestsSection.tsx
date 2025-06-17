@@ -66,7 +66,7 @@ interface FeaturedRequestsSectionProps {
  *   userBusinesses={[]}
  * />
  */
-export function FeaturedRequestsSection({ userId, userBusinesses }: FeaturedRequestsSectionProps) {
+function FeaturedRequestsSection({ userId, userBusinesses }: FeaturedRequestsSectionProps) {
   const { t } = useContent();
   const { toast } = useToast();
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
@@ -323,3 +323,7 @@ export function FeaturedRequestsSection({ userId, userBusinesses }: FeaturedRequ
     </Card>
   );
 }
+
+// Export both named and default for compatibility
+export { FeaturedRequestsSection };
+export default FeaturedRequestsSection;

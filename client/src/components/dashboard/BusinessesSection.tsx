@@ -40,7 +40,7 @@ interface BusinessesSectionProps {
  *   isLoading={businessQuery.isLoading}
  * />
  */
-export function BusinessesSection({ businesses, isLoading }: BusinessesSectionProps) {
+function BusinessesSection({ businesses, isLoading }: BusinessesSectionProps) {
   const { t } = useContent();
   const businessEditor = useBusinessEditor();
 
@@ -145,7 +145,7 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
                                   description: businessEditor.editForm.values.description,
                                   address: businessEditor.editForm.values.address,
                                 }}
-                                onFieldUpdate={businessEditor.editForm.updateField}
+                                onFieldUpdate={(field, value) => businessEditor.editForm.updateField(field as any, value)}
                               />
                             </TabsContent>
                             
@@ -155,7 +155,7 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
                                   phone: businessEditor.editForm.values.phone,
                                   website: businessEditor.editForm.values.website,
                                 }}
-                                onFieldUpdate={businessEditor.editForm.updateField}
+                                onFieldUpdate={(field, value) => businessEditor.editForm.updateField(field as any, value)}
                               />
                             </TabsContent>
                             
@@ -217,3 +217,7 @@ export function BusinessesSection({ businesses, isLoading }: BusinessesSectionPr
     </Card>
   );
 }
+
+// Export both named and default for compatibility
+export { BusinessesSection };
+export default BusinessesSection;
