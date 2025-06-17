@@ -65,3 +65,6 @@ export class UserStorage {
     await db.delete(users).where(eq(users.id, id));
   }
 }
+
+// Export singleton instance
+export const userStorage = new UserStorage();

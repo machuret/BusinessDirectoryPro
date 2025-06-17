@@ -7,6 +7,7 @@ import { contactMessagesStorage } from './contact-messages.storage';
 import { BusinessStorage } from './business/index';
 import { categoryStorage } from './category-storage';
 import { SocialMediaStorage } from './social-media-storage';
+import { userStorage } from './user-storage';
 
 /**
  * ContentStorage - Refactored to use modular domain-specific storage classes
@@ -23,7 +24,8 @@ export class ContentStorage {
     private pages = pagesStorage,
     private websiteFaqs = websiteFaqsStorage,
     private contactMessages = contactMessagesStorage,
-    private categories = categoryStorage
+    private categories = categoryStorage,
+    private users = userStorage
   ) {}
 
   // Content String delegation methods
@@ -346,6 +348,41 @@ export class ContentStorage {
 
   async getActiveSocialMediaLinks() {
     return this.socialMediaStorage.getActiveSocialMediaLinks();
+  }
+
+  // ========== USER METHODS ==========
+  // User-related methods delegated to UserStorage
+
+  async getUserByEmail(email: string) {
+    return this.users.getUserByEmail(email);
+  }
+
+  async getUser(id: string) {
+    return this.users.getUser(id);
+  }
+
+  async createUser(userData: any) {
+    return this.users.createUser(userData);
+  }
+
+  async upsertUser(userData: any) {
+    return this.users.upsertUser(userData);
+  }
+
+  async updateUser(id: string, userData: any) {
+    return this.users.updateUser(id, userData);
+  }
+
+  async updateUserPassword(id: string, hashedPassword: string) {
+    return this.users.updateUserPassword(id, hashedPassword);
+  }
+
+  async deleteUser(id: string) {
+    return this.users.deleteUser(id);
+  }
+
+  async getAllUsers() {
+    return this.users.getAllUsers();
   }
 }
 
