@@ -12,8 +12,8 @@ import { useToast } from "@/hooks/use-toast";
 import { adminLogin } from "@/utils/adminAuth";
 
 export function AdminLogin() {
-  const [email, setEmail] = useState("admin@example.com");
-  const [password, setPassword] = useState("admin123");
+  const [email, setEmail] = useState("admin@businesshub.com");
+  const [password, setPassword] = useState("Xola2025");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
