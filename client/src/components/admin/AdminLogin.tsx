@@ -4,19 +4,17 @@
  */
 
 import { useState } from "react";
-import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import { adminLogin } from "@/utils/adminAuth";
 
 export function AdminLogin() {
   const [email, setEmail] = useState("admin@example.com");
   const [password, setPassword] = useState("admin123");
   const [isLoading, setIsLoading] = useState(false);
-  const { retryAuth } = useAuth();
   const { toast } = useToast();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -24,26 +22,28 @@ export function AdminLogin() {
     setIsLoading(true);
 
     try {
-      await apiRequest("POST", "/api/auth/login", {
-        email,
-        password
-      });
+      const result = await adminLogin(email, password);
 
-      toast({
-        title: "Login Successful",
-        description: "You have been logged in successfully.",
-      });
+      if (result.isAuthenticated) {
+        toast({
+          title: "Login Successful",
+          description: "You have been logged in successfully.",
+        });
 
-      // Refresh auth state
-      retryAuth();
-      
-      // Reload page to ensure proper session handling
-      window.location.reload();
+        // Reload page to ensure proper session handling
+        window.location.reload();
+      } else {
+        toast({
+          title: "Login Failed",
+          description: result.error || "Invalid credentials.",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       console.error("Login error:", error);
       toast({
         title: "Login Failed",
-        description: "Invalid credentials or server error.",
+        description: "Network error occurred.",
         variant: "destructive",
       });
     } finally {

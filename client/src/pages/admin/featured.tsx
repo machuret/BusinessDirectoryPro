@@ -58,9 +58,11 @@ export default function AdminFeaturedPage() {
   }
 
   return (
-    <div className="container mx-auto p-6">
+    <AdminPageLayout 
+      title="Featured Business Requests" 
+      description="Manage featured business requests and approvals"
+    >
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Featured Business Requests</h1>
         <div className="flex gap-2">
           <Badge variant="secondary">
             {featuredRequests?.filter((r: any) => r.status === 'pending').length || 0} Pending
@@ -146,6 +148,6 @@ export default function AdminFeaturedPage() {
           </Card>
         )}
       </div>
-    </div>
+    </AdminPageLayout>
   );
 }
