@@ -1,41 +1,52 @@
-// Main export for the refactored modular storage system
-import { ComprehensiveStorage } from "./comprehensive-storage";
+/**
+ * Storage Layer Barrel Export
+ * Provides centralized access to all storage modules
+ */
 
-// Create a single instance to be used throughout the application
-export const storage = new ComprehensiveStorage();
+// Import all storage classes and instances
+import { ContentStringsStorage, contentStringsStorage } from './content-strings.storage';
+import { SiteSettingsStorage, siteSettingsStorage } from './site-settings.storage';
+import { MenuItemsStorage, menuItemsStorage } from './menu-items.storage';
+import { PagesStorage, pagesStorage } from './pages.storage';
+import { WebsiteFaqsStorage, websiteFaqsStorage } from './website-faqs.storage';
+import { ContactMessagesStorage, contactMessagesStorage } from './contact-messages.storage';
 
-// Export the interface for type checking
-export type { IStorage } from "./base-storage";
+// Export all storage classes and instances
+export {
+  ContentStringsStorage,
+  contentStringsStorage,
+  SiteSettingsStorage,
+  siteSettingsStorage,
+  MenuItemsStorage,
+  menuItemsStorage,
+  PagesStorage,
+  pagesStorage,
+  WebsiteFaqsStorage,
+  websiteFaqsStorage,
+  ContactMessagesStorage,
+  contactMessagesStorage
+};
 
-// Export all types for external use
-export type {
-  User,
-  UpsertUser,
-  Category,
-  InsertCategory,
-  Business,
-  InsertBusiness,
-  Review,
-  InsertReview,
-  SiteSetting,
-  InsertSiteSetting,
-  MenuItem,
-  InsertMenuItem,
-  Page,
-  InsertPage,
-  WebsiteFaq,
-  InsertWebsiteFaq,
-  Lead,
-  InsertLead,
-  ContactMessage,
-  InsertContactMessage,
-  BusinessWithCategory,
-  CategoryWithCount,
-  LeadWithBusiness,
-} from "./base-storage";
+/**
+ * Centralized storage interface combining all domain-specific storages
+ * This provides a single point of access for all storage operations
+ */
+export class UnifiedStorage {
+  constructor(
+    public contentStrings = contentStringsStorage,
+    public siteSettings = siteSettingsStorage,
+    public menuItems = menuItemsStorage,
+    public pages = pagesStorage,
+    public websiteFaqs = websiteFaqsStorage,
+    public contactMessages = contactMessagesStorage
+  ) {}
+}
 
-// Export individual storage modules for advanced use cases
-export { UserStorage } from "./user-storage";
-export { BusinessStorage } from "./business";
-export { CategoryStorage } from "./category-storage";
-export { ComprehensiveStorage } from "./comprehensive-storage";
+// Export singleton instance
+export const unifiedStorage = new UnifiedStorage();
+
+// Re-export the main ContentStorage class for backward compatibility
+export { ContentStorage } from './content-storage';
+
+// Export contentStorage instance as 'storage' for backward compatibility
+export { contentStorage as storage } from './content-storage';
