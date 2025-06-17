@@ -1,14 +1,10 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
-import { Search, Filter, MapPin, Grid, List, ChevronDown, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import BusinessCard from "@/components/business-card-enhanced";
-import { Skeleton } from "@/components/ui/skeleton";
+import { BusinessFilters } from "@/components/businesses/BusinessFilters";
+import { BusinessViewControls } from "@/components/businesses/BusinessViewControls";
+import { BusinessGrid } from "@/components/businesses/BusinessGrid";
 import type { BusinessWithCategory, CategoryWithCount } from "@shared/schema";
 
 export default function BusinessesPage() {
@@ -26,13 +22,10 @@ export default function BusinessesPage() {
   // Initialize filters based on URL params
   useEffect(() => {
     if (params.categorySlug) {
-      // Route: /businesses/category/:categorySlug
       setSelectedCategory(params.categorySlug);
     } else if (params.cityName) {
-      // Route: /businesses/city/:cityName or direct city route /:cityName
       setSelectedCity(decodeURIComponent(params.cityName));
     } else if (location.startsWith('/') && location !== '/businesses') {
-      // Check if this is a direct city URL like /Coorparoo
       const cityFromPath = location.substring(1);
       if (cityFromPath && !cityFromPath.includes('/')) {
         setSelectedCity(decodeURIComponent(cityFromPath));
@@ -57,7 +50,6 @@ export default function BusinessesPage() {
     } else if (params.cityName) {
       return { endpoint: `/api/businesses/city/${params.cityName}`, cityFromUrl: params.cityName };
     } else if (location.startsWith('/') && location !== '/businesses' && !location.includes('/')) {
-      // Direct city URL like /Coorparoo
       const cityFromPath = location.substring(1);
       return { endpoint: `/api/businesses/city/${cityFromPath}`, cityFromUrl: cityFromPath };
     } else {
@@ -66,6 +58,7 @@ export default function BusinessesPage() {
   };
 
   const { endpoint, cityFromUrl } = getApiEndpointAndCity();
+  const cityParam = cityFromUrl || undefined;
 
   // Fetch businesses with filters
   const { data: businesses = [], isLoading } = useQuery<BusinessWithCategory[]>({
@@ -103,7 +96,7 @@ export default function BusinessesPage() {
         }
       });
 
-      const response = await fetch(`/api/businesses?${searchParams.toString()}`);
+      const response = await fetch(`${apiEndpoint}?${searchParams.toString()}`);
       if (!response.ok) {
         throw new Error('Failed to fetch businesses');
       }
@@ -111,300 +104,75 @@ export default function BusinessesPage() {
     },
   });
 
-  // Filter and sort businesses on client side for better UX
-  const filteredAndSortedBusinesses = businesses.sort((a, b) => {
-    switch (sortBy) {
-      case "title":
-        return (a.title || "").localeCompare(b.title || "");
-      case "city":
-        return (a.city || "").localeCompare(b.city || "");
-      case "category":
-        return (a.categoryname || "").localeCompare(b.categoryname || "");
-      default:
-        return 0;
-    }
-  });
-
-  const totalPages = Math.ceil(filteredAndSortedBusinesses.length / itemsPerPage);
-
-  const clearFilters = () => {
-    setSearchQuery("");
-    setSelectedCategory("");
-    setSelectedCity("");
-    setCurrentPage(1);
-  };
-
-  const hasActiveFilters = searchQuery || selectedCategory || selectedCity;
-
+  // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, selectedCategory, selectedCity]);
+  }, [searchQuery, selectedCategory, selectedCity, sortBy]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Business Directory
-            </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Discover local businesses with excellent reviews and service. Find exactly what you're looking for with our advanced search and filtering options.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Search and Filters */}
-      <div className="bg-white border-b sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          {/* Main Search Bar */}
-          <div className="flex flex-col lg:flex-row gap-4 mb-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-              <Input
-                placeholder="Search businesses..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-3 text-lg"
-              />
-            </div>
-            <Button
-              variant={showFilters ? "default" : "outline"}
-              onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-2"
-            >
-              <Filter className="h-4 w-4" />
-              Filters
-              <ChevronDown className={`h-4 w-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
-            </Button>
-          </div>
-
-          {/* Expandable Filters */}
-          {showFilters && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 p-4 bg-gray-50 rounded-lg">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="All categories" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">All categories</SelectItem>
-                    {categories.map((category) => (
-                      <SelectItem key={category.id} value={category.id.toString()}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
-                <Select value={selectedCity} onValueChange={setSelectedCity}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="All cities" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">All cities</SelectItem>
-                    {cities.map((city) => (
-                      <SelectItem key={city.city} value={city.city}>
-                        {city.city} ({city.count})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Sort by</label>
-                <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="title">Name (A-Z)</SelectItem>
-                    <SelectItem value="city">City (A-Z)</SelectItem>
-                    <SelectItem value="category">Category</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          )}
-
-          {/* Active Filters and Controls */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex flex-wrap items-center gap-2">
-              {hasActiveFilters && (
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-500">Active filters:</span>
-                  {searchQuery && (
-                    <Badge variant="secondary" className="flex items-center gap-1">
-                      Search: "{searchQuery}"
-                      <X 
-                        className="h-3 w-3 cursor-pointer" 
-                        onClick={() => setSearchQuery("")}
-                      />
-                    </Badge>
-                  )}
-                  {selectedCategory && (
-                    <Badge variant="secondary" className="flex items-center gap-1">
-                      Category: {categories.find(c => c.id.toString() === selectedCategory)?.name}
-                      <X 
-                        className="h-3 w-3 cursor-pointer" 
-                        onClick={() => setSelectedCategory("")}
-                      />
-                    </Badge>
-                  )}
-                  {selectedCity && (
-                    <Badge variant="secondary" className="flex items-center gap-1">
-                      <MapPin className="h-3 w-3" />
-                      {selectedCity}
-                      <X 
-                        className="h-3 w-3 cursor-pointer" 
-                        onClick={() => setSelectedCity("")}
-                      />
-                    </Badge>
-                  )}
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={clearFilters}
-                    className="text-blue-600 hover:text-blue-700"
-                  >
-                    Clear all
-                  </Button>
-                </div>
-              )}
-            </div>
-
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-500">View:</span>
-              <Button
-                variant={viewMode === "grid" ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setViewMode("grid")}
-              >
-                <Grid className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={viewMode === "list" ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setViewMode("list")}
-              >
-                <List className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Results */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Results Count */}
-        <div className="mb-6">
-          <p className="text-gray-600">
-            {isLoading ? (
-              "Loading businesses..."
+    <div className="container mx-auto px-4 py-8">
+      <div className="space-y-6">
+        {/* Header */}
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">
+            {params.categorySlug ? (
+              `${params.categorySlug.charAt(0).toUpperCase() + params.categorySlug.slice(1).replace('-', ' ')} Businesses`
+            ) : cityFromUrl ? (
+              `Businesses in ${decodeURIComponent(cityFromUrl)}`
             ) : (
-              `Showing ${filteredAndSortedBusinesses.length} businesses`
+              'Business Directory'
+            )}
+          </h1>
+          <p className="text-muted-foreground mt-2">
+            {params.categorySlug ? (
+              `Find the best ${params.categorySlug.replace('-', ' ')} businesses in your area`
+            ) : cityFromUrl ? (
+              `Discover local businesses in ${decodeURIComponent(cityFromUrl)}`
+            ) : (
+              'Discover and connect with local businesses in your area'
             )}
           </p>
         </div>
 
-        {/* Business Grid/List */}
-        {isLoading ? (
-          <div className={`grid gap-6 ${viewMode === "grid" ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"}`}>
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="bg-white rounded-lg border p-6">
-                <Skeleton className="h-48 w-full mb-4" />
-                <Skeleton className="h-6 w-3/4 mb-2" />
-                <Skeleton className="h-4 w-1/2 mb-2" />
-                <Skeleton className="h-4 w-2/3" />
-              </div>
-            ))}
-          </div>
-        ) : filteredAndSortedBusinesses.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="max-w-md mx-auto">
-              <Search className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                No businesses found
-              </h3>
-              <p className="text-gray-600 mb-6">
-                Try adjusting your search or filters to find what you're looking for.
-              </p>
-              {hasActiveFilters && (
-                <Button onClick={clearFilters} variant="outline">
-                  Clear all filters
-                </Button>
-              )}
-            </div>
-          </div>
-        ) : (
-          <div className={`grid gap-6 ${viewMode === "grid" ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"}`}>
-            {filteredAndSortedBusinesses.map((business) => (
-              <div key={business.placeid} className={viewMode === "list" ? "max-w-none" : ""}>
-                <BusinessCard 
-                  business={business}
-                />
-              </div>
-            ))}
-          </div>
-        )}
+        {/* Filters */}
+        <BusinessFilters
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+          selectedCity={selectedCity}
+          setSelectedCity={setSelectedCity}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+          showFilters={showFilters}
+          setShowFilters={setShowFilters}
+          categories={categories}
+          cities={cities}
+          cityFromUrl={cityFromUrl}
+          categoryFromUrl={params.categorySlug}
+        />
 
-        {/* Pagination */}
-        {filteredAndSortedBusinesses.length > 0 && totalPages > 1 && (
-          <div className="mt-12 flex justify-center">
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                disabled={currentPage === 1}
-              >
-                Previous
-              </Button>
-              
-              <div className="flex items-center gap-1">
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  const pageNum = i + 1;
-                  return (
-                    <Button
-                      key={pageNum}
-                      variant={currentPage === pageNum ? "default" : "ghost"}
-                      size="sm"
-                      onClick={() => setCurrentPage(pageNum)}
-                    >
-                      {pageNum}
-                    </Button>
-                  );
-                })}
-                {totalPages > 5 && (
-                  <>
-                    <span className="px-2 text-gray-500">...</span>
-                    <Button
-                      variant={currentPage === totalPages ? "default" : "ghost"}
-                      size="sm"
-                      onClick={() => setCurrentPage(totalPages)}
-                    >
-                      {totalPages}
-                    </Button>
-                  </>
-                )}
-              </div>
+        <Separator />
 
-              <Button
-                variant="outline"
-                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                disabled={currentPage === totalPages}
-              >
-                Next
-              </Button>
-            </div>
-          </div>
-        )}
+        {/* View Controls */}
+        <BusinessViewControls
+          viewMode={viewMode}
+          setViewMode={setViewMode}
+          totalResults={businesses.length}
+          currentPage={currentPage}
+          itemsPerPage={itemsPerPage}
+          cityFromUrl={cityFromUrl}
+          categoryFromUrl={params.categorySlug}
+        />
+
+        {/* Business Grid */}
+        <BusinessGrid
+          businesses={businesses}
+          isLoading={isLoading}
+          viewMode={viewMode}
+        />
+
+        {/* TODO: Pagination component can be added here */}
       </div>
     </div>
   );
