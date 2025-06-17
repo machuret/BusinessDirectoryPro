@@ -6,6 +6,7 @@ import { websiteFaqsStorage } from './website-faqs.storage';
 import { contactMessagesStorage } from './contact-messages.storage';
 import { BusinessStorage } from './business/index';
 import { categoryStorage } from './category-storage';
+import { SocialMediaStorage } from './social-media-storage';
 
 /**
  * ContentStorage - Refactored to use modular domain-specific storage classes
@@ -13,6 +14,7 @@ import { categoryStorage } from './category-storage';
  */
 export class ContentStorage {
   private businessStorage = new BusinessStorage();
+  private socialMediaStorage = new SocialMediaStorage();
 
   constructor(
     private contentStrings = contentStringsStorage,
@@ -309,6 +311,41 @@ export class ContentStorage {
 
   async deleteCategory(id: number) {
     return this.categories.deleteCategory(id);
+  }
+
+  // ========== SOCIAL MEDIA METHODS ==========
+  // Social media-related methods delegated to SocialMediaStorage
+
+  async getSocialMediaLinks(activeOnly: boolean = false) {
+    return this.socialMediaStorage.getSocialMediaLinks(activeOnly);
+  }
+
+  async getSocialMediaLink(id: number) {
+    return this.socialMediaStorage.getSocialMediaLinkById(id);
+  }
+
+  async getSocialMediaLinkById(id: number) {
+    return this.socialMediaStorage.getSocialMediaLinkById(id);
+  }
+
+  async getSocialMediaLinkByPlatform(platform: string) {
+    return this.socialMediaStorage.getSocialMediaLinkByPlatform(platform);
+  }
+
+  async createSocialMediaLink(linkData: any) {
+    return this.socialMediaStorage.createSocialMediaLink(linkData);
+  }
+
+  async updateSocialMediaLink(id: number, updates: any) {
+    return this.socialMediaStorage.updateSocialMediaLink(id, updates);
+  }
+
+  async deleteSocialMediaLink(id: number) {
+    return this.socialMediaStorage.deleteSocialMediaLink(id);
+  }
+
+  async getActiveSocialMediaLinks() {
+    return this.socialMediaStorage.getActiveSocialMediaLinks();
   }
 }
 

@@ -7,25 +7,60 @@ import { z } from 'zod';
 import { storage } from '../storage';
 import type { SocialMediaLink, InsertSocialMediaLink } from '@shared/schema';
 
-// Valid social media platforms
+// Valid social media platforms with type-safe enum
 const VALID_PLATFORMS = [
   'facebook', 'twitter', 'instagram', 'linkedin', 'youtube', 
   'tiktok', 'pinterest', 'snapchat', 'whatsapp'
 ] as const;
 
+// Type-safe platform enum for better validation and inference
+export const PlatformEnum = z.enum(VALID_PLATFORMS);
+
+// Export platform type for use throughout the service
+export type SocialMediaPlatform = z.infer<typeof PlatformEnum>;
+
+/**
+ * Type-safe helper functions leveraging the improved enum validation
+ */
+
+/**
+ * Validates if a string is a valid social media platform
+ * @param platform - Platform string to validate
+ * @returns boolean indicating if platform is valid
+ */
+export function isValidPlatform(platform: string): platform is SocialMediaPlatform {
+  return PlatformEnum.safeParse(platform).success;
+}
+
+/**
+ * Gets all valid platform options
+ * @returns Array of valid platform strings
+ */
+export function getValidPlatforms(): readonly SocialMediaPlatform[] {
+  return VALID_PLATFORMS;
+}
+
+/**
+ * Type-safe platform validation with detailed error message
+ * @param platform - Platform to validate
+ * @throws Error with detailed message if invalid
+ */
+export function validatePlatform(platform: unknown): asserts platform is SocialMediaPlatform {
+  if (typeof platform !== 'string') {
+    throw new Error(`Platform must be a string, received: ${typeof platform}`);
+  }
+  
+  if (!isValidPlatform(platform)) {
+    throw new Error(`Invalid platform "${platform}". Valid platforms: ${VALID_PLATFORMS.join(', ')}`);
+  }
+}
+
 /**
  * Zod schema for social media link validation
+ * Using z.enum() for type-safe platform validation
  */
 export const socialMediaLinkSchema = z.object({
-  platform: z.string()
-    .min(1, 'Platform is required')
-    .toLowerCase()
-    .refine(
-      (platform) => VALID_PLATFORMS.includes(platform as any),
-      {
-        message: `Invalid platform. Supported platforms: ${VALID_PLATFORMS.join(', ')}`
-      }
-    ),
+  platform: PlatformEnum,
   url: z.string()
     .min(1, 'URL is required')
     .url('Invalid URL format'),
