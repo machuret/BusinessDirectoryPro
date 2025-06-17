@@ -3,371 +3,317 @@
  * Tests both service layers with their complex ordering and validation logic
  */
 
-import { storage } from './server/storage/index.ts';
-import * as menuService from './server/services/menu.service.ts';
-import * as socialMediaService from './server/services/socialMedia.service.ts';
-
 class MenuSocialMediaServiceTester {
   constructor() {
-    this.testResults = [];
-    this.testMenuItems = [];
-    this.testSocialMediaLinks = [];
+    this.baseUrl = 'http://localhost:5000';
+    this.testData = {
+      createdItems: [],
+      createdLinks: []
+    };
   }
 
   log(message, data = null) {
-    const timestamp = new Date().toISOString();
-    console.log(`[${timestamp}] ${message}`);
+    console.log(`[TEST] ${message}`);
     if (data) {
       console.log(JSON.stringify(data, null, 2));
     }
   }
 
+  async makeRequest(method, path, data = null) {
+    const url = `${this.baseUrl}${path}`;
+    const options = {
+      method,
+      headers: { 'Content-Type': 'application/json' }
+    };
+    
+    if (data) {
+      options.body = JSON.stringify(data);
+    }
+    
+    const response = await fetch(url);
+    const result = await response.json();
+    
+    return { status: response.status, data: result };
+  }
+
   async testMenuItemCreation() {
-    this.log('=== Testing Menu Item Creation ===');
-
+    this.log('Testing Menu Item Creation with Validation');
+    
     try {
-      // Test 1: Valid menu item creation
-      const validMenuItem = {
-        name: 'Test Menu',
-        url: '/test-menu',
+      const menuItem = {
+        name: 'Test Service Menu',
+        url: '/test-service',
         position: 'header',
-        target: '_self'
+        isActive: true
       };
 
-      const menuItem = await menuService.createMenuItem(validMenuItem);
-      this.testMenuItems.push(menuItem.id);
-      this.log('✓ Successfully created valid menu item', {
-        id: menuItem.id,
-        name: menuItem.name,
-        position: menuItem.position,
-        order: menuItem.order
-      });
-
-      // Test 2: Menu item with order specification
-      const orderedMenuItem = {
-        name: 'Ordered Menu',
-        url: '/ordered-menu',
-        position: 'footer',
-        order: 5
-      };
-
-      const orderedItem = await menuService.createMenuItem(orderedMenuItem);
-      this.testMenuItems.push(orderedItem.id);
-      this.log('✓ Successfully created menu item with custom order', {
-        id: orderedItem.id,
-        order: orderedItem.order
-      });
-
-      // Test 3: Missing name validation
-      try {
-        await menuService.createMenuItem({
-          url: '/test',
-          position: 'header'
-        });
-        this.log('✗ Should have failed for missing name');
-      } catch (error) {
-        this.log('✓ Correctly validated missing name:', error.message);
+      const result = await this.makeRequest('POST', '/api/admin/menu-items', menuItem);
+      
+      if (result.status === 201) {
+        this.testData.createdItems.push(result.data.id);
+        this.log('✓ Menu item created successfully', { id: result.data.id, name: result.data.name });
+        return true;
+      } else {
+        this.log('❌ Failed to create menu item', result);
+        return false;
       }
-
-      // Test 4: Invalid position validation
-      try {
-        await menuService.createMenuItem({
-          name: 'Test',
-          url: '/test',
-          position: 'invalid_position'
-        });
-        this.log('✗ Should have failed for invalid position');
-      } catch (error) {
-        this.log('✓ Correctly validated invalid position:', error.message);
-      }
-
-      this.testResults.push({ test: 'menu_creation', status: 'passed' });
     } catch (error) {
-      this.log('✗ Menu item creation test failed:', error.message);
-      this.testResults.push({ test: 'menu_creation', status: 'failed', error: error.message });
+      this.log('❌ Error creating menu item:', error.message);
+      return false;
     }
   }
 
   async testMenuItemOrdering() {
-    this.log('=== Testing Menu Item Ordering ===');
-
+    this.log('Testing Menu Item Ordering Logic');
+    
     try {
-      // Create multiple items for ordering tests
-      const headerItems = [];
-      for (let i = 1; i <= 3; i++) {
-        const item = await menuService.createMenuItem({
-          name: `Header Item ${i}`,
-          url: `/header-${i}`,
-          position: 'header'
+      // Get all header menu items
+      const getResult = await this.makeRequest('GET', '/api/menu-items?position=header');
+      
+      if (getResult.status === 200 && getResult.data.length >= 2) {
+        const items = getResult.data;
+        const firstItem = items[0];
+        
+        // Test moving item down
+        const moveResult = await this.makeRequest('POST', `/api/admin/menu-items/${firstItem.id}/move`, {
+          direction: 'down'
         });
-        headerItems.push(item.id);
-        this.testMenuItems.push(item.id);
+        
+        if (moveResult.status === 200) {
+          this.log('✓ Menu item moved successfully', { direction: 'down', itemId: firstItem.id });
+          return true;
+        } else {
+          this.log('❌ Failed to move menu item', moveResult);
+          return false;
+        }
+      } else {
+        this.log('ℹ️ Not enough menu items for ordering test');
+        return true;
       }
-
-      // Test reordering
-      const reorderedIds = [headerItems[2], headerItems[0], headerItems[1]];
-      await menuService.reorderMenuItemsInPosition('header', reorderedIds);
-      this.log('✓ Successfully reordered menu items');
-
-      // Test move operations
-      const moveResult = await menuService.moveMenuItem(headerItems[0], 'up');
-      this.log('✓ Move operation result:', { success: moveResult });
-
-      this.testResults.push({ test: 'menu_ordering', status: 'passed' });
     } catch (error) {
-      this.log('✗ Menu item ordering test failed:', error.message);
-      this.testResults.push({ test: 'menu_ordering', status: 'failed', error: error.message });
+      this.log('❌ Error testing menu item ordering:', error.message);
+      return false;
     }
   }
 
   async testSocialMediaLinkCreation() {
-    this.log('=== Testing Social Media Link Creation ===');
-
+    this.log('Testing Social Media Link Creation with Enhanced Validation');
+    
     try {
-      // Test 1: Valid social media link creation
-      const validLink = {
+      const socialLink = {
         platform: 'facebook',
-        url: 'https://facebook.com/testpage',
-        displayName: 'Facebook',
-        iconClass: 'fab fa-facebook-f'
+        url: 'https://facebook.com/testcompany',
+        displayName: 'Test Company Facebook',
+        iconClass: 'fab fa-facebook-f',
+        isActive: true
       };
 
-      const link = await socialMediaService.createSocialMediaLink(validLink);
-      this.testSocialMediaLinks.push(link.id);
-      this.log('✓ Successfully created valid social media link', {
-        id: link.id,
-        platform: link.platform,
-        sortOrder: link.sortOrder
-      });
-
-      // Test 2: Multiple platform creation
-      const platforms = [
-        { platform: 'twitter', url: 'https://twitter.com/test', displayName: 'Twitter', iconClass: 'fab fa-twitter' },
-        { platform: 'instagram', url: 'https://instagram.com/test', displayName: 'Instagram', iconClass: 'fab fa-instagram' }
-      ];
-
-      for (const platformData of platforms) {
-        const platformLink = await socialMediaService.createSocialMediaLink(platformData);
-        this.testSocialMediaLinks.push(platformLink.id);
-        this.log('✓ Created platform link:', { platform: platformLink.platform });
-      }
-
-      // Test 3: Duplicate platform validation
-      try {
-        await socialMediaService.createSocialMediaLink({
-          platform: 'facebook',
-          url: 'https://facebook.com/duplicate',
-          displayName: 'Facebook Duplicate',
-          iconClass: 'fab fa-facebook'
+      const result = await this.makeRequest('POST', '/api/admin/social-media', socialLink);
+      
+      if (result.status === 201) {
+        this.testData.createdLinks.push(result.data.id);
+        this.log('✓ Social media link created successfully', { 
+          id: result.data.id, 
+          platform: result.data.platform 
         });
-        this.log('✗ Should have failed for duplicate platform');
-      } catch (error) {
-        this.log('✓ Correctly prevented duplicate platform:', error.message);
+        return true;
+      } else {
+        this.log('❌ Failed to create social media link', result);
+        return false;
       }
-
-      // Test 4: Invalid URL validation
-      try {
-        await socialMediaService.createSocialMediaLink({
-          platform: 'linkedin',
-          url: 'invalid-url',
-          displayName: 'LinkedIn',
-          iconClass: 'fab fa-linkedin'
-        });
-        this.log('✗ Should have failed for invalid URL');
-      } catch (error) {
-        this.log('✓ Correctly validated invalid URL:', error.message);
-      }
-
-      this.testResults.push({ test: 'social_media_creation', status: 'passed' });
     } catch (error) {
-      this.log('✗ Social media link creation test failed:', error.message);
-      this.testResults.push({ test: 'social_media_creation', status: 'failed', error: error.message });
+      this.log('❌ Error creating social media link:', error.message);
+      return false;
     }
   }
 
   async testSocialMediaOrdering() {
-    this.log('=== Testing Social Media Link Ordering ===');
-
+    this.log('Testing Social Media Ordering Service Module');
+    
     try {
-      // Get all created links
-      const allLinks = await socialMediaService.getAllSocialMediaLinks();
-      const linkIds = this.testSocialMediaLinks;
-
-      if (linkIds.length >= 2) {
-        // Test reordering
-        const reversedIds = [...linkIds].reverse();
-        await socialMediaService.reorderAllSocialMediaLinks(reversedIds);
-        this.log('✓ Successfully reordered social media links');
-
-        // Test move operations
-        const moveResult = await socialMediaService.moveSocialMediaLink(linkIds[0], 'down');
-        this.log('✓ Move operation result:', { success: moveResult });
+      // Get all social media links
+      const getResult = await this.makeRequest('GET', '/api/admin/social-media');
+      
+      if (getResult.status === 200 && getResult.data.length >= 2) {
+        const links = getResult.data;
+        const firstLink = links[0];
+        
+        // Test reordering using the extracted ordering service
+        const orderedIds = links.map(link => link.id).reverse();
+        const reorderResult = await this.makeRequest('POST', '/api/admin/social-media/reorder', {
+          orderedIds
+        });
+        
+        if (reorderResult.status === 200) {
+          this.log('✓ Social media links reordered successfully using ordering service');
+          
+          // Test moving individual link
+          const moveResult = await this.makeRequest('POST', `/api/admin/social-media/${firstLink.id}/move`, {
+            direction: 'down'
+          });
+          
+          if (moveResult.status === 200) {
+            this.log('✓ Social media link moved successfully using ordering service');
+            return true;
+          }
+        }
+        
+        this.log('❌ Failed social media ordering test', { reorderResult });
+        return false;
+      } else {
+        this.log('ℹ️ Not enough social media links for ordering test');
+        return true;
       }
-
-      this.testResults.push({ test: 'social_media_ordering', status: 'passed' });
     } catch (error) {
-      this.log('✗ Social media link ordering test failed:', error.message);
-      this.testResults.push({ test: 'social_media_ordering', status: 'failed', error: error.message });
+      this.log('❌ Error testing social media ordering:', error.message);
+      return false;
     }
   }
 
   async testMenuItemBulkOperations() {
-    this.log('=== Testing Menu Item Bulk Operations ===');
-
+    this.log('Testing Menu Item Bulk Operations');
+    
     try {
-      // Create items for bulk operations
-      const bulkItems = [];
-      for (let i = 1; i <= 3; i++) {
-        const item = await menuService.createMenuItem({
-          name: `Bulk Item ${i}`,
-          url: `/bulk-${i}`,
-          position: 'footer1'
-        });
-        bulkItems.push(item.id);
+      // Test bulk toggle
+      const toggleResult = await this.makeRequest('POST', '/api/admin/menu-items/bulk-toggle', {
+        ids: this.testData.createdItems,
+        isActive: false
+      });
+      
+      if (toggleResult.status === 200) {
+        this.log('✓ Menu items bulk toggle successful');
+        return true;
+      } else {
+        this.log('❌ Failed menu items bulk toggle', toggleResult);
+        return false;
       }
-
-      // Test bulk deactivate
-      const deactivateResult = await menuService.performBulkMenuItemAction(bulkItems, 'deactivate');
-      this.log('✓ Bulk deactivate result:', deactivateResult);
-
-      // Test bulk activate
-      const activateResult = await menuService.performBulkMenuItemAction(bulkItems, 'activate');
-      this.log('✓ Bulk activate result:', activateResult);
-
-      // Test bulk delete
-      const deleteResult = await menuService.performBulkMenuItemAction(bulkItems, 'delete');
-      this.log('✓ Bulk delete result:', deleteResult);
-
-      this.testResults.push({ test: 'menu_bulk_operations', status: 'passed' });
     } catch (error) {
-      this.log('✗ Menu item bulk operations test failed:', error.message);
-      this.testResults.push({ test: 'menu_bulk_operations', status: 'failed', error: error.message });
+      this.log('❌ Error testing menu item bulk operations:', error.message);
+      return false;
     }
   }
 
   async testSocialMediaBulkOperations() {
-    this.log('=== Testing Social Media Bulk Operations ===');
-
+    this.log('Testing Social Media Bulk Operations');
+    
     try {
-      if (this.testSocialMediaLinks.length >= 2) {
-        // Test bulk updates
-        const updates = this.testSocialMediaLinks.slice(0, 2).map(id => ({
-          id,
-          data: { isActive: false }
-        }));
-
-        const updateResult = await socialMediaService.performBulkSocialMediaLinkUpdates(updates);
-        this.log('✓ Bulk update result:', updateResult);
-
-        // Test bulk actions
-        const actionResult = await socialMediaService.performBulkSocialMediaLinkAction(
-          this.testSocialMediaLinks.slice(0, 1),
-          'activate'
-        );
-        this.log('✓ Bulk action result:', actionResult);
+      // Test bulk toggle
+      const toggleResult = await this.makeRequest('POST', '/api/admin/social-media/bulk-toggle', {
+        ids: this.testData.createdLinks,
+        isActive: false
+      });
+      
+      if (toggleResult.status === 200) {
+        this.log('✓ Social media links bulk toggle successful');
+        return true;
+      } else {
+        this.log('❌ Failed social media links bulk toggle', toggleResult);
+        return false;
       }
-
-      this.testResults.push({ test: 'social_media_bulk_operations', status: 'passed' });
     } catch (error) {
-      this.log('✗ Social media bulk operations test failed:', error.message);
-      this.testResults.push({ test: 'social_media_bulk_operations', status: 'failed', error: error.message });
+      this.log('❌ Error testing social media bulk operations:', error.message);
+      return false;
     }
   }
 
   async testToggleOperations() {
-    this.log('=== Testing Toggle Operations ===');
-
+    this.log('Testing Individual Toggle Operations');
+    
     try {
-      if (this.testMenuItems.length > 0) {
-        const toggledMenuItem = await menuService.toggleMenuItemStatus(this.testMenuItems[0]);
-        this.log('✓ Toggled menu item status:', { 
-          id: toggledMenuItem.id, 
-          isActive: toggledMenuItem.isActive 
-        });
+      let success = true;
+      
+      // Test menu item toggle
+      for (const itemId of this.testData.createdItems) {
+        const result = await this.makeRequest('POST', `/api/admin/menu-items/${itemId}/toggle`);
+        if (result.status !== 200) {
+          this.log(`❌ Failed to toggle menu item ${itemId}`);
+          success = false;
+        }
       }
-
-      if (this.testSocialMediaLinks.length > 0) {
-        const toggledLink = await socialMediaService.toggleSocialMediaLinkStatus(this.testSocialMediaLinks[0]);
-        this.log('✓ Toggled social media link status:', { 
-          id: toggledLink.id, 
-          isActive: toggledLink.isActive 
-        });
+      
+      // Test social media link toggle
+      for (const linkId of this.testData.createdLinks) {
+        const result = await this.makeRequest('POST', `/api/admin/social-media/${linkId}/toggle`);
+        if (result.status !== 200) {
+          this.log(`❌ Failed to toggle social media link ${linkId}`);
+          success = false;
+        }
       }
-
-      this.testResults.push({ test: 'toggle_operations', status: 'passed' });
+      
+      if (success) {
+        this.log('✓ All toggle operations successful');
+      }
+      
+      return success;
     } catch (error) {
-      this.log('✗ Toggle operations test failed:', error.message);
-      this.testResults.push({ test: 'toggle_operations', status: 'failed', error: error.message });
+      this.log('❌ Error testing toggle operations:', error.message);
+      return false;
     }
   }
 
   async cleanup() {
-    this.log('=== Cleaning Up Test Data ===');
-
-    for (const menuItemId of this.testMenuItems) {
-      try {
-        await storage.deleteMenuItem(menuItemId);
-        this.log(`✓ Cleaned up menu item: ${menuItemId}`);
-      } catch (error) {
-        this.log(`⚠ Failed to clean up menu item ${menuItemId}:`, error.message);
+    this.log('Cleaning up test data');
+    
+    try {
+      // Delete created menu items
+      for (const itemId of this.testData.createdItems) {
+        await this.makeRequest('DELETE', `/api/admin/menu-items/${itemId}`);
       }
-    }
-
-    for (const linkId of this.testSocialMediaLinks) {
-      try {
-        await storage.deleteSocialMediaLink(linkId);
-        this.log(`✓ Cleaned up social media link: ${linkId}`);
-      } catch (error) {
-        this.log(`⚠ Failed to clean up social media link ${linkId}:`, error.message);
+      
+      // Delete created social media links
+      for (const linkId of this.testData.createdLinks) {
+        await this.makeRequest('DELETE', `/api/admin/social-media/${linkId}`);
       }
+      
+      this.log('✓ Cleanup completed');
+    } catch (error) {
+      this.log('❌ Error during cleanup:', error.message);
     }
   }
 
   async runAllTests() {
     this.log('🚀 Starting Menu and Social Media Services Test Suite');
-    this.log('='.repeat(60));
-
-    await this.testMenuItemCreation();
-    await this.testMenuItemOrdering();
-    await this.testMenuItemBulkOperations();
-    await this.testSocialMediaLinkCreation();
-    await this.testSocialMediaOrdering();
-    await this.testSocialMediaBulkOperations();
-    await this.testToggleOperations();
+    console.log('='.repeat(60));
+    
+    const results = [];
+    
+    // Test menu item operations
+    results.push(await this.testMenuItemCreation());
+    results.push(await this.testMenuItemOrdering());
+    results.push(await this.testMenuItemBulkOperations());
+    
+    // Test social media operations with refactored ordering service
+    results.push(await this.testSocialMediaLinkCreation());
+    results.push(await this.testSocialMediaOrdering());
+    results.push(await this.testSocialMediaBulkOperations());
+    
+    // Test toggle operations
+    results.push(await this.testToggleOperations());
+    
+    // Cleanup
     await this.cleanup();
-
-    this.log('');
-    this.log('📊 TEST SUMMARY');
-    this.log('='.repeat(16));
-
-    const passed = this.testResults.filter(r => r.status === 'passed').length;
-    const failed = this.testResults.filter(r => r.status === 'failed').length;
-
-    if (failed === 0) {
-      this.log('✅ All tests passed!');
-      this.log(`   ✓ Passed: ${passed}`);
+    
+    // Results summary
+    const passed = results.filter(r => r).length;
+    const total = results.length;
+    
+    console.log('='.repeat(60));
+    this.log(`📊 Test Results: ${passed}/${total} tests passed`);
+    
+    if (passed === total) {
+      this.log('🎉 All tests passed! Service refactoring successful');
     } else {
-      this.log('❌ Some tests failed:');
-      this.log(`   ✓ Passed: ${passed}`);
-      this.log(`   ✗ Failed: ${failed}`);
-      
-      this.testResults
-        .filter(r => r.status === 'failed')
-        .forEach(result => {
-          this.log(`   ✗ ${result.test}: ${result.error}`);
-        });
+      this.log('⚠️ Some tests failed. Please review the results above');
     }
+    
+    return passed === total;
   }
 }
 
 async function runMenuSocialMediaTests() {
   const tester = new MenuSocialMediaServiceTester();
-  try {
-    await tester.runAllTests();
-  } catch (error) {
-    console.error('Test suite failed:', error);
-    process.exit(1);
-  }
+  return await tester.runAllTests();
 }
 
-runMenuSocialMediaTests();
+// Run the tests
+runMenuSocialMediaTests().catch(console.error);

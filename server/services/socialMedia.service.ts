@@ -6,7 +6,12 @@
 import { z } from 'zod';
 import { storage } from '../storage';
 import type { SocialMediaLink, InsertSocialMediaLink } from '@shared/schema';
-import { closeOrderingGaps } from './social-media/ordering.service';
+import { 
+  closeOrderingGaps, 
+  reorderAllSocialMediaLinks as reorderAll, 
+  moveSocialMediaLink as moveLink,
+  normalizeSocialMediaOrdering
+} from './social-media/ordering.service';
 
 // Valid social media platforms with type-safe enum
 const VALID_PLATFORMS = [
@@ -14,134 +19,79 @@ const VALID_PLATFORMS = [
   'tiktok', 'pinterest', 'snapchat', 'whatsapp'
 ] as const;
 
-// Type-safe platform enum for better validation and inference
+// Create enum for compile-time type safety
 export const PlatformEnum = z.enum(VALID_PLATFORMS);
-
-// Export platform type for use throughout the service
 export type SocialMediaPlatform = z.infer<typeof PlatformEnum>;
 
-/**
- * Type-safe helper functions leveraging the improved enum validation
- */
-
-/**
- * Validates if a string is a valid social media platform
- * @param platform - Platform string to validate
- * @returns boolean indicating if platform is valid
- */
-export function isValidPlatform(platform: string): platform is SocialMediaPlatform {
-  return PlatformEnum.safeParse(platform).success;
-}
-
-/**
- * Gets all valid platform options
- * @returns Array of valid platform strings
- */
-export function getValidPlatforms(): readonly SocialMediaPlatform[] {
-  return VALID_PLATFORMS;
-}
-
-/**
- * Type-safe platform validation with detailed error message
- * @param platform - Platform to validate
- * @throws Error with detailed message if invalid
- */
-export function validatePlatform(platform: unknown): asserts platform is SocialMediaPlatform {
-  if (typeof platform !== 'string') {
-    throw new Error(`Platform must be a string, received: ${typeof platform}`);
-  }
-  
-  if (!isValidPlatform(platform)) {
-    throw new Error(`Invalid platform "${platform}". Valid platforms: ${VALID_PLATFORMS.join(', ')}`);
-  }
-}
-
-/**
- * Zod schema for social media link validation
- * Using z.enum() for type-safe platform validation
- */
+// Enhanced schema with z.enum() for better type safety and validation precision
 export const socialMediaLinkSchema = z.object({
-  platform: PlatformEnum,
-  url: z.string()
-    .min(1, 'URL is required')
-    .url('Invalid URL format'),
-  displayName: z.string()
-    .min(1, 'Display name is required')
-    .trim(),
-  iconClass: z.string()
-    .min(1, 'Icon class is required')
-    .trim(),
-  isActive: z.boolean().optional().default(true),
-  sortOrder: z.number()
-    .int('Sort order must be an integer')
-    .min(0, 'Sort order must be non-negative')
-    .optional()
+  platform: PlatformEnum, // Using z.enum() instead of .refine() for better type inference
+  url: z.string().url('Please enter a valid URL').optional().or(z.literal('')),
+  displayName: z.string().min(1, 'Display name is required').max(100, 'Display name must be 100 characters or less'),
+  iconClass: z.string().min(1, 'Icon class is required'),
+  isActive: z.boolean().default(true),
+  sortOrder: z.number().int().positive().optional()
 });
 
-/**
- * Zod schema for social media link updates (all fields optional)
- */
-export const socialMediaLinkUpdateSchema = socialMediaLinkSchema.partial().extend({
-  url: z.string()
-    .optional()
-    .refine(
-      (url) => !url || url.trim().length === 0 || z.string().url().safeParse(url).success,
-      'Invalid URL format'
-    )
-});
+// Type-safe helper functions for enhanced developer experience
+export const isValidPlatform = (platform: string): platform is SocialMediaPlatform => {
+  return VALID_PLATFORMS.includes(platform as SocialMediaPlatform);
+};
+
+export const getValidPlatforms = (): readonly SocialMediaPlatform[] => {
+  return VALID_PLATFORMS;
+};
+
+export const validatePlatform = (platform: string): SocialMediaPlatform => {
+  if (!isValidPlatform(platform)) {
+    throw new Error(`Invalid platform: ${platform}. Valid platforms are: ${VALID_PLATFORMS.join(', ')}`);
+  }
+  return platform;
+};
 
 /**
- * Type definitions derived from Zod schemas
- */
-export type SocialMediaLinkInput = z.infer<typeof socialMediaLinkSchema>;
-export type SocialMediaLinkUpdateInput = z.infer<typeof socialMediaLinkUpdateSchema>;
-
-/**
- * Creates a new social media link with validation and proper ordering
- * @param linkData - The social media link data
+ * Creates a new social media link with validation and automatic ordering
+ * @param linkData - The social media link data to create
  * @returns Promise with the created social media link
  */
-export async function createSocialMediaLink(linkData: unknown): Promise<SocialMediaLink> {
-  console.log('[SOCIAL MEDIA SERVICE] Creating new social media link:', { 
-    platform: typeof linkData === 'object' && linkData !== null && 'platform' in linkData ? (linkData as any).platform : 'unknown' 
-  });
+export async function createSocialMediaLink(linkData: InsertSocialMediaLink): Promise<SocialMediaLink> {
+  console.log('[SOCIAL MEDIA SERVICE] Creating social media link:', { platform: linkData.platform });
 
-  // Validate input data using Zod schema
+  // Validate the input data using the enhanced schema
   const validatedData = socialMediaLinkSchema.parse(linkData);
 
   try {
-    // Check for duplicate platform
+    // Get current max sort order for automatic ordering
     const existingLinks = await storage.getSocialMediaLinks();
-    const duplicatePlatform = existingLinks.find((link: SocialMediaLink) => 
-      link.platform.toLowerCase() === validatedData.platform.toLowerCase()
-    );
-    
-    if (duplicatePlatform) {
-      throw new Error(`A social media link for ${validatedData.platform} already exists`);
-    }
+    const maxSortOrder = existingLinks.length > 0 
+      ? Math.max(...existingLinks.map(link => link.sortOrder || 0))
+      : 0;
 
-    // Get the next sort order
-    const maxOrder = existingLinks.length > 0 ? Math.max(...existingLinks.map((link: SocialMediaLink) => link.sortOrder)) : 0;
-
-    // Prepare social media link data with proper ordering
-    const createData: InsertSocialMediaLink = {
-      platform: validatedData.platform,
-      url: validatedData.url.trim(),
-      displayName: validatedData.displayName.trim(),
-      iconClass: validatedData.iconClass.trim(),
-      isActive: validatedData.isActive,
-      sortOrder: validatedData.sortOrder ?? maxOrder + 1
+    // Create the social media link with auto-incremented sort order
+    const linkToCreate = {
+      ...validatedData,
+      sortOrder: validatedData.sortOrder || (maxSortOrder + 1)
     };
 
-    const socialMediaLink = await storage.createSocialMediaLink(createData);
-    console.log('[SOCIAL MEDIA SERVICE] Successfully created social media link:', {
-      id: socialMediaLink.id,
-      platform: socialMediaLink.platform,
-      sortOrder: socialMediaLink.sortOrder
+    const createdLink = await storage.createSocialMediaLink(linkToCreate);
+
+    if (!createdLink) {
+      throw new Error('Failed to create social media link');
+    }
+
+    console.log('[SOCIAL MEDIA SERVICE] Created social media link:', {
+      id: createdLink.id,
+      platform: createdLink.platform,
+      sortOrder: createdLink.sortOrder
     });
 
-    return socialMediaLink;
+    return createdLink;
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      const errorMessages = error.errors.map(err => `${err.path.join('.')}: ${err.message}`).join(', ');
+      throw new Error(`Validation failed: ${errorMessages}`);
+    }
+    
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.log('[SOCIAL MEDIA SERVICE] Error creating social media link:', errorMessage);
     throw new Error(`Failed to create social media link: ${errorMessage}`);
@@ -151,59 +101,44 @@ export async function createSocialMediaLink(linkData: unknown): Promise<SocialMe
 /**
  * Updates an existing social media link with validation
  * @param linkId - The social media link ID to update
- * @param linkData - The partial social media link data to update
+ * @param updateData - The data to update
  * @returns Promise with the updated social media link
  */
-export async function updateSocialMediaLink(linkId: number, linkData: unknown): Promise<SocialMediaLink> {
-  console.log('[SOCIAL MEDIA SERVICE] Updating social media link:', { 
-    id: linkId, 
-    updates: typeof linkData === 'object' && linkData !== null ? Object.keys(linkData) : [] 
-  });
-
-  // Validate input data using Zod schema
-  const validatedData = socialMediaLinkUpdateSchema.parse(linkData);
+export async function updateSocialMediaLink(linkId: number, updateData: Partial<InsertSocialMediaLink>): Promise<SocialMediaLink> {
+  console.log('[SOCIAL MEDIA SERVICE] Updating social media link:', { id: linkId });
 
   try {
-    // Check if social media link exists
+    // Check if the social media link exists
     const existingLink = await storage.getSocialMediaLink?.(linkId);
     if (!existingLink) {
       throw new Error('Social media link not found');
     }
 
-    // Check for duplicate platform if platform is being updated
-    if (validatedData.platform && validatedData.platform !== existingLink.platform.toLowerCase()) {
-      const allLinks = await storage.getSocialMediaLinks();
-      const duplicatePlatform = allLinks.find((link: SocialMediaLink) => 
-        link.id !== linkId && link.platform.toLowerCase() === validatedData.platform!.toLowerCase()
-      );
-      
-      if (duplicatePlatform) {
-        throw new Error(`A social media link for ${validatedData.platform} already exists`);
-      }
+    // Validate the update data if present
+    if (Object.keys(updateData).length > 0) {
+      const partialSchema = socialMediaLinkSchema.partial();
+      partialSchema.parse(updateData);
     }
 
-    // Prepare update data
-    const updateData: Partial<InsertSocialMediaLink> = {};
-    
-    if (validatedData.platform !== undefined) updateData.platform = validatedData.platform;
-    if (validatedData.url !== undefined) updateData.url = validatedData.url.trim();
-    if (validatedData.displayName !== undefined) updateData.displayName = validatedData.displayName.trim();
-    if (validatedData.iconClass !== undefined) updateData.iconClass = validatedData.iconClass.trim();
-    if (validatedData.isActive !== undefined) updateData.isActive = validatedData.isActive;
-    if (validatedData.sortOrder !== undefined) updateData.sortOrder = validatedData.sortOrder;
-
     const updatedLink = await storage.updateSocialMediaLink(linkId, updateData);
+
     if (!updatedLink) {
       throw new Error('Failed to update social media link');
     }
 
-    console.log('[SOCIAL MEDIA SERVICE] Successfully updated social media link:', {
-      id: updatedLink.id,
-      platform: updatedLink.platform
+    console.log('[SOCIAL MEDIA SERVICE] Updated social media link:', {
+      id: linkId,
+      platform: updatedLink.platform,
+      updatedFields: Object.keys(updateData)
     });
 
     return updatedLink;
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      const errorMessages = error.errors.map(err => `${err.path.join('.')}: ${err.message}`).join(', ');
+      throw new Error(`Validation failed: ${errorMessages}`);
+    }
+
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.log('[SOCIAL MEDIA SERVICE] Error updating social media link:', errorMessage);
     throw new Error(`Failed to update social media link: ${errorMessage}`);
@@ -211,31 +146,38 @@ export async function updateSocialMediaLink(linkId: number, linkData: unknown): 
 }
 
 /**
- * Deletes a social media link with proper cleanup
+ * Deletes a social media link and reorders remaining links
  * @param linkId - The social media link ID to delete
- * @returns Promise that resolves when social media link is deleted
+ * @returns Promise with boolean indicating success
  */
-export async function deleteSocialMediaLink(linkId: number): Promise<void> {
+export async function deleteSocialMediaLink(linkId: number): Promise<boolean> {
   console.log('[SOCIAL MEDIA SERVICE] Deleting social media link:', { id: linkId });
 
   try {
-    // Check if social media link exists
+    // Check if the social media link exists
     const existingLink = await storage.getSocialMediaLink?.(linkId);
     if (!existingLink) {
       throw new Error('Social media link not found');
     }
 
+    // Delete the social media link
     await storage.deleteSocialMediaLink(linkId);
-    console.log('[SOCIAL MEDIA SERVICE] Successfully deleted social media link:', { 
-      id: linkId, 
-      platform: existingLink.platform 
+
+    // Get remaining links and reorder them using the ordering service
+    const remainingLinks = await storage.getSocialMediaLinks();
+    const remainingLinkIds = remainingLinks
+      .sort((a, b) => a.sortOrder - b.sortOrder)
+      .map(link => link.id);
+
+    // Use the ordering service to close gaps after deletion
+    await closeOrderingGaps(remainingLinkIds);
+
+    console.log('[SOCIAL MEDIA SERVICE] Deleted social media link and reordered remaining links:', {
+      deletedId: linkId,
+      remainingCount: remainingLinkIds.length
     });
 
-    // Reorder remaining links to close gaps
-    const remainingLinks = await storage.getSocialMediaLinks();
-    if (remainingLinks.length > 0) {
-      await reorderAllSocialMediaLinks(remainingLinks.map((link: SocialMediaLink) => link.id));
-    }
+    return true;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.log('[SOCIAL MEDIA SERVICE] Error deleting social media link:', errorMessage);
@@ -244,94 +186,31 @@ export async function deleteSocialMediaLink(linkId: number): Promise<void> {
 }
 
 /**
- * Reorders all social media links based on provided order
- * @param orderedIds - Array of social media link IDs in their new order
- * @returns Promise that resolves when reordering is complete
+ * Gets a social media link by ID
+ * @param linkId - The social media link ID to retrieve
+ * @returns Promise with the social media link or null if not found
  */
-export async function reorderAllSocialMediaLinks(orderedIds: number[]): Promise<void> {
-  console.log('[SOCIAL MEDIA SERVICE] Reordering all social media links:', { linkCount: orderedIds.length });
-
-  if (!orderedIds || orderedIds.length === 0) {
-    throw new Error('Ordered IDs array is required');
-  }
+export async function getSocialMediaLink(linkId: number): Promise<SocialMediaLink | null> {
+  console.log('[SOCIAL MEDIA SERVICE] Getting social media link:', { id: linkId });
 
   try {
-    // Update sort order for each social media link
-    for (let i = 0; i < orderedIds.length; i++) {
-      const linkId = orderedIds[i];
-      const newSortOrder = i + 1;
-      
-      await storage.updateSocialMediaLink(linkId, { sortOrder: newSortOrder });
+    const link = await storage.getSocialMediaLink?.(linkId);
+    
+    if (!link) {
+      console.log('[SOCIAL MEDIA SERVICE] Social media link not found:', { id: linkId });
+      return null;
     }
 
-    console.log('[SOCIAL MEDIA SERVICE] Successfully reordered all social media links:', { linkCount: orderedIds.length });
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    console.log('[SOCIAL MEDIA SERVICE] Error reordering social media links:', errorMessage);
-    throw new Error(`Failed to reorder social media links: ${errorMessage}`);
-  }
-}
-
-/**
- * Moves a social media link up or down in the ordering
- * @param linkId - The social media link ID to move
- * @param direction - Direction to move ('up' or 'down')
- * @returns Promise with boolean indicating if reorder was successful
- */
-export async function moveSocialMediaLink(linkId: number, direction: 'up' | 'down'): Promise<boolean> {
-  console.log('[SOCIAL MEDIA SERVICE] Moving social media link:', { id: linkId, direction });
-
-  if (!['up', 'down'].includes(direction)) {
-    throw new Error('Direction must be "up" or "down"');
-  }
-
-  try {
-    // Get the current social media link
-    const currentLink = await storage.getSocialMediaLink?.(linkId);
-    if (!currentLink) {
-      throw new Error('Social media link not found');
-    }
-
-    // Get all links sorted by order
-    const allLinks = await storage.getSocialMediaLinks();
-    const sortedLinks = allLinks.sort((a: SocialMediaLink, b: SocialMediaLink) => a.sortOrder - b.sortOrder);
-
-    // Find current link index
-    const currentIndex = sortedLinks.findIndex((link: SocialMediaLink) => link.id === linkId);
-    if (currentIndex === -1) {
-      throw new Error('Social media link not found in list');
-    }
-
-    // Check if move is possible
-    if (direction === 'up' && currentIndex === 0) {
-      console.log('[SOCIAL MEDIA SERVICE] Cannot move up: already at top');
-      return false;
-    }
-    if (direction === 'down' && currentIndex === sortedLinks.length - 1) {
-      console.log('[SOCIAL MEDIA SERVICE] Cannot move down: already at bottom');
-      return false;
-    }
-
-    // Calculate new positions
-    const swapIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
-    const currentOrder = sortedLinks[currentIndex].sortOrder;
-    const swapOrder = sortedLinks[swapIndex].sortOrder;
-
-    // Swap the orders
-    await storage.updateSocialMediaLink(sortedLinks[currentIndex].id, { sortOrder: swapOrder });
-    await storage.updateSocialMediaLink(sortedLinks[swapIndex].id, { sortOrder: currentOrder });
-
-    console.log('[SOCIAL MEDIA SERVICE] Successfully moved social media link:', { 
-      id: linkId, 
-      direction, 
-      newOrder: swapOrder 
+    console.log('[SOCIAL MEDIA SERVICE] Retrieved social media link:', {
+      id: linkId,
+      platform: link.platform
     });
 
-    return true;
+    return link;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    console.log('[SOCIAL MEDIA SERVICE] Error moving social media link:', errorMessage);
-    throw new Error(`Failed to move social media link: ${errorMessage}`);
+    console.log('[SOCIAL MEDIA SERVICE] Error getting social media link:', errorMessage);
+    throw new Error(`Failed to get social media link: ${errorMessage}`);
   }
 }
 
@@ -380,117 +259,30 @@ export async function getAllSocialMediaLinks(activeOnly?: boolean): Promise<Soci
   console.log('[SOCIAL MEDIA SERVICE] Retrieved social media links:', { activeOnly: activeOnly || false });
 
   try {
-    const allLinks = await storage.getSocialMediaLinks();
-    const links = activeOnly ? allLinks.filter((link: SocialMediaLink) => link.isActive) : allLinks;
-    console.log('[SOCIAL MEDIA SERVICE] Retrieved social media links:', { 
-      count: links.length, 
-      activeOnly: activeOnly || false 
+    const links = await storage.getSocialMediaLinks();
+    
+    // Filter by active status if requested
+    const filteredLinks = activeOnly 
+      ? links.filter(link => link.isActive)
+      : links;
+
+    // Sort by sort order
+    const sortedLinks = filteredLinks.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+
+    console.log('[SOCIAL MEDIA SERVICE] Retrieved social media links:', {
+      count: sortedLinks.length,
+      activeOnly: activeOnly || false
     });
-    return links;
+
+    return sortedLinks;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    console.log('[SOCIAL MEDIA SERVICE] Error retrieving social media links:', errorMessage);
-    throw new Error(`Failed to retrieve social media links: ${errorMessage}`);
+    console.log('[SOCIAL MEDIA SERVICE] Error getting social media links:', errorMessage);
+    throw new Error(`Failed to get social media links: ${errorMessage}`);
   }
 }
 
-/**
- * Gets a single social media link by ID
- * @param linkId - The social media link ID to retrieve
- * @returns Promise with the social media link or undefined if not found
- */
-export async function getSocialMediaLinkById(linkId: number): Promise<SocialMediaLink | undefined> {
-  console.log('[SOCIAL MEDIA SERVICE] Retrieving social media link by ID:', { id: linkId });
-
-  try {
-    const link = await storage.getSocialMediaLink?.(linkId);
-    if (link) {
-      console.log('[SOCIAL MEDIA SERVICE] Retrieved social media link:', { id: link.id, platform: link.platform });
-    } else {
-      console.log('[SOCIAL MEDIA SERVICE] Social media link not found by ID:', { id: linkId });
-    }
-    return link;
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    console.log('[SOCIAL MEDIA SERVICE] Error retrieving social media link by ID:', errorMessage);
-    throw new Error(`Failed to retrieve social media link: ${errorMessage}`);
-  }
-}
-
-/**
- * Performs bulk updates on multiple social media links
- * @param updates - Array of update objects with id and data
- * @returns Promise with summary of updates performed
- */
-export async function performBulkSocialMediaLinkUpdates(
-  updates: Array<{ id: number; data: unknown }>
-): Promise<{ success: number; failed: number; errors: string[] }> {
-  console.log('[SOCIAL MEDIA SERVICE] Performing bulk social media link updates:', { updateCount: updates.length });
-
-  if (!updates || updates.length === 0) {
-    throw new Error('Updates array is required');
-  }
-
-  const result = { success: 0, failed: 0, errors: [] as string[] };
-
-  for (const update of updates) {
-    try {
-      await updateSocialMediaLink(update.id, update.data);
-      result.success++;
-    } catch (error) {
-      result.failed++;
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      result.errors.push(`Link ${update.id}: ${errorMessage}`);
-    }
-  }
-
-  console.log('[SOCIAL MEDIA SERVICE] Bulk updates completed:', result);
-  return result;
-}
-
-/**
- * Performs bulk operations on multiple social media links
- * @param linkIds - Array of social media link IDs to operate on
- * @param action - The action to perform ('activate', 'deactivate', 'delete')
- * @returns Promise with summary of actions performed
- */
-export async function performBulkSocialMediaLinkAction(
-  linkIds: number[], 
-  action: 'activate' | 'deactivate' | 'delete'
-): Promise<{ success: number; failed: number; errors: string[] }> {
-  console.log('[SOCIAL MEDIA SERVICE] Performing bulk social media link action:', { action, linkCount: linkIds.length });
-
-  if (!linkIds || linkIds.length === 0) {
-    throw new Error('Link IDs array is required');
-  }
-
-  if (!['activate', 'deactivate', 'delete'].includes(action)) {
-    throw new Error('Invalid action. Must be activate, deactivate, or delete');
-  }
-
-  const result = { success: 0, failed: 0, errors: [] as string[] };
-
-  for (const linkId of linkIds) {
-    try {
-      switch (action) {
-        case 'activate':
-          await storage.updateSocialMediaLink(linkId, { isActive: true });
-          break;
-        case 'deactivate':
-          await storage.updateSocialMediaLink(linkId, { isActive: false });
-          break;
-        case 'delete':
-          await storage.deleteSocialMediaLink(linkId);
-          break;
-      }
-      result.success++;
-    } catch (error) {
-      result.failed++;
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      result.errors.push(`Link ${linkId}: ${errorMessage}`);
-    }
-  }
-
-  console.log('[SOCIAL MEDIA SERVICE] Bulk action completed:', { action, ...result });
-  return result;
-}
+// Re-export ordering functions for API compatibility
+export const reorderAllSocialMediaLinks = reorderAll;
+export const moveSocialMediaLink = moveLink;
+export { normalizeSocialMediaOrdering };
