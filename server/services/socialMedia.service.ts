@@ -111,7 +111,7 @@ export async function createSocialMediaLink(linkData: unknown): Promise<SocialMe
   try {
     // Check for duplicate platform
     const existingLinks = await storage.getSocialMediaLinks();
-    const duplicatePlatform = existingLinks.find(link => 
+    const duplicatePlatform = existingLinks.find((link: SocialMediaLink) => 
       link.platform.toLowerCase() === validatedData.platform.toLowerCase()
     );
     
@@ -120,7 +120,7 @@ export async function createSocialMediaLink(linkData: unknown): Promise<SocialMe
     }
 
     // Get the next sort order
-    const maxOrder = existingLinks.length > 0 ? Math.max(...existingLinks.map(link => link.sortOrder)) : 0;
+    const maxOrder = existingLinks.length > 0 ? Math.max(...existingLinks.map((link: SocialMediaLink) => link.sortOrder)) : 0;
 
     // Prepare social media link data with proper ordering
     const createData: InsertSocialMediaLink = {
@@ -172,7 +172,7 @@ export async function updateSocialMediaLink(linkId: number, linkData: unknown): 
     // Check for duplicate platform if platform is being updated
     if (validatedData.platform && validatedData.platform !== existingLink.platform.toLowerCase()) {
       const allLinks = await storage.getSocialMediaLinks();
-      const duplicatePlatform = allLinks.find(link => 
+      const duplicatePlatform = allLinks.find((link: SocialMediaLink) => 
         link.id !== linkId && link.platform.toLowerCase() === validatedData.platform!.toLowerCase()
       );
       
@@ -233,7 +233,7 @@ export async function deleteSocialMediaLink(linkId: number): Promise<void> {
     // Reorder remaining links to close gaps
     const remainingLinks = await storage.getSocialMediaLinks();
     if (remainingLinks.length > 0) {
-      await reorderAllSocialMediaLinks(remainingLinks.map(link => link.id));
+      await reorderAllSocialMediaLinks(remainingLinks.map((link: SocialMediaLink) => link.id));
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
@@ -293,10 +293,10 @@ export async function moveSocialMediaLink(linkId: number, direction: 'up' | 'dow
 
     // Get all links sorted by order
     const allLinks = await storage.getSocialMediaLinks();
-    const sortedLinks = allLinks.sort((a, b) => a.sortOrder - b.sortOrder);
+    const sortedLinks = allLinks.sort((a: SocialMediaLink, b: SocialMediaLink) => a.sortOrder - b.sortOrder);
 
     // Find current link index
-    const currentIndex = sortedLinks.findIndex(link => link.id === linkId);
+    const currentIndex = sortedLinks.findIndex((link: SocialMediaLink) => link.id === linkId);
     if (currentIndex === -1) {
       throw new Error('Social media link not found in list');
     }
@@ -380,7 +380,7 @@ export async function getAllSocialMediaLinks(activeOnly?: boolean): Promise<Soci
 
   try {
     const allLinks = await storage.getSocialMediaLinks();
-    const links = activeOnly ? allLinks.filter(link => link.isActive) : allLinks;
+    const links = activeOnly ? allLinks.filter((link: SocialMediaLink) => link.isActive) : allLinks;
     console.log('[SOCIAL MEDIA SERVICE] Retrieved social media links:', { 
       count: links.length, 
       activeOnly: activeOnly || false 
