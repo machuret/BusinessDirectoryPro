@@ -36,4 +36,7 @@ console.warn = (...args) => {
   originalConsoleWarn.apply(console, args);
 };
 
+// Initialize comprehensive error prevention system
+initializeErrorPrevention();
+
 createRoot(document.getElementById("root")!).render(<App />);
