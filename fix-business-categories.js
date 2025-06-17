@@ -3,45 +3,85 @@
  * Map mismatched category names to official categories
  */
 
-import { pool } from "./server/db.ts";
+async function makeRequest(method, path, data = null) {
+  const url = `http://localhost:5000${path}`;
+  const options = {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+  };
+  
+  if (data) {
+    options.body = JSON.stringify(data);
+  }
+  
+  const response = await fetch(url, options);
+  return response.json();
+}
 
 async function fixBusinessCategories() {
-  const client = await pool.connect();
+  console.log('Fixing business category inconsistencies...');
   
   try {
-    console.log('Fixing business category inconsistencies...');
+    // Get all businesses to see current category distribution
+    const businesses = await makeRequest('GET', '/api/businesses');
+    
+    console.log('Current category distribution:');
+    const categoryCount = {};
+    businesses.forEach(business => {
+      const category = business.categoryname;
+      categoryCount[category] = (categoryCount[category] || 0) + 1;
+    });
+    
+    Object.entries(categoryCount).forEach(([category, count]) => {
+      console.log(`  ${category}: ${count} businesses`);
+    });
     
     // Map mismatched categories to official ones
-    const categoryMappings = [
-      { from: 'Dental clinic', to: 'Dentist' },
-      { from: 'Orthodontist', to: 'Orthodontist in Pekin' },
-      { from: 'Mexican restaurant', to: 'Restaurants' },
-      { from: 'Restaurant', to: 'Restaurants' }
-    ];
+    const categoryMappings = {
+      'Dental clinic': 'Dentist',
+      'Orthodontist': 'Orthodontist in Pekin', 
+      'Mexican restaurant': 'Restaurants',
+      'Restaurant': 'Restaurants'
+    };
     
-    for (const mapping of categoryMappings) {
-      const result = await client.query(
-        'UPDATE businesses SET categoryname = $1 WHERE categoryname = $2',
-        [mapping.to, mapping.from]
-      );
+    console.log('\nUpdating categories...');
+    
+    // Update each business that needs category correction
+    for (const business of businesses) {
+      const currentCategory = business.categoryname;
+      const newCategory = categoryMappings[currentCategory];
       
-      console.log(`✓ Updated ${result.rowCount} businesses from "${mapping.from}" to "${mapping.to}"`);
+      if (newCategory) {
+        try {
+          // Update the business category
+          const updateData = {
+            ...business,
+            categoryname: newCategory
+          };
+          
+          await makeRequest('PUT', `/api/businesses/${business.placeid}`, updateData);
+          console.log(`✓ Updated "${business.title}" from "${currentCategory}" to "${newCategory}"`);
+        } catch (error) {
+          console.log(`❌ Failed to update "${business.title}": ${error.message}`);
+        }
+      }
     }
     
     // Verify the changes
-    const categories = await client.query(
-      'SELECT categoryname, COUNT(*) as count FROM businesses GROUP BY categoryname ORDER BY categoryname'
-    );
+    const updatedBusinesses = await makeRequest('GET', '/api/businesses');
+    const updatedCategoryCount = {};
+    updatedBusinesses.forEach(business => {
+      const category = business.categoryname;
+      updatedCategoryCount[category] = (updatedCategoryCount[category] || 0) + 1;
+    });
     
-    console.log('\n📋 Updated category distribution:');
-    categories.rows.forEach(row => {
-      console.log(`  ${row.categoryname}: ${row.count} businesses`);
+    console.log('\nUpdated category distribution:');
+    Object.entries(updatedCategoryCount).forEach(([category, count]) => {
+      console.log(`  ${category}: ${count} businesses`);
     });
     
   } catch (error) {
-    console.error('❌ Error:', error);
-  } finally {
-    client.release();
+    console.error('Error:', error);
   }
 }
 
