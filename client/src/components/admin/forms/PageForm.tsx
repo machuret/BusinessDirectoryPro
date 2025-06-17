@@ -31,6 +31,54 @@ interface PageFormProps {
   onCancel?: () => void;
 }
 
+/**
+ * PageForm - A comprehensive form component for creating and editing pages, blog posts, and help articles with rich text editing capabilities.
+ * 
+ * This component provides a complete content management interface with form validation, 
+ * SEO metadata fields, rich text editing via ReactQuill, and flexible submission handling.
+ * Supports both creation and editing workflows with proper form state management and validation.
+ * 
+ * @param onSubmit - Callback function triggered when form is submitted with valid data
+ * @param initialValues - Optional initial form values for editing existing pages. When provided, populates form fields with existing data
+ * @param isSubmitting - Optional boolean indicating form submission state. Defaults to false. Controls button disabled state and loading text
+ * @param submitLabel - Optional custom text for submit button. Defaults to "Save Page". Allows customization for different contexts
+ * @param showCancel - Optional boolean to display cancel button. Defaults to false. Useful in modal or multi-step workflows
+ * @param onCancel - Optional callback function for cancel button click. Required when showCancel is true
+ * 
+ * @returns JSX.Element - A responsive form with title, slug, content (rich text), meta description, meta keywords, type selection, and status controls
+ * 
+ * @example
+ * // Creating a new page
+ * <PageForm 
+ *   onSubmit={(data) => createPage(data)}
+ *   submitLabel="Create Page"
+ * />
+ * 
+ * @example
+ * // Editing an existing page with cancel option
+ * <PageForm 
+ *   onSubmit={(data) => updatePage(pageId, data)}
+ *   initialValues={{
+ *     title: "About Us",
+ *     slug: "about-us",
+ *     content: "<p>Welcome to our company...</p>",
+ *     status: "published",
+ *     type: "page"
+ *   }}
+ *   isSubmitting={mutation.isPending}
+ *   submitLabel="Update Page"
+ *   showCancel={true}
+ *   onCancel={() => setIsEditing(false)}
+ * />
+ * 
+ * @example
+ * // Creating a blog post
+ * <PageForm 
+ *   onSubmit={(data) => createBlogPost(data)}
+ *   initialValues={{ type: "blog", status: "draft" }}
+ *   submitLabel="Save Draft"
+ * />
+ */
 export default function PageForm({
   onSubmit,
   initialValues,
