@@ -5,7 +5,7 @@ import { useContent } from "@/contexts/ContentContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2, FileText, Star } from "lucide-react";
-import type { BusinessWithCategory } from "@shared/schema";
+import type { BusinessWithCategory, User } from "@shared/schema";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import BusinessesSection from "@/components/dashboard/BusinessesSection";
@@ -13,7 +13,7 @@ import ClaimsSection from "@/components/dashboard/ClaimsSection";
 import FeaturedRequestsSection from "@/components/dashboard/FeaturedRequestsSection";
 
 export default function Dashboard() {
-  const { user } = useAuth();
+  const { user } = useAuth() as { user: User | null };
   const { t } = useContent();
   const [activeTab, setActiveTab] = useState("businesses");
 
@@ -24,7 +24,7 @@ export default function Dashboard() {
   });
 
   const { data: ownershipClaims, isLoading: claimsLoading } = useQuery<any[]>({
-    queryKey: [`/api/ownership-claims/user/${user?.id}`],
+    queryKey: [`/api/ownership-claims/user/${user?.id || ''}`],
     enabled: !!user?.id,
   });
 
@@ -94,7 +94,7 @@ export default function Dashboard() {
           {/* Featured Requests Tab */}
           <TabsContent value="featured" className="space-y-6">
             <FeaturedRequestsSection 
-              userId={user.id} 
+              userId={user?.id || ''} 
               userBusinesses={ownedBusinesses || []} 
             />
           </TabsContent>
