@@ -73,6 +73,27 @@ export default function AdminSettingsPage() {
     },
   });
 
+  // Test Azure Blob Storage connection
+  const testAzureMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/admin/azure-blob/test");
+      return res.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Connection Test Successful",
+        description: data.message,
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Connection Test Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   // File upload mutation
   const uploadFileMutation = useMutation({
     mutationFn: async ({ file, type }: { file: File; type: 'logo' | 'background' }) => {
@@ -225,15 +246,28 @@ export default function AdminSettingsPage() {
                   />
                 </div>
 
-                <Button 
-                  type="button" 
-                  onClick={handleSaveAzureSettings}
-                  disabled={updateSettingMutation.isPending}
-                  className="w-full md:w-auto"
-                >
-                  <Save className="w-4 h-4 mr-2" />
-                  Save Azure Configuration
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Button 
+                    type="button" 
+                    onClick={handleSaveAzureSettings}
+                    disabled={updateSettingMutation.isPending}
+                    className="flex-1 sm:flex-none"
+                  >
+                    <Save className="w-4 h-4 mr-2" />
+                    Save Azure Configuration
+                  </Button>
+                  
+                  <Button 
+                    type="button" 
+                    variant="outline"
+                    onClick={() => testAzureMutation.mutate()}
+                    disabled={testAzureMutation.isPending}
+                    className="flex-1 sm:flex-none"
+                  >
+                    <Eye className="w-4 h-4 mr-2" />
+                    {testAzureMutation.isPending ? "Testing..." : "Test Connection"}
+                  </Button>
+                </div>
               </form>
             </CardContent>
           </Card>
