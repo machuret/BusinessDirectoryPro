@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useParams, useLocation } from "wouter";
 import { Search, Filter, MapPin, Grid, List, ChevronDown, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +12,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { BusinessWithCategory, CategoryWithCount } from "@shared/schema";
 
 export default function BusinessesPage() {
+  const params = useParams();
+  const [location] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedCity, setSelectedCity] = useState<string>("");
@@ -19,6 +22,17 @@ export default function BusinessesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
   const itemsPerPage = 12;
+
+  // Initialize filters based on URL params
+  useEffect(() => {
+    if (params.categorySlug) {
+      // Route: /businesses/category/:categorySlug
+      setSelectedCategory(params.categorySlug);
+    } else if (params.cityName) {
+      // Route: /businesses/city/:cityName
+      setSelectedCity(decodeURIComponent(params.cityName));
+    }
+  }, [params.categorySlug, params.cityName]);
 
   // Fetch categories for filter dropdown
   const { data: categories = [] } = useQuery<CategoryWithCount[]>({

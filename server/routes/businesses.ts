@@ -201,6 +201,29 @@ export function setupBusinessRoutes(app: Express) {
     }
   });
 
+  // Get businesses by city name (public) - for clean city URLs
+  app.get("/api/businesses/city/:cityName", async (req, res) => {
+    try {
+      const { cityName } = req.params;
+      const { limit = 20, offset = 0 } = req.query;
+      
+      const businesses = await storage.getBusinesses({
+        city: decodeURIComponent(cityName),
+        limit: parseInt(limit as string),
+        offset: parseInt(offset as string)
+      });
+      
+      res.json({
+        city: decodeURIComponent(cityName),
+        businesses,
+        total: businesses.length
+      });
+    } catch (error) {
+      console.error("Error fetching businesses by city:", error);
+      res.status(500).send("Internal server error");
+    }
+  });
+
   // Create business (public for demo)
   app.post("/api/businesses", async (req: any, res) => {
     try {

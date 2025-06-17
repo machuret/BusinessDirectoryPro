@@ -142,6 +142,10 @@ function Router() {
       <Route path="/categories/:slug" component={Categories} />
       <Route path="/cities" component={Cities} />
       <Route path="/cities/:city" component={Cities} />
+      
+      {/* Clean city URLs - e.g., /Coorparoo */}
+      <Route path="/businesses/category/:categorySlug" component={BusinessesPage} />
+      <Route path="/businesses/city/:cityName" component={BusinessesPage} />
       <Route path="/featured" component={Featured} />
       <Route path="/businesses" component={BusinessesPage} />
       <Route path="/search" component={SearchResults} />
