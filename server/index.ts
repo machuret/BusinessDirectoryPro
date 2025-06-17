@@ -10,6 +10,7 @@ import {
   getSessionConfig, 
   getCORSConfig, 
   getSecurityConfig, 
+  getEnvironmentConfig,
   validateEnvironment, 
   logConfiguration 
 } from "./config/environment";
@@ -115,7 +116,6 @@ app.get('/health', (req, res) => {
 
 // Configuration health check endpoint
 app.get('/api/health/config', (req, res) => {
-  const { getEnvironmentConfig } = require('./config/environment');
   const config = getEnvironmentConfig();
   
   res.json({
