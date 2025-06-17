@@ -1,0 +1,85 @@
+api/auth/user:1 
+            
+            
+           Failed to load resource: the server responded with a status of 401 ()Understand this error
+index-Cg2pWv-p.js:94 
+            
+            
+           GET https://business-directory-pro-gmachuret.replit.app/api/user/businesses 500 (Internal Server Error)
+window.fetch @ index-Cg2pWv-p.js:94
+(anonymous) @ index-Cg2pWv-p.js:49
+o @ index-Cg2pWv-p.js:49
+x @ index-Cg2pWv-p.js:49
+start @ index-Cg2pWv-p.js:49
+fetch @ index-Cg2pWv-p.js:49
+Qr @ index-Cg2pWv-p.js:49
+onSubscribe @ index-Cg2pWv-p.js:49
+subscribe @ index-Cg2pWv-p.js:49
+(anonymous) @ index-Cg2pWv-p.js:49
+af @ index-Cg2pWv-p.js:39
+Wo @ index-Cg2pWv-p.js:41
+Xn @ index-Cg2pWv-p.js:41
+Ja @ index-Cg2pWv-p.js:41
+sn @ index-Cg2pWv-p.js:39
+ny @ index-Cg2pWv-p.js:41
+dn @ index-Cg2pWv-p.js:41
+$f @ index-Cg2pWv-p.js:41
+_ @ index-Cg2pWv-p.js:26
+U @ index-Cg2pWv-p.js:26Understand this error
+index-Cg2pWv-p.js:94 
+            
+            
+           GET https://business-directory-pro-gmachuret.replit.app/api/ownership-claims/user/demo-admin 500 (Internal Server Error)
+window.fetch @ index-Cg2pWv-p.js:94
+(anonymous) @ index-Cg2pWv-p.js:49
+o @ index-Cg2pWv-p.js:49
+x @ index-Cg2pWv-p.js:49
+start @ index-Cg2pWv-p.js:49
+fetch @ index-Cg2pWv-p.js:49
+Qr @ index-Cg2pWv-p.js:49
+onSubscribe @ index-Cg2pWv-p.js:49
+subscribe @ index-Cg2pWv-p.js:49
+(anonymous) @ index-Cg2pWv-p.js:49
+af @ index-Cg2pWv-p.js:39
+Wo @ index-Cg2pWv-p.js:41
+Xn @ index-Cg2pWv-p.js:41
+Ja @ index-Cg2pWv-p.js:41
+sn @ index-Cg2pWv-p.js:39
+ny @ index-Cg2pWv-p.js:41
+dn @ index-Cg2pWv-p.js:41
+$f @ index-Cg2pWv-p.js:41
+_ @ index-Cg2pWv-p.js:26
+U @ index-Cg2pWv-p.js:26Understand this error
+index-Cg2pWv-p.js:41 
+            
+            
+           GET https://business-directory-pro-gmachuret.replit.app/assets/user-check-D0Q_AQVf.js net::ERR_ABORTED 503 (Service Unavailable)
+(anonymous) @ index-Cg2pWv-p.js:41
+Z @ index-Cg2pWv-p.js:41
+(anonymous) @ index-Cg2pWv-p.js:94
+eh @ index-Cg2pWv-p.js:10
+La @ index-Cg2pWv-p.js:39
+E @ index-Cg2pWv-p.js:39
+Ce @ index-Cg2pWv-p.js:41
+hl @ index-Cg2pWv-p.js:41
+Kf @ index-Cg2pWv-p.js:41
+Bf @ index-Cg2pWv-p.js:41
+ey @ index-Cg2pWv-p.js:41
+zo @ index-Cg2pWv-p.js:41
+Ja @ index-Cg2pWv-p.js:41
+sn @ index-Cg2pWv-p.js:39
+(anonymous) @ index-Cg2pWv-p.js:41Understand this error
+index-Cg2pWv-p.js:94 TypeError: Failed to fetch dynamically imported module: https://business-directory-pro-gmachuret.replit.app/assets/AdminLayout-C56xsJ-D.js
+console.error @ index-Cg2pWv-p.js:94
+pl @ index-Cg2pWv-p.js:41
+Pf.o.componentDidCatch.n.callback @ index-Cg2pWv-p.js:41
+Ia @ index-Cg2pWv-p.js:39
+Ya @ index-Cg2pWv-p.js:41
+Qf @ index-Cg2pWv-p.js:41
+Xm @ index-Cg2pWv-p.js:41
+ny @ index-Cg2pWv-p.js:41
+dn @ index-Cg2pWv-p.js:41
+$f @ index-Cg2pWv-p.js:41
+_ @ index-Cg2pWv-p.js:26
+U @ index-Cg2pWv-p.js:26Understand this error
+index-Cg2pWv-p.js:94 ErrorBoundary caught an error: TypeError: Failed to fetch dynamically imported module: https://business-directory-pro-gmachuret.replit.app/assets/AdminLayout-C56xsJ-D.js {componentStack: '\n    at Re (https://business-directory-pro-gmachur…ret.replit.app/assets/index-Cg2pWv-p.js:94:14652)'}
