@@ -88,6 +88,17 @@ export default function Categories() {
   const currentBusinesses = (slug || categoryParam) ? businesses : allBusinesses;
   const isLoadingBusinesses = (slug || categoryParam) ? businessesLoading : allBusinessesLoading;
 
+  // Debug logging
+  console.log('Categories Debug:', {
+    slug,
+    categoryParam,
+    currentCategory,
+    businesses,
+    businessesLoading,
+    currentBusinesses,
+    isLoadingBusinesses
+  });
+
   return (
     <div className="min-h-screen bg-gray-50">
       <SEOHead 
