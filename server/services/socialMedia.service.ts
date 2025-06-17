@@ -12,6 +12,13 @@ import {
   moveSocialMediaLink as moveLink,
   normalizeSocialMediaOrdering
 } from './social-media/ordering.service';
+import {
+  performBulkSocialMediaLinkUpdates as bulkUpdates,
+  performBulkSocialMediaLinkAction as bulkAction,
+  performBulkSocialMediaLinkToggle as bulkToggle,
+  validateBulkOperationData,
+  formatBulkOperationResponse
+} from './social-media/bulk-operations.service';
 
 // Valid social media platforms with type-safe enum
 const VALID_PLATFORMS = [
@@ -286,3 +293,9 @@ export async function getAllSocialMediaLinks(activeOnly?: boolean): Promise<Soci
 export const reorderAllSocialMediaLinks = reorderAll;
 export const moveSocialMediaLink = moveLink;
 export { normalizeSocialMediaOrdering };
+
+// Re-export bulk operations functions for API compatibility
+export const performBulkSocialMediaLinkUpdates = bulkUpdates;
+export const performBulkSocialMediaLinkAction = bulkAction;
+export const performBulkSocialMediaLinkToggle = bulkToggle;
+export { validateBulkOperationData, formatBulkOperationResponse };
