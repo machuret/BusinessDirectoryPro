@@ -1,71 +1,117 @@
 import { Route } from "wouter";
-import Home from "@/pages/home";
-import Categories from "@/pages/categories";
-import Cities from "@/pages/cities";
-import Featured from "@/pages/featured";
-import BusinessDetailRefactored from "@/pages/business-detail-refactored";
-import BusinessListing from "@/pages/business-listing";
-import SearchResults from "@/pages/search-results";
-import PageDisplay from "@/pages/page-display";
-import Login from "@/pages/login-migrated";
-import AddBusiness from "@/pages/add-business";
-import BusinessesPage from "@/pages/businesses";
-import SlugRouter from "@/components/SlugRouter";
+import { lazy, Suspense } from "react";
+import { LoadingState } from "@/components/loading/LoadingState";
 
-// Common Australian cities for direct routing
-const COMMON_CITIES = [
-  'Brisbane', 'Sydney', 'Melbourne', 'Adelaide', 'Perth', 'Darwin', 'Hobart', 'Canberra',
-  'Gold-Coast', 'Sunshine-Coast', 'Newcastle', 'Wollongong', 'Geelong', 'Townsville',
-  'Cairns', 'Toowoomba', 'Ballarat', 'Bendigo', 'Albury', 'Launceston', 'Mackay',
-  'Rockhampton', 'Bunbury', 'Bundaberg', 'Coffs-Harbour', 'Wagga-Wagga', 'Hervey-Bay',
-  'Mildura', 'Shepparton', 'Port-Macquarie', 'Gladstone', 'Tamworth', 'Traralgon',
-  'Orange', 'Bowral', 'Geraldton', 'Dubbo', 'Nowra', 'Warrnambool', 'Kalgoorlie',
-  'Whyalla', 'Murray-Bridge', 'Devonport', 'Burnie', 'Alice-Springs', 'Mount-Gambier',
-  'Lismore', 'Nelson-Bay', 'Victor-Harbor', 'Goulburn', 'Taree', 'Coorparoo',
-  'Woolloongabba', 'South-Brisbane', 'Fortitude-Valley', 'New-Farm', 'Paddington',
-  'Milton', 'Toowong', 'St-Lucia', 'Indooroopilly', 'Chermside', 'Carindale', 'Garden-City'
-];
+// Lazy load components for better performance
+const Home = lazy(() => import("@/pages/home"));
+const Categories = lazy(() => import("@/pages/categories"));
+const Cities = lazy(() => import("@/pages/cities"));
+const BusinessesPage = lazy(() => import("@/pages/businesses"));
+const Featured = lazy(() => import("@/pages/featured"));
+const SearchResults = lazy(() => import("@/pages/search-results"));
+const PageDisplay = lazy(() => import("@/pages/page-display"));
+const Login = lazy(() => import("@/pages/login"));
+const AddBusiness = lazy(() => import("@/pages/add-business"));
+
+function PublicSuspense({ children }: { children: React.ReactNode }) {
+  return (
+    <Suspense fallback={<LoadingState variant="spinner" size="lg" message="Loading page..." />}>
+      {children}
+    </Suspense>
+  );
+}
 
 export function PublicRoutes() {
   return (
     <>
-      {/* Core public routes */}
-      <Route path="/" component={Home} />
-      <Route path="/categories" component={Categories} />
-      <Route path="/categories/:slug" component={Categories} />
-      <Route path="/cities" component={Cities} />
-      <Route path="/cities/:city" component={Cities} />
-      
-      {/* Clean URLs for categories and cities */}
-      <Route path="/businesses/category/:categorySlug" component={BusinessesPage} />
-      <Route path="/businesses/city/:cityName" component={BusinessesPage} />
-      
-      {/* Direct city access - e.g., /Coorparoo, /Brisbane */}
-      <Route path="/:cityName" component={(props) => {
-        const cityName = props.params.cityName;
-        
-        if (COMMON_CITIES.includes(cityName) || cityName.includes('-')) {
-          return <BusinessesPage />;
-        }
-        
-        // If not a recognized city, let it fall through to SlugRouter
-        return null;
-      }} />
-      
-      {/* Business and search routes */}
-      <Route path="/featured" component={Featured} />
-      <Route path="/businesses" component={BusinessesPage} />
-      <Route path="/search" component={SearchResults} />
-      <Route path="/pages/:slug" component={PageDisplay} />
-      <Route path="/login" component={Login} />
-      <Route path="/add-business" component={AddBusiness} />
-      
-      {/* Business detail routes */}
-      <Route path="/business/:slug" component={BusinessDetailRefactored} />
-      <Route path="/listing/:id" component={BusinessListing} />
-      
-      {/* Slug router for remaining routes */}
-      <Route component={SlugRouter} />
+      {/* Home page */}
+      <Route path="/">
+        <PublicSuspense>
+          <Home />
+        </PublicSuspense>
+      </Route>
+
+      {/* Categories pages */}
+      <Route path="/categories">
+        <PublicSuspense>
+          <Categories />
+        </PublicSuspense>
+      </Route>
+      <Route path="/categories/:categorySlug">
+        <PublicSuspense>
+          <Categories />
+        </PublicSuspense>
+      </Route>
+
+      {/* Cities pages */}
+      <Route path="/cities">
+        <PublicSuspense>
+          <Cities />
+        </PublicSuspense>
+      </Route>
+      <Route path="/cities/:cityName">
+        <PublicSuspense>
+          <Cities />
+        </PublicSuspense>
+      </Route>
+
+      {/* Business directory pages */}
+      <Route path="/businesses">
+        <PublicSuspense>
+          <BusinessesPage />
+        </PublicSuspense>
+      </Route>
+      <Route path="/businesses/:categorySlug">
+        <PublicSuspense>
+          <BusinessesPage />
+        </PublicSuspense>
+      </Route>
+
+      {/* Dynamic city/category routing */}
+      <Route path="/:cityName" nest>
+        {(params) => (
+          <Route path="/businesses/:categorySlug">
+            <PublicSuspense>
+              <BusinessesPage />
+            </PublicSuspense>
+          </Route>
+        )}
+      </Route>
+
+      <Route path="/:cityName">
+        {(params) => (
+          <PublicSuspense>
+            <BusinessesPage />
+          </PublicSuspense>
+        )}
+      </Route>
+
+      {/* Other public pages */}
+      <Route path="/featured">
+        <PublicSuspense>
+          <Featured />
+        </PublicSuspense>
+      </Route>
+      <Route path="/search">
+        <PublicSuspense>
+          <SearchResults />
+        </PublicSuspense>
+      </Route>
+      <Route path="/page/:slug">
+        <PublicSuspense>
+          <PageDisplay />
+        </PublicSuspense>
+      </Route>
+      <Route path="/login">
+        <PublicSuspense>
+          <Login />
+        </PublicSuspense>
+      </Route>
+      <Route path="/add-business">
+        <PublicSuspense>
+          <AddBusiness />
+        </PublicSuspense>
+      </Route>
     </>
   );
 }

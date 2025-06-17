@@ -148,7 +148,7 @@ export default function BusinessesPage() {
           setShowFilters={setShowFilters}
           categories={categories}
           cities={cities}
-          cityFromUrl={cityFromUrl}
+          cityFromUrl={cityParam}
           categoryFromUrl={params.categorySlug}
         />
 
@@ -161,7 +161,7 @@ export default function BusinessesPage() {
           totalResults={businesses.length}
           currentPage={currentPage}
           itemsPerPage={itemsPerPage}
-          cityFromUrl={cityFromUrl}
+          cityFromUrl={cityParam}
           categoryFromUrl={params.categorySlug}
         />
 
