@@ -73,7 +73,7 @@ export default function Cities() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {cities?.map((cityData) => (
-                <Link key={cityData.city} href={`/cities/${encodeURIComponent(cityData.city)}`}>
+                <Link key={cityData.city} href={`/location/${encodeURIComponent(cityData.city.toLowerCase())}`}>
                   <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
                     <CardHeader className="pb-3">
                       <div className="flex items-center space-x-2">

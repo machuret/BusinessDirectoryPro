@@ -267,25 +267,18 @@ function Router() {
         </PageSuspense>
       </Route>
 
-      {/* Business detail route - must come before city route */}
+      {/* City location routes - /location/cityname format */}
+      <Route path="/location/:cityName">
+        <PageSuspense>
+          <Cities />
+        </PageSuspense>
+      </Route>
+
+      {/* Business detail route - clean slug format */}
       <Route path="/:businessSlug">
-        {(params) => {
-          const slug = params.businessSlug;
-          // Check if this looks like a business slug (contains at least one hyphen and ends with alphanumeric ID)
-          if (slug && /^[a-zA-Z0-9]+-[a-zA-Z0-9-]*[a-zA-Z0-9]+$/.test(slug)) {
-            return (
-              <PageSuspense>
-                <BusinessDetail />
-              </PageSuspense>
-            );
-          }
-          // If not a business slug, check if it's a city slug
-          return (
-            <PageSuspense>
-              <Cities />
-            </PageSuspense>
-          );
-        }}
+        <PageSuspense>
+          <BusinessDetail />
+        </PageSuspense>
       </Route>
 
       {/* 404 fallback */}
