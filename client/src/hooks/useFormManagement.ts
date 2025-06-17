@@ -14,6 +14,47 @@ interface UseFormOptions<T> {
   onSubmit: (values: T) => Promise<void>;
 }
 
+/**
+ * useFormManagement - Advanced form state management hook with validation and submission handling
+ * 
+ * Provides comprehensive form state management including field updates, validation,
+ * error handling, and submission workflow. Supports type-safe operations with generic
+ * typing, automatic dirty state tracking, and optimistic UI updates. Handles complex
+ * form scenarios with field-level validation, batch updates, and reset functionality.
+ * 
+ * @param initialValues - Initial form data object with all form fields
+ * @param validate - Optional validation function returning field-level errors
+ * @param onSubmit - Async submission handler receiving validated form data
+ * 
+ * @returns Object containing form state, actions, and status information
+ * @returns returns.formState - Complete form state including data, errors, and flags
+ * @returns returns.updateField - Function to update individual form fields
+ * @returns returns.updateFields - Function to update multiple fields at once
+ * @returns returns.setErrors - Function to manually set field-level errors
+ * @returns returns.handleSubmit - Form submission handler with validation
+ * @returns returns.reset - Function to reset form to initial state
+ * @returns returns.isValid - Boolean indicating if form passes validation
+ * 
+ * @example
+ * // Basic form management
+ * const form = useFormManagement({
+ *   initialValues: { name: '', email: '' },
+ *   validate: (values) => {
+ *     const errors = {};
+ *     if (!values.email) errors.email = 'Required';
+ *     return errors;
+ *   },
+ *   onSubmit: async (data) => submitToApi(data)
+ * });
+ * 
+ * @example
+ * // Advanced form with complex validation
+ * const businessForm = useFormManagement({
+ *   initialValues: businessData,
+ *   validate: validateBusinessData,
+ *   onSubmit: updateBusiness
+ * });
+ */
 export function useFormManagement<T extends Record<string, any>>({
   initialValues,
   validate,
