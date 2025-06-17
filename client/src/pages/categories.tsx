@@ -34,17 +34,17 @@ export default function Categories() {
 
   // Find category by name when using query parameter
   const categoryByName = categoryParam && categories?.find(cat => cat.name === categoryParam);
-  const currentCategory = category || categoryByName;
+  const currentCategory = category || (categoryByName || undefined);
 
   const { data: businesses, isLoading: businessesLoading } = useQuery<BusinessWithCategory[]>({
-    queryKey: [`/api/businesses`, { categoryId: currentCategory && typeof currentCategory === 'object' ? currentCategory.id : null }],
+    queryKey: [`/api/businesses`, { categoryId: currentCategory?.id }],
     queryFn: async () => {
-      if (!currentCategory || typeof currentCategory !== 'object' || !currentCategory.id) return [];
+      if (!currentCategory?.id) return [];
       const response = await fetch(`/api/businesses?categoryId=${currentCategory.id}`);
       if (!response.ok) throw new Error('Failed to fetch businesses');
       return response.json();
     },
-    enabled: !!(currentCategory && typeof currentCategory === 'object' && currentCategory.id),
+    enabled: !!currentCategory?.id,
   });
 
   const { data: allBusinesses, isLoading: allBusinessesLoading } = useQuery<BusinessWithCategory[]>({
