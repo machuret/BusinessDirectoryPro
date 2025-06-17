@@ -18,7 +18,11 @@ export class BusinessQueries {
       SELECT b.*, c.name as category_name, c.slug as category_slug, c.description as category_description, 
              c.icon as category_icon, c.color as category_color, c.id as category_id
       FROM businesses b
-      LEFT JOIN categories c ON b.categoryname = c.name
+      LEFT JOIN categories c ON (b.categoryname = c.name OR 
+                                b.categoryname || 's' = c.name OR 
+                                b.categoryname = c.name || 's' OR
+                                b.categoryname ILIKE '%' || REPLACE(c.name, 'Restaurants', 'Restaurant') || '%' OR
+                                c.name ILIKE '%' || b.categoryname || '%')
       WHERE (b.permanentlyclosed = false OR b.permanentlyclosed IS NULL)
     `;
 

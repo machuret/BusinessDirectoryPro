@@ -182,17 +182,24 @@ export function setupBusinessRoutes(app: Express) {
       const { slug } = req.params;
       const { limit = 20, offset = 0 } = req.query;
       
+      console.log(`[DEBUG] Fetching businesses for category slug: ${slug}`);
+      
       // First get the category by slug to get the ID
       const category = await storage.getCategoryBySlug(slug);
       if (!category) {
+        console.log(`[DEBUG] Category not found for slug: ${slug}`);
         return res.status(404).json({ message: "Category not found" });
       }
+      
+      console.log(`[DEBUG] Found category:`, { id: category.id, name: category.name, slug: category.slug });
       
       const businesses = await storage.getBusinesses({
         categoryId: category.id,
         limit: parseInt(limit as string),
         offset: parseInt(offset as string)
       });
+      
+      console.log(`[DEBUG] Found ${businesses.length} businesses for category ${category.name}`);
       
       res.json(businesses);
     } catch (error) {
