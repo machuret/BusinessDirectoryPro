@@ -20,6 +20,33 @@ export function setupAdminRoutes(app: Express) {
 
   // Additional non-CRUD routes that don't belong to specific sub-routers
 
+  // User role management
+  app.patch('/api/admin/users/:userId/role', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const { role } = req.body;
+      
+      if (!['admin', 'user'].includes(role)) {
+        return res.status(400).json({ message: "Invalid role. Must be 'admin' or 'user'" });
+      }
+      
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Update user role
+      const updatedUser = await storage.updateUser(userId, { role: role });
+      
+      // Remove password from response
+      const { password: _, ...userWithoutPassword } = updatedUser;
+      res.json(userWithoutPassword);
+    } catch (error) {
+      console.error("Error updating user role:", error);
+      res.status(500).json({ message: "Failed to update user role" });
+    }
+  });
+
   // Business submissions management
   app.get('/api/admin/business-submissions', async (req, res) => {
     try {
