@@ -231,7 +231,10 @@ export default function BusinessDetailRefactored() {
   const allReviews = parseBusinessReviews();
   
   // Only show review error if there are truly no reviews available from any source
-  const hasReviewsFromAnySource = allReviews.length > 0 || (business.reviews && business.reviews.length > 0);
+  const hasReviewsFromAnySource = allReviews.length > 0 || (business.reviews && (
+    Array.isArray(business.reviews) ? business.reviews.length > 0 : 
+    typeof business.reviews === 'object' ? Object.keys(business.reviews as Record<string, any>).length > 0 : false
+  ));
   const shouldShowReviewsError = reviewsError && !hasReviewsFromAnySource;
 
   return (
