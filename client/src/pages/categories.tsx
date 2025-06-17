@@ -37,14 +37,14 @@ export default function Categories() {
   const currentCategory = category || categoryByName;
 
   const { data: businesses, isLoading: businessesLoading } = useQuery<BusinessWithCategory[]>({
-    queryKey: [`/api/businesses`, { categoryId: currentCategory?.id }],
+    queryKey: [`/api/businesses`, { categoryId: currentCategory && typeof currentCategory === 'object' ? currentCategory.id : null }],
     queryFn: async () => {
-      if (!currentCategory?.id) return [];
+      if (!currentCategory || typeof currentCategory !== 'object' || !currentCategory.id) return [];
       const response = await fetch(`/api/businesses?categoryId=${currentCategory.id}`);
       if (!response.ok) throw new Error('Failed to fetch businesses');
       return response.json();
     },
-    enabled: !!currentCategory?.id,
+    enabled: !!(currentCategory && typeof currentCategory === 'object' && currentCategory.id),
   });
 
   const { data: allBusinesses, isLoading: allBusinessesLoading } = useQuery<BusinessWithCategory[]>({
@@ -68,7 +68,7 @@ export default function Categories() {
     );
   }
 
-  if (slug && !category) {
+  if (slug && !categoryLoading && !category) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header />
