@@ -6,6 +6,7 @@
 import { z } from 'zod';
 import { storage } from '../storage';
 import type { SocialMediaLink, InsertSocialMediaLink } from '@shared/schema';
+import { closeOrderingGaps } from './social-media/ordering.service';
 
 // Valid social media platforms with type-safe enum
 const VALID_PLATFORMS = [
