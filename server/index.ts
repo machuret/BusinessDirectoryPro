@@ -10,26 +10,15 @@ import { createApiPriorityMiddleware } from "./api-priority-middleware";
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy for Replit environment
 
-// Security middleware
+// Security middleware - Relaxed for Replit deployment
 app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://replit.com"], // Allow Replit dev banner
-      imgSrc: ["'self'", "data:", "https:", "blob:"],
-      connectSrc: ["'self'", "ws:", "wss:"],
-    },
-  },
-  crossOriginEmbedderPolicy: false, // Disable for development
+  contentSecurityPolicy: false, // Disable CSP for deployment compatibility
+  crossOriginEmbedderPolicy: false,
 }));
 
 // CORS configuration
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? [/\.replit\.app$/, /\.replit\.dev$/, /\.vercel\.app$/, /\.herokuapp\.com$/] 
-    : ["http://localhost:5000", "http://127.0.0.1:5000"],
+  origin: true, // Allow all origins for Replit deployment compatibility
   credentials: true,
 }));
 
@@ -69,10 +58,10 @@ const sessionConfig = {
   saveUninitialized: false,
   rolling: true, // Reset expiration on each request
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
+    secure: false, // Set to false for Replit deployment compatibility
     httpOnly: true,
-    maxAge: 2 * 60 * 60 * 1000, // 2 hours (shorter for development)
-    sameSite: process.env.NODE_ENV === 'production' ? 'strict' as const : 'lax' as const,
+    maxAge: 2 * 60 * 60 * 1000, // 2 hours
+    sameSite: 'lax' as const, // Use 'lax' for better deployment compatibility
   },
   // Use memory store for development to avoid persistence issues
   ...(process.env.NODE_ENV === 'development' && {
