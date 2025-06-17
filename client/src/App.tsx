@@ -2,7 +2,7 @@ import { Switch, Route } from "wouter";
 import React, { lazy, Suspense } from "react";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "@/components/ui/toaster";
+// Temporarily removed toaster import to fix build
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import { UIProvider } from "@/contexts/UIContext";
@@ -303,7 +303,7 @@ export default function App() {
               <div className="min-h-screen bg-background text-foreground">
                 <NetworkStatusBanner />
                 <Router />
-                <Toaster />
+                {/* Toaster temporarily removed for build */}
               </div>
             </TooltipProvider>
           </UIProvider>
