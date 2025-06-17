@@ -1,40 +1,53 @@
-import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { useToast } from "@/hooks/use-toast";
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useBusinessMutations } from "@/hooks/useBusinessData";
 import { useFormManagement, useModalState } from "@/hooks/useFormManagement";
+import { useToast } from "@/hooks/use-toast";
 import type { BusinessWithCategory } from "@shared/schema";
 
-export interface FAQ {
-  question: string;
-  answer: string;
-}
-
-export interface BusinessFormData {
-  title: string;
-  description: string;
-  phone: string;
-  website: string;
-  address: string;
-}
-
 /**
- * Custom hook for managing business editing functionality
- * Handles form state, FAQ management, image management, and business updates
+ * useBusinessEditor - Manages business editing state, form data, and submission logic
+ * 
+ * Centralizes all business editing functionality including form management,
+ * FAQs handling, image management, and business updates. Provides a complete
+ * interface for business owners to edit their business information.
+ * 
+ * @returns Object containing editing state, form handlers, and business update functionality
  */
 export function useBusinessEditor() {
   const { toast } = useToast();
-  const { updateBusiness } = useBusinessMutations();
-  const editModal = useModalState();
-  
-  // State management
   const [editingBusiness, setEditingBusiness] = useState<BusinessWithCategory | null>(null);
-  const [faqs, setFaqs] = useState<FAQ[]>([]);
+  const [faqs, setFaqs] = useState<Array<{ question: string; answer: string }>>([]);
   const [businessImages, setBusinessImages] = useState<string[]>([]);
   const [uploadingImages, setUploadingImages] = useState(false);
+  
+  const { updateBusiness } = useBusinessMutations();
+  const editModal = useModalState();
 
-  // Form management
-  const editForm = useFormManagement<BusinessFormData>({
+  // Fetch reviews for the currently editing business
+  const { 
+    data: businessReviews = [], 
+    isLoading: reviewsLoading,
+    error: reviewsError 
+  } = useQuery({
+    queryKey: [`/api/reviews`, editingBusiness?.placeid],
+    enabled: !!editingBusiness?.placeid,
+  });
+
+  // Ensure businessReviews is always an array
+  const reviews = Array.isArray(businessReviews) ? businessReviews : [];
+
+  // Log reviews data when it changes for debugging
+  useEffect(() => {
+    if (reviews.length > 0) {
+      console.log('Reviews loaded for business:', editingBusiness?.placeid, reviews);
+    }
+    if (reviewsError) {
+      console.error('Error loading reviews:', reviewsError);
+    }
+  }, [reviews, editingBusiness?.placeid, reviewsError]);
+
+  const editForm = useFormManagement({
     initialValues: {
       title: "",
       description: "",
@@ -43,9 +56,17 @@ export function useBusinessEditor() {
       address: "",
     },
     onSubmit: async (values) => {
-      if (!editingBusiness) return;
+      if (!editingBusiness) {
+        toast({
+          title: "Error",
+          description: "No business selected for editing",
+          variant: "destructive",
+        });
+        return;
+      }
       
       try {
+        // Combine form data with FAQs and images
         // Only save FAQs that have both question and answer filled
         const validFaqs = faqs.filter(faq => faq.question.trim() && faq.answer.trim());
         const updateData = {
@@ -59,25 +80,25 @@ export function useBusinessEditor() {
           data: updateData,
         });
         
-        // Success feedback handled by useBusinessMutations
-        closeEditor();
-        
         toast({
-          title: "Business Updated",
-          description: "Your business information has been updated successfully.",
+          title: "Success",
+          description: "Business information updated successfully",
         });
+        
+        setEditingBusiness(null);
+        editModal.close();
       } catch (error) {
         toast({
-          title: "Update Failed",
-          description: error instanceof Error ? error.message : "Failed to update business",
+          title: "Error",
+          description: "Failed to update business information",
           variant: "destructive",
         });
+        console.error('Business update error:', error);
       }
     },
   });
 
-  // Business editor actions
-  const openEditor = (business: BusinessWithCategory) => {
+  const handleEditBusiness = (business: BusinessWithCategory) => {
     setEditingBusiness(business);
     editForm.updateFields({
       title: business.title || "",
@@ -87,7 +108,7 @@ export function useBusinessEditor() {
       address: business.address || "",
     });
     
-    // Parse existing FAQs
+    // Parse existing FAQs from the 'faq' field
     try {
       let existingFaqs: any[] = [];
       if (business.faq) {
@@ -98,11 +119,12 @@ export function useBusinessEditor() {
         }
       }
       setFaqs(Array.isArray(existingFaqs) ? existingFaqs : []);
-    } catch {
+    } catch (error) {
+      console.error('Error parsing FAQs:', error);
       setFaqs([]);
     }
     
-    // Parse existing images
+    // Parse existing images from the business data
     try {
       let images: string[] = [];
       
@@ -126,21 +148,13 @@ export function useBusinessEditor() {
       const uniqueImages = Array.from(new Set(allImages));
       setBusinessImages(Array.isArray(uniqueImages) ? uniqueImages : []);
     } catch (error) {
+      console.error('Error parsing images:', error);
       setBusinessImages([]);
     }
     
     editModal.open();
   };
 
-  const closeEditor = () => {
-    setEditingBusiness(null);
-    setFaqs([]);
-    setBusinessImages([]);
-    editForm.reset();
-    editModal.close();
-  };
-
-  // FAQ management
   const addFaq = () => {
     setFaqs([...faqs, { question: "", answer: "" }]);
   };
@@ -155,10 +169,16 @@ export function useBusinessEditor() {
     setFaqs(faqs.filter((_, i) => i !== index));
   };
 
-  // Image management
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    if (!files || !editingBusiness) return;
+    if (!files || !editingBusiness) {
+      toast({
+        title: "Error",
+        description: "No files selected or no business selected",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setUploadingImages(true);
     
@@ -180,7 +200,7 @@ export function useBusinessEditor() {
       console.error('Upload error:', error);
       toast({
         title: "Upload Error",
-        description: error instanceof Error ? error.message : "Failed to upload images",
+        description: (error as Error).message,
         variant: "destructive",
       });
     } finally {
@@ -195,24 +215,33 @@ export function useBusinessEditor() {
   };
 
   return {
-    // State
+    // Business editing state
     editingBusiness,
-    faqs,
-    businessImages,
-    uploadingImages,
+    setEditingBusiness,
     
-    // Form
+    // Form management
     editForm,
     editModal,
     
-    // Actions
-    openEditor,
-    closeEditor,
+    // FAQ management
+    faqs,
     addFaq,
     updateFaq,
     removeFaq,
+    
+    // Image management
+    businessImages,
+    uploadingImages,
     handleFileUpload,
     removeImage,
+    
+    // Reviews data
+    reviews,
+    reviewsLoading,
+    reviewsError,
+    
+    // Business actions
+    handleEditBusiness,
     
     // Loading states
     isUpdating: updateBusiness.isPending,
