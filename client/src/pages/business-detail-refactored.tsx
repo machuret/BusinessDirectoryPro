@@ -28,8 +28,8 @@ export default function BusinessDetailRefactored() {
     error, 
     refetch: refetchBusiness 
   } = useQuery<BusinessWithCategory>({
-    queryKey: [`/api/businesses/slug/${slug}`],
-    enabled: !!slug,
+    queryKey: [`/api/businesses/slug/${businessSlug}`],
+    enabled: !!businessSlug,
   });
 
   const { 
