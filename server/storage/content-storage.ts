@@ -399,7 +399,7 @@ export class ContentStorage {
   }
 
   async getReviews() {
-    return this.reviewsStorage.getReviews();
+    return this.reviewsStorage.getAllReviews();
   }
 
   async createReview(reviewData: any) {
@@ -407,7 +407,7 @@ export class ContentStorage {
   }
 
   async updateReviewStatus(reviewId: number, status: string, adminNotes?: string) {
-    return this.reviewsStorage.updateReviewStatus(reviewId, status, adminNotes);
+    return this.reviewsStorage.updateReview(reviewId, { status, adminNotes });
   }
 
   async deleteReview(reviewId: number) {
