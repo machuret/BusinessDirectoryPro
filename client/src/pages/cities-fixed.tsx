@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "wouter";
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Building2 } from "lucide-react";
 import Header from "@/components/header";
@@ -8,42 +8,35 @@ import Footer from "@/components/footer";
 import BusinessCard from "@/components/business-card";
 import BusinessCardSkeleton from "@/components/business-card-skeleton";
 import { useContent } from "@/contexts/ContentContext";
+import type { BusinessWithCategory } from "@shared/schema";
 
 interface City {
   city: string;
   count: number;
 }
 
-interface Business {
-  placeid: string;
-  title: string;
-  city: string;
-  category: string;
-  description?: string;
-  phone?: string;
-  website?: string;
-  address?: string;
-}
-
 export default function Cities() {
   const { city, cityName, citySlug } = useParams();
   const { t } = useContent();
   
+  // Handle different route parameters
   const currentCity = city || cityName || citySlug;
 
+  // If no city specified, show all cities
   const { data: cities, isLoading: citiesLoading } = useQuery<City[]>({
     queryKey: ["/api/cities"],
     enabled: !currentCity,
   });
 
+  // If city specified, show businesses in that city
   const cityForAPI = currentCity ? currentCity.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : '';
   
-  const { data: businesses, isLoading: businessesLoading } = useQuery<Business[]>({
+  const { data: businesses, isLoading: businessesLoading } = useQuery<BusinessWithCategory[]>({
     queryKey: [`/api/cities/${cityForAPI}/businesses`],
     enabled: !!currentCity,
   });
 
-  const displayCity = cityForAPI || currentCity || 'Unknown City';
+  const displayCity = cityForAPI || currentCity;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -52,12 +45,13 @@ export default function Cities() {
       <div className="flex-1 container mx-auto px-4 py-8">
         {!currentCity ? (
           <>
+            {/* All Cities View */}
             <div className="mb-8">
               <h1 className="text-4xl font-bold text-gray-900 mb-4">
-                Explore Cities
+                {t('cities.allCities.title')}
               </h1>
               <p className="text-lg text-gray-600">
-                Discover businesses in cities across the region
+                {t('cities.allCities.description')}
               </p>
             </div>
 
@@ -99,31 +93,32 @@ export default function Cities() {
               <div className="text-center py-12">
                 <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  No cities found
+                  {t('cities.noCities.title')}
                 </h3>
                 <p className="text-gray-600">
-                  Check back later for city listings
+                  {t('cities.noCities.description')}
                 </p>
               </div>
             )}
           </>
         ) : (
           <>
+            {/* Single City View */}
             <div className="mb-8">
               <nav className="text-sm breadcrumbs mb-4">
                 <Link href="/cities" className="text-primary hover:underline">
-                  Cities
+                  {t('cities.breadcrumb.cities')}
                 </Link>
                 <span className="mx-2 text-gray-400">/</span>
                 <span className="text-gray-600">{displayCity}</span>
               </nav>
               
               <h1 className="text-4xl font-bold text-gray-900 mb-4">
-                Businesses in {displayCity}
+                {t('cities.cityPage.title', { cityName: displayCity })}
               </h1>
               
               <p className="text-lg text-gray-600">
-                Discover local businesses in {displayCity}
+                {t('cities.cityPage.description', { cityName: displayCity })}
               </p>
             </div>
 
@@ -148,13 +143,13 @@ export default function Cities() {
               <div className="text-center py-12">
                 <Building2 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  No businesses found in {displayCity}
+                  {t('cities.cityEmpty.title', { cityName: displayCity })}
                 </h3>
                 <p className="text-gray-600">
-                  Check back later for new listings
+                  {t('cities.cityEmpty.description')}
                 </p>
                 <Link href="/cities" className="inline-block mt-4 text-primary hover:underline">
-                  Browse other cities
+                  {t('cities.cityEmpty.browseLink')}
                 </Link>
               </div>
             )}
