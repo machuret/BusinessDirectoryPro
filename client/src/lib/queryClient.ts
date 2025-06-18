@@ -65,18 +65,45 @@ function ensureAbsoluteUrl(url: string): string {
   return `/${url}`;
 }
 
-// Custom fetch function that suppresses console errors for auth endpoints
-async function silentFetch(url: string, options?: RequestInit): Promise<Response> {
-  try {
-    return await fetch(url, options);
-  } catch (error) {
-    // For auth endpoints, suppress network errors in console
-    if (url.includes('/api/auth/')) {
-      // Create a mock response for 401 to prevent console errors
-      return new Response(null, { status: 401, statusText: 'Unauthorized' });
+// Custom fetch function with stability management
+async function stableFetch(url: string, options?: RequestInit): Promise<Response> {
+  let retryCount = 0;
+  const maxRetries = 3;
+
+  while (retryCount < maxRetries) {
+    try {
+      const response = await fetch(url, {
+        ...options,
+        headers: {
+          'Cache-Control': 'no-cache',
+          ...options?.headers
+        }
+      });
+
+      // Handle 503 Service Unavailable by retrying
+      if (response.status === 503 && retryCount < maxRetries - 1) {
+        retryCount++;
+        await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+        continue;
+      }
+
+      return response;
+    } catch (error) {
+      // For auth endpoints, suppress network errors in console
+      if (url.includes('/api/auth/')) {
+        return new Response(null, { status: 401, statusText: 'Unauthorized' });
+      }
+
+      retryCount++;
+      if (retryCount >= maxRetries) {
+        throw error;
+      }
+      
+      await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
     }
-    throw error;
   }
+
+  throw new Error('Max retries exceeded');
 }
 
 export const getQueryFn: <T>(options: {
@@ -85,9 +112,8 @@ export const getQueryFn: <T>(options: {
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
     const absoluteUrl = ensureAbsoluteUrl(queryKey[0] as string);
-    const isAuthEndpoint = absoluteUrl.includes('/api/auth/');
     
-    const res = await (isAuthEndpoint ? silentFetch : fetch)(absoluteUrl, {
+    const res = await stableFetch(absoluteUrl, {
       credentials: "include",
       mode: "cors",
       headers: {
