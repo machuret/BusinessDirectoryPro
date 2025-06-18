@@ -1,4 +1,7 @@
-import express from 'express';
+import fs from 'fs';
+
+// Create the complete admin deployment with ALL 18+ admin tools
+const completeExpressApp = `import express from 'express';
 import session from 'express-session';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
@@ -194,7 +197,7 @@ app.post('/api/admin/businesses/bulk-delete', requireAuth, requireAdmin, (req, r
     }
   });
   res.json({
-    message: `Successfully deleted ${deletedCount} business(es)`,
+    message: \`Successfully deleted \${deletedCount} business(es)\`,
     deletedCount: deletedCount,
     totalRequested: businessIds.length,
     errors: deletedCount < businessIds.length ? ['Some businesses not found'] : []
@@ -476,7 +479,7 @@ app.post('/api/admin/import/businesses', requireAuth, requireAdmin, upload.singl
   
   try {
     const csvData = req.file.buffer.toString('utf-8');
-    const lines = csvData.split('\n').filter(line => line.trim());
+    const lines = csvData.split('\\n').filter(line => line.trim());
     const headers = lines[0].split(',');
     
     let importedCount = 0;
@@ -501,7 +504,7 @@ app.post('/api/admin/import/businesses', requireAuth, requireAdmin, upload.singl
     }
     
     res.json({
-      message: `Successfully imported ${importedCount} businesses`,
+      message: \`Successfully imported \${importedCount} businesses\`,
       importedCount: importedCount,
       totalLines: lines.length - 1
     });
@@ -512,10 +515,10 @@ app.post('/api/admin/import/businesses', requireAuth, requireAdmin, upload.singl
 
 // 15. EXPORT MANAGEMENT
 app.get('/api/admin/export/businesses', requireAuth, requireAdmin, (req, res) => {
-  const csvHeaders = 'Business Name,Category,City,Address,Phone,Email,Status\n';
+  const csvHeaders = 'Business Name,Category,City,Address,Phone,Email,Status\\n';
   const csvData = sampleBusinesses.map(b => 
-    `"${b.businessname}","${b.category}","${b.city}","${b.address}","${b.phone}","${b.email}","${b.status}"`
-  ).join('\n');
+    \`"\${b.businessname}","\${b.category}","\${b.city}","\${b.address}","\${b.phone}","\${b.email}","\${b.status}"\`
+  ).join('\\n');
   
   res.setHeader('Content-Type', 'text/csv');
   res.setHeader('Content-Disposition', 'attachment; filename="businesses-export.csv"');
@@ -523,10 +526,10 @@ app.get('/api/admin/export/businesses', requireAuth, requireAdmin, (req, res) =>
 });
 
 app.get('/api/admin/export/users', requireAuth, requireAdmin, (req, res) => {
-  const csvHeaders = 'ID,Email,First Name,Last Name,Role,Created At\n';
+  const csvHeaders = 'ID,Email,First Name,Last Name,Role,Created At\\n';
   const csvData = sampleUsers.map(u => 
-    `"${u.id}","${u.email}","${u.firstName}","${u.lastName}","${u.role}","${u.createdAt}"`
-  ).join('\n');
+    \`"\${u.id}","\${u.email}","\${u.firstName}","\${u.lastName}","\${u.role}","\${u.createdAt}"\`
+  ).join('\\n');
   
   res.setHeader('Content-Type', 'text/csv');
   res.setHeader('Content-Disposition', 'attachment; filename="users-export.csv"');
@@ -604,4 +607,30 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'Internal Server Error' });
 });
 
-export default app;
+export default app;`;
+
+// Write the complete application
+fs.writeFileSync('api/complete-app.js', completeExpressApp);
+
+console.log('✅ COMPLETE BUSINESS DIRECTORY DEPLOYMENT CREATED');
+console.log('📊 ALL 18+ ADMIN TOOLS INCLUDED:');
+console.log('1. Business Management (with Mass Delete)');
+console.log('2. User Management');
+console.log('3. Categories Management');
+console.log('4. Reviews Management');
+console.log('5. Cities Management');
+console.log('6. Leads Management');
+console.log('7. Services Management');
+console.log('8. Social Media Management');
+console.log('9. Featured Requests Management');
+console.log('10. Pages Management');
+console.log('11. Content Management');
+console.log('12. Menu Management');
+console.log('13. Site Settings Management');
+console.log('14. Import Management');
+console.log('15. Export Management');
+console.log('16. API Keys Management');
+console.log('17. Submissions Management');
+console.log('18. Ownership Claims Management');
+console.log('');
+console.log('🚀 DEPLOY TO VERCEL FOR 100% COMPLETE BUSINESS DIRECTORY!');
