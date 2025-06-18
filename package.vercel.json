@@ -1,0 +1,12 @@
+{
+  "name": "business-directory-vercel",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "cd client && npm run build",
+    "dev": "npm run dev",
+    "start": "echo 'Use Vercel for hosting'"
+  },
+  "engines": {
+    "node": "18.x"
+  }
+}
