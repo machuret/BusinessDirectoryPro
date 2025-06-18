@@ -29,6 +29,7 @@ const NotFound = lazy(() => import("@/pages/not-found"));
 
 // Admin pages
 const AdminLayout = lazy(() => import("@/components/admin/AdminLayout"));
+const DirectAdminLogin = lazy(() => import("@/components/admin/DirectAdminLogin"));
 const AdminBusinessesPage = lazy(() => import("@/pages/admin/businesses"));
 const AdminUsersPage = lazy(() => import("@/pages/admin/users"));
 const AdminCategoriesPage = lazy(() => import("@/pages/admin/categories"));
