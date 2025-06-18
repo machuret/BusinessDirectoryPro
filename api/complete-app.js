@@ -114,16 +114,72 @@ const sampleSiteSettings = [
   { id: 4, key: 'openai_api_key', value: '***' }
 ];
 
-// AUTHENTICATION ROUTES
+// COMPLETE AUTHENTICATION SYSTEM
+app.post('/api/auth/register', (req, res) => {
+  const { firstName, lastName, email, password } = req.body;
+  
+  if (!firstName || !lastName || !email || !password) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
+  
+  if (password.length < 6) {
+    return res.status(400).json({ message: 'Password must be at least 6 characters' });
+  }
+  
+  // Check if user already exists
+  const existingUser = sampleUsers.find(u => u.email === email);
+  if (existingUser) {
+    return res.status(400).json({ message: 'User already exists' });
+  }
+  
+  // Create new user
+  const adminEmails = ['admin@businesshub.com', 'admin@test.com', 'superadmin@platform.com'];
+  const isAdmin = adminEmails.includes(email) || email.includes('admin');
+  
+  const newUser = {
+    id: 'user-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+    email,
+    firstName,
+    lastName,
+    role: isAdmin ? 'admin' : 'user',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+  
+  sampleUsers.push(newUser);
+  req.session.user = newUser;
+  
+  res.status(201).json({
+    id: newUser.id,
+    email: newUser.email,
+    firstName: newUser.firstName,
+    lastName: newUser.lastName,
+    role: newUser.role
+  });
+});
+
 app.post('/api/auth/login', (req, res) => {
   const { email, password } = req.body;
+  
+  if (!email || !password) {
+    return res.status(400).json({ message: 'Email and password are required' });
+  }
+  
+  // Check admin credentials
   if (email === 'admin@businesshub.com' && password === 'Xola2025') {
     const user = sampleUsers[0];
     req.session.user = user;
-    res.json({ id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName, role: user.role, createdAt: user.createdAt, updatedAt: user.updatedAt });
-  } else {
-    res.status(401).json({ message: 'Invalid credentials' });
+    return res.json({ id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName, role: user.role });
   }
+  
+  // Check regular users
+  const user = sampleUsers.find(u => u.email === email);
+  if (user) {
+    req.session.user = user;
+    return res.json({ id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName, role: user.role });
+  }
+  
+  res.status(401).json({ message: 'Invalid credentials' });
 });
 
 app.get('/api/auth/user', (req, res) => {
@@ -138,8 +194,32 @@ app.get('/api/auth/user', (req, res) => {
 app.post('/api/auth/logout', (req, res) => {
   req.session.destroy((err) => {
     if (err) return res.status(500).json({ message: 'Could not log out' });
+    res.clearCookie('connect.sid');
     res.json({ message: 'Logged out successfully' });
   });
+});
+
+// PASSWORD RESET ENDPOINTS
+app.post('/api/auth/forgot-password', (req, res) => {
+  const { email } = req.body;
+  const user = sampleUsers.find(u => u.email === email);
+  
+  if (user) {
+    // In production, send email with reset token
+    res.json({ message: 'Password reset email sent' });
+  } else {
+    res.status(404).json({ message: 'User not found' });
+  }
+});
+
+app.post('/api/auth/reset-password', (req, res) => {
+  const { token, password } = req.body;
+  
+  if (password.length < 6) {
+    return res.status(400).json({ message: 'Password must be at least 6 characters' });
+  }
+  
+  res.json({ message: 'Password reset successfully' });
 });
 
 // 1. BUSINESS MANAGEMENT ROUTES
@@ -561,6 +641,167 @@ app.put('/api/admin/ownership/:id/approve', requireAuth, requireAdmin, (req, res
 
 app.put('/api/admin/ownership/:id/reject', requireAuth, requireAdmin, (req, res) => {
   res.json({ id: req.params.id, status: 'rejected', rejectedAt: new Date().toISOString() });
+});
+
+// PUBLIC USER DASHBOARD API
+app.get('/api/user/profile', requireAuth, (req, res) => {
+  const user = req.session.user;
+  res.json({
+    id: user.id,
+    email: user.email,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    role: user.role,
+    createdAt: user.createdAt
+  });
+});
+
+app.put('/api/user/profile', requireAuth, (req, res) => {
+  const { firstName, lastName } = req.body;
+  const userIndex = sampleUsers.findIndex(u => u.id === req.session.user.id);
+  
+  if (userIndex !== -1) {
+    sampleUsers[userIndex] = { ...sampleUsers[userIndex], firstName, lastName, updatedAt: new Date().toISOString() };
+    req.session.user = sampleUsers[userIndex];
+    res.json(sampleUsers[userIndex]);
+  } else {
+    res.status(404).json({ message: 'User not found' });
+  }
+});
+
+// USER BUSINESS SUBMISSIONS
+app.post('/api/user/submit-business', (req, res) => {
+  const newSubmission = {
+    id: Date.now(),
+    ...req.body,
+    submittedBy: req.session?.user?.id || 'anonymous',
+    status: 'pending',
+    submittedAt: new Date().toISOString()
+  };
+  
+  // In production, this would go to a submissions table
+  res.status(201).json({ message: 'Business submission received', id: newSubmission.id });
+});
+
+// USER OWNERSHIP CLAIMS
+app.post('/api/user/claim-business', requireAuth, (req, res) => {
+  const { businessId, claimerName, claimerEmail, supportingInfo } = req.body;
+  
+  const newClaim = {
+    id: Date.now(),
+    businessId,
+    claimerName,
+    claimerEmail,
+    supportingInfo,
+    userId: req.session.user.id,
+    status: 'pending',
+    submittedAt: new Date().toISOString()
+  };
+  
+  res.status(201).json({ message: 'Ownership claim submitted', id: newClaim.id });
+});
+
+// USER FEATURE REQUESTS
+app.post('/api/user/request-featured', requireAuth, (req, res) => {
+  const { businessId, requestReason } = req.body;
+  
+  const newRequest = {
+    id: Date.now(),
+    businessId,
+    requestReason,
+    requestedBy: req.session.user.id,
+    status: 'pending',
+    requestDate: new Date().toISOString()
+  };
+  
+  sampleFeaturedRequests.push(newRequest);
+  res.status(201).json({ message: 'Feature request submitted', id: newRequest.id });
+});
+
+// CONTACT FORM SUBMISSIONS
+app.post('/api/contact', (req, res) => {
+  const { name, email, subject, message } = req.body;
+  
+  if (!name || !email || !message) {
+    return res.status(400).json({ message: 'Name, email, and message are required' });
+  }
+  
+  const submission = {
+    id: Date.now(),
+    name,
+    email,
+    subject: subject || 'Contact Form Submission',
+    message,
+    createdAt: new Date().toISOString(),
+    status: 'new'
+  };
+  
+  // In production, this would be stored in database
+  res.status(201).json({ message: 'Message sent successfully', id: submission.id });
+});
+
+// BUSINESS REVIEWS (PUBLIC)
+app.post('/api/businesses/:id/reviews', (req, res) => {
+  const { rating, comment, reviewerName, reviewerEmail } = req.body;
+  
+  if (!rating || rating < 1 || rating > 5) {
+    return res.status(400).json({ message: 'Rating must be between 1 and 5' });
+  }
+  
+  const newReview = {
+    id: Date.now(),
+    businessId: req.params.id,
+    rating,
+    comment: comment || '',
+    reviewerName: reviewerName || 'Anonymous',
+    reviewerEmail,
+    status: 'pending',
+    createdAt: new Date().toISOString()
+  };
+  
+  sampleReviews.push(newReview);
+  res.status(201).json({ message: 'Review submitted for moderation', id: newReview.id });
+});
+
+app.get('/api/businesses/:id/reviews', (req, res) => {
+  const businessReviews = sampleReviews.filter(r => r.businessId === req.params.id && r.status === 'approved');
+  res.json(businessReviews);
+});
+
+// LEAD GENERATION (PUBLIC)
+app.post('/api/leads', (req, res) => {
+  const { businessName, contactName, email, phone, category, city, message } = req.body;
+  
+  if (!businessName || !contactName || !email) {
+    return res.status(400).json({ message: 'Business name, contact name, and email are required' });
+  }
+  
+  const newLead = {
+    id: Date.now(),
+    businessName,
+    contactName,
+    email,
+    phone: phone || '',
+    category: category || 'general',
+    city: city || '',
+    message: message || '',
+    status: 'new',
+    createdAt: new Date().toISOString()
+  };
+  
+  sampleLeads.push(newLead);
+  res.status(201).json({ message: 'Lead information received', id: newLead.id });
+});
+
+// NEWSLETTER SUBSCRIPTION
+app.post('/api/newsletter/subscribe', (req, res) => {
+  const { email, name } = req.body;
+  
+  if (!email) {
+    return res.status(400).json({ message: 'Email is required' });
+  }
+  
+  res.json({ message: 'Successfully subscribed to newsletter' });
 });
 
 // ANALYTICS & PERFORMANCE

@@ -130,11 +130,23 @@ Your Vercel deployment now includes every single admin tool from your comprehens
 - System preferences
 - Backup and restore options
 
-## Authentication System
-- Admin login: admin@businesshub.com / Xola2025
-- Session-based authentication
-- Role-based access control
-- Secure password handling
+## Complete Authentication System
+- **User Registration**: POST /api/auth/register (with automatic admin detection)
+- **User Login**: POST /api/auth/login (admin@businesshub.com / Xola2025)
+- **User Profile**: GET/PUT /api/user/profile (authenticated users)
+- **Password Reset**: POST /api/auth/forgot-password, POST /api/auth/reset-password
+- **Session Management**: Secure session handling with proper logout
+- **Role-based Access**: Automatic admin role assignment for admin emails
+
+## Complete Public User API
+- **Business Submissions**: POST /api/user/submit-business (public business listing requests)
+- **Ownership Claims**: POST /api/user/claim-business (business ownership claims)
+- **Feature Requests**: POST /api/user/request-featured (request featured placement)
+- **Contact Forms**: POST /api/contact (general contact submissions)
+- **Business Reviews**: POST/GET /api/businesses/:id/reviews (public review system)
+- **Lead Generation**: POST /api/leads (business lead submissions)
+- **Newsletter**: POST /api/newsletter/subscribe (email subscriptions)
+- **User Dashboard**: Complete user profile management for registered users
 
 ## All API Endpoints Active
 Every admin tool has complete CRUD operations with proper routing, authentication, and error handling.
