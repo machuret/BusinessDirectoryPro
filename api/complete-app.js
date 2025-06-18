@@ -1,9 +1,9 @@
-import express from 'express';
-import session from 'express-session';
-import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
-import cors from 'cors';
-import multer from 'multer';
+const express = require('express');
+const session = require('express-session');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const cors = require('cors');
+const multer = require('multer');
 
 const app = express();
 app.set('trust proxy', 1);
@@ -845,4 +845,6 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'Internal Server Error' });
 });
 
-export default app;
+// Export for Vercel serverless function
+module.exports = app;
+module.exports.default = app;
