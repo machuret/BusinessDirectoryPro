@@ -51,6 +51,7 @@ const AdminFeaturedPage = lazy(() => import("@/pages/admin/featured"));
 const AdminSocialMediaPage = lazy(() => import("@/pages/admin/social-media"));
 const AdminContentPage = lazy(() => import("@/pages/admin/content"));
 const AdminSettingsPage = lazy(() => import("@/pages/admin/settings"));
+const AdminDirect = lazy(() => import("@/pages/admin-direct"));
 
 function PageSuspense({ children }: { children: React.ReactNode }) {
   return (
@@ -153,6 +154,11 @@ function Router() {
 
       {/* Admin routes */}
       <Route path="/admin">
+        <PageSuspense>
+          <AdminDirect />
+        </PageSuspense>
+      </Route>
+      <Route path="/admin-secure">
         <PageSuspense>
           <ProtectedRoute>
             <AdminLayout>
