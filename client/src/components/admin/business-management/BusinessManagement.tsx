@@ -64,7 +64,7 @@ export default function BusinessManagement() {
   // Mass delete mutation
   const massDeleteMutation = useMutation({
     mutationFn: async (businessIds: string[]) => {
-      const response = await apiRequest('DELETE', '/api/admin/businesses/bulk', {
+      const response = await apiRequest('POST', '/api/admin/businesses/bulk-delete', {
         businessIds
       });
       return response;
@@ -215,6 +215,17 @@ export default function BusinessManagement() {
         open={!!deleteConfirmId}
         onClose={() => setDeleteConfirmId(null)}
         businessId={deleteConfirmId}
+      />
+
+      {/* Mass Delete Confirmation Dialog */}
+      <DeleteConfirmDialog
+        open={showMassDeleteConfirm}
+        onClose={() => setShowMassDeleteConfirm(false)}
+        businessId={null}
+        isMultiple={true}
+        count={selectedBusinesses.length}
+        onConfirm={confirmMassDelete}
+        isLoading={massDeleteMutation.isPending}
       />
     </div>
   );

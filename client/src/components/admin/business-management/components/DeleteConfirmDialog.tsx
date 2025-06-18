@@ -9,9 +9,21 @@ interface DeleteConfirmDialogProps {
   open: boolean;
   onClose: () => void;
   businessId: string | null;
+  isMultiple?: boolean;
+  count?: number;
+  onConfirm?: () => void;
+  isLoading?: boolean;
 }
 
-export default function DeleteConfirmDialog({ open, onClose, businessId }: DeleteConfirmDialogProps) {
+export default function DeleteConfirmDialog({ 
+  open, 
+  onClose, 
+  businessId, 
+  isMultiple = false, 
+  count = 0, 
+  onConfirm, 
+  isLoading = false 
+}: DeleteConfirmDialogProps) {
   const { toast } = useToast();
 
   const deleteMutation = useMutation({
@@ -41,10 +53,14 @@ export default function DeleteConfirmDialog({ open, onClose, businessId }: Delet
   });
 
   const handleDelete = () => {
-    if (businessId) {
+    if (isMultiple && onConfirm) {
+      onConfirm();
+    } else if (businessId) {
       deleteMutation.mutate(businessId);
     }
   };
+
+  const isPending = isMultiple ? isLoading : deleteMutation.isPending;
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -55,8 +71,17 @@ export default function DeleteConfirmDialog({ open, onClose, businessId }: Delet
             Confirm Deletion
           </DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete this business? This action cannot be undone.
-            All associated data including reviews and ratings will be permanently removed.
+            {isMultiple ? (
+              <>
+                Are you sure you want to delete {count} business{count !== 1 ? 'es' : ''}? This action cannot be undone.
+                All associated data including reviews and ratings will be permanently removed.
+              </>
+            ) : (
+              <>
+                Are you sure you want to delete this business? This action cannot be undone.
+                All associated data including reviews and ratings will be permanently removed.
+              </>
+            )}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
@@ -66,10 +91,10 @@ export default function DeleteConfirmDialog({ open, onClose, businessId }: Delet
           <Button 
             variant="destructive" 
             onClick={handleDelete}
-            disabled={deleteMutation.isPending}
+            disabled={isPending}
           >
-            {deleteMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Delete Business
+            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isMultiple ? `Delete ${count} Business${count !== 1 ? 'es' : ''}` : 'Delete Business'}
           </Button>
         </DialogFooter>
       </DialogContent>
