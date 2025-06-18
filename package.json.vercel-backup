@@ -1,0 +1,13 @@
+{
+  "name": "business-directory-vercel",
+  "version": "1.0.0",
+  "description": "Business Directory Platform - Vercel Deployment",
+  "main": "api/index.js",
+  "scripts": {
+    "build": "echo 'Build complete'",
+    "vercel-build": "echo 'Vercel build complete'"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
