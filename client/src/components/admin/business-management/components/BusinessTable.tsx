@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Loader2, Edit, Trash2, Eye, Star, Building2, MapPin, Phone } from "lucide-react";
 
@@ -12,6 +13,9 @@ interface BusinessTableProps {
   searchTerm: string;
   filterCategory: string;
   filterStatus: string;
+  selectedBusinesses: string[];
+  onSelectionChange: (businessId: string, checked: boolean) => void;
+  onSelectAll: (checked: boolean) => void;
 }
 
 export default function BusinessTable({
@@ -22,7 +26,10 @@ export default function BusinessTable({
   onDelete,
   searchTerm,
   filterCategory,
-  filterStatus
+  filterStatus,
+  selectedBusinesses,
+  onSelectionChange,
+  onSelectAll
 }: BusinessTableProps) {
   const getBusinessName = (business: any) => {
     return business.title || business.businessname || business.name || "Unnamed Business";
@@ -51,6 +58,13 @@ export default function BusinessTable({
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead className="w-12">
+              <Checkbox
+                checked={selectedBusinesses.length === businesses.length && businesses.length > 0}
+                onCheckedChange={onSelectAll}
+                aria-label="Select all businesses"
+              />
+            </TableHead>
             <TableHead>Business</TableHead>
             <TableHead>Category</TableHead>
             <TableHead>Location</TableHead>
@@ -63,6 +77,13 @@ export default function BusinessTable({
         <TableBody>
           {businesses.map((business) => (
             <TableRow key={business.placeid}>
+              <TableCell>
+                <Checkbox
+                  checked={selectedBusinesses.includes(business.placeid)}
+                  onCheckedChange={(checked) => onSelectionChange(business.placeid, checked as boolean)}
+                  aria-label={`Select ${getBusinessName(business)}`}
+                />
+              </TableCell>
               <TableCell>
                 <div className="flex items-center space-x-3">
                   <div className="flex-shrink-0">

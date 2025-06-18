@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Search, Filter } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Plus, Search, Filter, Trash2, X } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
 import BusinessTable from "./components/BusinessTable";
 import BusinessDialog from "./components/BusinessDialog";
 import DeleteConfirmDialog from "./components/DeleteConfirmDialog";
@@ -17,6 +19,10 @@ export default function BusinessManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCategory, setFilterCategory] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [selectedBusinesses, setSelectedBusinesses] = useState<string[]>([]);
+  const [showMassDeleteConfirm, setShowMassDeleteConfirm] = useState(false);
+
+  const queryClient = useQueryClient();
 
   // Fetch businesses and categories
   const { data: businesses, isLoading: businessesLoading } = useQuery({
@@ -53,6 +59,49 @@ export default function BusinessManagement() {
     setShowCreateDialog(false);
     setShowEditDialog(false);
     setEditingBusiness(null);
+  };
+
+  // Mass delete mutation
+  const massDeleteMutation = useMutation({
+    mutationFn: async (businessIds: string[]) => {
+      const response = await apiRequest('DELETE', '/api/admin/businesses/bulk', {
+        businessIds
+      });
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/businesses"] });
+      setSelectedBusinesses([]);
+      setShowMassDeleteConfirm(false);
+    },
+    onError: (error) => {
+      console.error('Mass delete failed:', error);
+    }
+  });
+
+  // Selection handlers
+  const handleSelectionChange = (businessId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedBusinesses(prev => [...prev, businessId]);
+    } else {
+      setSelectedBusinesses(prev => prev.filter(id => id !== businessId));
+    }
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedBusinesses(filteredBusinesses.map(business => business.placeid));
+    } else {
+      setSelectedBusinesses([]);
+    }
+  };
+
+  const handleMassDelete = () => {
+    setShowMassDeleteConfirm(true);
+  };
+
+  const confirmMassDelete = () => {
+    massDeleteMutation.mutate(selectedBusinesses);
   };
 
   return (
@@ -111,6 +160,34 @@ export default function BusinessManagement() {
             </Select>
           </div>
 
+          {/* Mass Delete Actions */}
+          {selectedBusinesses.length > 0 && (
+            <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg mb-4 border border-blue-200">
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary">
+                  {selectedBusinesses.length} business{selectedBusinesses.length !== 1 ? 'es' : ''} selected
+                </Badge>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelectedBusinesses([])}
+                >
+                  <X className="h-4 w-4 mr-1" />
+                  Clear selection
+                </Button>
+              </div>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleMassDelete}
+                disabled={massDeleteMutation.isPending}
+              >
+                <Trash2 className="h-4 w-4 mr-1" />
+                Delete Selected ({selectedBusinesses.length})
+              </Button>
+            </div>
+          )}
+
           <BusinessTable
             businesses={filteredBusinesses}
             isLoading={businessesLoading}
@@ -120,6 +197,9 @@ export default function BusinessManagement() {
             searchTerm={searchTerm}
             filterCategory={filterCategory}
             filterStatus={filterStatus}
+            selectedBusinesses={selectedBusinesses}
+            onSelectionChange={handleSelectionChange}
+            onSelectAll={handleSelectAll}
           />
         </CardContent>
       </Card>
