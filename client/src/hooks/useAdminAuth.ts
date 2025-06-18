@@ -5,13 +5,13 @@
 
 import { useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { adminLogin, checkAuthStatus } from '@/utils/adminAuth';
+import { deploymentAuth } from '@/utils/deploymentAuth';
 
 export function useAdminAuth() {
   const queryClient = useQueryClient();
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Query to check authentication status
+  // Query to check authentication status using deployment auth
   const { 
     data: authData, 
     isLoading: isCheckingAuth, 
@@ -20,11 +20,11 @@ export function useAdminAuth() {
   } = useQuery({
     queryKey: ['/api/auth/user'],
     queryFn: async () => {
-      const result = await checkAuthStatus();
+      const result = await deploymentAuth.checkAuth();
       return result.isAuthenticated ? result.user : null;
     },
     retry: false,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 2 * 60 * 1000, // 2 minutes (shorter for more responsive updates)
     refetchOnMount: true,
     refetchOnWindowFocus: false,
   });
@@ -38,29 +38,31 @@ export function useAdminAuth() {
   }, [isInitialized, recheckAuth]);
 
   const login = async (email: string, password: string) => {
-    const result = await adminLogin(email, password);
+    const result = await deploymentAuth.login(email, password);
     
-    if (result.isAuthenticated) {
+    if (result.success) {
       // Invalidate and refetch auth data
       queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
       await recheckAuth();
+      
+      return {
+        isAuthenticated: true,
+        user: result.user,
+        error: null,
+      };
     }
     
-    return result;
+    return {
+      isAuthenticated: false,
+      user: null,
+      error: result.error || 'Login failed',
+    };
   };
 
   const logout = async () => {
-    try {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include',
-      });
-    } catch (error) {
-      console.warn('Logout request failed:', error);
-    } finally {
-      queryClient.clear();
-      window.location.reload();
-    }
+    await deploymentAuth.logout();
+    queryClient.clear();
+    window.location.reload();
   };
 
   return {

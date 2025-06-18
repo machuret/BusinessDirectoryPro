@@ -19,8 +19,10 @@ export async function adminLogin(email: string, password: string): Promise<AuthS
     const response = await fetch('/api/auth/login', {
       method: 'POST',
       credentials: 'include',
+      mode: 'cors',
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
       },
       body: JSON.stringify({ email, password }),
     });
@@ -35,6 +37,10 @@ export async function adminLogin(email: string, password: string): Promise<AuthS
     }
 
     const userData = await response.json();
+    
+    // Store session indicator in localStorage as backup
+    localStorage.setItem('admin_session_active', 'true');
+    localStorage.setItem('admin_user_data', JSON.stringify(userData));
     
     // Invalidate all queries to ensure fresh data after login
     queryClient.invalidateQueries();
@@ -58,14 +64,25 @@ export async function adminLogin(email: string, password: string): Promise<AuthS
  */
 export async function checkAuthStatus(): Promise<AuthState> {
   try {
+    // First check localStorage for session backup
+    const sessionActive = localStorage.getItem('admin_session_active');
+    const storedUserData = localStorage.getItem('admin_user_data');
+
     const response = await fetch('/api/auth/user', {
       credentials: 'include',
+      mode: 'cors',
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
       },
     });
 
     if (response.status === 401) {
+      // If server says unauthorized but we have local session, clear it
+      if (sessionActive) {
+        localStorage.removeItem('admin_session_active');
+        localStorage.removeItem('admin_user_data');
+      }
       return {
         isAuthenticated: false,
         user: null,
@@ -74,6 +91,21 @@ export async function checkAuthStatus(): Promise<AuthState> {
     }
 
     if (!response.ok) {
+      // If network error but we have valid local session, use it temporarily
+      if (sessionActive && storedUserData) {
+        try {
+          const userData = JSON.parse(storedUserData);
+          return {
+            isAuthenticated: true,
+            user: userData,
+            error: null,
+          };
+        } catch (e) {
+          // Invalid stored data, clear it
+          localStorage.removeItem('admin_session_active');
+          localStorage.removeItem('admin_user_data');
+        }
+      }
       return {
         isAuthenticated: false,
         user: null,
@@ -82,12 +114,36 @@ export async function checkAuthStatus(): Promise<AuthState> {
     }
 
     const userData = await response.json();
+    
+    // Update localStorage with fresh data
+    localStorage.setItem('admin_session_active', 'true');
+    localStorage.setItem('admin_user_data', JSON.stringify(userData));
+    
     return {
       isAuthenticated: true,
       user: userData,
       error: null,
     };
   } catch (error) {
+    // On network error, try to use localStorage backup
+    const sessionActive = localStorage.getItem('admin_session_active');
+    const storedUserData = localStorage.getItem('admin_user_data');
+    
+    if (sessionActive && storedUserData) {
+      try {
+        const userData = JSON.parse(storedUserData);
+        return {
+          isAuthenticated: true,
+          user: userData,
+          error: null,
+        };
+      } catch (e) {
+        // Invalid stored data, clear it
+        localStorage.removeItem('admin_session_active');
+        localStorage.removeItem('admin_user_data');
+      }
+    }
+    
     return {
       isAuthenticated: false,
       user: null,
@@ -131,6 +187,7 @@ export async function adminLogout(): Promise<void> {
     await fetch('/api/auth/logout', {
       method: 'POST',
       credentials: 'include',
+      mode: 'cors',
       headers: {
         'Content-Type': 'application/json',
       },
@@ -138,6 +195,10 @@ export async function adminLogout(): Promise<void> {
   } catch (error) {
     console.warn('Logout request failed:', error);
   } finally {
+    // Clear localStorage session data
+    localStorage.removeItem('admin_session_active');
+    localStorage.removeItem('admin_user_data');
+    
     // Clear all cached data regardless of logout response
     queryClient.clear();
     window.location.reload();

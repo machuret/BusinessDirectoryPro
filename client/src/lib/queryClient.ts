@@ -30,11 +30,18 @@ export async function apiRequest(
   data?: unknown | undefined,
 ): Promise<Response> {
   const absoluteUrl = ensureAbsoluteUrl(url);
+  
+  // Enhanced headers for deployment environment
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  
   const res = await fetch(absoluteUrl, {
     method,
-    headers: data ? { "Content-Type": "application/json" } : {},
+    headers,
     body: data ? JSON.stringify(data) : undefined,
     credentials: "include",
+    mode: "cors", // Explicit CORS mode
   });
 
   await throwIfResNotOk(res);
@@ -82,6 +89,10 @@ export const getQueryFn: <T>(options: {
     
     const res = await (isAuthEndpoint ? silentFetch : fetch)(absoluteUrl, {
       credentials: "include",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {
