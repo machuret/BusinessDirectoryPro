@@ -1,0 +1,152 @@
+index-CmTMpHlA.js:94 
+            
+            
+           GET https://business-directory-pro-gmachuret.replit.app/api/auth/user 401 (Unauthorized)
+window.fetch @ index-CmTMpHlA.js:94
+Pv @ index-CmTMpHlA.js:49
+(anonymous) @ index-CmTMpHlA.js:49
+o @ index-CmTMpHlA.js:49
+x @ index-CmTMpHlA.js:49
+start @ index-CmTMpHlA.js:49
+fetch @ index-CmTMpHlA.js:49
+Vr @ index-CmTMpHlA.js:49
+onSubscribe @ index-CmTMpHlA.js:49
+subscribe @ index-CmTMpHlA.js:49
+(anonymous) @ index-CmTMpHlA.js:49
+af @ index-CmTMpHlA.js:39
+Wo @ index-CmTMpHlA.js:41
+Xn @ index-CmTMpHlA.js:41
+(anonymous) @ index-CmTMpHlA.js:41
+_ @ index-CmTMpHlA.js:26
+Q @ index-CmTMpHlA.js:26Understand this error
+index-CmTMpHlA.js:94 
+            
+            
+           GET https://business-directory-pro-gmachuret.replit.app/api/ownership-claims/user/demo-admin 500 (Internal Server Error)
+window.fetch @ index-CmTMpHlA.js:94
+(anonymous) @ index-CmTMpHlA.js:49
+o @ index-CmTMpHlA.js:49
+x @ index-CmTMpHlA.js:49
+start @ index-CmTMpHlA.js:49
+fetch @ index-CmTMpHlA.js:49
+Vr @ index-CmTMpHlA.js:49
+onSubscribe @ index-CmTMpHlA.js:49
+subscribe @ index-CmTMpHlA.js:49
+(anonymous) @ index-CmTMpHlA.js:49
+af @ index-CmTMpHlA.js:39
+Wo @ index-CmTMpHlA.js:41
+Xn @ index-CmTMpHlA.js:41
+Ja @ index-CmTMpHlA.js:41
+sn @ index-CmTMpHlA.js:39
+ny @ index-CmTMpHlA.js:41
+dn @ index-CmTMpHlA.js:41
+Qf @ index-CmTMpHlA.js:41
+_ @ index-CmTMpHlA.js:26
+Q @ index-CmTMpHlA.js:26Understand this error
+index-CmTMpHlA.js:94 
+            
+            
+           GET https://business-directory-pro-gmachuret.replit.app/api/user/businesses 500 (Internal Server Error)
+window.fetch @ index-CmTMpHlA.js:94
+(anonymous) @ index-CmTMpHlA.js:49
+o @ index-CmTMpHlA.js:49
+x @ index-CmTMpHlA.js:49
+start @ index-CmTMpHlA.js:49
+fetch @ index-CmTMpHlA.js:49
+Vr @ index-CmTMpHlA.js:49
+onSubscribe @ index-CmTMpHlA.js:49
+subscribe @ index-CmTMpHlA.js:49
+(anonymous) @ index-CmTMpHlA.js:49
+af @ index-CmTMpHlA.js:39
+Wo @ index-CmTMpHlA.js:41
+Xn @ index-CmTMpHlA.js:41
+Ja @ index-CmTMpHlA.js:41
+sn @ index-CmTMpHlA.js:39
+ny @ index-CmTMpHlA.js:41
+dn @ index-CmTMpHlA.js:41
+Qf @ index-CmTMpHlA.js:41
+_ @ index-CmTMpHlA.js:26
+Q @ index-CmTMpHlA.js:26Understand this error
+index-CmTMpHlA.js:41 
+            
+            
+           GET https://business-directory-pro-gmachuret.replit.app/assets/key-Cd07QLM1.js net::ERR_ABORTED 503 (Service Unavailable)
+(anonymous) @ index-CmTMpHlA.js:41
+B @ index-CmTMpHlA.js:41
+(anonymous) @ index-CmTMpHlA.js:94
+eh @ index-CmTMpHlA.js:10
+La @ index-CmTMpHlA.js:39
+E @ index-CmTMpHlA.js:39
+Pe @ index-CmTMpHlA.js:41
+hl @ index-CmTMpHlA.js:41
+Kf @ index-CmTMpHlA.js:41
+Bf @ index-CmTMpHlA.js:41
+ey @ index-CmTMpHlA.js:41
+zo @ index-CmTMpHlA.js:41
+Ja @ index-CmTMpHlA.js:41
+sn @ index-CmTMpHlA.js:39
+(anonymous) @ index-CmTMpHlA.js:41Understand this error
+index-CmTMpHlA.js:41 
+            
+            
+           GET https://business-directory-pro-gmachuret.replit.app/assets/tag-eLBqIVmu.js net::ERR_ABORTED 503 (Service Unavailable)
+(anonymous) @ index-CmTMpHlA.js:41
+B @ index-CmTMpHlA.js:41
+(anonymous) @ index-CmTMpHlA.js:94
+eh @ index-CmTMpHlA.js:10
+La @ index-CmTMpHlA.js:39
+E @ index-CmTMpHlA.js:39
+Pe @ index-CmTMpHlA.js:41
+hl @ index-CmTMpHlA.js:41
+Kf @ index-CmTMpHlA.js:41
+Bf @ index-CmTMpHlA.js:41
+ey @ index-CmTMpHlA.js:41
+zo @ index-CmTMpHlA.js:41
+Ja @ index-CmTMpHlA.js:41
+sn @ index-CmTMpHlA.js:39
+(anonymous) @ index-CmTMpHlA.js:41Understand this error
+index-CmTMpHlA.js:41 
+            
+            
+           GET https://business-directory-pro-gmachuret.replit.app/assets/user-check-BN7osGgF.js net::ERR_ABORTED 503 (Service Unavailable)
+(anonymous) @ index-CmTMpHlA.js:41
+B @ index-CmTMpHlA.js:41
+(anonymous) @ index-CmTMpHlA.js:94
+eh @ index-CmTMpHlA.js:10
+La @ index-CmTMpHlA.js:39
+E @ index-CmTMpHlA.js:39
+Pe @ index-CmTMpHlA.js:41
+hl @ index-CmTMpHlA.js:41
+Kf @ index-CmTMpHlA.js:41
+Bf @ index-CmTMpHlA.js:41
+ey @ index-CmTMpHlA.js:41
+zo @ index-CmTMpHlA.js:41
+Ja @ index-CmTMpHlA.js:41
+sn @ index-CmTMpHlA.js:39
+(anonymous) @ index-CmTMpHlA.js:41Understand this error
+index-CmTMpHlA.js:94 TypeError: Failed to fetch dynamically imported module: https://business-directory-pro-gmachuret.replit.app/assets/AdminLayout--CvGFRYy.js
+console.error @ index-CmTMpHlA.js:94
+pl @ index-CmTMpHlA.js:41
+Pf.o.componentDidCatch.n.callback @ index-CmTMpHlA.js:41
+Ia @ index-CmTMpHlA.js:39
+Ya @ index-CmTMpHlA.js:41
+Vf @ index-CmTMpHlA.js:41
+Xm @ index-CmTMpHlA.js:41
+ny @ index-CmTMpHlA.js:41
+dn @ index-CmTMpHlA.js:41
+Qf @ index-CmTMpHlA.js:41
+_ @ index-CmTMpHlA.js:26
+Q @ index-CmTMpHlA.js:26Understand this error
+index-CmTMpHlA.js:94 ErrorBoundary caught an error: TypeError: Failed to fetch dynamically imported module: https://business-directory-pro-gmachuret.replit.app/assets/AdminLayout--CvGFRYy.js {componentStack: '\n    at ee (https://business-directory-pro-gmachur…ret.replit.app/assets/index-CmTMpHlA.js:94:16843)'}
+console.error @ index-CmTMpHlA.js:94
+componentDidCatch @ index-CmTMpHlA.js:94
+Pf.o.componentDidCatch.n.callback @ index-CmTMpHlA.js:41
+Ia @ index-CmTMpHlA.js:39
+Ya @ index-CmTMpHlA.js:41
+Vf @ index-CmTMpHlA.js:41
+Xm @ index-CmTMpHlA.js:41
+ny @ index-CmTMpHlA.js:41
+dn @ index-CmTMpHlA.js:41
+Qf @ index-CmTMpHlA.js:41
+_ @ index-CmTMpHlA.js:26
+Q @ index-CmTMpHlA.js:26Understand this error
