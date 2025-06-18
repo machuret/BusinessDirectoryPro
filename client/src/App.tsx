@@ -52,6 +52,7 @@ const AdminSocialMediaPage = lazy(() => import("@/pages/admin/social-media"));
 const AdminContentPage = lazy(() => import("@/pages/admin/content"));
 const AdminSettingsPage = lazy(() => import("@/pages/admin/settings"));
 const AdminDirect = lazy(() => import("@/pages/admin-direct"));
+const AdminMassDeleteDemo = lazy(() => import("@/pages/admin-mass-delete-demo"));
 
 function PageSuspense({ children }: { children: React.ReactNode }) {
   return (

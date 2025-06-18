@@ -1,39 +1,42 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Filter, Trash2, X } from "lucide-react";
+import { Plus, Search, Filter, X, Trash2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+
 import BusinessTable from "./components/BusinessTable";
 import BusinessDialog from "./components/BusinessDialog";
 import DeleteConfirmDialog from "./components/DeleteConfirmDialog";
 
 export default function BusinessManagement() {
-  const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [showEditDialog, setShowEditDialog] = useState(false);
-  const [editingBusiness, setEditingBusiness] = useState(null);
-  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCategory, setFilterCategory] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [editingBusiness, setEditingBusiness] = useState<any>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [selectedBusinesses, setSelectedBusinesses] = useState<string[]>([]);
   const [showMassDeleteConfirm, setShowMassDeleteConfirm] = useState(false);
-
+  
+  const { toast } = useToast();
   const queryClient = useQueryClient();
 
   // Fetch businesses and categories
-  const { data: businesses, isLoading: businessesLoading } = useQuery({
+  const { data: businesses = [], isLoading: businessesLoading } = useQuery({
     queryKey: ["/api/admin/businesses"],
   });
 
-  const { data: categories } = useQuery({
+  const { data: categories = [] } = useQuery({
     queryKey: ["/api/categories"],
   });
 
-  const filteredBusinesses = businesses?.filter(business => {
+  const filteredBusinesses = businesses?.filter((business: any) => {
     const matchesSearch = 
       business.businessname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       business.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -45,14 +48,13 @@ export default function BusinessManagement() {
     return matchesSearch && matchesCategory && matchesStatus;
   }) || [];
 
-  const handleEdit = (business) => {
+  const handleEdit = (business: any) => {
     setEditingBusiness(business);
     setShowEditDialog(true);
   };
 
-  const handleView = (business) => {
-    setEditingBusiness(business);
-    setShowEditDialog(true);
+  const handleView = (business: any) => {
+    // TODO: Implement view business functionality
   };
 
   const handleDialogClose = () => {
@@ -73,9 +75,17 @@ export default function BusinessManagement() {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/businesses"] });
       setSelectedBusinesses([]);
       setShowMassDeleteConfirm(false);
+      toast({
+        title: "Success",
+        description: "Selected businesses deleted successfully"
+      });
     },
-    onError: (error) => {
-      console.error('Mass delete failed:', error);
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
     }
   });
 
@@ -90,7 +100,7 @@ export default function BusinessManagement() {
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedBusinesses(filteredBusinesses.map(business => business.placeid));
+      setSelectedBusinesses(filteredBusinesses.map((business: any) => business.placeid));
     } else {
       setSelectedBusinesses([]);
     }
@@ -140,7 +150,7 @@ export default function BusinessManagement() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
-                {categories?.map((category) => (
+                {categories?.map((category: any) => (
                   <SelectItem key={category.id} value={category.id.toString()}>
                     {category.name}
                   </SelectItem>
