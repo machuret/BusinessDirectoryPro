@@ -1,0 +1,226 @@
+[07:51:16.882] Running build in Washington, D.C., USA (East) – iad1
+[07:51:16.882] Build machine configuration: 4 cores, 8 GB
+[07:51:16.896] Cloning github.com/machuret/BusinessDirectoryPro (Branch: main, Commit: 5bb82c8)
+[07:51:17.482] Cloning completed: 586.000ms
+[07:51:19.299] Restored build cache from previous deployment (9Jt3eubNESvvjJLBWHdTdE1cPbfk)
+[07:51:20.289] Running "vercel build"
+[07:51:20.735] Vercel CLI 43.1.0
+[07:51:21.555] Running "install" command: `npm install`...
+[07:51:24.806] 
+[07:51:24.806] > rest-express@1.0.0 prepare
+[07:51:24.806] > husky
+[07:51:24.806] 
+[07:51:24.878] 
+[07:51:24.878] up to date, audited 1279 packages in 3s
+[07:51:24.878] 
+[07:51:24.879] 352 packages are looking for funding
+[07:51:24.879]   run `npm fund` for details
+[07:51:24.912] 
+[07:51:24.913] 10 vulnerabilities (1 low, 9 moderate)
+[07:51:24.913] 
+[07:51:24.913] To address issues that do not require attention, run:
+[07:51:24.913]   npm audit fix
+[07:51:24.913] 
+[07:51:24.913] To address all issues (including breaking changes), run:
+[07:51:24.913]   npm audit fix --force
+[07:51:24.913] 
+[07:51:24.913] Run `npm audit` for details.
+[07:51:25.354] 
+[07:51:25.355] > rest-express@1.0.0 build
+[07:51:25.355] > vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=api
+[07:51:25.355] 
+[07:51:25.653] [36mvite v5.4.14 [32mbuilding for production...[36m[39m
+[07:51:25.975] transforming...
+[07:51:26.064] Browserslist: browsers data (caniuse-lite) is 8 months old. Please run:
+[07:51:26.064]   npx update-browserslist-db@latest
+[07:51:26.065]   Why you should do it regularly: https://github.com/browserslist/update-db#readme
+[07:51:33.976] [32m✓[39m 2425 modules transformed.
+[07:51:34.326] rendering chunks...
+[07:51:34.643] computing gzip size...
+[07:51:34.677] [2m../public/[22m[32mindex.html                                     [39m[1m[2m  0.47 kB[22m[1m[22m[2m │ gzip:  0.30 kB[22m
+[07:51:34.677] [2m../public/[22m[2massets/[22m[35mPageForm-DZrYvFpI.css                   [39m[1m[2m 22.04 kB[22m[1m[22m[2m │ gzip:  3.51 kB[22m
+[07:51:34.677] [2m../public/[22m[2massets/[22m[35mindex-MIxA7aam.css                      [39m[1m[2m119.00 kB[22m[1m[22m[2m │ gzip: 18.34 kB[22m
+[07:51:34.678] [2m../public/[22m[2massets/[22m[36mindex-D9ErFpfH.js                       [39m[1m[2m  0.23 kB[22m[1m[22m[2m │ gzip:  0.17 kB[22m
+[07:51:34.678] [2m../public/[22m[2massets/[22m[36mchevron-down-DCz19ttm.js                [39m[1m[2m  0.30 kB[22m[1m[22m[2m │ gzip:  0.24 kB[22m
+[07:51:34.678] [2m../public/[22m[2massets/[22m[36mplus-BUWMvsas.js                        [39m[1m[2m  0.32 kB[22m[1m[22m[2m │ gzip:  0.26 kB[22m
+[07:51:34.678] [2m../public/[22m[2massets/[22m[36mx-CVP4RZM9.js                           [39m[1m[2m  0.32 kB[22m[1m[22m[2m │ gzip:  0.26 kB[22m
+[07:51:34.678] [2m../public/[22m[2massets/[22m[36mfilter-BosVL-uJ.js                      [39m[1m[2m  0.33 kB[22m[1m[22m[2m │ gzip:  0.27 kB[22m
+[07:51:34.678] [2m../public/[22m[2massets/[22m[36marrow-left-BXICHg9C.js                  [39m[1m[2m  0.33 kB[22m[1m[22m[2m │ gzip:  0.27 kB[22m
+[07:51:34.678] [2m../public/[22m[2massets/[22m[36msearch-CsPULrBg.js                      [39m[1m[2m  0.34 kB[22m[1m[22m[2m │ gzip:  0.27 kB[22m
+[07:51:34.679] [2m../public/[22m[2massets/[22m[36mmessage-square-DSeFW6xr.js              [39m[1m[2m  0.35 kB[22m[1m[22m[2m │ gzip:  0.27 kB[22m
+[07:51:34.679] [2m../public/[22m[2massets/[22m[36mclock-D2MPj-ys.js                       [39m[1m[2m  0.35 kB[22m[1m[22m[2m │ gzip:  0.28 kB[22m
+[07:51:34.679] [2m../public/[22m[2massets/[22m[36mcircle-check-big-Ctn6SKAv.js            [39m[1m[2m  0.36 kB[22m[1m[22m[2m │ gzip:  0.28 kB[22m
+[07:51:34.679] [2m../public/[22m[2massets/[22m[36muser-DMkysHH7.js                        [39m[1m[2m  0.37 kB[22m[1m[22m[2m │ gzip:  0.29 kB[22m
+[07:51:34.679] [2m../public/[22m[2massets/[22m[36mcircle-x-BIccEnhp.js                    [39m[1m[2m  0.38 kB[22m[1m[22m[2m │ gzip:  0.28 kB[22m
+[07:51:34.679] [2m../public/[22m[2massets/[22m[36mstar-CQTuMhdD.js                        [39m[1m[2m  0.38 kB[22m[1m[22m[2m │ gzip:  0.29 kB[22m
+[07:51:34.679] [2m../public/[22m[2massets/[22m[36mmail-bRGqZHlj.js                        [39m[1m[2m  0.38 kB[22m[1m[22m[2m │ gzip:  0.30 kB[22m
+[07:51:34.679] [2m../public/[22m[2massets/[22m[36mcircle-help-BlRE7BOx.js                 [39m[1m[2m  0.41 kB[22m[1m[22m[2m │ gzip:  0.30 kB[22m
+[07:51:34.679] [2m../public/[22m[2massets/[22m[36mglobe-DVNPhm_T.js                       [39m[1m[2m  0.41 kB[22m[1m[22m[2m │ gzip:  0.29 kB[22m
+[07:51:34.680] [2m../public/[22m[2massets/[22m[36mdatabase-B2YRvZzv.js                    [39m[1m[2m  0.41 kB[22m[1m[22m[2m │ gzip:  0.30 kB[22m
+[07:51:34.680] [2m../public/[22m[2massets/[22m[36mcircle-alert-lQRGuCti.js                [39m[1m[2m  0.42 kB[22m[1m[22m[2m │ gzip:  0.29 kB[22m
+[07:51:34.680] [2m../public/[22m[2massets/[22m[36mexternal-link-S-hGr6D8.js               [39m[1m[2m  0.42 kB[22m[1m[22m[2m │ gzip:  0.30 kB[22m
+[07:51:34.680] [2m../public/[22m[2massets/[22m[36muser-check-DbZ9fqsI.js                  [39m[1m[2m  0.42 kB[22m[1m[22m[2m │ gzip:  0.32 kB[22m
+[07:51:34.681] [2m../public/[22m[2massets/[22m[36meye-C9M4beru.js                         [39m[1m[2m  0.43 kB[22m[1m[22m[2m │ gzip:  0.31 kB[22m
+[07:51:34.681] [2m../public/[22m[2massets/[22m[36mupload-CU8eBlxw.js                      [39m[1m[2m  0.43 kB[22m[1m[22m[2m │ gzip:  0.32 kB[22m
+[07:51:34.681] [2m../public/[22m[2massets/[22m[36mmap-pin--0yqTX2f.js                     [39m[1m[2m  0.43 kB[22m[1m[22m[2m │ gzip:  0.33 kB[22m
+[07:51:34.681] [2m../public/[22m[2massets/[22m[36mdownload-DACVX75q.js                    [39m[1m[2m  0.43 kB[22m[1m[22m[2m │ gzip:  0.32 kB[22m
+[07:51:34.681] [2m../public/[22m[2massets/[22m[36mindex-vRpyaxQn.js                       [39m[1m[2m  0.43 kB[22m[1m[22m[2m │ gzip:  0.33 kB[22m
+[07:51:34.681] [2m../public/[22m[2massets/[22m[36mkey-DMdYKmIk.js                         [39m[1m[2m  0.43 kB[22m[1m[22m[2m │ gzip:  0.32 kB[22m
+[07:51:34.681] [2m../public/[22m[2massets/[22m[36mimage-kzwh2D-s.js                       [39m[1m[2m  0.44 kB[22m[1m[22m[2m │ gzip:  0.32 kB[22m
+[07:51:34.681] [2m../public/[22m[2massets/[22m[36mhouse-Dysyk37F.js                       [39m[1m[2m  0.46 kB[22m[1m[22m[2m │ gzip:  0.32 kB[22m
+[07:51:34.681] [2m../public/[22m[2massets/[22m[36mgrid-3x3-D_q4kRlb.js                    [39m[1m[2m  0.46 kB[22m[1m[22m[2m │ gzip:  0.31 kB[22m
+[07:51:34.681] [2m../public/[22m[2massets/[22m[36musers-BWk8k-0B.js                       [39m[1m[2m  0.47 kB[22m[1m[22m[2m │ gzip:  0.33 kB[22m
+[07:51:34.681] [2m../public/[22m[2massets/[22m[36mindex-QUShE0Us.js                       [39m[1m[2m  0.49 kB[22m[1m[22m[2m │ gzip:  0.36 kB[22m
+[07:51:34.682] [2m../public/[22m[2massets/[22m[36msquare-pen-BaQwr5r-.js                  [39m[1m[2m  0.49 kB[22m[1m[22m[2m │ gzip:  0.34 kB[22m
+[07:51:34.682] [2m../public/[22m[2massets/[22m[36mtextarea-s4z4YzeN.js                    [39m[1m[2m  0.50 kB[22m[1m[22m[2m │ gzip:  0.33 kB[22m
+[07:51:34.682] [2m../public/[22m[2massets/[22m[36msave-NRg6B9bS.js                        [39m[1m[2m  0.50 kB[22m[1m[22m[2m │ gzip:  0.33 kB[22m
+[07:51:34.682] [2m../public/[22m[2massets/[22m[36mfile-text-KyGml3rP.js                   [39m[1m[2m  0.50 kB[22m[1m[22m[2m │ gzip:  0.32 kB[22m
+[07:51:34.682] [2m../public/[22m[2massets/[22m[36mtrash-2-By49YDIl.js                     [39m[1m[2m  0.53 kB[22m[1m[22m[2m │ gzip:  0.35 kB[22m
+[07:51:34.682] [2m../public/[22m[2massets/[22m[36mcrown-xovjmARc.js                       [39m[1m[2m  0.53 kB[22m[1m[22m[2m │ gzip:  0.36 kB[22m
+[07:51:34.682] [2m../public/[22m[2massets/[22m[36mgrip-vertical-CkV5NLHx.js               [39m[1m[2m  0.54 kB[22m[1m[22m[2m │ gzip:  0.30 kB[22m
+[07:51:34.682] [2m../public/[22m[2massets/[22m[36mphone-B-4TFtEK.js                       [39m[1m[2m  0.56 kB[22m[1m[22m[2m │ gzip:  0.36 kB[22m
+[07:51:34.682] [2m../public/[22m[2massets/[22m[36minput-BrBBP0vP.js                       [39m[1m[2m  0.58 kB[22m[1m[22m[2m │ gzip:  0.36 kB[22m
+[07:51:34.682] [2m../public/[22m[2massets/[22m[36mlabel-BqF_RDeI.js                       [39m[1m[2m  0.59 kB[22m[1m[22m[2m │ gzip:  0.39 kB[22m
+[07:51:34.682] [2m../public/[22m[2massets/[22m[36mbuilding-2-iT_rZKso.js                  [39m[1m[2m  0.61 kB[22m[1m[22m[2m │ gzip:  0.35 kB[22m
+[07:51:34.683] [2m../public/[22m[2massets/[22m[36mnot-found-BJFrQZsd.js                   [39m[1m[2m  0.63 kB[22m[1m[22m[2m │ gzip:  0.36 kB[22m
+[07:51:34.683] [2m../public/[22m[2massets/[22m[36mbadge-CmaupMXm.js                       [39m[1m[2m  0.71 kB[22m[1m[22m[2m │ gzip:  0.37 kB[22m
+[07:51:34.683] [2m../public/[22m[2massets/[22m[36mbuilding-DkaOQVFX.js                    [39m[1m[2m  0.71 kB[22m[1m[22m[2m │ gzip:  0.37 kB[22m
+[07:51:34.683] [2m../public/[22m[2massets/[22m[36msettings-DJWYBUjK.js                    [39m[1m[2m  0.89 kB[22m[1m[22m[2m │ gzip:  0.45 kB[22m
+[07:51:34.683] [2m../public/[22m[2massets/[22m[36mtag-BPCjLiOo.js                         [39m[1m[2m  0.97 kB[22m[1m[22m[2m │ gzip:  0.47 kB[22m
+[07:51:34.683] [2m../public/[22m[2massets/[22m[36mindex-DJ-Cg_TZ.js                       [39m[1m[2m  1.00 kB[22m[1m[22m[2m │ gzip:  0.57 kB[22m
+[07:51:34.683] [2m../public/[22m[2massets/[22m[36museApiQuery-DBWbfzlR.js                 [39m[1m[2m  1.30 kB[22m[1m[22m[2m │ gzip:  0.77 kB[22m
+[07:51:34.683] [2m../public/[22m[2massets/[22m[36mindex-CaD6ErOa.js                       [39m[1m[2m  1.31 kB[22m[1m[22m[2m │ gzip:  0.65 kB[22m
+[07:51:34.684] [2m../public/[22m[2massets/[22m[36mSectionErrorBoundary-DiD7O7dh.js        [39m[1m[2m  1.43 kB[22m[1m[22m[2m │ gzip:  0.73 kB[22m
+[07:51:34.684] [2m../public/[22m[2massets/[22m[36mindex-DX0bPYON.js                       [39m[1m[2m  1.44 kB[22m[1m[22m[2m │ gzip:  0.65 kB[22m
+[07:51:34.684] [2m../public/[22m[2massets/[22m[36mcategories-Bhh1LzBx.js                  [39m[1m[2m  1.44 kB[22m[1m[22m[2m │ gzip:  0.71 kB[22m
+[07:51:34.684] [2m../public/[22m[2massets/[22m[36mtable-DHa0nh0h.js                       [39m[1m[2m  1.49 kB[22m[1m[22m[2m │ gzip:  0.52 kB[22m
+[07:51:34.684] [2m../public/[22m[2massets/[22m[36mservices-BpwfrNln.js                    [39m[1m[2m  1.72 kB[22m[1m[22m[2m │ gzip:  0.59 kB[22m
+[07:51:34.684] [2m../public/[22m[2massets/[22m[36myoutube-CDBRjeOf.js                     [39m[1m[2m  1.99 kB[22m[1m[22m[2m │ gzip:  0.72 kB[22m
+[07:51:34.684] [2m../public/[22m[2massets/[22m[36mindex-DSECZCwF.js                       [39m[1m[2m  2.12 kB[22m[1m[22m[2m │ gzip:  0.93 kB[22m
+[07:51:34.685] [2m../public/[22m[2massets/[22m[36mdialog-Dpff3YHZ.js                      [39m[1m[2m  2.19 kB[22m[1m[22m[2m │ gzip:  0.86 kB[22m
+[07:51:34.685] [2m../public/[22m[2massets/[22m[36mcategory-grid-BRbptzfy.js               [39m[1m[2m  2.26 kB[22m[1m[22m[2m │ gzip:  0.98 kB[22m
+[07:51:34.685] [2m../public/[22m[2massets/[22m[36madmin-direct-DJ14qz2N.js                [39m[1m[2m  2.39 kB[22m[1m[22m[2m │ gzip:  1.19 kB[22m
+[07:51:34.685] [2m../public/[22m[2massets/[22m[36mswitch-B6poTo6a.js                      [39m[1m[2m  2.50 kB[22m[1m[22m[2m │ gzip:  1.24 kB[22m
+[07:51:34.685] [2m../public/[22m[2massets/[22m[36museMutation-D4IQXi3C.js                 [39m[1m[2m  2.86 kB[22m[1m[22m[2m │ gzip:  1.20 kB[22m
+[07:51:34.685] [2m../public/[22m[2massets/[22m[36mcheckbox-DgSDo1Ig.js                    [39m[1m[2m  2.95 kB[22m[1m[22m[2m │ gzip:  1.43 kB[22m
+[07:51:34.685] [2m../public/[22m[2massets/[22m[36msubmissions-B8yViCS3.js                 [39m[1m[2m  2.95 kB[22m[1m[22m[2m │ gzip:  1.02 kB[22m
+[07:51:34.685] [2m../public/[22m[2massets/[22m[36mDirectAdminLogin-1wATd5M3.js            [39m[1m[2m  3.08 kB[22m[1m[22m[2m │ gzip:  1.30 kB[22m
+[07:51:34.686] [2m../public/[22m[2massets/[22m[36mpage-display-LSCXCMYX.js                [39m[1m[2m  3.11 kB[22m[1m[22m[2m │ gzip:  1.17 kB[22m
+[07:51:34.686] [2m../public/[22m[2massets/[22m[36mtabs-CK9fcatZ.js                        [39m[1m[2m  3.38 kB[22m[1m[22m[2m │ gzip:  1.40 kB[22m
+[07:51:34.686] [2m../public/[22m[2massets/[22m[36mbusiness-card-skeleton-BlbxMc3Z.js      [39m[1m[2m  3.39 kB[22m[1m[22m[2m │ gzip:  1.04 kB[22m
+[07:51:34.686] [2m../public/[22m[2massets/[22m[36mindex-r6Hb0XCK.js                       [39m[1m[2m  3.47 kB[22m[1m[22m[2m │ gzip:  1.56 kB[22m
+[07:51:34.686] [2m../public/[22m[2massets/[22m[36mbusiness-card-D393lu80.js               [39m[1m[2m  3.53 kB[22m[1m[22m[2m │ gzip:  1.45 kB[22m
+[07:51:34.686] [2m../public/[22m[2massets/[22m[36mfeatured-DufXQwVt.js                    [39m[1m[2m  3.54 kB[22m[1m[22m[2m │ gzip:  1.29 kB[22m
+[07:51:34.686] [2m../public/[22m[2massets/[22m[36mcities-CjsN7vTD.js                      [39m[1m[2m  3.58 kB[22m[1m[22m[2m │ gzip:  1.57 kB[22m
+[07:51:34.686] [2m../public/[22m[2massets/[22m[36mfooter-akyM-XfN.js                      [39m[1m[2m  3.68 kB[22m[1m[22m[2m │ gzip:  1.26 kB[22m
+[07:51:34.686] [2m../public/[22m[2massets/[22m[36mcities-C0X9umqC.js                      [39m[1m[2m  4.09 kB[22m[1m[22m[2m │ gzip:  1.47 kB[22m
+[07:51:34.687] [2m../public/[22m[2massets/[22m[36madmin-mass-delete-demo-CC5wsaUm.js      [39m[1m[2m  4.56 kB[22m[1m[22m[2m │ gzip:  1.83 kB[22m
+[07:51:34.687] [2m../public/[22m[2massets/[22m[36msocial-media-DmZRsueq.js                [39m[1m[2m  4.66 kB[22m[1m[22m[2m │ gzip:  1.53 kB[22m
+[07:51:34.687] [2m../public/[22m[2massets/[22m[36mfeatured-7fcdFch0.js                    [39m[1m[2m  4.98 kB[22m[1m[22m[2m │ gzip:  1.87 kB[22m
+[07:51:34.687] [2m../public/[22m[2massets/[22m[36mlogin-D4PVR9JR.js                       [39m[1m[2m  5.24 kB[22m[1m[22m[2m │ gzip:  1.63 kB[22m
+[07:51:34.687] [2m../public/[22m[2massets/[22m[36mindex-CJjiMYhr.js                       [39m[1m[2m  5.35 kB[22m[1m[22m[2m │ gzip:  2.02 kB[22m
+[07:51:34.687] [2m../public/[22m[2massets/[22m[36mexport-CwkjapGk.js                      [39m[1m[2m  5.44 kB[22m[1m[22m[2m │ gzip:  1.68 kB[22m
+[07:51:34.687] [2m../public/[22m[2massets/[22m[36mcontent-C7HbLFm_.js                     [39m[1m[2m  5.44 kB[22m[1m[22m[2m │ gzip:  1.64 kB[22m
+[07:51:34.687] [2m../public/[22m[2massets/[22m[36mapi-A3FyLCjq.js                         [39m[1m[2m  5.50 kB[22m[1m[22m[2m │ gzip:  1.67 kB[22m
+[07:51:34.687] [2m../public/[22m[2massets/[22m[36mAdminPageLayout-Durx0L-6.js             [39m[1m[2m  5.68 kB[22m[1m[22m[2m │ gzip:  2.05 kB[22m
+[07:51:34.687] [2m../public/[22m[2massets/[22m[36msearch-results-BsNc4qoq.js              [39m[1m[2m  5.75 kB[22m[1m[22m[2m │ gzip:  2.08 kB[22m
+[07:51:34.687] [2m../public/[22m[2massets/[22m[36minbox-CynNtKH8.js                       [39m[1m[2m  6.13 kB[22m[1m[22m[2m │ gzip:  2.13 kB[22m
+[07:51:34.687] [2m../public/[22m[2massets/[22m[36mAdminLayout-DKl5jKMk.js                 [39m[1m[2m  6.49 kB[22m[1m[22m[2m │ gzip:  2.27 kB[22m
+[07:51:34.687] [2m../public/[22m[2massets/[22m[36mimport-B9PuPK4t.js                      [39m[1m[2m  6.66 kB[22m[1m[22m[2m │ gzip:  2.35 kB[22m
+[07:51:34.687] [2m../public/[22m[2massets/[22m[36mcategories-woIfmrZC.js                  [39m[1m[2m  7.03 kB[22m[1m[22m[2m │ gzip:  2.41 kB[22m
+[07:51:34.687] [2m../public/[22m[2massets/[22m[36men-US-wfBU2YNu.js                       [39m[1m[2m  7.70 kB[22m[1m[22m[2m │ gzip:  2.69 kB[22m
+[07:51:34.687] [2m../public/[22m[2massets/[22m[36mreviews-CJVJz5zn.js                     [39m[1m[2m  8.12 kB[22m[1m[22m[2m │ gzip:  2.64 kB[22m
+[07:51:34.687] [2m../public/[22m[2massets/[22m[36msettings-CTUViYVu.js                    [39m[1m[2m  8.39 kB[22m[1m[22m[2m │ gzip:  2.45 kB[22m
+[07:51:34.687] [2m../public/[22m[2massets/[22m[36mSEOHead-FBJdOgxu.js                     [39m[1m[2m  8.83 kB[22m[1m[22m[2m │ gzip:  3.09 kB[22m
+[07:51:34.687] [2m../public/[22m[2massets/[22m[36mpages-D3eSUWnx.js                       [39m[1m[2m  9.43 kB[22m[1m[22m[2m │ gzip:  3.05 kB[22m
+[07:51:34.687] [2m../public/[22m[2massets/[22m[36musers-BWg8m2mI.js                       [39m[1m[2m 10.08 kB[22m[1m[22m[2m │ gzip:  2.89 kB[22m
+[07:51:34.688] [2m../public/[22m[2massets/[22m[36mleads-DhDgI5a3.js                       [39m[1m[2m 10.38 kB[22m[1m[22m[2m │ gzip:  3.03 kB[22m
+[07:51:34.688] [2m../public/[22m[2massets/[22m[36mbusinesses-Ca0Dk9HX.js                  [39m[1m[2m 10.41 kB[22m[1m[22m[2m │ gzip:  3.54 kB[22m
+[07:51:34.688] [2m../public/[22m[2massets/[22m[36mformat-CKHqWWuY.js                      [39m[1m[2m 12.62 kB[22m[1m[22m[2m │ gzip:  3.36 kB[22m
+[07:51:34.688] [2m../public/[22m[2massets/[22m[36mbusinesses-D_SYAi3M.js                  [39m[1m[2m 13.15 kB[22m[1m[22m[2m │ gzip:  4.30 kB[22m
+[07:51:34.688] [2m../public/[22m[2massets/[22m[36mseo-Dg_0wBOO.js                         [39m[1m[2m 13.27 kB[22m[1m[22m[2m │ gzip:  3.38 kB[22m
+[07:51:34.688] [2m../public/[22m[2massets/[22m[36mownership-D0s0Cte9.js                   [39m[1m[2m 13.46 kB[22m[1m[22m[2m │ gzip:  3.86 kB[22m
+[07:51:34.688] [2m../public/[22m[2massets/[22m[36madd-business-CoD5ClJk.js                [39m[1m[2m 14.84 kB[22m[1m[22m[2m │ gzip:  4.17 kB[22m
+[07:51:34.688] [2m../public/[22m[2massets/[22m[36mhomepage-BHV7uaL2.js                    [39m[1m[2m 17.86 kB[22m[1m[22m[2m │ gzip:  4.09 kB[22m
+[07:51:34.688] [2m../public/[22m[2massets/[22m[36mindex-jW5WWnOL.js                       [39m[1m[2m 21.19 kB[22m[1m[22m[2m │ gzip:  7.70 kB[22m
+[07:51:34.688] [2m../public/[22m[2massets/[22m[36mselect-BRWVo7rs.js                      [39m[1m[2m 21.55 kB[22m[1m[22m[2m │ gzip:  7.53 kB[22m
+[07:51:34.688] [2m../public/[22m[2massets/[22m[36mindex-CMs-X2PO.js                       [39m[1m[2m 26.66 kB[22m[1m[22m[2m │ gzip: 10.24 kB[22m
+[07:51:34.688] [2m../public/[22m[2massets/[22m[36mbusiness-detail-refactored-cAhrA7-b.js  [39m[1m[2m 28.41 kB[22m[1m[22m[2m │ gzip:  8.51 kB[22m
+[07:51:34.688] [2m../public/[22m[2massets/[22m[36mdashboard-CApJCU_7.js                   [39m[1m[2m 29.53 kB[22m[1m[22m[2m │ gzip:  7.20 kB[22m
+[07:51:34.688] [2m../public/[22m[2massets/[22m[36mheader-CnCm5qtX.js                      [39m[1m[2m 32.76 kB[22m[1m[22m[2m │ gzip:  9.45 kB[22m
+[07:51:34.688] [2m../public/[22m[2massets/[22m[36mhome-ChEbEJ4J.js                        [39m[1m[2m 43.75 kB[22m[1m[22m[2m │ gzip: 12.69 kB[22m
+[07:51:34.688] [2m../public/[22m[2massets/[22m[36mmenu-editor-BnMuxhfy.js                 [39m[1m[2m 55.62 kB[22m[1m[22m[2m │ gzip: 18.43 kB[22m
+[07:51:34.688] [2m../public/[22m[2massets/[22m[36mform-nh1SZb7h.js                        [39m[1m[2m 88.90 kB[22m[1m[22m[2m │ gzip: 24.84 kB[22m
+[07:51:34.688] [2m../public/[22m[2massets/[22m[36mFAQManager-Cy4MNYEF.js                  [39m[1m[2m112.76 kB[22m[1m[22m[2m │ gzip: 34.05 kB[22m
+[07:51:34.688] [2m../public/[22m[2massets/[22m[36mindex-Dbw8JjrG.js                       [39m[1m[2m243.10 kB[22m[1m[22m[2m │ gzip: 77.54 kB[22m
+[07:51:34.688] [2m../public/[22m[2massets/[22m[36mPageForm-BSwQ_KYz.js                    [39m[1m[2m266.73 kB[22m[1m[22m[2m │ gzip: 71.03 kB[22m
+[07:51:34.690] [32m✓ built in 8.73s[39m
+[07:51:34.766] ▲ [WARNING] Duplicate member "getSocialMediaLinks" in class body [duplicate-class-member]
+[07:51:34.769] 
+[07:51:34.770]     server/storage/content-storage.ts:471:8:
+[07:51:34.770]       471 │   async getSocialMediaLinks(activeOnly: boolean = true) {
+[07:51:34.770]           ╵         ~~~~~~~~~~~~~~~~~~~
+[07:51:34.770] 
+[07:51:34.770]   The original member "getSocialMediaLinks" is here:
+[07:51:34.771] 
+[07:51:34.771]     server/storage/content-storage.ts:323:8:
+[07:51:34.771]       323 │   async getSocialMediaLinks(activeOnly: boolean = false) {
+[07:51:34.771]           ╵         ~~~~~~~~~~~~~~~~~~~
+[07:51:34.771] 
+[07:51:34.771] ▲ [WARNING] Duplicate member "updateSocialMediaLink" in class body [duplicate-class-member]
+[07:51:34.771] 
+[07:51:34.771]     server/storage/content-storage.ts:475:8:
+[07:51:34.772]       475 │   async updateSocialMediaLink(id: number, updates: any) {
+[07:51:34.772]           ╵         ~~~~~~~~~~~~~~~~~~~~~
+[07:51:34.772] 
+[07:51:34.772]   The original member "updateSocialMediaLink" is here:
+[07:51:34.772] 
+[07:51:34.772]     server/storage/content-storage.ts:343:8:
+[07:51:34.772]       343 │   async updateSocialMediaLink(id: number, updates: any) {
+[07:51:34.772]           ╵         ~~~~~~~~~~~~~~~~~~~~~
+[07:51:34.772] 
+[07:51:34.773] ▲ [WARNING] Duplicate member "deleteSocialMediaLink" in class body [duplicate-class-member]
+[07:51:34.773] 
+[07:51:34.773]     server/storage/content-storage.ts:479:8:
+[07:51:34.773]       479 │   async deleteSocialMediaLink(id: number) {
+[07:51:34.773]           ╵         ~~~~~~~~~~~~~~~~~~~~~
+[07:51:34.774] 
+[07:51:34.774]   The original member "deleteSocialMediaLink" is here:
+[07:51:34.774] 
+[07:51:34.777]     server/storage/content-storage.ts:347:8:
+[07:51:34.777]       347 │   async deleteSocialMediaLink(id: number) {
+[07:51:34.778]           ╵         ~~~~~~~~~~~~~~~~~~~~~
+[07:51:34.778] 
+[07:51:34.789] ▲ [WARNING] Duplicate member "getUser" in class body [duplicate-class-member]
+[07:51:34.789] 
+[07:51:34.789]     server/storage/content-storage.ts:487:8:
+[07:51:34.789]       487 │   async getUser(id: string) {
+[07:51:34.789]           ╵         ~~~~~~~
+[07:51:34.789] 
+[07:51:34.789]   The original member "getUser" is here:
+[07:51:34.789] 
+[07:51:34.789]     server/storage/content-storage.ts:362:8:
+[07:51:34.790]       362 │   async getUser(id: string) {
+[07:51:34.790]           ╵         ~~~~~~~
+[07:51:34.790] 
+[07:51:34.790] ▲ [WARNING] Duplicate member "updateUser" in class body [duplicate-class-member]
+[07:51:34.790] 
+[07:51:34.790]     server/storage/content-storage.ts:491:8:
+[07:51:34.790]       491 │   async updateUser(id: string, updates: any) {
+[07:51:34.790]           ╵         ~~~~~~~~~~
+[07:51:34.790] 
+[07:51:34.790]   The original member "updateUser" is here:
+[07:51:34.790] 
+[07:51:34.790]     server/storage/content-storage.ts:374:8:
+[07:51:34.790]       374 │   async updateUser(id: string, userData: any) {
+[07:51:34.790]           ╵         ~~~~~~~~~~
+[07:51:34.790] 
+[07:51:34.790] 5 warnings
+[07:51:34.790] 
+[07:51:34.790]   api/index.js  382.0kb
+[07:51:34.790] 
+[07:51:34.790] ⚡ Done in 35ms
+[07:51:34.805] Error: No Output Directory named "public." found after the Build completed. You can configure the Output Directory in your Project Settings.
+[07:51:34.806] Learn More: https://vercel.link/missing-public-directory
+[07:51:35.239] 
+[07:51:37.758] Exiting build container
