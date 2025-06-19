@@ -5,7 +5,7 @@
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
-        "buildCommand": "vite build --outDir public && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=api",
+        "buildCommand": "node build-frontend.js",
         "distDir": "public"
       }
     },
