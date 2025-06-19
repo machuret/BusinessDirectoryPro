@@ -1,0 +1,172 @@
+var __defProp = Object.defineProperty;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __esm = (fn, res) => function __init() {
+  return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+};
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+
+// shared/schema.ts
+var schema_exports = {};
+__export(schema_exports, {
+  businessServices: () => businessServices,
+  businesses: () => businesses,
+  categories: () => categories,
+  contactMessages: () => contactMessages,
+  contentStrings: () => contentStrings,
+  csvBusinessSchema: () => csvBusinessSchema,
+  featuredRequests: () => featuredRequests,
+  insertBusinessSchema: () => insertBusinessSchema,
+  insertBusinessServiceSchema: () => insertBusinessServiceSchema,
+  insertCategorySchema: () => insertCategorySchema,
+  insertContactMessageSchema: () => insertContactMessageSchema,
+  insertContentStringSchema: () => insertContentStringSchema,
+  insertLeadSchema: () => insertLeadSchema,
+  insertMenuItemSchema: () => insertMenuItemSchema,
+  insertOwnershipClaimSchema: () => insertOwnershipClaimSchema,
+  insertPageContentSchema: () => insertPageContentSchema,
+  insertPageSchema: () => insertPageSchema,
+  insertReviewSchema: () => insertReviewSchema,
+  insertServiceSchema: () => insertServiceSchema,
+  insertSiteSettingSchema: () => insertSiteSettingSchema,
+  insertSocialMediaLinkSchema: () => insertSocialMediaLinkSchema,
+  insertUserSchema: () => insertUserSchema,
+  insertWebsiteFaqSchema: () => insertWebsiteFaqSchema,
+  leads: () => leads,
+  loginUserSchema: () => loginUserSchema,
+  menuItems: () => menuItems,
+  ownershipClaims: () => ownershipClaims,
+  pageContent: () => pageContent,
+  pages: () => pages,
+  publicReviewSchema: () => publicReviewSchema,
+  registerUserSchema: () => registerUserSchema,
+  reviews: () => reviews,
+  services: () => services,
+  sessions: () => sessions,
+  siteSettings: () => siteSettings,
+  socialMediaLinks: () => socialMediaLinks,
+  users: () => users,
+  websiteFaq: () => websiteFaq
+});
+import { pgTable, varchar, text, timestamp, serial, integer, boolean, numeric, jsonb, index } from "drizzle-orm/pg-core";
+import { createInsertSchema } from "drizzle-zod";
+import { z } from "zod";
+var sessions, users, categories, businesses, reviews, siteSettings, ownershipClaims, menuItems, pages, websiteFaq, contactMessages, services, businessServices, socialMediaLinks, pageContent, featuredRequests, insertUserSchema, loginUserSchema, registerUserSchema, insertCategorySchema, insertBusinessSchema, csvBusinessSchema, insertReviewSchema, publicReviewSchema, insertPageContentSchema, insertSiteSettingSchema, insertSocialMediaLinkSchema, insertOwnershipClaimSchema, insertMenuItemSchema, insertPageSchema, insertWebsiteFaqSchema, insertServiceSchema, insertBusinessServiceSchema, leads, insertLeadSchema, insertContactMessageSchema, contentStrings, insertContentStringSchema;
+var init_schema = __esm({
+  "shared/schema.ts"() {
+    "use strict";
+    sessions = pgTable("session", {
+      sid: varchar("sid").primaryKey(),
+      sess: jsonb("sess").notNull(),
+      expire: timestamp("expire").notNull()
+    });
+    users = pgTable("users", {
+      id: varchar("id").primaryKey(),
+      email: varchar("email").notNull().unique(),
+      password: text("password"),
+      firstName: varchar("first_name"),
+      lastName: varchar("last_name"),
+      profileImageUrl: text("profile_image_url"),
+      role: varchar("role").notNull().default("user"),
+      createdAt: timestamp("created_at").defaultNow(),
+      updatedAt: timestamp("updated_at").defaultNow()
+    });
+    categories = pgTable("categories", {
+      id: serial("id").primaryKey(),
+      name: varchar("name").notNull().unique(),
+      slug: varchar("slug").notNull().unique(),
+      description: text("description"),
+      icon: varchar("icon").notNull(),
+      color: varchar("color").notNull(),
+      createdAt: timestamp("created_at").defaultNow()
+    });
+    businesses = pgTable("businesses", {
+      placeid: text("placeid").primaryKey(),
+      title: text("title"),
+      subtitle: text("subtitle"),
+      description: text("description"),
+      categoryname: text("categoryname"),
+      categories: jsonb("categories"),
+      price: text("price"),
+      website: text("website"),
+      phone: text("phone"),
+      phoneunformatted: text("phoneunformatted"),
+      menu: text("menu"),
+      address: text("address"),
+      neighborhood: text("neighborhood"),
+      street: text("street"),
+      city: text("city"),
+      postalcode: text("postalcode"),
+      state: text("state"),
+      countrycode: text("countrycode"),
+      lat: numeric("lat"),
+      lng: numeric("lng"),
+      pluscode: text("pluscode"),
+      locatedin: text("locatedin"),
+      fid: text("fid"),
+      cid: text("cid"),
+      kgmid: text("kgmid"),
+      url: text("url"),
+      searchpageurl: text("searchpageurl"),
+      googlefoodurl: text("googlefoodurl"),
+      claimthisbusiness: boolean("claimthisbusiness"),
+      permanentlyclosed: boolean("permanentlyclosed"),
+      temporarilyclosed: boolean("temporarilyclosed"),
+      isadvertisement: boolean("isadvertisement"),
+      featured: boolean("featured"),
+      totalscore: numeric("totalscore"),
+      reviewscount: integer("reviewscount"),
+      reviewsdistribution: jsonb("reviewsdistribution"),
+      reviewstags: jsonb("reviewstags"),
+      reviews: jsonb("reviews"),
+      imageurl: text("imageurl"),
+      imagescount: integer("imagescount"),
+      imagecategories: jsonb("imagecategories"),
+      imageurls: jsonb("imageurls"),
+      images: jsonb("images"),
+      logo: jsonb("logo"),
+      openinghours: jsonb("openinghours"),
+      additionalopeninghours: jsonb("additionalopeninghours"),
+      openinghoursbusinessconfirmationtext: text("openinghoursbusinessconfirmationtext"),
+      additionalinfo: jsonb("additionalinfo"),
+      amenities: jsonb("amenities"),
+      accessibility: jsonb("accessibility"),
+      planning: jsonb("planning"),
+      reservetableurl: text("reservetableurl"),
+      tablereservationlinks: jsonb("tablereservationlinks"),
+      bookinglinks: jsonb("bookinglinks"),
+      orderby: jsonb("orderby"),
+      restaurantdata: jsonb("restaurantdata"),
+      hotelads: jsonb("hotelads"),
+      hotelstars: integer("hotelstars"),
+      hoteldescription: text("hoteldescription"),
+      checkindate: text("checkindate"),
+      checkoutdate: text("checkoutdate"),
+      similarhotelsnearby: jsonb("similarhotelsnearby"),
+      hotelreviewsummary: jsonb("hotelreviewsummary"),
+      peoplealsosearch: jsonb("peoplealsosearch"),
+      placestags: jsonb("placestags"),
+      gasprices: jsonb("gasprices"),
+      questionsandanswers: jsonb("questionsandanswers"),
+      updatesfromcustomers: jsonb("updatesfromcustomers"),
+      ownerupdates: jsonb("ownerupdates"),
+      webresults: jsonb("webresults"),
+      leadsenrichment: jsonb("leadsenrichment"),
+      userplacenote: text("userplacenote"),
+      scrapedat: timestamp("scrapedat"),
+      searchstring: text("searchstring"),
+      language: text("language"),
+      rank: integer("rank"),
+      ownerid: text("ownerid").references(() => users.id),
+      seotitle: text("seotitle"),
+      slug: text("slug").notNull().unique(),
+      seodescription: text("seodescription"),
+      createdat: timestamp("createdat").defaultNow(),
+      updatedat: timestamp("updatedat").defaultNow(),
+      faq: jsonb("faq")
+    });
+    reviews = pgTable("reviews", {
+      id: serial("id").primaryKey(),
+      businessId: text("business_id").references(() => busine
