@@ -222,6 +222,15 @@ export async function getSocialMediaLink(linkId: number): Promise<SocialMediaLin
 }
 
 /**
+ * Gets a social media link by ID (alias for getSocialMediaLink)
+ * @param linkId - The social media link ID to retrieve
+ * @returns Promise with the social media link or null if not found
+ */
+export async function getSocialMediaLinkById(linkId: number): Promise<SocialMediaLink | null> {
+  return getSocialMediaLink(linkId);
+}
+
+/**
  * Toggles the active status of a social media link
  * @param linkId - The social media link ID to toggle
  * @returns Promise with the updated social media link
