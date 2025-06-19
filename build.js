@@ -1,41 +1,35 @@
 #!/usr/bin/env node
 
-/**
- * Build script for Replit deployment
- */
-import { execSync } from 'child_process';
-import fs from 'fs';
+// Vercel build script for static-build preset
+const { execSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
 
-console.log('Building for Replit deployment...');
+console.log('Starting Vercel build process...');
 
 try {
-  // Clean previous builds
-  if (fs.existsSync('dist')) {
-    fs.rmSync('dist', { recursive: true });
+  // Build the frontend with Vite
+  console.log('Building frontend with Vite...');
+  execSync('vite build', { 
+    stdio: 'inherit',
+    cwd: process.cwd()
+  });
+
+  // Ensure the dist directory exists and has the right structure
+  const distDir = path.join(process.cwd(), 'client/dist');
+  
+  if (!fs.existsSync(distDir)) {
+    throw new Error('Build failed: client/dist directory not found');
   }
-  fs.mkdirSync('dist', { recursive: true });
-  
-  // Build frontend
-  console.log('Building frontend assets...');
-  execSync('npx vite build --outDir dist/public', { stdio: 'inherit' });
-  
-  // Build backend - output to dist/index.js as expected by package.json
-  console.log('Building backend server...');
-  execSync('npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outfile=dist/index.js', { stdio: 'inherit' });
-  
-  // Verify build outputs
-  const requiredFiles = ['dist/index.js', 'dist/public/index.html'];
-  for (const file of requiredFiles) {
-    if (!fs.existsSync(file)) {
-      throw new Error(`Required file ${file} was not created`);
-    }
+
+  const indexFile = path.join(distDir, 'index.html');
+  if (!fs.existsSync(indexFile)) {
+    throw new Error('Build failed: index.html not found in client/dist');
   }
-  
-  console.log('Build completed successfully!');
-  console.log('Files created:');
-  console.log('- dist/index.js (server)');
-  console.log('- dist/public/ (frontend assets)');
-  
+
+  console.log('Frontend build completed successfully');
+  console.log('Build artifacts ready for deployment');
+
 } catch (error) {
   console.error('Build failed:', error.message);
   process.exit(1);
