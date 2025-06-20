@@ -1,11 +1,41 @@
 {
-  "buildCommand": "node vercel-build.js",
-  "outputDirectory": "public",
-  "installCommand": "npm install",
-  "framework": null,
+  "version": 2,
+  "name": "business-directory",
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "server/public"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/health",
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot))",
+      "dest": "/server/public/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/server/public/index.html"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  },
   "functions": {
     "api/index.js": {
-      "runtime": "nodejs18.x"
+      "maxDuration": 30
     }
-  }
+  },
+  "regions": ["iad1"],
+  "outputDirectory": "server/public"
 }

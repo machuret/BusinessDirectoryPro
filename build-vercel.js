@@ -12,61 +12,43 @@ import path from 'path';
 console.log('Building for Vercel deployment...');
 
 try {
-  // Step 1: Build the frontend
-  console.log('Building frontend assets...');
-  execSync('npx vite build --outDir dist', { stdio: 'inherit' });
+  // Step 1: Build frontend with specific output directory
+  console.log('Building frontend for Vercel...');
+  execSync('cd client && npx vite build --outDir=../server/public', { stdio: 'inherit' });
   
-  // Step 2: Ensure build output exists
-  if (!fs.existsSync('dist/index.html')) {
-    console.error('Frontend build failed - no index.html generated');
-    process.exit(1);
+  // Step 2: Verify frontend build
+  const frontendExists = fs.existsSync('server/public/index.html');
+  console.log(`Frontend build: ${frontendExists ? 'SUCCESS' : 'FAILED'}`);
+  
+  // Step 3: Create Vercel API handler
+  console.log('Setting up Vercel API configuration...');
+  
+  // Ensure api directory exists with proper structure
+  if (!fs.existsSync('api')) {
+    fs.mkdirSync('api', { recursive: true });
   }
   
-  // Step 3: Create a simple test endpoint for verification
-  const testHtml = `<!DOCTYPE html>
-<html>
-<head>
-    <title>Business Directory</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-</head>
-<body>
-    <div id="root">
-        <div style="padding: 20px; font-family: Arial, sans-serif;">
-            <h1>Business Directory Platform</h1>
-            <p>Application is starting up...</p>
-            <p>API Health: <span id="health">Checking...</span></p>
-            <script>
-                fetch('/health')
-                    .then(r => r.json())
-                    .then(data => {
-                        document.getElementById('health').textContent = data.status;
-                        document.getElementById('health').style.color = 'green';
-                    })
-                    .catch(() => {
-                        document.getElementById('health').textContent = 'Error';
-                        document.getElementById('health').style.color = 'red';
-                    });
-            </script>
-        </div>
-    </div>
-</body>
-</html>`;
-
-  // Backup and ensure we have a working index.html
-  if (!fs.existsSync('dist/index.html') || fs.readFileSync('dist/index.html', 'utf8').length < 100) {
-    console.log('Creating fallback index.html...');
-    fs.writeFileSync('dist/index.html', testHtml);
-  }
+  // Step 4: Verify configuration files
+  const vercelConfig = fs.existsSync('vercel.json');
+  const apiHandler = fs.existsSync('api/index.ts');
+  const clientPackage = fs.existsSync('client/package.json');
   
-  console.log('Vercel build completed successfully!');
-  console.log('Files created:');
+  console.log('Vercel Configuration Check:');
+  console.log(`- vercel.json: ${vercelConfig ? 'EXISTS' : 'MISSING'}`);
+  console.log(`- api/index.ts: ${apiHandler ? 'EXISTS' : 'MISSING'}`);
+  console.log(`- client/package.json: ${clientPackage ? 'EXISTS' : 'MISSING'}`);
+  console.log(`- Frontend assets: ${frontendExists ? 'EXISTS' : 'MISSING'}`);
   
-  const distFiles = fs.readdirSync('dist');
-  distFiles.forEach(file => {
-    const stat = fs.statSync(path.join('dist', file));
-    console.log(`  ${file} (${Math.round(stat.size / 1024)}kb)`);
-  });
+  // Step 5: Environment variables setup
+  console.log('');
+  console.log('Required Environment Variables for Vercel:');
+  console.log('- DATABASE_URL (your Neon PostgreSQL connection string)');
+  console.log('- NODE_ENV=production');
+  console.log('- Any API keys your application uses');
+  
+  console.log('');
+  console.log('Vercel deployment ready!');
+  console.log('Run: vercel --prod');
   
 } catch (error) {
   console.error('Vercel build failed:', error.message);

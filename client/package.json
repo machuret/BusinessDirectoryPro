@@ -1,0 +1,10 @@
+{
+  "name": "business-directory-client",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "vite build --outDir=../server/public"
+  },
+  "devDependencies": {
+    "vite": "^5.4.14"
+  }
+}
