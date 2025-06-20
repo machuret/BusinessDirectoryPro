@@ -3,39 +3,31 @@
   "name": "business-directory",
   "builds": [
     {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "server/public"
-      }
+      "src": "api/index.ts",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/api/index.js"
+      "dest": "/api/index.ts"
     },
     {
       "src": "/health",
-      "dest": "/api/index.js"
-    },
-    {
-      "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot))",
-      "dest": "/server/public/$1"
+      "dest": "/api/index.ts"
     },
     {
       "src": "/(.*)",
-      "dest": "/server/public/index.html"
+      "dest": "/api/index.ts"
     }
   ],
   "env": {
     "NODE_ENV": "production"
   },
   "functions": {
-    "api/index.js": {
+    "api/index.ts": {
       "maxDuration": 30
     }
   },
-  "regions": ["iad1"],
-  "outputDirectory": "server/public"
+  "regions": ["iad1"]
 }
