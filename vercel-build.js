@@ -1,50 +1,54 @@
 #!/usr/bin/env node
 
-const { execSync } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+/**
+ * Fast Vercel Build Script
+ * Optimized for quick deployment builds
+ */
 
-console.log('🔨 Starting Vercel static build...');
+import { execSync } from 'child_process';
+import fs from 'fs';
+
+console.log('Vercel fast build starting...');
 
 try {
-  // Clean any existing build
-  const distDir = path.join(process.cwd(), 'client/dist');
-  if (fs.existsSync(distDir)) {
-    fs.rmSync(distDir, { recursive: true, force: true });
-    console.log('Cleaned existing build directory');
-  }
+  // Clean previous builds quickly
+  ['public', 'api'].forEach(dir => {
+    if (fs.existsSync(dir)) {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
 
-  // Run Vite build
-  console.log('Building React app with Vite...');
-  execSync('npm run build:client', { 
-    stdio: 'inherit',
-    cwd: process.cwd(),
+  // Build backend first (faster)
+  console.log('Building API...');
+  fs.mkdirSync('api', { recursive: true });
+  execSync('npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outfile=api/index.js', {
+    stdio: 'pipe' // Suppress verbose output
+  });
+
+  // Create package.json for API
+  fs.writeFileSync('api/package.json', JSON.stringify({ type: 'module' }, null, 2));
+
+  // Build frontend with minimal output
+  console.log('Building frontend...');
+  execSync('npx vite build --outDir public --emptyOutDir', {
+    stdio: 'pipe',
     env: { ...process.env, NODE_ENV: 'production' }
   });
 
-  // Verify build output
-  if (!fs.existsSync(distDir)) {
-    throw new Error('Build failed: client/dist directory not created');
+  // Verify builds
+  if (!fs.existsSync('public/index.html')) {
+    throw new Error('Frontend build failed');
+  }
+  
+  if (!fs.existsSync('api/index.js')) {
+    throw new Error('API build failed');
   }
 
-  const indexPath = path.join(distDir, 'index.html');
-  if (!fs.existsSync(indexPath)) {
-    throw new Error('Build failed: index.html not found');
-  }
+  console.log('Vercel build completed successfully');
+  console.log('Frontend ready:', fs.existsSync('public/index.html') ? '✓' : '✗');
+  console.log('API ready:', fs.existsSync('api/index.js') ? '✓' : '✗');
 
-  // Copy build to Vercel's expected location
-  const publicDir = path.join(process.cwd(), 'public');
-  if (fs.existsSync(publicDir)) {
-    fs.rmSync(publicDir, { recursive: true, force: true });
-  }
-  
-  // Copy dist contents to public (Vercel's static output)
-  execSync(`cp -r ${distDir}/* ${publicDir}/`, { stdio: 'inherit' });
-  
-  console.log('✅ Build completed successfully');
-  console.log('Static assets ready for deployment');
-  
 } catch (error) {
-  console.error('❌ Build failed:', error.message);
+  console.error('Build failed:', error.message);
   process.exit(1);
 }
