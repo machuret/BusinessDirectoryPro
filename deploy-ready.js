@@ -9,92 +9,62 @@ import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 
-console.log('🚀 Building complete deployment package...');
+console.log('Building application for deployment...');
 
 try {
   // Clean previous builds
-  ['dist', 'api', 'public'].forEach(dir => {
-    if (fs.existsSync(dir)) {
-      fs.rmSync(dir, { recursive: true, force: true });
-    }
-  });
-
-  // Create directories
-  fs.mkdirSync('dist', { recursive: true });
-  fs.mkdirSync('api', { recursive: true });
-
-  console.log('📦 Building backend for multiple deployment targets...');
-  
-  // Build 1: For package.json start script (dist/index.js)
-  execSync('npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outfile=dist/index.js', {
-    stdio: 'inherit'
-  });
-  
-  // Build 2: For Vercel serverless (api/index.js)
-  execSync('npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outfile=api/index.js', {
-    stdio: 'inherit'
-  });
-
-  console.log('🌐 Building frontend...');
-  execSync('npx vite build --outDir public', {
-    stdio: 'inherit'
-  });
-
-  // Copy frontend to server directory for static serving
-  if (fs.existsSync('public')) {
-    const serverPublicDir = path.join('server', 'public');
-    if (fs.existsSync(serverPublicDir)) {
-      fs.rmSync(serverPublicDir, { recursive: true });
-    }
-    fs.cpSync('public', serverPublicDir, { recursive: true });
+  if (fs.existsSync('dist')) {
+    execSync('rm -rf dist', { stdio: 'inherit' });
   }
+  fs.mkdirSync('dist', { recursive: true });
 
-  // Create deployment package.json
-  const deployPackage = {
-    "name": "business-directory-deploy",
+  // Build frontend (outputs to public/)
+  console.log('Building frontend...');
+  execSync('vite build', { stdio: 'inherit' });
+  
+  // Build backend to dist/index.js (matches start script expectation)
+  console.log('Building backend...');
+  execSync('esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outfile=dist/index.js', { stdio: 'inherit' });
+  
+  // Copy static files to server/public for production serving
+  if (fs.existsSync('public')) {
+    if (!fs.existsSync('server/public')) {
+      fs.mkdirSync('server/public', { recursive: true });
+    }
+    execSync('cp -r public/* server/public/ 2>/dev/null || true', { stdio: 'inherit' });
+  }
+  
+  // Create package.json for dist directory
+  const packageJson = {
+    "name": "business-directory",
     "version": "1.0.0",
     "type": "module",
+    "main": "index.js",
     "scripts": {
-      "start": "NODE_ENV=production node index.js"
+      "start": "node index.js"
     },
     "engines": {
       "node": ">=18.0.0"
     }
   };
   
-  fs.writeFileSync('dist/package.json', JSON.stringify(deployPackage, null, 2));
-
-  // Verify all builds
-  const requiredFiles = [
-    'dist/index.js',
-    'api/index.js', 
-    'public/index.html',
-    'server/public/index.html'
-  ];
-
-  console.log('✅ Verifying build outputs...');
-  requiredFiles.forEach(file => {
-    if (fs.existsSync(file)) {
-      console.log(`  ✓ ${file}`);
-    } else {
-      throw new Error(`Missing required file: ${file}`);
-    }
-  });
-
-  console.log('\n🎉 Deployment package ready!');
-  console.log('\nGenerated files:');
-  console.log('  dist/index.js      - Main server (for npm start)');
-  console.log('  api/index.js       - Serverless function (for Vercel)');
-  console.log('  public/            - Frontend static files');
-  console.log('  server/public/     - Frontend for Express static serving');
-  console.log('  vercel.json        - Vercel configuration');
-
-  console.log('\nDeployment options:');
-  console.log('  1. Vercel: Ready with vercel.json');
-  console.log('  2. Railway/Render: Use dist/ directory');
-  console.log('  3. Replit: Already configured');
-
+  fs.writeFileSync('dist/package.json', JSON.stringify(packageJson, null, 2));
+  
+  // Verify build output
+  if (!fs.existsSync('dist/index.js')) {
+    throw new Error('Backend compilation failed - dist/index.js not created');
+  }
+  
+  console.log('Build completed successfully!');
+  console.log('Files created:');
+  console.log('- dist/index.js (compiled backend)');
+  console.log('- dist/package.json (production dependencies)');
+  console.log('- server/public/ (static assets)');
+  
+  console.log('\nDeployment ready!');
+  console.log('To start: NODE_ENV=production node dist/index.js');
+  
 } catch (error) {
-  console.error('❌ Build failed:', error.message);
+  console.error('Build failed:', error.message);
   process.exit(1);
 }

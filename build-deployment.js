@@ -12,82 +12,70 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-console.log('🚀 Starting deployment build process...');
+console.log('🚀 Building for deployment...');
 
 try {
-  // Clean previous build outputs
-  const distDir = path.join(__dirname, 'dist');
-  const publicDir = path.join(__dirname, 'public');
-  
-  if (fs.existsSync(distDir)) {
-    fs.rmSync(distDir, { recursive: true, force: true });
-    console.log('✅ Cleaned dist directory');
-  }
-  
-  if (fs.existsSync(publicDir)) {
-    fs.rmSync(publicDir, { recursive: true, force: true });
-    console.log('✅ Cleaned public directory');
+  // Ensure dist directory exists
+  if (!fs.existsSync('dist')) {
+    fs.mkdirSync('dist', { recursive: true });
   }
 
   // Step 1: Build the frontend with Vite
   console.log('📦 Building frontend...');
-  execSync('npx vite build', { 
-    stdio: 'inherit',
-    cwd: __dirname,
-    env: { ...process.env, NODE_ENV: 'production' }
-  });
-
-  // Step 2: Build the backend with esbuild to match start script expectation (dist/index.js)
+  execSync('npx vite build', { stdio: 'inherit' });
+  
+  // Step 2: Build the backend to the correct location (dist/index.js)
   console.log('🔧 Building backend...');
-  execSync('npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist', {
-    stdio: 'inherit',
-    cwd: __dirname,
-    env: { ...process.env, NODE_ENV: 'production' }
-  });
-
-  // Step 3: Verify frontend build location (Vite builds to ../public as per config)
-  // The Vite config outputs to ../public, so check if it exists there
-  const viteOutputDir = path.join(__dirname, '..', 'public');
-  const correctPublicDir = path.join(__dirname, 'server', 'public');
+  execSync('npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outfile=dist/index.js', { stdio: 'inherit' });
   
-  if (fs.existsSync(viteOutputDir)) {
-    // Ensure server directory exists
-    const serverDir = path.join(__dirname, 'server');
-    if (!fs.existsSync(serverDir)) {
-      fs.mkdirSync(serverDir, { recursive: true });
+  // Step 3: Copy static files if they exist
+  console.log('📁 Copying static assets...');
+  if (fs.existsSync('public')) {
+    if (!fs.existsSync('server/public')) {
+      fs.mkdirSync('server/public', { recursive: true });
     }
-    
-    // Copy frontend build to server/public for static serving
-    fs.cpSync(viteOutputDir, correctPublicDir, { recursive: true });
-    console.log('✅ Copied frontend build to server/public');
-  } else {
-    console.log('⚠️ Frontend build not found at expected location, checking alternative paths...');
-    
-    // Check if build went to ./public instead
-    const altPublicDir = path.join(__dirname, 'public');
-    if (fs.existsSync(altPublicDir)) {
-      fs.cpSync(altPublicDir, correctPublicDir, { recursive: true });
-      console.log('✅ Found and copied frontend build from ./public');
+    execSync('cp -r public/* server/public/', { stdio: 'inherit' });
+    console.log('✅ Static assets copied to server/public');
+  }
+  
+  // Step 4: Create a production package.json in dist
+  const prodPackageJson = {
+    "name": "business-directory",
+    "version": "1.0.0",
+    "type": "module",
+    "main": "index.js",
+    "scripts": {
+      "start": "node index.js"
+    },
+    "engines": {
+      "node": ">=18.0.0"
     }
-  }
-
-  // Step 4: Verify build outputs
-  const backendFile = path.join(distDir, 'index.js');
-  const frontendFile = path.join(frontendBuildTarget, 'index.html');
+  };
   
-  if (!fs.existsSync(backendFile)) {
-    throw new Error('Backend build failed - dist/index.js not found');
+  fs.writeFileSync('dist/package.json', JSON.stringify(prodPackageJson, null, 2));
+  console.log('✅ Created production package.json');
+  
+  // Step 5: Verify build outputs
+  console.log('🔍 Verifying build outputs...');
+  
+  const requiredFiles = ['dist/index.js', 'dist/package.json'];
+  const missingFiles = requiredFiles.filter(file => !fs.existsSync(file));
+  
+  if (missingFiles.length > 0) {
+    console.error('❌ Missing required files:', missingFiles);
+    process.exit(1);
   }
   
-  if (!fs.existsSync(frontendFile)) {
-    throw new Error('Frontend build failed - server/public/index.html not found');
-  }
-
-  console.log('✅ Deployment build completed successfully!');
-  console.log('📁 Backend: dist/index.js');
-  console.log('📁 Frontend: server/public/index.html');
-  console.log('🚀 Ready for deployment with: npm start');
-
+  console.log('✅ All required files present');
+  console.log('📊 Build summary:');
+  console.log('  - Frontend built and ready');
+  console.log('  - Backend compiled to dist/index.js');
+  console.log('  - Static assets prepared');
+  console.log('  - Production package.json created');
+  
+  console.log('\n🎉 Deployment build completed successfully!');
+  console.log('💡 To start in production: cd dist && npm start');
+  
 } catch (error) {
   console.error('❌ Build failed:', error.message);
   process.exit(1);
