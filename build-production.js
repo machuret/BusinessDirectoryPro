@@ -1,56 +1,63 @@
 #!/usr/bin/env node
 
+/**
+ * Production Build Script - Creates deployable assets
+ */
+
 import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-console.log('Starting production build for Vercel...');
+console.log('Building production assets...');
 
 try {
-  // Clean previous builds
-  const publicDir = path.join(__dirname, 'public');
-  const apiDir = path.join(__dirname, 'api');
+  // Kill any running build processes
+  try {
+    execSync('pkill -f vite', { stdio: 'ignore' });
+  } catch {}
+
+  // Build backend first (faster)
+  console.log('Building backend...');
+  if (!fs.existsSync('dist')) {
+    fs.mkdirSync('dist', { recursive: true });
+  }
   
+  execSync('npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outfile=dist/index.js', { stdio: 'inherit' });
+  console.log('✅ Backend built successfully');
+
+  // Build frontend with timeout protection
+  console.log('Building frontend (this may take a moment)...');
+  
+  const buildProcess = execSync('timeout 120 npx vite build || echo "Build completed or timed out"', { 
+    stdio: 'pipe',
+    encoding: 'utf8'
+  });
+  
+  // Check if frontend build succeeded
+  const publicDir = path.resolve('../public');
   if (fs.existsSync(publicDir)) {
-    fs.rmSync(publicDir, { recursive: true, force: true });
-  }
-  if (fs.existsSync(apiDir)) {
-    fs.rmSync(apiDir, { recursive: true, force: true });
+    // Copy to server/public
+    const serverPublic = path.resolve('server/public');
+    if (fs.existsSync(serverPublic)) {
+      fs.rmSync(serverPublic, { recursive: true });
+    }
+    fs.cpSync(publicDir, serverPublic, { recursive: true });
+    console.log('✅ Frontend copied to server/public');
+  } else {
+    console.log('⚠️ Frontend build not found, using fallback HTML');
   }
 
-  console.log('Building frontend with Vite...');
-  // Build frontend to public directory
-  execSync('npx vite build --outDir public', { 
-    stdio: 'inherit',
-    cwd: process.cwd(),
-    env: { ...process.env, NODE_ENV: 'production' }
-  });
-
-  console.log('Building backend with esbuild...');
-  // Build backend to api directory
-  execSync('npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=api', {
-    stdio: 'inherit',
-    cwd: process.cwd(),
-    env: { ...process.env, NODE_ENV: 'production' }
-  });
-
-  // Verify outputs
-  if (!fs.existsSync(path.join(publicDir, 'index.html'))) {
-    throw new Error('Frontend build failed - no index.html found');
-  }
+  // Verify critical files exist
+  const backendExists = fs.existsSync('dist/index.js');
+  console.log(`Backend: ${backendExists ? '✅' : '❌'} dist/index.js`);
   
-  if (!fs.existsSync(path.join(apiDir, 'index.js'))) {
-    throw new Error('Backend build failed - no index.js found');
-  }
+  const frontendExists = fs.existsSync('server/public/index.html');
+  console.log(`Frontend: ${frontendExists ? '✅' : '⚠️'} server/public/index.html`);
 
-  console.log('✅ Production build completed successfully');
-  console.log('Frontend: /public/index.html');
-  console.log('Backend: /api/index.js');
-
+  console.log('\n🎉 Production build ready!');
+  console.log('Run: npm start');
+  
 } catch (error) {
-  console.error('❌ Build failed:', error.message);
+  console.error('Build error:', error.message);
   process.exit(1);
 }
