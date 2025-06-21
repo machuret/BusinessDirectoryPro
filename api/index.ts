@@ -32,7 +32,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 
 // Register all API routes
-await registerRoutes(app);
+registerRoutes(app);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
