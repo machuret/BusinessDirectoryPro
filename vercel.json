@@ -1,31 +1,22 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/index.ts",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": ["server/**", "shared/**"]
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/index.ts"
-    },
-    {
-      "src": "/health",
-      "dest": "/api/index.ts"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/api/index.ts"
-    }
-  ],
   "functions": {
-    "api/index.ts": {
-      "maxDuration": 30
+    "api/*.js": { 
+      "runtime": "@vercel/node@3.0.7" 
     }
-  }
+  },
+  "routes": [
+    { 
+      "src": "/api/(.*)", 
+      "dest": "/api/index" 
+    },
+    { 
+      "src": "/health", 
+      "dest": "/api/index" 
+    },
+    { 
+      "src": "/(.*)", 
+      "dest": "/api/index" 
+    }
+  ]
 }
