@@ -1,17 +1,15 @@
 {
   "name": "business-directory-vercel",
   "version": "1.0.0",
-  "description": "Business Directory Platform - Vercel Deployment",
-  "main": "api/index.ts",
-  "scripts": {
-    "build": "echo 'Build complete'",
-    "start": "echo 'Start not needed for serverless'",
-    "vercel-build": "echo 'Vercel build complete'"
-  },
-  "dependencies": {
-    "@vercel/node": "^3.0.7"
-  },
+  "type": "module",
   "engines": {
     "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^0.10.4"
+  },
+  "scripts": {
+    "build": "echo 'No build required - using pre-built serverless function'",
+    "start": "node api/index.js"
   }
 }

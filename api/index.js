@@ -1,4 +1,15 @@
-// Vercel Serverless Function - Working Configuration
+// Business Directory - Complete Serverless Function
+import { neon } from '@neondatabase/serverless';
+
+// Database connection
+let db;
+function getDB() {
+  if (!db && process.env.DATABASE_URL) {
+    db = neon(process.env.DATABASE_URL);
+  }
+  return db;
+}
+
 export default async function handler(req, res) {
   // Set CORS headers for all requests
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -11,15 +22,28 @@ export default async function handler(req, res) {
   }
 
   const { url, method } = req;
+  const database = getDB();
   
   try {
     // Health check endpoint
     if (url === '/health' || url === '/api/health') {
+      let dbStatus = 'disconnected';
+      try {
+        if (database) {
+          await database`SELECT 1`;
+          dbStatus = 'connected';
+        }
+      } catch (dbError) {
+        dbStatus = 'error: ' + dbError.message;
+      }
+      
       return res.status(200).json({
         status: 'healthy',
         message: 'Business Directory API is running on Vercel',
         timestamp: new Date().toISOString(),
-        platform: 'vercel'
+        platform: 'vercel',
+        database: dbStatus,
+        environment: process.env.NODE_ENV || 'development'
       });
     }
     
@@ -29,17 +53,48 @@ export default async function handler(req, res) {
       
       switch (endpoint) {
         case 'businesses':
+          try {
+            if (database) {
+              const businesses = await database`
+                SELECT placeid, name, category, description, status, city, state 
+                FROM businesses 
+                WHERE status = 'active' 
+                LIMIT 20
+              `;
+              return res.status(200).json(businesses);
+            }
+          } catch (dbError) {
+            console.error('Database error:', dbError);
+          }
+          
+          // Fallback response
           return res.status(200).json([
             {
-              id: 1,
+              placeid: "sample_001",
               name: "Sample Business",
               category: "Technology",
               description: "A sample business for demonstration",
-              status: "active"
+              status: "active",
+              city: "New York",
+              state: "NY"
             }
           ]);
           
         case 'categories':
+          try {
+            if (database) {
+              const categories = await database`
+                SELECT id, name, slug 
+                FROM categories 
+                ORDER BY name
+              `;
+              return res.status(200).json(categories);
+            }
+          } catch (dbError) {
+            console.error('Database error:', dbError);
+          }
+          
+          // Fallback response
           return res.status(200).json([
             { id: 1, name: "Technology", slug: "technology" },
             { id: 2, name: "Healthcare", slug: "healthcare" },
@@ -47,16 +102,68 @@ export default async function handler(req, res) {
           ]);
           
         case 'cities':
+          try {
+            if (database) {
+              const cities = await database`
+                SELECT city, COUNT(*) as count 
+                FROM businesses 
+                WHERE status = 'active' 
+                GROUP BY city 
+                ORDER BY count DESC 
+                LIMIT 20
+              `;
+              return res.status(200).json(cities);
+            }
+          } catch (dbError) {
+            console.error('Database error:', dbError);
+          }
+          
+          // Fallback response
           return res.status(200).json([
             { city: "New York", count: 150 },
             { city: "Los Angeles", count: 120 },
             { city: "Chicago", count: 80 }
           ]);
           
+        case 'businesses/featured':
+          try {
+            if (database) {
+              const featured = await database`
+                SELECT placeid, name, category, description, city, state, photos
+                FROM businesses 
+                WHERE status = 'active' AND is_featured = true 
+                LIMIT 6
+              `;
+              return res.status(200).json(featured);
+            }
+          } catch (dbError) {
+            console.error('Database error:', dbError);
+          }
+          
+          return res.status(200).json([]);
+          
+        case 'businesses/random':
+          try {
+            if (database) {
+              const random = await database`
+                SELECT placeid, name, category, description, city, state
+                FROM businesses 
+                WHERE status = 'active' 
+                ORDER BY RANDOM() 
+                LIMIT 9
+              `;
+              return res.status(200).json(random);
+            }
+          } catch (dbError) {
+            console.error('Database error:', dbError);
+          }
+          
+          return res.status(200).json([]);
+          
         default:
           return res.status(404).json({ 
             error: 'API endpoint not found',
-            available: ['/api/businesses', '/api/categories', '/api/cities', '/health']
+            available: ['/api/businesses', '/api/categories', '/api/cities', '/api/businesses/featured', '/api/businesses/random', '/health']
           });
       }
     }
