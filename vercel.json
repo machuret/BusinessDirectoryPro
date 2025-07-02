@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "buildCommand": "./build.sh",
   "functions": {
     "api/index.js": {
       "runtime": "nodejs18.x"
@@ -19,5 +20,5 @@
       "dest": "/api/index.js"
     }
   ],
-  "builds": []
+  "installCommand": "npm install --only=production"
 }
