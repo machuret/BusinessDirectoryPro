@@ -1,0 +1,82 @@
+2025-07-03 11:20:36.21
+2fbf03d4
+System
+error proxying request error=dial tcp 127.0.0.1:5000: connect: connection refused
+2025-07-03 11:20:37.36
+2fbf03d4
+User
+Warning: connect.session() MemoryStore is not
+2025-07-03 11:20:37.36
+2fbf03d4
+User
+designed for a production environment, as it will leak
+2025-07-03 11:20:37.36
+2fbf03d4
+User
+memory, and will not scale past a single process.
+2025-07-03 11:20:37.44
+2fbf03d4
+User
+Static files not available, serving fallback frontend: Could not find the build directory: /home/runner/workspace/dist/public, make sure to build the client first
+2025-07-03 11:21:31.01
+2fbf03d4
+User
+npm notice
+2025-07-03 11:21:31.01
+2fbf03d4
+User
+npm notice New major version of npm available! 10.8.2 -> 11.4.2
+2025-07-03 11:21:31.01
+2fbf03d4
+User
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.4.2
+2025-07-03 11:21:31.01
+2fbf03d4
+User
+npm notice To update run: npm install -g npm@11.4.2
+2025-07-03 11:21:31.01
+2fbf03d4
+User
+npm notice
+2025-07-03 11:21:41.96
+2fbf03d4
+System
+error proxying request error=dial tcp 127.0.0.1:5000: connect: connection refused
+2025-07-03 11:21:41.98
+2fbf03d4
+System
+error proxying request error=dial tcp 127.0.0.1:5000: connect: connection refused
+2025-07-03 11:21:41.99
+2fbf03d4
+System
+error proxying request error=dial tcp 127.0.0.1:5000: connect: connection refused
+2025-07-03 11:21:41.99
+2fbf03d4
+System
+error proxying request error=dial tcp 127.0.0.1:5000: connect: connection refused
+2025-07-03 11:21:42.01
+2fbf03d4
+System
+error proxying request error=dial tcp 127.0.0.1:5000: connect: connection refused
+2025-07-03 11:21:42.19
+2fbf03d4
+System
+error proxying request error=dial tcp 127.0.0.1:5000: connect: connection refused
+2025-07-03 11:21:42.53
+2fbf03d4
+System
+error proxying request error=dial tcp 127.0.0.1:5000: connect: connection refused
+2025-07-03 11:21:42.58
+2fbf03d4
+System
+error proxying request error=dial tcp 127.0.0.1:5000: connect: connection refused
+2025-07-03 11:21:44.25
+2fbf03d4
+User
+Warning: connect.session() MemoryStore is not
+2025-07-03 11:21:44.25
+2fbf03d4
+User
+designed for a production environment, as it will leak
+2025-07-03 11:21:44.25
+2fbf
