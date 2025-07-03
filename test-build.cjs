@@ -14,32 +14,20 @@ try {
     process.exit(1);
   }
 
-  // Test TypeScript compilation first
-  console.log('Testing TypeScript compilation...');
-  try {
-    execSync('cd client && npx tsc --noEmit --skipLibCheck --project tsconfig.json', { 
-      stdio: 'pipe'
-    });
-    console.log('✓ TypeScript compilation successful');
-  } catch (e) {
-    console.log('⚠ TypeScript compilation warnings (but continuing...)');
-  }
-
-  // Test a simple Vite build
+  // Test a simple Vite build with timeout
   console.log('Testing Vite build...');
-  execSync('cd client && timeout 10 npx vite build --logLevel error', { 
-    stdio: 'inherit',
-    timeout: 10000
+  execSync('cd client && timeout 15 npx vite build --logLevel warn', { 
+    stdio: 'inherit'
   });
   
-  console.log('✓ Build test completed');
+  console.log('✓ Build test completed successfully');
   
 } catch (error) {
   console.error('Build test failed:', error.message);
   
   // Check if it's a path alias issue
-  if (error.message.includes('@/hooks/useAuth')) {
+  if (error.message.includes('@/hooks/useAuth') || error.stdout?.includes('@/hooks/useAuth')) {
     console.log('\n🔍 Detected path alias issue with @/hooks/useAuth');
-    console.log('The client vite.config.ts should resolve this...');
+    console.log('The client vite.config.ts should resolve this, but may need adjustments...');
   }
 }

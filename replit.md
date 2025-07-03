@@ -124,6 +124,11 @@ This is a comprehensive business directory platform built with React, TypeScript
 
 ## Changelog
 
+- July 03, 2025. Fixed deployment build issues
+  - Resolved Vite path alias configuration for "@/hooks/useAuth" import
+  - Created client-specific vite.config.ts with proper import.meta.dirname usage
+  - Added client-specific tsconfig.json for better path resolution
+  - Fixed TypeScript path mapping for deployment builds
 - July 02, 2025. Initial setup
 
 ## User Preferences
