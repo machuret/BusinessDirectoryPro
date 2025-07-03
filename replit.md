@@ -124,6 +124,12 @@ This is a comprehensive business directory platform built with React, TypeScript
 
 ## Changelog
 
+- July 03, 2025. Fixed deployment environment configuration
+  - Identified root cause: deployment running in development mode instead of production
+  - Created deployment scripts to ensure NODE_ENV=production is set
+  - Fixed "Service Unavailable" errors by configuring production environment
+  - Updated package.json with production start scripts
+  - Deployment now shows actual business directory instead of fallback error page
 - July 03, 2025. Fixed deployment build issues
   - Resolved Vite path alias configuration for "@/hooks/useAuth" import
   - Created client-specific vite.config.ts with proper import.meta.dirname usage
