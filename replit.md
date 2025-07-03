@@ -115,6 +115,13 @@ This is a comprehensive business directory platform built with React, TypeScript
 - Environment-specific configurations for development/production
 - Automated deployment via GitHub integration
 
+### Vercel Deployment Configuration
+- Custom build script: `vercel-build.sh` handles frontend and backend builds
+- Frontend builds to `server/public` for static hosting
+- Backend compiles to `api/index.js` as serverless function
+- Proper routing configured for API and static files
+- Environment variables required: NODE_ENV=production, DATABASE_URL
+
 ### Performance Optimizations
 - Route-based code splitting with React.lazy()
 - Database indexing for query optimization
