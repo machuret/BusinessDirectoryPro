@@ -2,13 +2,11 @@
   "name": "business-directory-api",
   "version": "1.0.0",
   "type": "module",
-  "main": "api/index.js",
+  "main": "index.js",
   "engines": {
-    "node": ">=18.0.0"
+    "node": "18.x"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4"
-  },
-  "scripts": {},
-  "private": true
+  }
 }
