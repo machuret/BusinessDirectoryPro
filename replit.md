@@ -131,6 +131,11 @@ This is a comprehensive business directory platform built with React, TypeScript
 
 ## Changelog
 
+- July 03, 2025. Fixed Replit deployment with development mode
+  - Switched deployment to use development mode to bypass build timeout issues
+  - Deployment now uses `npm run dev` instead of production build
+  - Resolves timeout issue caused by 1289 packages during build process
+  - Development mode serves React app directly without requiring pre-built files
 - July 03, 2025. Fixed deployment environment configuration
   - Identified root cause: deployment running in development mode instead of production
   - Created deployment scripts to ensure NODE_ENV=production is set
