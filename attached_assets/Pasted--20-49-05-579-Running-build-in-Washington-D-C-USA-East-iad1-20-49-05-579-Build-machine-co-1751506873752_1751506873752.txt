@@ -1,0 +1,56 @@
+[20:49:05.579] Running build in Washington, D.C., USA (East) – iad1
+[20:49:05.579] Build machine configuration: 4 cores, 8 GB
+[20:49:05.595] Cloning github.com/machuret/BusinessDirectoryPro (Branch: main, Commit: 13c5b5f)
+[20:49:06.101] Cloning completed: 506.000ms
+[20:49:06.206] Found .vercelignore
+[20:49:06.242] Removed 356 ignored files defined in .vercelignore
+[20:49:06.242]   /.eslintrc.json
+[20:49:06.242]   /.git/config
+[20:49:06.242]   /.git/description
+[20:49:06.242]   /.git/FETCH_HEAD
+[20:49:06.242]   /.git/HEAD
+[20:49:06.242]   /.git/hooks/applypatch-msg.sample
+[20:49:06.242]   /.git/hooks/commit-msg.sample
+[20:49:06.242]   /.git/hooks/fsmonitor-watchman.sample
+[20:49:06.242]   /.git/hooks/post-update.sample
+[20:49:06.242]   /.git/hooks/pre-applypatch.sample
+[20:49:07.331] Restored build cache from previous deployment (CEHkoAHE3Knavz1BMwaSt58UYDRn)
+[20:49:08.309] Running "vercel build"
+[20:49:08.759] Vercel CLI 43.3.0
+[20:49:09.859] Running "install" command: `npm install`...
+[20:49:13.689] 
+[20:49:13.690] > rest-express@1.0.0 prepare
+[20:49:13.690] > husky
+[20:49:13.690] 
+[20:49:13.751] fatal: not in a git directory
+[20:49:13.762] 
+[20:49:13.762] up to date, audited 1289 packages in 4s
+[20:49:13.763] 
+[20:49:13.763] 359 packages are looking for funding
+[20:49:13.763]   run `npm fund` for details
+[20:49:13.809] 
+[20:49:13.809] 10 vulnerabilities (1 low, 9 moderate)
+[20:49:13.809] 
+[20:49:13.809] To address issues that do not require attention, run:
+[20:49:13.809]   npm audit fix
+[20:49:13.809] 
+[20:49:13.809] To address all issues (including breaking changes), run:
+[20:49:13.809]   npm audit fix --force
+[20:49:13.809] 
+[20:49:13.809] Run `npm audit` for details.
+[20:49:14.064] 
+[20:49:14.065] > rest-express@1.0.0 build
+[20:49:14.065] > vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=api
+[20:49:14.065] 
+[20:49:14.342] [36mvite v5.4.14 [32mbuilding for production...[36m[39m
+[20:49:14.649] [32m✓[39m 0 modules transformed.
+[20:49:14.651] [31mx[39m Build failed in 9ms
+[20:49:14.652] [31merror during build:
+[20:49:14.652] [31mCould not resolve entry module "client/index.html".[31m
+[20:49:14.652]     at getRollupError (file:///vercel/path0/node_modules/rollup/dist/es/shared/parseAst.js:396:41)
+[20:49:14.652]     at error (file:///vercel/path0/node_modules/rollup/dist/es/shared/parseAst.js:392:42)
+[20:49:14.652]     at ModuleLoader.loadEntryModule (file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:20086:20)
+[20:49:14.652]     at async Promise.all (index 0)[39m
+[20:49:14.666] Error: Command "npm run build" exited with 1
+[20:49:15.123] 
+[20:49:17.964] Exiting build container
