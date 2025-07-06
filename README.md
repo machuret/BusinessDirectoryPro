@@ -2,6 +2,10 @@
 
 A modern, dynamic business directory platform that connects entrepreneurs and service providers through an intelligent, user-centric web application with advanced search and discovery capabilities.
 
+## 📖 Deployment Guide
+
+For deployment instructions including environment setup, database configuration, and deployment options (primarily Replit), see **[README-DEPLOYMENT.md](./README-DEPLOYMENT.md)**
+
 ## Features
 
 ### Core Functionality
