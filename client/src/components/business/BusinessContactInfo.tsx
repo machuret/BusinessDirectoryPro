@@ -69,7 +69,7 @@ export default function BusinessContactInfo({ business }: BusinessContactInfoPro
                   onClick={handleCallClick}
                   className="h-7 px-2 text-xs"
                 >
-                  {t('business.contact.call')}
+                  {t('business.contact.phone')}
                 </Button>
               </div>
             </div>

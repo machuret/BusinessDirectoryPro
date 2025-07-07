@@ -183,7 +183,7 @@ export function OptimizedBusinessCard({
                   }}
                 >
                   <Phone className="w-3 h-3 mr-1" />
-                  Call
+                  Phone
                 </Button>
               )}
               
