@@ -13,31 +13,31 @@ export default function AdminContentPage() {
   const [editingString, setEditingString] = useState<any>(null);
 
   const { data: contentStrings, isLoading } = useQuery({
-    queryKey: ['/api/admin/content-strings'],
+    queryKey: ['/api/admin/content/strings'],
   });
 
   const updateStringMutation = useMutation({
     mutationFn: ({ id, value }: { id: string; value: string }) =>
-      fetch(`/api/admin/content-strings/${id}`, {
+      fetch(`/api/admin/content/strings/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value })
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/content-strings'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/content/strings'] });
       setEditingString(null);
     },
   });
 
   const createStringMutation = useMutation({
     mutationFn: ({ key, value, category }: { key: string; value: string; category?: string }) =>
-      fetch('/api/admin/content-strings', {
+      fetch('/api/admin/content/strings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ key, value, category })
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/content-strings'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/content/strings'] });
     },
   });
 
@@ -51,12 +51,14 @@ export default function AdminContentPage() {
     return <div className="p-6">Loading content strings...</div>;
   }
 
-  const groupedStrings = contentStrings?.reduce((acc: any, string: any) => {
-    const category = string.category || 'general';
-    if (!acc[category]) acc[category] = [];
-    acc[category].push(string);
-    return acc;
-  }, {}) || {};
+  const groupedStrings = Array.isArray(contentStrings) 
+    ? contentStrings.reduce((acc: any, string: any) => {
+        const category = string.category || 'general';
+        if (!acc[category]) acc[category] = [];
+        acc[category].push(string);
+        return acc;
+      }, {})
+    : {};
 
   return (
     <div className="container mx-auto p-6">
