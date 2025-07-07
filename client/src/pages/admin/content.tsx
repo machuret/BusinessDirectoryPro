@@ -79,6 +79,43 @@ export default function AdminContentPage() {
 
         <TabsContent value="strings">
           <div className="space-y-6">
+            {/* Debug display */}
+            {Object.keys(groupedStrings).length === 0 && Array.isArray(contentStrings) && contentStrings.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>All Content Strings (Debug View)</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {contentStrings.map((string: any) => (
+                      <div key={string.id} className="border rounded-lg p-4">
+                        <div className="flex justify-between items-start mb-2">
+                          <div className="flex-1">
+                            <code className="text-sm bg-gray-100 px-2 py-1 rounded">
+                              {string.stringKey || string.key || 'No key'}
+                            </code>
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setEditingString(string)}
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          Value: {string.value || string.defaultValue || 'No value'}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          Category: {string.category || 'None'}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            
             {Object.entries(groupedStrings).map(([category, strings]: [string, any]) => (
               <Card key={category}>
                 <CardHeader>
@@ -97,7 +134,7 @@ export default function AdminContentPage() {
                         <div className="flex justify-between items-start mb-2">
                           <div className="flex-1">
                             <code className="text-sm bg-gray-100 px-2 py-1 rounded">
-                              {string.key}
+                              {string.stringKey}
                             </code>
                           </div>
                           <Button
@@ -112,10 +149,10 @@ export default function AdminContentPage() {
                         {editingString?.id === string.id ? (
                           <div className="space-y-2">
                             <Textarea
-                              value={editingString.value}
+                              value={editingString.defaultValue || editingString.value || ''}
                               onChange={(e) => setEditingString({
                                 ...editingString,
-                                value: e.target.value
+                                defaultValue: e.target.value
                               })}
                               rows={3}
                             />
@@ -139,7 +176,7 @@ export default function AdminContentPage() {
                           </div>
                         ) : (
                           <p className="text-sm text-gray-700 mt-2">
-                            {string.value}
+                            {string.defaultValue || string.value || 'No value set'}
                           </p>
                         )}
                       </div>
