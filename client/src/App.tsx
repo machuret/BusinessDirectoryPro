@@ -156,7 +156,9 @@ function Router() {
       {/* Admin routes */}
       <Route path="/admin">
         <PageSuspense>
-          <AdminDirect />
+          <ProtectedRoute>
+            <AdminLayout />
+          </ProtectedRoute>
         </PageSuspense>
       </Route>
       <Route path="/admin-secure">
