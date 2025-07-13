@@ -1,0 +1,249 @@
+{
+  "users": {
+    "admin": {
+      "email": "admin@example.com",
+      "password": "AdminPassword123!",
+      "firstName": "Admin",
+      "lastName": "User",
+      "role": "admin"
+    },
+    "businessOwner": {
+      "email": "owner@business.com",
+      "password": "OwnerPassword123!",
+      "firstName": "Business",
+      "lastName": "Owner",
+      "role": "business_owner"
+    },
+    "regularUser": {
+      "email": "user@example.com",
+      "password": "UserPassword123!",
+      "firstName": "Regular",
+      "lastName": "User",
+      "role": "user"
+    }
+  },
+  "businesses": {
+    "restaurant": {
+      "name": "Test Restaurant",
+      "description": "A wonderful restaurant serving delicious food with excellent service and a welcoming atmosphere",
+      "address": "123 Main Street, Test City, TS 12345",
+      "phone": "(555) 123-4567",
+      "email": "info@testrestaurant.com",
+      "website": "https://testrestaurant.com",
+      "category": "Restaurant",
+      "hours": {
+        "monday": { "open": "11:00", "close": "22:00" },
+        "tuesday": { "open": "11:00", "close": "22:00" },
+        "wednesday": { "open": "11:00", "close": "22:00" },
+        "thursday": { "open": "11:00", "close": "22:00" },
+        "friday": { "open": "11:00", "close": "23:00" },
+        "saturday": { "open": "11:00", "close": "23:00" },
+        "sunday": { "open": "12:00", "close": "21:00" }
+      }
+    },
+    "service": {
+      "name": "Test Service Company",
+      "description": "Professional service company providing high-quality solutions for all your business needs",
+      "address": "456 Business Ave, Service City, SC 67890",
+      "phone": "(555) 987-6543",
+      "email": "contact@testservice.com",
+      "website": "https://testservice.com",
+      "category": "Professional Services",
+      "hours": {
+        "monday": { "open": "08:00", "close": "17:00" },
+        "tuesday": { "open": "08:00", "close": "17:00" },
+        "wednesday": { "open": "08:00", "close": "17:00" },
+        "thursday": { "open": "08:00", "close": "17:00" },
+        "friday": { "open": "08:00", "close": "17:00" },
+        "saturday": { "open": "09:00", "close": "15:00" },
+        "sunday": { "open": "closed", "close": "closed" }
+      }
+    },
+    "retail": {
+      "name": "Test Retail Store",
+      "description": "Your local retail store offering a wide variety of products with friendly customer service",
+      "address": "789 Shopping Blvd, Retail City, RC 54321",
+      "phone": "(555) 456-7890",
+      "email": "store@testretail.com",
+      "website": "https://testretail.com",
+      "category": "Retail",
+      "hours": {
+        "monday": { "open": "10:00", "close": "20:00" },
+        "tuesday": { "open": "10:00", "close": "20:00" },
+        "wednesday": { "open": "10:00", "close": "20:00" },
+        "thursday": { "open": "10:00", "close": "20:00" },
+        "friday": { "open": "10:00", "close": "21:00" },
+        "saturday": { "open": "10:00", "close": "21:00" },
+        "sunday": { "open": "11:00", "close": "19:00" }
+      }
+    }
+  },
+  "contactForms": {
+    "general": {
+      "name": "John Doe",
+      "email": "john.doe@example.com",
+      "phone": "(555) 123-4567",
+      "message": "I would like to inquire about your services and get more information about what you offer."
+    },
+    "business": {
+      "name": "Jane Smith",
+      "email": "jane.smith@business.com",
+      "phone": "(555) 987-6543",
+      "inquiryType": "partnership",
+      "message": "I represent a business interested in partnering with your directory platform."
+    },
+    "support": {
+      "name": "Support User",
+      "email": "support@example.com",
+      "phone": "(555) 456-7890",
+      "inquiryType": "support",
+      "message": "I need help with my business listing and would appreciate assistance from your team."
+    }
+  },
+  "reviews": {
+    "positive": {
+      "customerName": "Happy Customer",
+      "customerEmail": "happy@customer.com",
+      "rating": 5,
+      "comment": "Excellent service! I highly recommend this business to anyone looking for quality and professionalism."
+    },
+    "negative": {
+      "customerName": "Disappointed Customer",
+      "customerEmail": "disappointed@customer.com",
+      "rating": 2,
+      "comment": "The service was below expectations and I experienced several issues during my visit."
+    },
+    "neutral": {
+      "customerName": "Neutral Customer",
+      "customerEmail": "neutral@customer.com",
+      "rating": 3,
+      "comment": "Average experience. Nothing outstanding but acceptable service overall."
+    }
+  },
+  "claims": {
+    "owner": {
+      "fullName": "Business Owner",
+      "email": "owner@business.com",
+      "phone": "(555) 123-4567",
+      "relationship": "owner",
+      "additionalInfo": "I am the owner of this business and can provide documentation to verify my ownership."
+    },
+    "manager": {
+      "fullName": "Business Manager",
+      "email": "manager@business.com",
+      "phone": "(555) 987-6543",
+      "relationship": "manager",
+      "additionalInfo": "I am the general manager of this business and have been authorized to manage our online presence."
+    },
+    "employee": {
+      "fullName": "Business Employee",
+      "email": "employee@business.com",
+      "phone": "(555) 456-7890",
+      "relationship": "employee",
+      "additionalInfo": "I work for this business and have been asked to help manage our online listings."
+    }
+  },
+  "featuredRequests": {
+    "standard": {
+      "businessName": "Test Business",
+      "justification": "Our business provides exceptional service to the community and would benefit from featured placement to help more customers discover our offerings.",
+      "duration": "3 months",
+      "budget": "$299"
+    },
+    "premium": {
+      "businessName": "Premium Business",
+      "justification": "We are launching a new location and would like premium featured placement to announce our opening to the local community.",
+      "duration": "6 months",
+      "budget": "$599"
+    }
+  },
+  "validationTests": {
+    "email": {
+      "valid": [
+        "test@example.com",
+        "user.name@domain.co.uk",
+        "user+tag@example.org",
+        "user123@test-domain.com"
+      ],
+      "invalid": [
+        "invalid-email",
+        "test@",
+        "@example.com",
+        "test..email@example.com",
+        "test@example",
+        "test@.com"
+      ]
+    },
+    "phone": {
+      "valid": [
+        "(555) 123-4567",
+        "555-123-4567",
+        "555.123.4567",
+        "5551234567",
+        "+1 555 123 4567"
+      ],
+      "invalid": [
+        "123",
+        "abc-def-ghij",
+        "123-456-78901",
+        "555-123-456"
+      ]
+    },
+    "password": {
+      "valid": [
+        "Password123!",
+        "MySecure@Pass2023",
+        "ComplexP@ssw0rd"
+      ],
+      "invalid": [
+        "123456",
+        "password",
+        "PASSWORD123",
+        "Password123"
+      ]
+    },
+    "url": {
+      "valid": [
+        "https://example.com",
+        "http://test.org",
+        "https://www.google.com",
+        "https://example.com/path/to/page"
+      ],
+      "invalid": [
+        "not-a-url",
+        "ftp://example.com",
+        "https://",
+        "http://localhost"
+      ]
+    }
+  },
+  "testScenarios": {
+    "errorMessages": {
+      "required": "This field is required",
+      "invalidEmail": "Please enter a valid email address",
+      "invalidPhone": "Please enter a valid phone number",
+      "passwordTooShort": "Password must be at least 8 characters",
+      "passwordsNoMatch": "Passwords do not match",
+      "invalidUrl": "Please enter a valid URL",
+      "emailExists": "This email is already registered",
+      "invalidCredentials": "Invalid email or password",
+      "networkError": "Network error. Please try again.",
+      "serverError": "Server error. Please try again later.",
+      "accessDenied": "Access denied. You don't have permission to perform this action.",
+      "notFound": "The requested resource was not found.",
+      "rateLimitExceeded": "Too many requests. Please try again later."
+    },
+    "successMessages": {
+      "businessCreated": "Business created successfully",
+      "businessUpdated": "Business updated successfully",
+      "businessDeleted": "Business deleted successfully",
+      "reviewSubmitted": "Review submitted successfully",
+      "contactSent": "Message sent successfully",
+      "registrationComplete": "Registration completed successfully",
+      "loginSuccess": "Login successful",
+      "logoutSuccess": "Logout successful",
+      "claimSubmitted": "Claim submitted successfully",
+      "featuredRequested": "Featured request submitted successfully"
+    }
+  }
+}
