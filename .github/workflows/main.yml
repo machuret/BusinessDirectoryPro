@@ -1,0 +1,40 @@
+name: Deploy to Multiple Domains
+
+on:
+  push:
+    branches:
+      - main  # Trigger this workflow when there's a push to the main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest  # The runner environment, which is a fresh Ubuntu machine
+    
+    steps:
+    # Step 1: Checkout the code from the repository
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    # Step 2: Set up Node.js (or other runtime if applicable)
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'  # Specify the Node.js version you use
+
+    # Step 3: Install dependencies (if using Node.js)
+    - name: Install dependencies
+      run: npm install
+
+    # Step 4: Run build (if applicable, replace with your build command)
+    - name: Build the project
+      run: npm run build
+
+    # Step 5: Deploy to your domains (customize this for your hosting)
+    - name: Deploy to Domain1
+      run: |
+        curl -X POST https://your-deployment-service.com/deploy --data "domain=domain1.com"
+    
+    - name: Deploy to Domain2
+      run: |
+        curl -X POST https://your-deployment-service.com/deploy --data "domain=domain2.com"
+
+    # Add more deploy steps for other domains
